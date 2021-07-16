@@ -11,6 +11,7 @@ public class Tile : BunnieStop
     public Tile Next => next;
 
     public bool IsConnected => Prev && Next;
+    public event Action<Tile> OnSelect = delegate(Tile tile) { };
 
     private void Awake()
     {
@@ -24,10 +25,25 @@ public class Tile : BunnieStop
             Keep(Prefab.Instantiates(PrefabManager.Instance.BunniePrefab));
         }
     }
-        
+
     public void Connect(Tile prev, Tile next)
     {
         this.prev = prev;
         this.next = next;
+    }
+
+    public void OnSelected()
+    {
+        transform.localScale = Vector3.one * 1.1f;
+    }
+
+    public void OnUnselected()
+    {
+        transform.localScale = Vector3.one;
+    }
+
+    private void OnMouseDown()
+    {
+        OnSelect?.Invoke(this);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,12 +7,33 @@ public class BoardTraveller
 {
     private Board board;
 
-    public Tile CurrentTile { get; private set; } = null;
+    private Tile currentTile;
+
+    public Tile CurrentTile
+    {
+        get => currentTile;
+        private set
+        {
+            if (currentTile)
+            {
+                currentTile.OnUnselected();
+            }
+
+            currentTile = value;
+            if (currentTile)
+            {
+                currentTile.OnSelected();
+            }
+        }
+    }
+
     public int Steps { get; private set; } = 0;
     public bool Forward { get; private set; } = false;
     public int StepCount { get; private set; } = -1;
-    public bool Travelling => StepCount >= 0 && StepCount < Steps;
+    public bool IsTravelling => StepCount >= 0 && StepCount < Steps;
     public Board Board => board;
+
+    public Action OnEnd = delegate { };
 
     public BoardTraveller(Board board)
     {
@@ -28,12 +50,21 @@ public class BoardTraveller
 
     public bool Next()
     {
-        if (Travelling)
+        if (IsTravelling)
         {
             StepCount++;
             CurrentTile = Forward ? CurrentTile.Next : CurrentTile.Prev;
+            if (StepCount == Steps)
+            {
+                OnEnd?.Invoke();
+            }
         }
 
-        return Travelling;
+        return IsTravelling;
+    }
+
+    public void Reset()
+    {
+        CurrentTile = null;
     }
 }

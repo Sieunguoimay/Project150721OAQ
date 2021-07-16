@@ -11,7 +11,9 @@ public class BunnieDropper : MonoBehaviour
 
     private BoardTraveller boardTraveller = null;
 
-    public void Take(Tile tile, Board board)
+    public bool IsTravelling => boardTraveller?.IsTravelling ?? false;
+
+    public void Take(Tile tile, Board board, bool forward)
     {
         tile.TransferTo(ref bunnies);
         foreach (var b in Bunnies)
@@ -24,21 +26,40 @@ public class BunnieDropper : MonoBehaviour
         {
             boardTraveller = new BoardTraveller(board);
         }
-        boardTraveller.Start(tile.Next, Bunnies.Count, true);
+
+        boardTraveller.Start(forward ? tile.Next : tile.Prev, Bunnies.Count - 1, forward);
     }
 
-    public void Drop()
+
+    public bool Drop()
     {
-        if (Bunnies.Count <= 0) return;
+        if (Bunnies.Count <= 0) return false;
 
         var lastIndex = Bunnies.Count - 1;
         boardTraveller.CurrentTile.Keep(Bunnies[lastIndex]);
         Bunnies.RemoveAt(lastIndex);
-        StartCoroutine(Delay(.2f, ()=>
+
+        StartCoroutine(Delay(.2f, () =>
         {
-            boardTraveller.Next();
-            Drop();
+            if (!boardTraveller.Next())
+            {
+            }
+
+            if (!Drop())
+            {
+                if (boardTraveller.CurrentTile.Next.Bunnies.Count > 0)
+                {
+                    Take(boardTraveller.Forward ? boardTraveller.CurrentTile.Next : boardTraveller.CurrentTile.Prev, boardTraveller.Board, boardTraveller.Forward);
+                    Drop();
+                }
+                else
+                {
+                    //reset after drop
+                    boardTraveller.Reset();
+                }
+            }
         }));
+        return true;
     }
 
     private IEnumerator Delay(float s, Action action)

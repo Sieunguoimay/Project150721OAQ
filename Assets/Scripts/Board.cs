@@ -9,11 +9,7 @@ public class Board : Prefab
     private Tile[] tiles;
     public Tile[] Tiles => tiles ?? (tiles = GetComponentsInChildren<Tile>());
 
-    void Update()
-    {
-    }
-
-    public void Setup()
+    public void Setup(Action<Tile> onSelect)
     {
         foreach (var t in Tiles)
         {
@@ -22,19 +18,22 @@ public class Board : Prefab
                 Debug.LogError("Please check the connection " + t.Id);
                 return;
             }
+
             t.Setup();
+            t.OnSelect += onSelect;
         }
     }
 
-    public void TravelBoard(Tile tile, int steps, bool forward)
+#if UNITY_EDITOR
+    private void TravelBoard(Tile tile, int steps, bool forward)
     {
         Debug.Log("Traveling " + tile.Id + " " + steps + " " + forward);
         var boardTraveller = new BoardTraveller(this);
 
         boardTraveller.Start(tile, steps, forward);
         Debug.Log(boardTraveller.CurrentTile.name);
-        
-        while (boardTraveller.Travelling)
+
+        while (boardTraveller.IsTravelling)
         {
             if (!boardTraveller.Next())
             {
@@ -62,4 +61,5 @@ public class Board : Prefab
     {
         TravelBoard(Tiles[UnityEngine.Random.Range(0, Tiles.Length)], Random.Range(5, 10), Random.Range(0, 100) > 50);
     }
+#endif
 }
