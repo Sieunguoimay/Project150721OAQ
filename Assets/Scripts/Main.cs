@@ -6,13 +6,25 @@ public class Main : MonoBehaviour
 {
     public Board Board { get; private set; }
 
+    private BunnieDropper bunnieDropper;
+    private BunnieDropper BunnieDropper => bunnieDropper ?? (bunnieDropper = GetComponent<BunnieDropper>());
+
     void Start()
     {
-        Board = Instantiate(PrefabManager.Instance.BoardPrefab);
+        Board = Prefab.Instantiates(PrefabManager.Instance.BoardPrefab);
         Board.Setup();
     }
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            BunnieDropper.Take(Board.Tiles[Random.Range(0, Board.Tiles.Length)], Board);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            BunnieDropper.Drop();
+        }
     }
 }

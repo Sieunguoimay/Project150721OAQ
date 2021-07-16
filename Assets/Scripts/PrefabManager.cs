@@ -6,10 +6,13 @@ using UnityEngine;
 public class PrefabManager : MonoBehaviour
 {
     [SerializeField] private Board boardPrefab;
+    [SerializeField] private Bunnie bunniePrefab;
 
     public Board BoardPrefab => boardPrefab;
 
     public static PrefabManager Instance { get; private set; }
+
+    public Bunnie BunniePrefab => bunniePrefab;
 
     private void Awake()
     {
