@@ -21,19 +21,14 @@
   <component name="ChangeListManager">
     <list default="true" id="e637ac15-62b0-462f-b23e-65a523665f81" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/contentModel.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/indexLayout.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Board.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Board.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Main.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Main.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Board.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Board.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/BoardTraveller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/BoardTraveller.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/BunnieDropper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/BunnieDropper.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/BunnieStop.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/BunnieStop.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/DirectionSelector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/DirectionSelector.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/DirectionSelector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/TileSelector.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/DirectionSelector.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/TileSelector.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Main.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Main.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PrefabManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PrefabManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Tile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Tile.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,16 +52,14 @@
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Board.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
-    <changedPaths>
-      <option value="$PROJECT_DIR$/Assets/Scripts/BoardTraveller.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/Main.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/DirectionSelector.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/BunnieStop.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/Tile.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/BunnieDropper.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/PrefabManager.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/Board.cs" />
-    </changedPaths>
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/Assets/Scripts/BunnieDropper.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Board.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/TileSelector.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Main.cs" />
+      </list>
+    </option>
   </component>
   <component name="ProjectId" id="1vKy3IWfIk5SwOHupZAQkEhelk9" />
   <component name="ProjectViewState">
@@ -89,7 +82,7 @@
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
       <option name="selectedOptions">
-        <list />
+        <set />
       </option>
       <method v="2" />
     </configuration>
@@ -98,7 +91,7 @@
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
       <option name="selectedOptions">
-        <list />
+        <set />
       </option>
       <method v="2" />
     </configuration>
@@ -118,6 +111,8 @@
       <workItem from="1626426231303" duration="4871000" />
       <workItem from="1626610589159" duration="6347000" />
       <workItem from="1626653916883" duration="1515000" />
+      <workItem from="1626661252114" duration="560000" />
+      <workItem from="1626672870127" duration="1824000" />
     </task>
     <servers />
   </component>

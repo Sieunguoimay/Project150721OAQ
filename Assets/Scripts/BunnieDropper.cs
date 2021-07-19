@@ -13,6 +13,8 @@ public class BunnieDropper : MonoBehaviour
 
     public bool IsTravelling => boardTraveller?.IsTravelling ?? false;
 
+    public event Action OnDone = delegate { };
+
     public void Setup(Board board)
     {
         if (boardTraveller == null || boardTraveller.Board != board)
@@ -52,6 +54,7 @@ public class BunnieDropper : MonoBehaviour
             }
             else
             {
+                OnDone?.Invoke();
                 Debug.Log("done");
             }
         }

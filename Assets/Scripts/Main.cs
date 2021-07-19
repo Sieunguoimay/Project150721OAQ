@@ -4,44 +4,34 @@ using UnityEngine;
 
 public class Main : MonoBehaviour
 {
-    [SerializeField] private DirectionSelector directionSelector;
+    [SerializeField] private TileSelector tileSelector;
     public Board Board { get; private set; }
 
     private BunnieDropper bunnieDropper;
     private BunnieDropper BunnieDropper => bunnieDropper ?? (bunnieDropper = GetComponent<BunnieDropper>());
 
+    private int turn = 0;
+
     void Start()
     {
         Board = Prefab.Instantiates(PrefabManager.Instance.BoardPrefab);
-        Board.Setup(OnTileSelected);
+        Board.Setup();
         BunnieDropper.Setup(Board);
-        directionSelector.OnDone += OnDirectionSelected;
+        BunnieDropper.OnDone += OnBunnieDropperDone;
+        tileSelector.OnDone += OnTileSelectorDone;
+
+        tileSelector.Display(Board.TileGroups[turn]);
     }
 
-    private void OnDirectionSelected(Tile tile, bool forward)
+    private void OnTileSelectorDone(Tile tile, bool forward)
     {
         BunnieDropper.Take(tile);
         BunnieDropper.DropAll(forward);
     }
 
-    void Update()
+    private void OnBunnieDropperDone()
     {
-        // if (Input.GetKeyDown(KeyCode.Space))
-        // {
-        //     BunnieDropper.Take(Board.Tiles[Random.Range(0, Board.Tiles.Length)], Board, true);
-        // }
-        //
-        // if (Input.GetKeyDown(KeyCode.Return))
-        // {
-        //     BunnieDropper.Drop();
-        // }
-    }
-
-    private void OnTileSelected(Tile tile)
-    {
-        if (!BunnieDropper.IsTravelling)
-        {
-            directionSelector.Display(tile);
-        }
+        turn = (turn + 1) % Board.TileGroups.Count;
+        tileSelector.Display(Board.TileGroups[turn]);
     }
 }

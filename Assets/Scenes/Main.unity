@@ -788,7 +788,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c281d5d6ca172a1479371ae18c781f5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  directionSelector: {fileID: 725640356}
+  tileSelector: {fileID: 725640356}
 --- !u!4 &1482999572
 Transform:
   m_ObjectHideFlags: 0
@@ -816,6 +816,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardPrefab: {fileID: 4969991599171890943, guid: 04845be1075dce74797bf8e6f3000296, type: 3}
+  citizenTilePrefab: {fileID: 0}
+  mandarinTilePrefab: {fileID: 0}
   bunniePrefab: {fileID: 6947715386307843417, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
 --- !u!114 &1482999574
 MonoBehaviour:

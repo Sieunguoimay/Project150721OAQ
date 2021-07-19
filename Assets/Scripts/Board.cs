@@ -13,7 +13,7 @@ public class Board : Prefab
     private List<TileGroup> tileGroups = new List<TileGroup>();
     public List<TileGroup> TileGroups => tileGroups;
 
-    public void Setup(Action<Tile> onSelect)
+    public void Setup()
     {
         int id = 0;
         foreach (var t in Tiles)
@@ -25,7 +25,6 @@ public class Board : Prefab
             }
 
             t.Setup();
-            t.OnSelect += onSelect;
 
             if (t.TileType == Tile.Type.Mandarin)
             {
