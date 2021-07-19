@@ -13,7 +13,15 @@ public class BunnieDropper : MonoBehaviour
 
     public bool IsTravelling => boardTraveller?.IsTravelling ?? false;
 
-    public void Take(Tile tile, Board board, bool forward)
+    public void Setup(Board board)
+    {
+        if (boardTraveller == null || boardTraveller.Board != board)
+        {
+            boardTraveller = new BoardTraveller(board);
+        }
+    }
+
+    public void Take(Tile tile)
     {
         tile.TransferTo(ref bunnies);
         foreach (var b in Bunnies)
@@ -22,14 +30,32 @@ public class BunnieDropper : MonoBehaviour
             b.transform.localPosition = Vector3.zero;
         }
 
-        if (boardTraveller == null || boardTraveller.Board != board)
-        {
-            boardTraveller = new BoardTraveller(board);
-        }
-
-        boardTraveller.Start(forward ? tile.Next : tile.Prev, Bunnies.Count - 1, forward);
+        boardTraveller.Start(tile, Bunnies.Count);
     }
 
+    public void DropAll(bool forward)
+    {
+        boardTraveller.Next(forward);
+
+        if (Drop())
+        {
+            Delay(0.2f, () => { DropAll(forward); });
+        }
+        else
+        {
+            var next = forward ? boardTraveller.CurrentTile.Next : boardTraveller.CurrentTile.Prev;
+            boardTraveller.Reset();
+            if (next.Bunnies.Count > 0 && next.TileType == Tile.Type.Citizen)
+            {
+                Take(next);
+                DropAll(forward);
+            }
+            else
+            {
+                Debug.Log("done");
+            }
+        }
+    }
 
     public bool Drop()
     {
@@ -39,30 +65,12 @@ public class BunnieDropper : MonoBehaviour
         boardTraveller.CurrentTile.Keep(Bunnies[lastIndex]);
         Bunnies.RemoveAt(lastIndex);
 
-        StartCoroutine(Delay(.2f, () =>
-        {
-            if (!boardTraveller.Next())
-            {
-            }
-
-            if (!Drop())
-            {
-                if (boardTraveller.CurrentTile.Next.Bunnies.Count > 0)
-                {
-                    Take(boardTraveller.Forward ? boardTraveller.CurrentTile.Next : boardTraveller.CurrentTile.Prev, boardTraveller.Board, boardTraveller.Forward);
-                    Drop();
-                }
-                else
-                {
-                    //reset after drop
-                    boardTraveller.Reset();
-                }
-            }
-        }));
         return true;
     }
 
-    private IEnumerator Delay(float s, Action action)
+    private void Delay(float s, Action action) => StartCoroutine(delay(s, action));
+
+    private IEnumerator delay(float s, Action action)
     {
         yield return new WaitForSeconds(s);
         action?.Invoke();

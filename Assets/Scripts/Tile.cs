@@ -3,14 +3,17 @@ using UnityEngine;
 
 public class Tile : BunnieStop
 {
+    [SerializeField] private Type type;
     [SerializeField] private Tile prev;
     [SerializeField] private Tile next;
     public int Id { get; private set; } = 0;
 
     public Tile Prev => prev;
     public Tile Next => next;
+    public Type TileType => type;
 
     public bool IsConnected => Prev && Next;
+
     public event Action<Tile> OnSelect = delegate(Tile tile) { };
 
     private void Awake()
@@ -45,5 +48,11 @@ public class Tile : BunnieStop
     private void OnMouseDown()
     {
         OnSelect?.Invoke(this);
+    }
+
+    public enum Type
+    {
+        Citizen,
+        Mandarin
     }
 }

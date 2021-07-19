@@ -14,6 +14,11 @@ public class DirectionSelector : MonoBehaviour
 
     public void Display(Tile tile)
     {
+        if (this.tile != null)
+        {
+            this.tile.OnUnselected();
+        }
+
         this.tile = tile;
         gameObject.SetActive(true);
         this.tile.OnSelected();

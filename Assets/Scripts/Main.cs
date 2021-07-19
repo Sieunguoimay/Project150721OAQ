@@ -14,26 +14,27 @@ public class Main : MonoBehaviour
     {
         Board = Prefab.Instantiates(PrefabManager.Instance.BoardPrefab);
         Board.Setup(OnTileSelected);
+        BunnieDropper.Setup(Board);
         directionSelector.OnDone += OnDirectionSelected;
     }
 
     private void OnDirectionSelected(Tile tile, bool forward)
     {
-        BunnieDropper.Take(tile, Board, forward);
-        BunnieDropper.Drop();
+        BunnieDropper.Take(tile);
+        BunnieDropper.DropAll(forward);
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            BunnieDropper.Take(Board.Tiles[Random.Range(0, Board.Tiles.Length)], Board, true);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            BunnieDropper.Drop();
-        }
+        // if (Input.GetKeyDown(KeyCode.Space))
+        // {
+        //     BunnieDropper.Take(Board.Tiles[Random.Range(0, Board.Tiles.Length)], Board, true);
+        // }
+        //
+        // if (Input.GetKeyDown(KeyCode.Return))
+        // {
+        //     BunnieDropper.Drop();
+        // }
     }
 
     private void OnTileSelected(Tile tile)

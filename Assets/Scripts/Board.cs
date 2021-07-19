@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public class Board : Prefab
@@ -9,8 +10,12 @@ public class Board : Prefab
     private Tile[] tiles;
     public Tile[] Tiles => tiles ?? (tiles = GetComponentsInChildren<Tile>());
 
+    private List<TileGroup> tileGroups = new List<TileGroup>();
+    public List<TileGroup> TileGroups => tileGroups;
+
     public void Setup(Action<Tile> onSelect)
     {
+        int id = 0;
         foreach (var t in Tiles)
         {
             if (!t.IsConnected)
@@ -21,21 +26,45 @@ public class Board : Prefab
 
             t.Setup();
             t.OnSelect += onSelect;
+
+            if (t.TileType == Tile.Type.Mandarin)
+            {
+                var tg = new TileGroup() {id = id++, mandarinTile = t, tiles = new List<Tile>()};
+                InitializeTileGroup(ref tg);
+                tileGroups.Add(tg);
+            }
         }
     }
 
+    private void InitializeTileGroup(ref TileGroup tg)
+    {
+        var t = tg.mandarinTile.Next;
+        while (t.TileType != Tile.Type.Mandarin)
+        {
+            tg.tiles.Add(t);
+            Debug.Log("tg " + tg.id + " " + t.name);
+            t = t.Next;
+        }
+    }
+
+    public struct TileGroup
+    {
+        public Tile mandarinTile;
+        public int id;
+        public List<Tile> tiles;
+    }
 #if UNITY_EDITOR
     private void TravelBoard(Tile tile, int steps, bool forward)
     {
         Debug.Log("Traveling " + tile.Id + " " + steps + " " + forward);
         var boardTraveller = new BoardTraveller(this);
 
-        boardTraveller.Start(tile, steps, forward);
+        boardTraveller.Start(tile, steps);
         Debug.Log(boardTraveller.CurrentTile.name);
 
         while (boardTraveller.IsTravelling)
         {
-            if (!boardTraveller.Next())
+            if (!boardTraveller.Next(forward))
             {
                 Debug.Log("Ended");
             }

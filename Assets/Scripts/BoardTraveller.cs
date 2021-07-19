@@ -28,7 +28,6 @@ public class BoardTraveller
     }
 
     public int Steps { get; private set; } = 0;
-    public bool Forward { get; private set; } = false;
     public int StepCount { get; private set; } = -1;
     public bool IsTravelling => StepCount >= 0 && StepCount < Steps;
     public Board Board => board;
@@ -40,27 +39,29 @@ public class BoardTraveller
         this.board = board;
     }
 
-    public void Start(Tile startTile, int steps, bool forward)
+    public void Start(Tile startTile, int steps)
     {
         CurrentTile = startTile;
         Steps = steps;
-        Forward = forward;
         StepCount = 0;
     }
 
-    public bool Next()
+    public bool Next(bool forward)
     {
         if (IsTravelling)
         {
             StepCount++;
-            CurrentTile = Forward ? CurrentTile.Next : CurrentTile.Prev;
+            CurrentTile = forward ? CurrentTile.Next : CurrentTile.Prev;
             if (StepCount == Steps)
             {
                 OnEnd?.Invoke();
             }
+            return true;
         }
-
-        return IsTravelling;
+        else
+        {
+            return false;
+        }
     }
 
     public void Reset()
