@@ -26,6 +26,7 @@ public class TileSelector : MonoBehaviour
 
     private void OnTileSelect(Tile tile)
     {
+        if (tile.Bunnies.Count <= 0) return;
         if (selectedTile != null)
         {
             selectedTile.OnUnselected();

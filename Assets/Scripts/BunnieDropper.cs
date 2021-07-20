@@ -3,16 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BunnieDropper : MonoBehaviour
+public class BunnieDropper : CitizenContainer
 {
-    private List<Bunnie> bunnies = new List<Bunnie>();
-
-    public List<Bunnie> Bunnies => bunnies;
-
     private BoardTraveller boardTraveller = null;
-
     public bool IsTravelling => boardTraveller?.IsTravelling ?? false;
-
+    public event Action<CitizenContainer> OnEat = delegate { };
     public event Action OnDone = delegate { };
 
     public void Setup(Board board)
@@ -23,15 +18,9 @@ public class BunnieDropper : MonoBehaviour
         }
     }
 
-    public void Take(Tile tile)
+    public void GetReady(Tile tile)
     {
-        tile.TransferTo(ref bunnies);
-        foreach (var b in Bunnies)
-        {
-            b.transform.SetParent(transform);
-            b.transform.localPosition = Vector3.zero;
-        }
-
+        Grasp(tile.Bunnies);
         boardTraveller.Start(tile, Bunnies.Count);
     }
 
@@ -45,18 +34,30 @@ public class BunnieDropper : MonoBehaviour
         }
         else
         {
-            var next = forward ? boardTraveller.CurrentTile.Next : boardTraveller.CurrentTile.Prev;
+            var t = boardTraveller.CurrentTile.Success(forward);
             boardTraveller.Reset();
-            if (next.Bunnies.Count > 0 && next.TileType == Tile.Type.Citizen)
+            if (t.Bunnies.Count > 0 && t.TileType == Tile.Type.Citizen)
             {
-                Take(next);
+                GetReady(t);
                 DropAll(forward);
             }
             else
             {
+                Eat(t, forward);
                 OnDone?.Invoke();
                 Debug.Log("done");
             }
+        }
+    }
+
+    private void Eat(Tile tile, bool forward)
+    {
+        var succ = tile.Success(forward);
+
+        if (tile.Bunnies.Count == 0 && (tile.TileType == Tile.Type.Citizen) && (succ.Bunnies.Count > 0))
+        {
+            OnEat?.Invoke(succ);
+            Delay(0.2f, () => { Eat(succ.Success(forward), forward); });
         }
     }
 
@@ -65,7 +66,8 @@ public class BunnieDropper : MonoBehaviour
         if (Bunnies.Count <= 0) return false;
 
         var lastIndex = Bunnies.Count - 1;
-        boardTraveller.CurrentTile.Keep(Bunnies[lastIndex]);
+        boardTraveller.CurrentTile.Grasp(Bunnies[lastIndex]);
+        boardTraveller.CurrentTile.Localize(Bunnies[lastIndex].transform);
         Bunnies.RemoveAt(lastIndex);
 
         return true;

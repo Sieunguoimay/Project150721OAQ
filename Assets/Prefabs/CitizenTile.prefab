@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6243060891137084056}
   - component: {fileID: 1837525776164188942}
   - component: {fileID: 2106036659000400842}
+  - component: {fileID: 8130086694162492542}
   m_Layer: 0
   m_Name: CitizenTile
   m_TagString: Untagged
@@ -111,3 +112,16 @@ MonoBehaviour:
   type: 0
   prev: {fileID: 0}
   next: {fileID: 0}
+--- !u!114 &8130086694162492542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6512947924339371903}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a0e5b14cc211ef4c9ded4e96b6b6be6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0.44700265, g: 1, b: 0, a: 1}

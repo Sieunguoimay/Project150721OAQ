@@ -5,22 +5,22 @@ using UnityEngine;
 
 public class BoardTraveller
 {
-    private Board board;
+    private Board board = null;
 
-    private Tile currentTile;
+    private Tile currentTile = null;
 
     public Tile CurrentTile
     {
         get => currentTile;
         private set
         {
-            if (currentTile)
+            if (currentTile != null)
             {
                 currentTile.OnUnselected();
             }
 
             currentTile = value;
-            if (currentTile)
+            if (currentTile != null)
             {
                 currentTile.OnSelected();
             }
@@ -56,6 +56,7 @@ public class BoardTraveller
             {
                 OnEnd?.Invoke();
             }
+
             return true;
         }
         else

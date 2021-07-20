@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public class Tile : BunnieStop
+public class Tile : CitizenContainer
 {
     [SerializeField] private Type type;
     [SerializeField] private Tile prev;
@@ -12,7 +12,7 @@ public class Tile : BunnieStop
     public Tile Next => next;
     public Type TileType => type;
 
-    public bool IsConnected => Prev && Next;
+    public bool IsConnected => Prev != null && Next != null;
 
     public event Action<Tile> OnSelect = delegate(Tile tile) { };
 
@@ -25,7 +25,9 @@ public class Tile : BunnieStop
     {
         for (int i = 0; i < 5; i++)
         {
-            Keep(Prefab.Instantiates(PrefabManager.Instance.BunniePrefab));
+            var b = Prefab.Instantiates(PrefabManager.Instance.BunniePrefab);
+            Grasp(b);
+            Localize(b.transform);
         }
     }
 
@@ -34,6 +36,8 @@ public class Tile : BunnieStop
         this.prev = prev;
         this.next = next;
     }
+
+    public Tile Success(bool forward) => forward ? Next : Prev;
 
     public void OnSelected()
     {

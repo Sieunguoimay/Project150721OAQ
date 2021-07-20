@@ -5,6 +5,7 @@ using UnityEngine;
 public class Main : MonoBehaviour
 {
     [SerializeField] private TileSelector tileSelector;
+    [SerializeField] private CitizenContainer[] bunnieStops;
     public Board Board { get; private set; }
 
     private BunnieDropper bunnieDropper;
@@ -16,8 +17,11 @@ public class Main : MonoBehaviour
     {
         Board = Prefab.Instantiates(PrefabManager.Instance.BoardPrefab);
         Board.Setup();
+
         BunnieDropper.Setup(Board);
+
         BunnieDropper.OnDone += OnBunnieDropperDone;
+        BunnieDropper.OnEat += OnBunnieDropperEat;
         tileSelector.OnDone += OnTileSelectorDone;
 
         tileSelector.Display(Board.TileGroups[turn]);
@@ -25,7 +29,7 @@ public class Main : MonoBehaviour
 
     private void OnTileSelectorDone(Tile tile, bool forward)
     {
-        BunnieDropper.Take(tile);
+        BunnieDropper.GetReady(tile);
         BunnieDropper.DropAll(forward);
     }
 
@@ -33,5 +37,10 @@ public class Main : MonoBehaviour
     {
         turn = (turn + 1) % Board.TileGroups.Count;
         tileSelector.Display(Board.TileGroups[turn]);
+    }
+
+    private void OnBunnieDropperEat(CitizenContainer citizenContainerMb)
+    {
+        bunnieStops[turn].Grasp(citizenContainerMb.Bunnies);
     }
 }
