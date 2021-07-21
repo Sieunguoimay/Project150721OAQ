@@ -533,6 +533,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8627b98f7f04dbfba03aa1fbc2438e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  activeColor: {r: 0.981576, g: 1, b: 0.6084906, a: 1}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -610,13 +611,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.3610061, y: -0, z: -0, w: 0.9325635}
-  m_LocalPosition: {x: 0, y: 4.47, z: -5.47}
+  m_LocalRotation: {x: 0.523168, y: 0, z: 0, w: 0.85222954}
+  m_LocalPosition: {x: 0, y: 6.4, z: -3.15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 42.324, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 63.09, y: 0, z: 0}
 --- !u!114 &963194229
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -921,7 +922,7 @@ MonoBehaviour:
   boardPrefab: {fileID: 4969991599171890943, guid: 04845be1075dce74797bf8e6f3000296, type: 3}
   citizenTilePrefab: {fileID: 0}
   mandarinTilePrefab: {fileID: 0}
-  bunniePrefab: {fileID: 6947715386307843417, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
+  citizenPrefab: {fileID: 6947715386307843417, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
 --- !u!114 &1482999574
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -934,6 +935,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c289d017e44c16e4c9fa03c66bfaa03d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  activeColor: {r: 0.7894639, g: 1, b: 0.3820755, a: 1}
 --- !u!1 &1615974739
 GameObject:
   m_ObjectHideFlags: 0
