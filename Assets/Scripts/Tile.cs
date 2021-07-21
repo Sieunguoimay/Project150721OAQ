@@ -16,6 +16,8 @@ public class Tile : CitizenContainer
 
     public event Action<Tile> OnSelect = delegate(Tile tile) { };
 
+    public PerObjectMaterial PerObjectMaterial { get; private set; }
+
     private void Awake()
     {
         Id = gameObject.GetInstanceID();
@@ -25,10 +27,12 @@ public class Tile : CitizenContainer
     {
         for (int i = 0; i < 5; i++)
         {
-            var b = Prefab.Instantiates(PrefabManager.Instance.BunniePrefab);
+            var b = Prefab.Instantiates(PrefabManager.Instance.CitizenPrefab);
             Grasp(b);
             Localize(b.transform);
         }
+
+        PerObjectMaterial = GetComponent<PerObjectMaterial>();
     }
 
     public void Connect(Tile prev, Tile next)
@@ -38,17 +42,6 @@ public class Tile : CitizenContainer
     }
 
     public Tile Success(bool forward) => forward ? Next : Prev;
-
-    public void OnSelected()
-    {
-        transform.localScale = Vector3.one * 1.1f;
-    }
-
-    public void OnUnselected()
-    {
-        transform.localScale = Vector3.one;
-    }
-
     private void OnMouseDown()
     {
         OnSelect?.Invoke(this);

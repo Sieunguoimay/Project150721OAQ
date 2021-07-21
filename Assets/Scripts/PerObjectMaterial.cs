@@ -13,6 +13,16 @@ public class PerObjectMaterial : MonoBehaviour
     private MeshRenderer meshRenderer;
     private MeshRenderer MeshRenderer => meshRenderer ?? (meshRenderer = GetComponent<MeshRenderer>());
 
+    public Color Color
+    {
+        get => color;
+        set
+        {
+            color = value;
+            OnValidate();
+        }
+    }
+
     private void Awake()
     {
         OnValidate();

@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BunnieDropper : CitizenContainer
+public class CitizenDropper : CitizenContainer
 {
+    [SerializeField] private Color activeColor;
     private BoardTraveller boardTraveller = null;
     public bool IsTravelling => boardTraveller?.IsTravelling ?? false;
     public event Action<CitizenContainer> OnEat = delegate { };
@@ -14,23 +15,45 @@ public class BunnieDropper : CitizenContainer
     {
         if (boardTraveller == null || boardTraveller.Board != board)
         {
-            boardTraveller = new BoardTraveller(board);
+            boardTraveller = new BoardTraveller(board, activeColor);
         }
     }
 
     public void GetReady(Tile tile)
     {
-        Grasp(tile.Bunnies);
+        Grasp(tile.Bunnies, false);
         boardTraveller.Start(tile, Bunnies.Count);
     }
 
-    public void DropAll(bool forward)
+    public void DropAllCitizen(bool forward)
+    {
+        DropAll(forward);
+    }
+
+    private void MakeCitizenJump(Tile tile)
+    {
+        float delay = 0f;
+        foreach (var b in Bunnies)
+        {
+            b.Mover.EnqueueTarget(tile.SpawnRandomPosition(false));
+
+            if (!b.Mover.IsJumpingInQueue)
+            {
+                b.Delay(delay, b.Mover.JumpInQueue);
+                delay += 0.02f;
+            }
+        }
+    }
+
+    private void DropAll(bool forward)
     {
         boardTraveller.Next(forward);
 
+        MakeCitizenJump(boardTraveller.CurrentTile);
+
         if (Drop())
         {
-            Delay(0.2f, () => { DropAll(forward); });
+            Delay(0.2f, () => DropAll(forward));
         }
         else
         {
@@ -43,22 +66,40 @@ public class BunnieDropper : CitizenContainer
             }
             else
             {
-                Eat(t, forward);
-                OnDone?.Invoke();
-                Debug.Log("done");
+                if (CanEatSucc(t, forward))
+                {
+                    Eat(t, forward, OnDone);
+                }
+                else
+                {
+                    OnDone?.Invoke();
+                }
             }
         }
+
     }
 
-    private void Eat(Tile tile, bool forward)
+    private void Eat(Tile tile, bool forward, Action done)
     {
         var succ = tile.Success(forward);
 
-        if (tile.Bunnies.Count == 0 && (tile.TileType == Tile.Type.Citizen) && (succ.Bunnies.Count > 0))
+        OnEat?.Invoke(succ);
+
+        if (CanEatSucc(succ.Success(forward), forward))
         {
-            OnEat?.Invoke(succ);
-            Delay(0.2f, () => { Eat(succ.Success(forward), forward); });
+            Delay(0.2f, () => { Eat(succ.Success(forward), forward, done); });
         }
+        else
+        {
+            done?.Invoke();
+        }
+    }
+
+    private bool CanEatSucc(Tile tile, bool forward)
+    {
+        var succ = tile.Success(forward);
+
+        return (tile.Bunnies.Count == 0 && (tile.TileType == Tile.Type.Citizen) && (succ.Bunnies.Count > 0));
     }
 
     public bool Drop()
@@ -67,7 +108,6 @@ public class BunnieDropper : CitizenContainer
 
         var lastIndex = Bunnies.Count - 1;
         boardTraveller.CurrentTile.Grasp(Bunnies[lastIndex]);
-        boardTraveller.CurrentTile.Localize(Bunnies[lastIndex].transform);
         Bunnies.RemoveAt(lastIndex);
 
         return true;

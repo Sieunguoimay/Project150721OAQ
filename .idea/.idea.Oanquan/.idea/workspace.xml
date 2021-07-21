@@ -20,19 +20,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e637ac15-62b0-462f-b23e-65a523665f81" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/CitizenContainer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/contentModel.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Opace.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Opace.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Bunnie.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Bunnie.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/CitizenTile.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/CitizenTile.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/MandarinTile.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/MandarinTile.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Main.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Main.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Board.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Board.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/BoardTraveller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/BoardTraveller.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/BunnieDropper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/BunnieDropper.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/BunnieStop.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/BunnieStop.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CitizenContainer.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Bunnie.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Citizen.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Bunnie.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Citizen.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/BunnieDropper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CitizenDropper.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/BunnieDropper.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CitizenDropper.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/CitizenContainer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CitizenContainer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Main.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Main.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PerObjectMaterial.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PerObjectMaterial.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PrefabManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PrefabManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Tile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Tile.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/TileSelector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/TileSelector.cs" afterDir="false" />
     </list>
@@ -59,18 +59,22 @@
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/Assets/Scripts/TileSelector.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/BunnieStop.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/PerObjectMaterial.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/MBEntity.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/BoardTraveller.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/Board.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/TileMB.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/CitizenContainerMB.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/Main.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/CitizenContainer.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/BunnieDropper.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/CitizenContainer.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/PerObjectMaterial.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/Mover.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/Main.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/Citizen.cs" />
+      <option value="$PROJECT_DIR$/Assets/SNM/MonoBehaviourExtension.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/Board.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/BoardTraveller.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/TileSelector.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/Tile.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/CitizenDropper.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1vKy3IWfIk5SwOHupZAQkEhelk9" />
@@ -125,6 +129,7 @@
       <workItem from="1626653916883" duration="1515000" />
       <workItem from="1626661252114" duration="560000" />
       <workItem from="1626672870127" duration="1824000" />
+      <workItem from="1626784225734" duration="10860000" />
     </task>
     <servers />
   </component>

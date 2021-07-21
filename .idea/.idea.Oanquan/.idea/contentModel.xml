@@ -6,18 +6,34 @@
     <e p="D:\CodingSpace\Unity\Oanquan" t="IncludeRecursive">
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
+        <e p="DOTween" t="Include">
+          <e p="Modules" t="Include">
+            <e p="DOTweenModuleAudio.cs" t="Include" />
+            <e p="DOTweenModulePhysics.cs" t="Include" />
+            <e p="DOTweenModulePhysics2D.cs" t="Include" />
+            <e p="DOTweenModuleSprite.cs" t="Include" />
+            <e p="DOTweenModuleUI.cs" t="Include" />
+            <e p="DOTweenModuleUnityVersion.cs" t="Include" />
+            <e p="DOTweenModuleUtils.cs" t="Include" />
+          </e>
+          <e p="readme.txt" t="Include" />
+        </e>
         <e p="Scripts" t="Include">
           <e p="Board.cs" t="Include" />
           <e p="BoardTraveller.cs" t="Include" />
-          <e p="Bunnie.cs" t="Include" />
-          <e p="BunnieDropper.cs" t="Include" />
+          <e p="Citizen.cs" t="Include" />
           <e p="CitizenContainer.cs" t="Include" />
+          <e p="CitizenDropper.cs" t="Include" />
           <e p="Main.cs" t="Include" />
+          <e p="Mover.cs" t="Include" />
           <e p="PerObjectMaterial.cs" t="Include" />
           <e p="Prefab.cs" t="Include" />
           <e p="PrefabManager.cs" t="Include" />
           <e p="Tile.cs" t="Include" />
           <e p="TileSelector.cs" t="Include" />
+        </e>
+        <e p="SNM" t="Include">
+          <e p="MonoBehaviourExtension.cs" t="Include" />
         </e>
       </e>
       <e p="Oanquan.sln" t="IncludeFlat" />

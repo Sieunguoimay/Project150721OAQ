@@ -2,19 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class PrefabManager : MonoBehaviour
 {
     [SerializeField] private Board boardPrefab;
     [SerializeField] private Tile citizenTilePrefab;
     [SerializeField] private Tile mandarinTilePrefab;
-    [SerializeField] private Bunnie bunniePrefab;
+    [FormerlySerializedAs("bunniePrefab")] [SerializeField] private Citizen citizenPrefab;
 
     public Board BoardPrefab => boardPrefab;
 
     public static PrefabManager Instance { get; private set; }
 
-    public Bunnie BunniePrefab => bunniePrefab;
+    public Citizen CitizenPrefab => citizenPrefab;
 
     public Tile CitizenTilePrefab => citizenTilePrefab;
 

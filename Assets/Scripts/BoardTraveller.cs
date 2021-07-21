@@ -8,6 +8,8 @@ public class BoardTraveller
     private Board board = null;
 
     private Tile currentTile = null;
+    private Color activeColor;
+    private Color oldColor;
 
     public Tile CurrentTile
     {
@@ -16,13 +18,14 @@ public class BoardTraveller
         {
             if (currentTile != null)
             {
-                currentTile.OnUnselected();
+                currentTile.PerObjectMaterial.Color = oldColor;
             }
 
             currentTile = value;
             if (currentTile != null)
             {
-                currentTile.OnSelected();
+                oldColor = currentTile.PerObjectMaterial.Color;
+                currentTile.PerObjectMaterial.Color = activeColor;
             }
         }
     }
@@ -34,9 +37,10 @@ public class BoardTraveller
 
     public Action OnEnd = delegate { };
 
-    public BoardTraveller(Board board)
+    public BoardTraveller(Board board, Color activeColor)
     {
         this.board = board;
+        this.activeColor = activeColor;
     }
 
     public void Start(Tile startTile, int steps)

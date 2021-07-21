@@ -56,7 +56,7 @@ public class Board : Prefab
     private void TravelBoard(Tile tile, int steps, bool forward)
     {
         Debug.Log("Traveling " + tile.Id + " " + steps + " " + forward);
-        var boardTraveller = new BoardTraveller(this);
+        var boardTraveller = new BoardTraveller(this,Color.black);
 
         boardTraveller.Start(tile, steps);
         Debug.Log(boardTraveller.CurrentTile.name);

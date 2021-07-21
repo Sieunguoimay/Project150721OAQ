@@ -8,8 +8,8 @@ public class Main : MonoBehaviour
     [SerializeField] private CitizenContainer[] bunnieStops;
     public Board Board { get; private set; }
 
-    private BunnieDropper bunnieDropper;
-    private BunnieDropper BunnieDropper => bunnieDropper ?? (bunnieDropper = GetComponent<BunnieDropper>());
+    private CitizenDropper _citizenDropper;
+    private CitizenDropper CitizenDropper => _citizenDropper ?? (_citizenDropper = GetComponent<CitizenDropper>());
 
     private int turn = 0;
 
@@ -18,10 +18,10 @@ public class Main : MonoBehaviour
         Board = Prefab.Instantiates(PrefabManager.Instance.BoardPrefab);
         Board.Setup();
 
-        BunnieDropper.Setup(Board);
+        CitizenDropper.Setup(Board);
 
-        BunnieDropper.OnDone += OnBunnieDropperDone;
-        BunnieDropper.OnEat += OnBunnieDropperEat;
+        CitizenDropper.OnDone += OnBunnieDropperDone;
+        CitizenDropper.OnEat += OnBunnieDropperEat;
         tileSelector.OnDone += OnTileSelectorDone;
 
         tileSelector.Display(Board.TileGroups[turn]);
@@ -29,8 +29,8 @@ public class Main : MonoBehaviour
 
     private void OnTileSelectorDone(Tile tile, bool forward)
     {
-        BunnieDropper.GetReady(tile);
-        BunnieDropper.DropAll(forward);
+        CitizenDropper.GetReady(tile);
+        CitizenDropper.DropAllCitizen(forward);
     }
 
     private void OnBunnieDropperDone()

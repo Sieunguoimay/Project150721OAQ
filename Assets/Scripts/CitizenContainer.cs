@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class CitizenContainer : MonoBehaviour
 {
-    public List<Bunnie> Bunnies { get; private set; } = new List<Bunnie>();
+    public List<Citizen> Bunnies { get; private set; } = new List<Citizen>();
 
-    public void Grasp(Bunnie bunnie)
+    public void Grasp(Citizen citizen)
     {
-        Bunnies.Add(bunnie);
+        Bunnies.Add(citizen);
     }
 
     public void Grasp(CitizenContainer other, bool localize = true)
@@ -25,7 +25,7 @@ public class CitizenContainer : MonoBehaviour
         other.Bunnies.Clear();
     }
 
-    public void Grasp(List<Bunnie> otherBunnies, bool localize = true)
+    public void Grasp(List<Citizen> otherBunnies, bool localize = true)
     {
         foreach (var b in otherBunnies)
         {
@@ -41,9 +41,19 @@ public class CitizenContainer : MonoBehaviour
 
     public void Localize(Transform t)
     {
-        var randomPos = Random.insideUnitCircle * 0.5f;
-        var offset = transform.up * 0.5f + new Vector3(randomPos.x, t.localScale.y, randomPos.y);
         t.SetParent(transform);
-        t.localPosition = Vector3.Scale(offset, transform.localScale);
+        t.localPosition = SpawnRandomPosition();
+    }
+
+    public Vector3 SpawnRandomPosition(bool local = true)
+    {
+        var randomPos = Random.insideUnitCircle * 0.2f;
+        var offset = transform.up * 0.5f + new Vector3(randomPos.x, 0f, randomPos.y);
+        var pos = Vector3.Scale(offset, transform.localScale);
+        if (!local)
+        {
+            pos = transform.TransformPoint(pos);
+        }
+        return pos;
     }
 }
