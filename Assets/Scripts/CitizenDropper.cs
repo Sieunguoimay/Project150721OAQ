@@ -21,7 +21,7 @@ public class CitizenDropper : CitizenContainer
 
     public void GetReady(Tile tile)
     {
-        Grasp(tile.Bunnies, false);
+        Grasp(tile, false);
         boardTraveller.Start(tile, Bunnies.Count);
     }
 

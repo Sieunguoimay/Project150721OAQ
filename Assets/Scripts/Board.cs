@@ -13,6 +13,8 @@ public class Board : Prefab
     private List<TileGroup> tileGroups = new List<TileGroup>();
     public List<TileGroup> TileGroups => tileGroups;
 
+    public event Action OnAllMandarinTilesEmpty = delegate { };
+
     public void Setup()
     {
         int id = 0;
@@ -20,7 +22,6 @@ public class Board : Prefab
         {
             if (!t.IsConnected)
             {
-                Debug.LogError("Please check the connection " + t.Id);
                 return;
             }
 
@@ -31,7 +32,34 @@ public class Board : Prefab
                 var tg = new TileGroup() {id = id++, mandarinTile = t, tiles = new List<Tile>()};
                 InitializeTileGroup(ref tg);
                 tileGroups.Add(tg);
+                t.OnEmpty += OnMandarinTileEmpty;
             }
+            else
+            {
+                t.OnEmpty += OnCitizenTileEmpty;
+            }
+        }
+    }
+
+    private void OnCitizenTileEmpty(CitizenContainer c)
+    {
+        
+    }
+
+    private void OnMandarinTileEmpty(CitizenContainer c)
+    {
+        bool gameOver = true;
+        foreach (var tg in TileGroups)
+        {
+            if (tg.mandarinTile.Bunnies.Count > 0)
+            {
+                gameOver = false;
+            }
+        }
+
+        if (gameOver)
+        {
+            OnAllMandarinTilesEmpty?.Invoke();
         }
     }
 
@@ -41,7 +69,6 @@ public class Board : Prefab
         while (t.TileType != Tile.Type.Mandarin)
         {
             tg.tiles.Add(t);
-            Debug.Log("tg " + tg.id + " " + t.name);
             t = t.Next;
         }
     }
@@ -56,7 +83,7 @@ public class Board : Prefab
     private void TravelBoard(Tile tile, int steps, bool forward)
     {
         Debug.Log("Traveling " + tile.Id + " " + steps + " " + forward);
-        var boardTraveller = new BoardTraveller(this,Color.black);
+        var boardTraveller = new BoardTraveller(this, Color.black);
 
         boardTraveller.Start(tile, steps);
         Debug.Log(boardTraveller.CurrentTile.name);

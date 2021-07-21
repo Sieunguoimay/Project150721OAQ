@@ -41,6 +41,6 @@ public class Main : MonoBehaviour
 
     private void OnBunnieDropperEat(CitizenContainer citizenContainerMb)
     {
-        bunnieStops[turn].Grasp(citizenContainerMb.Bunnies);
+        bunnieStops[turn].Grasp(citizenContainerMb);
     }
 }

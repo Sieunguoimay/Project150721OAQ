@@ -1,10 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class CitizenContainer : MonoBehaviour
 {
     public List<Citizen> Bunnies { get; private set; } = new List<Citizen>();
+
+    public event Action<CitizenContainer> OnEmpty = delegate { };
 
     public void Grasp(Citizen citizen)
     {
@@ -23,6 +27,7 @@ public class CitizenContainer : MonoBehaviour
         }
 
         other.Bunnies.Clear();
+        other.OnEmpty?.Invoke(other);
     }
 
     public void Grasp(List<Citizen> otherBunnies, bool localize = true)
@@ -54,6 +59,7 @@ public class CitizenContainer : MonoBehaviour
         {
             pos = transform.TransformPoint(pos);
         }
+
         return pos;
     }
 }
