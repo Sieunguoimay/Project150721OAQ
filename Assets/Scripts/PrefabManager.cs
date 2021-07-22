@@ -9,7 +9,8 @@ public class PrefabManager : MonoBehaviour
     [SerializeField] private Board boardPrefab;
     [SerializeField] private Tile citizenTilePrefab;
     [SerializeField] private Tile mandarinTilePrefab;
-    [FormerlySerializedAs("bunniePrefab")] [SerializeField] private Citizen citizenPrefab;
+    [SerializeField] private Citizen citizenPrefab;
+    [SerializeField] private Mandarin mandarinPrefab;
 
     public Board BoardPrefab => boardPrefab;
 
@@ -20,6 +21,8 @@ public class PrefabManager : MonoBehaviour
     public Tile CitizenTilePrefab => citizenTilePrefab;
 
     public Tile MandarinTilePrefab => mandarinTilePrefab;
+
+    public Mandarin MandarinPrefab => mandarinPrefab;
 
     private void Awake()
     {

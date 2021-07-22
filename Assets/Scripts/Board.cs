@@ -18,7 +18,7 @@ public class Board : Prefab
         var container = new GameObject("Container");
         container.transform.SetParent(transform);
         container.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
-        
+
         int id = 0;
         foreach (var t in Tiles)
         {
@@ -26,13 +26,28 @@ public class Board : Prefab
             {
                 return;
             }
-            t.Setup(container.transform);
+
+            t.Setup();
 
             if (t.TileType == Tile.Type.Mandarin)
             {
                 var tg = new TileGroup() {id = id++, mandarinTile = t, tiles = new List<Tile>()};
                 InitializeTileGroup(ref tg);
                 tileGroups.Add(tg);
+
+                var m = Prefab.Instantiates(PrefabManager.Instance.MandarinPrefab);
+                t.Grasp(m);
+                t.Reposition(m.transform);
+            }
+            else
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    var b = Prefab.Instantiates(PrefabManager.Instance.CitizenPrefab);
+                    b.transform.SetParent(container.transform);
+                    t.Grasp(b);
+                    t.Reposition(b.transform);
+                }
             }
         }
     }

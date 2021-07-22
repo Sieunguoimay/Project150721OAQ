@@ -23,16 +23,8 @@ public class Tile : CitizenContainer
         Id = gameObject.GetInstanceID();
     }
 
-    public void Setup(Transform container)
+    public void Setup()
     {
-        for (int i = 0; i < 5; i++)
-        {
-            var b = Prefab.Instantiates(PrefabManager.Instance.CitizenPrefab);
-            b.transform.SetParent(container);
-            Grasp(b);
-            Reposition(b.transform);
-        }
-
         PerObjectMaterial = GetComponent<PerObjectMaterial>();
     }
 
