@@ -9,7 +9,9 @@ public class CitizenDropper : CitizenContainer
     private BoardTraveller boardTraveller = null;
     public bool IsTravelling => boardTraveller?.IsTravelling ?? false;
     public event Action<CitizenContainer> OnEat = delegate { };
-    public event Action OnDone = delegate { };
+    public event Action<ActionID> OnDone = delegate { };
+
+    private ActionID actionID;
 
     public void Setup(Board board)
     {
@@ -22,30 +24,34 @@ public class CitizenDropper : CitizenContainer
     public void GetReady(Tile tile)
     {
         Grasp(tile, false);
-        boardTraveller.Start(tile, Bunnies.Count);
+        boardTraveller.Start(tile, Citizens.Count);
+        actionID = ActionID.DROPPING_IN_TURN;
     }
 
-    public void DropAllCitizen(bool forward)
+    public void GetReadyForTakingBackCitizens(Board.TileGroup tileGroup, List<Citizen> citizens)
     {
-        DropAll(forward);
+        int n = Mathf.Min(tileGroup.tiles.Count, citizens.Count);
+        Grasp(citizens, n);
+        boardTraveller.Start(tileGroup.mandarinTile, n);
+        actionID = ActionID.TAKING_BACK;
     }
 
     private void MakeCitizenJump(Tile tile)
     {
         float delay = 0f;
-        foreach (var b in Bunnies)
+        foreach (var b in Citizens)
         {
             b.Mover.EnqueueTarget(tile.SpawnRandomPosition(false));
 
             if (!b.Mover.IsJumpingInQueue)
             {
                 b.Delay(delay, b.Mover.JumpInQueue);
-                delay += 0.02f;
+                delay += 0.04f;
             }
         }
     }
 
-    private void DropAll(bool forward)
+    public void DropAll(bool forward)
     {
         boardTraveller.Next(forward);
 
@@ -53,13 +59,13 @@ public class CitizenDropper : CitizenContainer
 
         if (Drop())
         {
-            Delay(0.2f, () => DropAll(forward));
+            this.Delay(0.2f, () => DropAll(forward));
         }
-        else
+        else if (actionID == ActionID.DROPPING_IN_TURN)
         {
             var t = boardTraveller.CurrentTile.Success(forward);
             boardTraveller.Reset();
-            if (t.Bunnies.Count > 0 && t.TileType == Tile.Type.Citizen)
+            if (t.Citizens.Count > 0 && t.TileType == Tile.Type.Citizen)
             {
                 GetReady(t);
                 DropAll(forward);
@@ -68,15 +74,19 @@ public class CitizenDropper : CitizenContainer
             {
                 if (CanEatSucc(t, forward))
                 {
-                    Eat(t, forward, OnDone);
+                    Eat(t, forward, () => OnDone?.Invoke(actionID));
                 }
                 else
                 {
-                    OnDone?.Invoke();
+                    OnDone?.Invoke(actionID);
                 }
             }
         }
-
+        else if (actionID == ActionID.TAKING_BACK)
+        {
+            boardTraveller.Reset();
+            OnDone?.Invoke(actionID);
+        }
     }
 
     private void Eat(Tile tile, bool forward, Action done)
@@ -87,7 +97,7 @@ public class CitizenDropper : CitizenContainer
 
         if (CanEatSucc(succ.Success(forward), forward))
         {
-            Delay(0.2f, () => { Eat(succ.Success(forward), forward, done); });
+            this.Delay(0.2f, () => { Eat(succ.Success(forward), forward, done); });
         }
         else
         {
@@ -99,25 +109,24 @@ public class CitizenDropper : CitizenContainer
     {
         var succ = tile.Success(forward);
 
-        return (tile.Bunnies.Count == 0 && (tile.TileType == Tile.Type.Citizen) && (succ.Bunnies.Count > 0));
+        return (tile.Citizens.Count == 0 && (tile.TileType == Tile.Type.Citizen) && (succ.Citizens.Count > 0));
     }
 
-    public bool Drop()
+    private bool Drop()
     {
-        if (Bunnies.Count <= 0) return false;
+        if (Citizens.Count <= 0) return false;
 
-        var lastIndex = Bunnies.Count - 1;
-        boardTraveller.CurrentTile.Grasp(Bunnies[lastIndex]);
-        Bunnies.RemoveAt(lastIndex);
+        var lastIndex = Citizens.Count - 1;
+        boardTraveller.CurrentTile.Grasp(Citizens[lastIndex]);
+        Citizens.RemoveAt(lastIndex);
 
         return true;
     }
 
-    private void Delay(float s, Action action) => StartCoroutine(delay(s, action));
 
-    private IEnumerator delay(float s, Action action)
+    public enum ActionID
     {
-        yield return new WaitForSeconds(s);
-        action?.Invoke();
+        DROPPING_IN_TURN,
+        TAKING_BACK
     }
 }

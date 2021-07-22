@@ -23,13 +23,14 @@ public class Tile : CitizenContainer
         Id = gameObject.GetInstanceID();
     }
 
-    public void Setup()
+    public void Setup(Transform container)
     {
         for (int i = 0; i < 5; i++)
         {
             var b = Prefab.Instantiates(PrefabManager.Instance.CitizenPrefab);
+            b.transform.SetParent(container);
             Grasp(b);
-            Localize(b.transform);
+            Reposition(b.transform);
         }
 
         PerObjectMaterial = GetComponent<PerObjectMaterial>();
@@ -42,6 +43,7 @@ public class Tile : CitizenContainer
     }
 
     public Tile Success(bool forward) => forward ? Next : Prev;
+
     private void OnMouseDown()
     {
         OnSelect?.Invoke(this);

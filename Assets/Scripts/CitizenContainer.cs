@@ -6,48 +6,55 @@ using Random = UnityEngine.Random;
 
 public class CitizenContainer : MonoBehaviour
 {
-    public List<Citizen> Bunnies { get; private set; } = new List<Citizen>();
+    public List<Citizen> Citizens { get; private set; } = new List<Citizen>();
 
     public event Action<CitizenContainer> OnEmpty = delegate { };
 
     public void Grasp(Citizen citizen)
     {
-        Bunnies.Add(citizen);
+        Citizens.Add(citizen);
     }
 
     public void Grasp(CitizenContainer other, bool localize = true)
     {
-        foreach (var b in other.Bunnies)
+        foreach (var b in other.Citizens)
         {
             Grasp(b);
             if (localize)
             {
-                Localize(b.transform);
+                Reposition(b.transform);
             }
         }
 
-        other.Bunnies.Clear();
+        other.Citizens.Clear();
         other.OnEmpty?.Invoke(other);
     }
 
-    public void Grasp(List<Citizen> otherBunnies, bool localize = true)
+    public void Grasp(List<Citizen> otherBunnies, int count = -1)
     {
-        foreach (var b in otherBunnies)
+        if (count == otherBunnies.Count || count == -1)
         {
-            Grasp(b);
-            if (localize)
+            foreach (var b in otherBunnies)
             {
-                Localize(b.transform);
+                Grasp(b);
+            }
+
+            otherBunnies.Clear();
+        }
+        else
+        {
+            int n = Mathf.Min(count, otherBunnies.Count);
+            for (int i = n - 1; i >= 0; i--)
+            {
+                Grasp(otherBunnies[i]);
+                otherBunnies.RemoveAt(i);
             }
         }
-
-        otherBunnies.Clear();
     }
 
-    public void Localize(Transform t)
+    public void Reposition(Transform t)
     {
-        t.SetParent(transform);
-        t.localPosition = SpawnRandomPosition();
+        t.position = SpawnRandomPosition(false);
     }
 
     public Vector3 SpawnRandomPosition(bool local = true)

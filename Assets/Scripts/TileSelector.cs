@@ -26,8 +26,8 @@ public class TileSelector : MonoBehaviour
             t.OnSelect += OnTileSelect;
 
             prevColor = t.PerObjectMaterial.Color;
-            
-            if (t.Bunnies.Count > 0)
+
+            if (t.Citizens.Count > 0)
             {
                 t.PerObjectMaterial.Color = activeColor;
             }
@@ -36,22 +36,14 @@ public class TileSelector : MonoBehaviour
 
     private void OnTileSelect(Tile tile)
     {
-        if (tile.Bunnies.Count <= 0) return;
-        // if (selectedTile != null)
-        // {
-        //     selectedTile.OnUnselected();
-        // }
-        
+        if (tile.Citizens.Count <= 0) return;
+
         selectedTile = tile;
         gameObject.SetActive(true);
-        // selectedTile.OnSelected();
-        
+
         foreach (var t in tileGroup?.tiles)
         {
-            if (t != selectedTile)
-            {
-                t.PerObjectMaterial.Color = prevColor;
-            }
+            t.PerObjectMaterial.Color = t == selectedTile ? activeColor : prevColor;
         }
     }
 

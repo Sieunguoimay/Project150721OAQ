@@ -13,10 +13,12 @@ public class Board : Prefab
     private List<TileGroup> tileGroups = new List<TileGroup>();
     public List<TileGroup> TileGroups => tileGroups;
 
-    public event Action OnAllMandarinTilesEmpty = delegate { };
-
     public void Setup()
     {
+        var container = new GameObject("Container");
+        container.transform.SetParent(transform);
+        container.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+        
         int id = 0;
         foreach (var t in Tiles)
         {
@@ -24,42 +26,14 @@ public class Board : Prefab
             {
                 return;
             }
-
-            t.Setup();
+            t.Setup(container.transform);
 
             if (t.TileType == Tile.Type.Mandarin)
             {
                 var tg = new TileGroup() {id = id++, mandarinTile = t, tiles = new List<Tile>()};
                 InitializeTileGroup(ref tg);
                 tileGroups.Add(tg);
-                t.OnEmpty += OnMandarinTileEmpty;
             }
-            else
-            {
-                t.OnEmpty += OnCitizenTileEmpty;
-            }
-        }
-    }
-
-    private void OnCitizenTileEmpty(CitizenContainer c)
-    {
-        
-    }
-
-    private void OnMandarinTileEmpty(CitizenContainer c)
-    {
-        bool gameOver = true;
-        foreach (var tg in TileGroups)
-        {
-            if (tg.mandarinTile.Bunnies.Count > 0)
-            {
-                gameOver = false;
-            }
-        }
-
-        if (gameOver)
-        {
-            OnAllMandarinTilesEmpty?.Invoke();
         }
     }
 
@@ -71,6 +45,41 @@ public class Board : Prefab
             tg.tiles.Add(t);
             t = t.Next;
         }
+    }
+
+    public bool IsTileGroupEmpty(int index)
+    {
+        if (index < TileGroups.Count)
+        {
+            bool empty = true;
+            foreach (var t in TileGroups[index].tiles)
+            {
+                if (t.Citizens.Count > 0)
+                {
+                    empty = false;
+                    break;
+                }
+            }
+
+            return empty;
+        }
+
+        return false;
+    }
+
+    public bool AreMandarinTilesAllEmpty()
+    {
+        bool allEmpty = true;
+        foreach (var tg in TileGroups)
+        {
+            if (tg.mandarinTile.Citizens.Count > 0)
+            {
+                allEmpty = false;
+                break;
+            }
+        }
+
+        return allEmpty;
     }
 
     public struct TileGroup
