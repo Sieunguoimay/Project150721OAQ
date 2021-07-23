@@ -1,7 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System;
 
-public class Player : CitizenContainer
+[Serializable]
+public class Player
 {
+    public PieceBench pieceBench;
+    public Board.TileGroup tileGroup;
 }

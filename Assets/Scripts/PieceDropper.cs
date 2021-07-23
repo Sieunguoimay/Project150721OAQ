@@ -3,12 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CitizenDropper : CitizenContainer
+public class PieceDropper : PieceContainer
 {
     [SerializeField] private Color activeColor;
     private BoardTraveller boardTraveller = null;
     public bool IsTravelling => boardTraveller?.IsTravelling ?? false;
-    public event Action<CitizenContainer> OnEat = delegate { };
+    public event Action<PieceContainer> OnEat = delegate { };
     public event Action<ActionID> OnDone = delegate { };
 
     private ActionID actionID;
@@ -24,11 +24,11 @@ public class CitizenDropper : CitizenContainer
     public void GetReady(Tile tile)
     {
         Grasp(tile, false);
-        boardTraveller.Start(tile, Citizens.Count);
+        boardTraveller.Start(tile, Pieces.Count);
         actionID = ActionID.DROPPING_IN_TURN;
     }
 
-    public void GetReadyForTakingBackCitizens(Board.TileGroup tileGroup, List<Citizen> citizens)
+    public void GetReadyForTakingBackCitizens(Board.TileGroup tileGroup, List<Piece> citizens)
     {
         int n = Mathf.Min(tileGroup.tiles.Count, citizens.Count);
         Grasp(citizens, n);
@@ -39,7 +39,7 @@ public class CitizenDropper : CitizenContainer
     private void MakeCitizenJump(Tile tile)
     {
         float delay = 0f;
-        foreach (var b in Citizens)
+        foreach (var b in Pieces)
         {
             b.Mover.EnqueueTarget(tile.SpawnRandomPosition(false));
 
@@ -65,7 +65,7 @@ public class CitizenDropper : CitizenContainer
         {
             var t = boardTraveller.CurrentTile.Success(forward);
             boardTraveller.Reset();
-            if (t.Citizens.Count > 0 && t.TileType == Tile.Type.Citizen)
+            if (t.Pieces.Count > 0 && t.TileType == Tile.Type.Citizen)
             {
                 GetReady(t);
                 DropAll(forward);
@@ -109,16 +109,16 @@ public class CitizenDropper : CitizenContainer
     {
         var succ = tile.Success(forward);
 
-        return (tile.Citizens.Count == 0 && (tile.TileType == Tile.Type.Citizen) && (succ.Citizens.Count > 0));
+        return (tile.Pieces.Count == 0 && (tile.TileType == Tile.Type.Citizen) && (succ.Pieces.Count > 0));
     }
 
     private bool Drop()
     {
-        if (Citizens.Count <= 0) return false;
+        if (Pieces.Count <= 0) return false;
 
-        var lastIndex = Citizens.Count - 1;
-        boardTraveller.CurrentTile.Grasp(Citizens[lastIndex]);
-        Citizens.RemoveAt(lastIndex);
+        var lastIndex = Pieces.Count - 1;
+        boardTraveller.CurrentTile.Grasp(Pieces[lastIndex]);
+        Pieces.RemoveAt(lastIndex);
 
         return true;
     }

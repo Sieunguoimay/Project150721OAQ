@@ -1,7 +1,10 @@
 ﻿using System;
 using UnityEngine;
 
-public class Tile : CitizenContainer
+[RequireComponent(typeof(PerObjectMaterial))]
+[DisallowMultipleComponent]
+[SelectionBase]
+public class Tile : PieceContainer
 {
     [SerializeField] private Type type;
     [SerializeField] private Tile prev;

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class Citizen : Prefab
+[DisallowMultipleComponent]
+[SelectionBase]
+public class Citizen : Piece
 {
-    private Mover mover;
-    public Mover Mover => mover ?? (mover = new Mover(transform));
 }

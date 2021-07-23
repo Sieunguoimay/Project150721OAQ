@@ -64,22 +64,22 @@ public class Board : Prefab
 
     public bool IsTileGroupEmpty(int index)
     {
-        if (index < TileGroups.Count)
-        {
-            bool empty = true;
-            foreach (var t in TileGroups[index].tiles)
-            {
-                if (t.Citizens.Count > 0)
-                {
-                    empty = false;
-                    break;
-                }
-            }
+        return index < TileGroups.Count && IsTileGroupEmpty(TileGroups[index]);
+    }
 
-            return empty;
+    public static bool IsTileGroupEmpty(TileGroup tileGroup)
+    {
+        bool empty = true;
+        foreach (var t in tileGroup.tiles)
+        {
+            if (t.Pieces.Count > 0)
+            {
+                empty = false;
+                break;
+            }
         }
 
-        return false;
+        return empty;
     }
 
     public bool AreMandarinTilesAllEmpty()
@@ -87,7 +87,7 @@ public class Board : Prefab
         bool allEmpty = true;
         foreach (var tg in TileGroups)
         {
-            if (tg.mandarinTile.Citizens.Count > 0)
+            if (tg.mandarinTile.Pieces.Count > 0)
             {
                 allEmpty = false;
                 break;

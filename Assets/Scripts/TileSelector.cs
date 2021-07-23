@@ -27,7 +27,7 @@ public class TileSelector : MonoBehaviour
 
             prevColor = t.PerObjectMaterial.Color;
 
-            if (t.Citizens.Count > 0)
+            if (t.Pieces.Count > 0)
             {
                 t.PerObjectMaterial.Color = activeColor;
             }
@@ -36,7 +36,7 @@ public class TileSelector : MonoBehaviour
 
     private void OnTileSelect(Tile tile)
     {
-        if (tile.Citizens.Count <= 0) return;
+        if (tile.Pieces.Count <= 0) return;
 
         selectedTile = tile;
         gameObject.SetActive(true);

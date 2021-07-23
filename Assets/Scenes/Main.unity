@@ -1109,7 +1109,7 @@ MonoBehaviour:
   boardPrefab: {fileID: 4969991599171890943, guid: 04845be1075dce74797bf8e6f3000296, type: 3}
   citizenTilePrefab: {fileID: 0}
   mandarinTilePrefab: {fileID: 0}
-  citizenPrefab: {fileID: 6947715386307843417, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
+  citizenPrefab: {fileID: -2858626238098160244, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
   mandarinPrefab: {fileID: 7237692838130529961, guid: d7513236ad9972b4dbfaa615a28dce11, type: 3}
 --- !u!114 &1482999574
 MonoBehaviour:

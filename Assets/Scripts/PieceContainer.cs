@@ -4,20 +4,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class CitizenContainer : MonoBehaviour
+public class PieceContainer : MonoBehaviour
 {
-    public List<Citizen> Citizens { get; private set; } = new List<Citizen>();
+    public List<Piece> Pieces { get; private set; } = new List<Piece>();
 
-    public event Action<CitizenContainer> OnEmpty = delegate { };
+    public event Action<PieceContainer> OnEmpty = delegate { };
 
-    public void Grasp(Citizen citizen)
+    public virtual void Grasp(Piece piece)
     {
-        Citizens.Add(citizen);
+        Pieces.Add(piece);
     }
 
-    public void Grasp(CitizenContainer other, bool localize = true)
+    public void Grasp(PieceContainer other, bool localize = true)
     {
-        foreach (var b in other.Citizens)
+        foreach (var b in other.Pieces)
         {
             Grasp(b);
             if (localize)
@@ -26,28 +26,28 @@ public class CitizenContainer : MonoBehaviour
             }
         }
 
-        other.Citizens.Clear();
+        other.Pieces.Clear();
         other.OnEmpty?.Invoke(other);
     }
 
-    public void Grasp(List<Citizen> otherBunnies, int count = -1)
+    public void Grasp(List<Piece> otherPieces, int count = -1)
     {
-        if (count == otherBunnies.Count || count == -1)
+        if (count == otherPieces.Count || count == -1)
         {
-            foreach (var b in otherBunnies)
+            foreach (var b in otherPieces)
             {
                 Grasp(b);
             }
 
-            otherBunnies.Clear();
+            otherPieces.Clear();
         }
         else
         {
-            int n = Mathf.Min(count, otherBunnies.Count);
+            int n = Mathf.Min(count, otherPieces.Count);
             for (int i = n - 1; i >= 0; i--)
             {
-                Grasp(otherBunnies[i]);
-                otherBunnies.RemoveAt(i);
+                Grasp(otherPieces[i]);
+                otherPieces.RemoveAt(i);
             }
         }
     }

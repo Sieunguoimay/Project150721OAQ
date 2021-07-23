@@ -1,59 +1,73 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Manager;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 public class Main : MonoBehaviour
 {
-    [SerializeField] private int playerNum = 2;
-    [SerializeField] private TileSelector tileSelector;
-    [SerializeField] private CitizenContainer[] citizenContainers;
-    public Board Board { get; private set; }
+    [SerializeField] private ConfigData config = new ConfigData();
 
-    private CitizenDropper _citizenDropper;
-    private CitizenDropper CitizenDropper => _citizenDropper ?? (_citizenDropper = GetComponent<CitizenDropper>());
+    public class ConfigData
+    {
+        public int playerNum = 2;
+    }
 
-    private int turn = 0;
+    public class StateData
+    {
+        public int turn = 0;
+    }
+
+    private Board board;
+    private TileSelector tileSelector;
+    private PlayersManager playerManager;
+    private PieceDropper pieceDropper;
+    private StateData state = new StateData();
+    private Player CurrentPlayer => playerManager.Players[state.turn];
 
     void Start()
     {
-        Board = Prefab.Instantiates(PrefabManager.Instance.BoardPrefab);
-        Board.Setup();
+        board = Prefab.Instantiates(PrefabManager.Instance.BoardPrefab);
+        board.Setup();
 
-        CitizenDropper.Setup(Board);
+        pieceDropper = SNM.Utils.NewGameObject<PieceDropper>();
+        pieceDropper.Setup(board);
+        pieceDropper.OnDone += OnBunnieDropperDone;
+        pieceDropper.OnEat += OnBunnieDropperEat;
 
-        CitizenDropper.OnDone += OnBunnieDropperDone;
-        CitizenDropper.OnEat += OnBunnieDropperEat;
+        playerManager = new PlayersManager();
+        playerManager.Setup(board.TileGroups);
+
+        tileSelector = SNM.Utils.NewGameObject<TileSelector>();
         tileSelector.OnDone += OnTileSelectorDone;
-
-        tileSelector.Display(Board.TileGroups[turn]);
-        PositionThePlayers();
+        tileSelector.Display(CurrentPlayer.tileGroup);
     }
 
     private void OnTileSelectorDone(Tile tile, bool forward)
     {
-        CitizenDropper.GetReady(tile);
-        CitizenDropper.DropAll(forward);
+        pieceDropper.GetReady(tile);
+        pieceDropper.DropAll(forward);
     }
 
-    private void OnBunnieDropperDone(CitizenDropper.ActionID actionID)
+    private void OnBunnieDropperDone(PieceDropper.ActionID actionID)
     {
-        if (Board.AreMandarinTilesAllEmpty())
+        if (board.AreMandarinTilesAllEmpty())
         {
             GameOver();
         }
         else
         {
-            if (actionID == CitizenDropper.ActionID.DROPPING_IN_TURN)
+            if (actionID == PieceDropper.ActionID.DROPPING_IN_TURN)
             {
-                turn = (turn + 1) % Board.TileGroups.Count;
+                ChangePlayer();
             }
 
-            if (Board.IsTileGroupEmpty(turn))
+            if (Board.IsTileGroupEmpty(CurrentPlayer.tileGroup))
             {
-                if (citizenContainers[turn].Citizens.Count > 0)
+                if (CurrentPlayer.pieceBench.Pieces.Count > 0)
                 {
-                    TakeBackTiles(Board.TileGroups[turn], citizenContainers[turn].Citizens);
+                    TakeBackTiles();
                 }
                 else
                 {
@@ -62,45 +76,29 @@ public class Main : MonoBehaviour
             }
             else
             {
-                tileSelector.Display(Board.TileGroups[turn]);
+                tileSelector.Display(CurrentPlayer.tileGroup);
             }
         }
     }
 
-    private void OnBunnieDropperEat(CitizenContainer citizenContainerMb)
+    private void ChangePlayer()
     {
-        citizenContainers[turn].Grasp(citizenContainerMb);
+        state.turn = (state.turn + 1) % playerManager.Players.Length;
     }
 
-    private void TakeBackTiles(Board.TileGroup tileGroup, List<Citizen> citizens)
+    private void OnBunnieDropperEat(PieceContainer pieceContainerMb)
     {
-        CitizenDropper.GetReadyForTakingBackCitizens(tileGroup, citizens);
-        CitizenDropper.DropAll(true);
+        CurrentPlayer.pieceBench.Grasp(pieceContainerMb);
+    }
+
+    private void TakeBackTiles()
+    {
+        pieceDropper.GetReadyForTakingBackCitizens(CurrentPlayer.tileGroup, CurrentPlayer.pieceBench.Pieces);
+        pieceDropper.DropAll(true);
     }
 
     public void GameOver()
     {
         Debug.Log("Game over");
-    }
-
-    private void PositionThePlayers()
-    {
-        int n = Board.TileGroups.Count;
-        for (int i = 0; i < n; i++)
-        {
-            var location = CalculatePlayerPosition(Board.TileGroups[i]);
-            citizenContainers[i].transform.position = location.Item1;
-            citizenContainers[i].transform.rotation = location.Item2;
-        }
-    }
-
-    private (Vector3, Quaternion) CalculatePlayerPosition(Board.TileGroup tg)
-    {
-        var pos1 = tg.tiles[0].transform.position;
-        var pos2 = tg.tiles[tg.tiles.Count - 1].transform.position;
-        var diff = pos2 - pos1;
-        var pos = pos1 + new Vector3(diff.z, diff.y, -diff.x) * 0.5f;
-        var qua = Quaternion.LookRotation(pos1 - pos, Vector3.up);
-        return (pos, qua);
     }
 }
