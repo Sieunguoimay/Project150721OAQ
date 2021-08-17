@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Manager;
@@ -7,44 +8,89 @@ using UnityEngine.Serialization;
 
 public class Main : MonoBehaviour
 {
-    [SerializeField] private ConfigData config = new ConfigData();
+    [SerializeField] private GameCommonConfig gameCommonConfig;
+    [SerializeField] private PrefabManager prefabManager;
 
-    public class ConfigData
+    [Serializable]
+    public class Config
     {
-        public int playerNum = 2;
+        [SerializeField] private int playerNum;
+        public int PlayerNum => playerNum;
     }
 
     public class StateData
     {
         public int turn = 0;
+        public bool gameOver = false;
     }
 
+    private Config config;
+    private StateData state = new StateData();
+
     private Board board;
-    private TileSelector tileSelector;
     private PlayersManager playerManager;
     private PieceDropper pieceDropper;
-    private StateData state = new StateData();
-    private Player CurrentPlayer => playerManager.Players[state.turn];
+    private TileSelector tileSelector;
+
+    private Player CurrentPlayer => playerManager.CurrentPlayer;
+
+    public static Main Instance { get; private set; }
+    public RayPointer RayPointer { get; private set; }
+    public GameCommonConfig GameCommonConfig => gameCommonConfig;
+    public PrefabManager PrefabManager => prefabManager;
+
+    private void Awake()
+    {
+        Instance = this;
+        if (!Instance)
+        {
+            Debug.LogError("Main: Error - not instantiatable");
+        }
+
+        RayPointer = new RayPointer();
+        RayPointer.Reset();
+        Debug.Log("Main Awake");
+    }
 
     void Start()
     {
-        board = Prefab.Instantiates(PrefabManager.Instance.BoardPrefab);
+        config = gameCommonConfig.Main;
+
+        board = Prefab.Instantiates(PrefabManager.BoardPrefab);
         board.Setup();
 
         pieceDropper = SNM.Utils.NewGameObject<PieceDropper>();
-        pieceDropper.Setup(board);
+        pieceDropper.Setup(board, gameCommonConfig.PieceDropper);
         pieceDropper.OnDone += OnBunnieDropperDone;
         pieceDropper.OnEat += OnBunnieDropperEat;
 
-        playerManager = new PlayersManager();
-        playerManager.Setup(board.TileGroups);
+        tileSelector = Prefab.Instantiates(PrefabManager.TileSelector);
+        tileSelector.Setup(gameCommonConfig.TileSelector);
 
-        tileSelector = SNM.Utils.NewGameObject<TileSelector>();
-        tileSelector.OnDone += OnTileSelectorDone;
-        tileSelector.Display(CurrentPlayer.tileGroup);
+        playerManager = new PlayersManager();
+        playerManager.Setup(board.TileGroups, tileSelector);
+        foreach (var player in playerManager.Players)
+        {
+            player.OnDecisionResult += OnDecisionResult;
+        }
+
+        this.Delay(1f, () => { CurrentPlayer.MakeDecision(board); });
     }
 
-    private void OnTileSelectorDone(Tile tile, bool forward)
+    private void Update()
+    {
+        RayPointer.Update(Time.deltaTime);
+
+        if (state.gameOver)
+        {
+            if (Input.GetKeyUp(KeyCode.Return))
+            {
+                ResetGame();
+            }
+        }
+    }
+
+    private void OnDecisionResult(Tile tile, bool forward)
     {
         pieceDropper.GetReady(tile);
         pieceDropper.DropAll(forward);
@@ -52,18 +98,23 @@ public class Main : MonoBehaviour
 
     private void OnBunnieDropperDone(PieceDropper.ActionID actionID)
     {
+        MakeDecision(actionID == PieceDropper.ActionID.DROPPING_IN_TURN);
+    }
+
+    private void MakeDecision(bool canChangePlayer)
+    {
         if (board.AreMandarinTilesAllEmpty())
         {
             GameOver();
         }
         else
         {
-            if (actionID == PieceDropper.ActionID.DROPPING_IN_TURN)
+            if (canChangePlayer)
             {
-                ChangePlayer();
+                playerManager.ChangePlayer();
             }
 
-            if (Board.IsTileGroupEmpty(CurrentPlayer.tileGroup))
+            if (Board.IsTileGroupEmpty(CurrentPlayer.TileGroup))
             {
                 if (CurrentPlayer.pieceBench.Pieces.Count > 0)
                 {
@@ -76,14 +127,11 @@ public class Main : MonoBehaviour
             }
             else
             {
-                tileSelector.Display(CurrentPlayer.tileGroup);
+                // tileSelector.Display(CurrentPlayer.tileGroup);
+
+                CurrentPlayer.MakeDecision(board);
             }
         }
-    }
-
-    private void ChangePlayer()
-    {
-        state.turn = (state.turn + 1) % playerManager.Players.Length;
     }
 
     private void OnBunnieDropperEat(PieceContainer pieceContainerMb)
@@ -93,12 +141,23 @@ public class Main : MonoBehaviour
 
     private void TakeBackTiles()
     {
-        pieceDropper.GetReadyForTakingBackCitizens(CurrentPlayer.tileGroup, CurrentPlayer.pieceBench.Pieces);
+        pieceDropper.GetReadyForTakingBackCitizens(CurrentPlayer.TileGroup, CurrentPlayer.pieceBench.Pieces);
         pieceDropper.DropAll(true);
     }
 
     public void GameOver()
     {
         Debug.Log("Game over");
+        if (!state.gameOver)
+        {
+            state.gameOver = true;
+        }
+    }
+
+    private void ResetGame()
+    {
+        var gameResetter = new GameResetter(board, playerManager);
+        gameResetter.Reset();
+        this.Delay(1f, () => { CurrentPlayer.MakeDecision(board); });
     }
 }

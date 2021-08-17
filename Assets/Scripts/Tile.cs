@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(PerObjectMaterial))]
 [DisallowMultipleComponent]
 [SelectionBase]
-public class Tile : PieceContainer
+public class Tile : PieceContainer, RayPointer.IListener
 {
     [SerializeField] private Type type;
     [SerializeField] private Tile prev;
@@ -29,6 +29,7 @@ public class Tile : PieceContainer
     public void Setup()
     {
         PerObjectMaterial = GetComponent<PerObjectMaterial>();
+        Main.Instance.RayPointer.Register(this);
     }
 
     public void Connect(Tile prev, Tile next)
@@ -39,14 +40,32 @@ public class Tile : PieceContainer
 
     public Tile Success(bool forward) => forward ? Next : Prev;
 
-    private void OnMouseDown()
-    {
-        OnSelect?.Invoke(this);
-    }
+    // private void OnMouseDown()
+    // {
+    //     OnSelect?.Invoke(this);
+    // }
 
     public enum Type
     {
         Citizen,
         Mandarin
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireCube(Bounds.center, Bounds.size);
+    }
+
+    public Bounds Bounds
+    {
+        get
+        {
+            return GetComponent<BoxCollider>().bounds;
+        }
+    }
+
+    public void OnHit(Ray ray, float distance)
+    {
+        OnSelect?.Invoke(this);
     }
 }

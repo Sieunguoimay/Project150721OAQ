@@ -4,18 +4,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class PrefabManager : MonoBehaviour
+[CreateAssetMenu(menuName = "PrefabManager")]
+public class PrefabManager : ScriptableObject
 {
     [SerializeField] private Board boardPrefab;
     [SerializeField] private Tile citizenTilePrefab;
     [SerializeField] private Tile mandarinTilePrefab;
     [SerializeField] private Citizen citizenPrefab;
     [SerializeField] private Mandarin mandarinPrefab;
+    [SerializeField] private TileSelector tileSelector;
 
     public Board BoardPrefab => boardPrefab;
-
-    public static PrefabManager Instance { get; private set; }
-
+    
     public Citizen CitizenPrefab => citizenPrefab;
 
     public Tile CitizenTilePrefab => citizenTilePrefab;
@@ -24,12 +24,6 @@ public class PrefabManager : MonoBehaviour
 
     public Mandarin MandarinPrefab => mandarinPrefab;
 
-    private void Awake()
-    {
-        Instance = this;
-        if (Instance == null)
-        {
-            Debug.LogError("Cannot create singleton");
-        }
-    }
+    public TileSelector TileSelector => tileSelector;
+
 }

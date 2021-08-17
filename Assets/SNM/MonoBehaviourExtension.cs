@@ -15,4 +15,15 @@ public static class MonoBehaviourExtensionMethods
         yield return new WaitForSeconds(duration);
         onDone?.Invoke();
     }
+
+    public static void ExecuteInNextFrame(this MonoBehaviour mb, Action onDone)
+    {
+        mb.StartCoroutine(ExecuteInNextFrame(onDone));
+    }
+
+    private static IEnumerator ExecuteInNextFrame(Action onDone)
+    {
+        yield return null;
+        onDone?.Invoke();
+    }
 }

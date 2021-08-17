@@ -3,21 +3,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class PieceDropper : PieceContainer
 {
-    [SerializeField] private Color activeColor;
+    [Serializable]
+    public class Config
+    {
+        [SerializeField] private Color activeColor;
+        public Color ActiveColor => activeColor;
+    }
+
+    private Config config;
+
     private BoardTraveller boardTraveller = null;
     public bool IsTravelling => boardTraveller?.IsTravelling ?? false;
+
+    // public bool IsTerminated => Pieces.Count == 0 && boardTraveller.CurrentTile.Next.Pieces.Count == 0 &&
+    //                             (boardTraveller.CurrentTile.Next.Next.Pieces.Count == 0 ||
+    //                              boardTraveller.CurrentTile.Next.Next.TileType == Tile.Type.Mandarin);
+
     public event Action<PieceContainer> OnEat = delegate { };
     public event Action<ActionID> OnDone = delegate { };
 
     private ActionID actionID;
 
-    public void Setup(Board board)
+    public void Setup(Board board, Config config)
     {
+        this.config = config;
         if (boardTraveller == null || boardTraveller.Board != board)
         {
-            boardTraveller = new BoardTraveller(board, activeColor);
+            boardTraveller = new BoardTraveller(board, config.ActiveColor);
         }
     }
 
@@ -31,7 +46,7 @@ public class PieceDropper : PieceContainer
     public void GetReadyForTakingBackCitizens(Board.TileGroup tileGroup, List<Piece> citizens)
     {
         int n = Mathf.Min(tileGroup.tiles.Count, citizens.Count);
-        Grasp(citizens, n);
+        Grasp(citizens, n, false, p => p is Citizen);
         boardTraveller.Start(tileGroup.mandarinTile, n);
         actionID = ActionID.TAKING_BACK;
     }
@@ -39,14 +54,18 @@ public class PieceDropper : PieceContainer
     private void MakeCitizenJump(Tile tile)
     {
         float delay = 0f;
-        foreach (var b in Pieces)
+        for (int i = 0; i < Pieces.Count; i++)
         {
-            b.Mover.EnqueueTarget(tile.SpawnRandomPosition(false));
+            var b = Pieces[i];
+            bool isLast = (i == Pieces.Count - 1);
+
+            b.Mover.EnqueueTarget(new Mover.JumpTarget
+                {target = tile.SpawnPositionInUnityUnit(tile.Pieces.Count, false), flag = (isLast ? 1 : 0)});
 
             if (!b.Mover.IsJumpingInQueue)
             {
                 b.Delay(delay, b.Mover.JumpInQueue);
-                delay += 0.04f;
+                delay += 0.08f;
             }
         }
     }
@@ -59,7 +78,7 @@ public class PieceDropper : PieceContainer
 
         if (Drop())
         {
-            this.Delay(0.2f, () => DropAll(forward));
+            this.Delay(0.3f, () => DropAll(forward));
         }
         else if (actionID == ActionID.DROPPING_IN_TURN)
         {
@@ -68,7 +87,7 @@ public class PieceDropper : PieceContainer
             if (t.Pieces.Count > 0 && t.TileType == Tile.Type.Citizen)
             {
                 GetReady(t);
-                DropAll(forward);
+                this.Delay(.3f, () => DropAll(forward));
             }
             else
             {

@@ -35,7 +35,7 @@ public class Board : Prefab
                 InitializeTileGroup(ref tg);
                 tileGroups.Add(tg);
 
-                var m = Prefab.Instantiates(PrefabManager.Instance.MandarinPrefab);
+                var m = Prefab.Instantiates(Main.Instance.PrefabManager.MandarinPrefab);
                 t.Grasp(m);
                 t.Reposition(m.transform);
             }
@@ -43,7 +43,7 @@ public class Board : Prefab
             {
                 for (int i = 0; i < 5; i++)
                 {
-                    var b = Prefab.Instantiates(PrefabManager.Instance.CitizenPrefab);
+                    var b = Prefab.Instantiates(Main.Instance.PrefabManager.CitizenPrefab);
                     b.transform.SetParent(container.transform);
                     t.Grasp(b);
                     t.Reposition(b.transform);
@@ -96,7 +96,6 @@ public class Board : Prefab
 
         return allEmpty;
     }
-
     public struct TileGroup
     {
         public Tile mandarinTile;
