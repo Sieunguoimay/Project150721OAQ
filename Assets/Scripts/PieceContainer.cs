@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -31,14 +32,9 @@ public class PieceContainer : MonoBehaviour
         other.OnEmpty?.Invoke(other);
     }
 
-    public void Grasp(List<Piece> otherPieces, int count = -1, bool reposition = false, Func<Piece, bool> filter = null)
+    public void Grasp(List<Piece> otherPieces, int count = -1, bool reposition = false)
     {
-        if (filter != null && count == -1)
-        {
-            count = otherPieces.Count;
-        }
-
-        if (filter == null && (count == otherPieces.Count || count == -1))
+        if (count == otherPieces.Count || count == -1)
         {
             foreach (var b in otherPieces)
             {
@@ -56,24 +52,19 @@ public class PieceContainer : MonoBehaviour
             int n = Mathf.Min(count, otherPieces.Count);
             for (int i = n - 1; i >= 0; i--)
             {
-                var b = otherPieces[i];
-                if (filter?.Invoke(b) ?? true)
+                Grasp(otherPieces[i]);
+                if (reposition)
                 {
-                    Grasp(b);
-                    if (reposition)
-                    {
-                        Reposition(b.transform);
-                    }
-
-                    otherPieces.RemoveAt(i);
+                    Reposition(otherPieces[i].transform);
                 }
+
+                otherPieces.RemoveAt(i);
             }
         }
     }
 
     public void Reposition(Transform t)
     {
-        // t.position = SpawnRandomPosition(false);
         t.position = SpawnPositionInUnityUnit(Mathf.Max(0, Pieces.Count - 1), false);
     }
 

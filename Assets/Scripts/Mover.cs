@@ -16,7 +16,7 @@ public class Mover
 
     private Transform transform;
     public event Action<bool> OnJump = delegate(bool last) { };
-    public event Action<bool> OnJumpEnd = delegate(bool last) { };
+    public event Action<Mover, bool> OnJumpEnd = delegate(Mover m, bool last) { };
     public bool IsJumpingInQueue { get; private set; } = false;
     public bool IsJumping => !jumpData.done;
 
@@ -84,9 +84,10 @@ public class Mover
             JumpTo(target.target, () =>
             {
                 JumpInQueue();
-                OnJumpEnd?.Invoke(target.flag == 1);
+                OnJumpEnd?.Invoke(this, target.flag == 1);
+                target.onDone?.Invoke(this, target.flag);
             });
-            OnJump?.Invoke(target.flag == 1);
+            OnJump?.Invoke(target.flag >0);
         }
         else
         {
@@ -116,5 +117,6 @@ public class Mover
     {
         public Vector3 target;
         public int flag;
+        public Action<Mover, int> onDone;
     }
 }

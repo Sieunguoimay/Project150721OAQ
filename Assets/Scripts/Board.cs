@@ -36,6 +36,7 @@ public class Board : Prefab
                 tileGroups.Add(tg);
 
                 var m = Prefab.Instantiates(Main.Instance.PrefabManager.MandarinPrefab);
+                m.Setup(new Piece.ConfigData(Main.Instance.GameCommonConfig.MandarinConfigData));
                 t.Grasp(m);
                 t.Reposition(m.transform);
             }
@@ -45,6 +46,7 @@ public class Board : Prefab
                 {
                     var b = Prefab.Instantiates(Main.Instance.PrefabManager.CitizenPrefab);
                     b.transform.SetParent(container.transform);
+                    b.Setup(new Piece.ConfigData(Main.Instance.GameCommonConfig.CitizenConfigData));
                     t.Grasp(b);
                     t.Reposition(b.transform);
                 }
@@ -96,6 +98,7 @@ public class Board : Prefab
 
         return allEmpty;
     }
+
     public struct TileGroup
     {
         public Tile mandarinTile;

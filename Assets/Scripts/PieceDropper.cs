@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class PieceDropper : PieceContainer
+public class PieceDropper
 {
     [Serializable]
     public class Config
@@ -26,6 +26,8 @@ public class PieceDropper : PieceContainer
     public event Action<ActionID> OnDone = delegate { };
 
     private ActionID actionID;
+    private bool forward;
+    private List<Piece> pieces;
 
     public void Setup(Board board, Config config)
     {
@@ -38,56 +40,90 @@ public class PieceDropper : PieceContainer
 
     public void GetReady(Tile tile)
     {
-        Grasp(tile, false);
-        boardTraveller.Start(tile, Pieces.Count);
+        pieces = tile.Pieces;
+        boardTraveller.Start(tile, pieces.Count);
         actionID = ActionID.DROPPING_IN_TURN;
+
+        Debug.Log("GetReady");
     }
 
     public void GetReadyForTakingBackCitizens(Board.TileGroup tileGroup, List<Piece> citizens)
     {
         int n = Mathf.Min(tileGroup.tiles.Count, citizens.Count);
-        Grasp(citizens, n, false, p => p is Citizen);
-        boardTraveller.Start(tileGroup.mandarinTile, n);
-        actionID = ActionID.TAKING_BACK;
-    }
-
-    private void MakeCitizenJump(Tile tile)
-    {
-        float delay = 0f;
-        for (int i = 0; i < Pieces.Count; i++)
+        pieces = new List<Piece>();
+        for (int i = 0; i < n; i++)
         {
-            var b = Pieces[i];
-            bool isLast = (i == Pieces.Count - 1);
-
-            b.Mover.EnqueueTarget(new Mover.JumpTarget
-                {target = tile.SpawnPositionInUnityUnit(tile.Pieces.Count, false), flag = (isLast ? 1 : 0)});
-
-            if (!b.Mover.IsJumpingInQueue)
+            if (citizens[i] is Citizen)
             {
-                b.Delay(delay, b.Mover.JumpInQueue);
-                delay += 0.08f;
+                pieces.Add(citizens[i]);
+                citizens.RemoveAt(i);
+            }
+            else
+            {
+                if (citizens.Count > n)
+                {
+                    n++;
+                }
             }
         }
+
+        boardTraveller.Start(tileGroup.mandarinTile, pieces.Count);
+        actionID = ActionID.TAKING_BACK;
     }
 
     public void DropAll(bool forward)
     {
-        boardTraveller.Next(forward);
+        Debug.Log("DropAll");
 
-        MakeCitizenJump(boardTraveller.CurrentTile);
-
-        if (Drop())
+        this.forward = forward;
+        float delay = 0f;
+        for (int i = 0; i < pieces.Count; i++)
         {
-            this.Delay(0.3f, () => DropAll(forward));
+            boardTraveller.Next(forward);
+
+            for (int j = 0; j < pieces.Count - i; j++)
+            {
+                var b = pieces[i + j];
+                b.Mover.EnqueueTarget(new Mover.JumpTarget
+                {
+                    target = boardTraveller.CurrentTile.SpawnRandomPosition(false),
+                    flag = (i == pieces.Count - 1) ? 2 : (j == 0 ? 1 : 0),
+                    onDone = OnJumpDone
+                });
+
+                if (i == 0)
+                {
+                    b.Delay(delay, b.Mover.JumpInQueue);
+                    delay += 0.08f;
+                }
+            }
+
+            boardTraveller.CurrentTile.Grasp(pieces[i]);
         }
-        else if (actionID == ActionID.DROPPING_IN_TURN)
+
+        pieces.Clear();
+        Debug.Log("DropAll Done");
+    }
+
+    public void OnJumpDone(Mover last, int flag)
+    {
+        if (flag == 2)
+        {
+            OnDropAllDone();
+        }
+    }
+
+    private void OnDropAllDone()
+    {
+        if (actionID == ActionID.DROPPING_IN_TURN)
         {
             var t = boardTraveller.CurrentTile.Success(forward);
             boardTraveller.Reset();
+
             if (t.Pieces.Count > 0 && t.TileType == Tile.Type.Citizen)
             {
                 GetReady(t);
-                this.Delay(.3f, () => DropAll(forward));
+                Main.Instance.Delay(.3f, () => DropAll(forward));
             }
             else
             {
@@ -104,6 +140,7 @@ public class PieceDropper : PieceContainer
         else if (actionID == ActionID.TAKING_BACK)
         {
             boardTraveller.Reset();
+
             OnDone?.Invoke(actionID);
         }
     }
@@ -116,7 +153,7 @@ public class PieceDropper : PieceContainer
 
         if (CanEatSucc(succ.Success(forward), forward))
         {
-            this.Delay(0.2f, () => { Eat(succ.Success(forward), forward, done); });
+            Main.Instance.Delay(0.2f, () => { Eat(succ.Success(forward), forward, done); });
         }
         else
         {
@@ -130,18 +167,6 @@ public class PieceDropper : PieceContainer
 
         return (tile.Pieces.Count == 0 && (tile.TileType == Tile.Type.Citizen) && (succ.Pieces.Count > 0));
     }
-
-    private bool Drop()
-    {
-        if (Pieces.Count <= 0) return false;
-
-        var lastIndex = Pieces.Count - 1;
-        boardTraveller.CurrentTile.Grasp(Pieces[lastIndex]);
-        Pieces.RemoveAt(lastIndex);
-
-        return true;
-    }
-
 
     public enum ActionID
     {

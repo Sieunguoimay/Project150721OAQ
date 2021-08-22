@@ -38,6 +38,9 @@ public class Main : MonoBehaviour
     public RayPointer RayPointer { get; private set; }
     public GameCommonConfig GameCommonConfig => gameCommonConfig;
     public PrefabManager PrefabManager => prefabManager;
+    public StateData State => state;
+
+    private PerMatchData perMatchData;
 
     private void Awake()
     {
@@ -59,7 +62,7 @@ public class Main : MonoBehaviour
         board = Prefab.Instantiates(PrefabManager.BoardPrefab);
         board.Setup();
 
-        pieceDropper = SNM.Utils.NewGameObject<PieceDropper>();
+        pieceDropper = new PieceDropper();
         pieceDropper.Setup(board, gameCommonConfig.PieceDropper);
         pieceDropper.OnDone += OnBunnieDropperDone;
         pieceDropper.OnEat += OnBunnieDropperEat;
@@ -74,7 +77,13 @@ public class Main : MonoBehaviour
             player.OnDecisionResult += OnDecisionResult;
         }
 
-        this.Delay(1f, () => { CurrentPlayer.MakeDecision(board); });
+        this.Delay(1f, StartNewMatch);
+    }
+
+    private void StartNewMatch()
+    {
+        perMatchData = new PerMatchData(playerManager.Players.Length);
+        CurrentPlayer.MakeDecision(board);
     }
 
     private void Update()
@@ -127,8 +136,6 @@ public class Main : MonoBehaviour
             }
             else
             {
-                // tileSelector.Display(CurrentPlayer.tileGroup);
-
                 CurrentPlayer.MakeDecision(board);
             }
         }
@@ -147,15 +154,66 @@ public class Main : MonoBehaviour
 
     public void GameOver()
     {
-        Debug.Log("Game over");
+        CheckForWinner();
+
         if (!state.gameOver)
         {
             state.gameOver = true;
         }
     }
 
+    private void CheckForWinner()
+    {
+        for (int i = 0; i < playerManager.Players.Length; i++)
+        {
+            int sum = 0;
+
+            foreach (var p in playerManager.Players[i].pieceBench.Pieces)
+            {
+                if (p is Citizen)
+                {
+                    sum += p.ConfigDataProp.point;
+                }
+                else if (p is Mandarin)
+                {
+                    sum += p.ConfigDataProp.point;
+                }
+            }
+
+            foreach (var tile in board.TileGroups[i].tiles)
+            {
+                foreach (var p in tile.Pieces)
+                {
+                    sum += p.ConfigDataProp.point;
+                }
+            }
+
+            Debug.Log("sum " + sum);
+            perMatchData.SetPlayerScore(i, sum);
+        }
+
+        TellWinner(perMatchData.PlayerScores);
+    }
+
+    private void TellWinner(int[] scores)
+    {
+        if (scores[0] > scores[1])
+        {
+            Debug.Log("Player 1 win! " + scores[0] + " - " + scores[1]);
+        }
+        else if (scores[0] < scores[1])
+        {
+            Debug.Log("Player 2 win! " + scores[0] + " - " + scores[1]);
+        }
+        else
+        {
+            Debug.Log("Draw! " + scores[0] + " - " + scores[1]);
+        }
+    }
+
     private void ResetGame()
     {
+        state.gameOver = false;
         var gameResetter = new GameResetter(board, playerManager);
         gameResetter.Reset();
         this.Delay(1f, () => { CurrentPlayer.MakeDecision(board); });

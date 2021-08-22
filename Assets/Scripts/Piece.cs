@@ -12,7 +12,10 @@ public class Piece : Prefab
 
     private Animator animator;
     private Animator Animator => animator ? animator : (animator = GetComponentInChildren<Animator>());
+    public ConfigData ConfigDataProp => configData;
+
     private bool isRandomlyRotating = false;
+    private ConfigData configData;
 
     protected override void Start()
     {
@@ -20,6 +23,11 @@ public class Piece : Prefab
         this.Delay(UnityEngine.Random.Range(0.1f, 2f), () => { Animator?.Play("idle"); });
         Mover.OnJump += OnJump;
         FaceCamera(true, new Vector3(0, UnityEngine.Random.Range(-45f, 45f), 0));
+    }
+
+    public void Setup(ConfigData configData)
+    {
+        this.configData = configData;
     }
 
     private void OnJump(bool last)
@@ -120,5 +128,16 @@ public class Piece : Prefab
             piece.Animator?.CrossFade("idle", 0.1f);
             isDeselected = true;
         }
+    }
+
+    [Serializable]
+    public class ConfigData
+    {
+        public ConfigData(ConfigData prototype)
+        {
+            point = prototype.point;
+        }
+
+        public int point;
     }
 }

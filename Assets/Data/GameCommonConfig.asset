@@ -13,9 +13,13 @@ MonoBehaviour:
   m_Name: GameCommonConfig
   m_EditorClassIdentifier: 
   main:
-    tileSelector: {fileID: 1059249696085882183, guid: 6c125fae492ed4e4b85cb647c63a53c3, type: 3}
     playerNum: 2
   tileSelector:
     activeColor: {r: 0.90845144, g: 1, b: 0.5801887, a: 1}
   pieceDropper:
     activeColor: {r: 0.6937344, g: 0.9811321, b: 0.35635456, a: 1}
+  upVector: {x: 0, y: 1, z: 0}
+  citizenConfigData:
+    point: 1
+  mandarinConfigData:
+    point: 10
