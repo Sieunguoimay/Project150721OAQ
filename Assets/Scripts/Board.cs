@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
+
 public class Board : Prefab
 {
     private Tile[] tiles;
