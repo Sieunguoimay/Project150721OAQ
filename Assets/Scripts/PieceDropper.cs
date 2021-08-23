@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -49,22 +50,15 @@ public class PieceDropper
 
     public void GetReadyForTakingBackCitizens(Board.TileGroup tileGroup, List<Piece> citizens)
     {
-        int n = Mathf.Min(tileGroup.tiles.Count, citizens.Count);
+        var cs = citizens.Where(c => c is Citizen).ToList();
+
+        int n = Mathf.Min(tileGroup.tiles.Count, cs.Count);
+
         pieces = new List<Piece>();
-        for (int i = 0; i < n; i++)
+        
+        for (int i = n - 1; i >= 0; i++)
         {
-            if (citizens[i] is Citizen)
-            {
-                pieces.Add(citizens[i]);
-                citizens.RemoveAt(i);
-            }
-            else
-            {
-                if (citizens.Count > n)
-                {
-                    n++;
-                }
-            }
+            tileGroup.tiles[i].Grasp(cs[i]);
         }
 
         boardTraveller.Start(tileGroup.mandarinTile, pieces.Count);
@@ -107,6 +101,8 @@ public class PieceDropper
 
     public void OnJumpDone(Mover last, int flag)
     {
+        Debug.Log("OnJumpDone Done");
+
         if (flag == 2)
         {
             OnDropAllDone();
@@ -117,6 +113,8 @@ public class PieceDropper
     {
         if (actionID == ActionID.DROPPING_IN_TURN)
         {
+            Debug.Log("do something");
+
             var t = boardTraveller.CurrentTile.Success(forward);
             boardTraveller.Reset();
 
@@ -139,6 +137,8 @@ public class PieceDropper
         }
         else if (actionID == ActionID.TAKING_BACK)
         {
+            Debug.Log("takingback");
+
             boardTraveller.Reset();
 
             OnDone?.Invoke(actionID);
