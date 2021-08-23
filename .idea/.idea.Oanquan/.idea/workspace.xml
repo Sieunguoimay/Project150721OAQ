@@ -20,28 +20,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e637ac15-62b0-462f-b23e-65a523665f81" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/SNM/Utils.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/SNM/Utils.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/PieceBench.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/PieceBench.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/PlayersManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/PlayersManager.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/contentModel.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/indexLayout.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Oanquan/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Citizen.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Citizen.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Main.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Main.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Board.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Board.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Citizen.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Piece.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Citizen.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Piece.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/CitizenContainer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PieceContainer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/CitizenContainer.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PieceContainer.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/CitizenDropper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PieceDropper.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/CitizenDropper.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PieceDropper.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Main.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Main.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Mandarin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Mandarin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Player.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Player.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Tile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Tile.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/TileSelector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/TileSelector.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PieceDropper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PieceDropper.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/QualitySettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/QualitySettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,31 +44,57 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/PerObjectMaterial.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/F8918D0C-C5FC-41A1-BABA-01B207A4C016/97/0805ffa7/Collider.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Mover.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8F9A7EA3-47A4-4FFD-AD6C-91B550598CCD/7b/bc81d5fa/Array.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/SNM/RayPointer.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Tile.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/PrefabManager.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Mandarin.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4CC8EC07-5538-4164-96E5-DB5D391208AC/7c/bdd56626/GameObject.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4CC8EC07-5538-4164-96E5-DB5D391208AC/14/90457cdb/Vector2.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/PlayersManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/TileSelector.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Main.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Player.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/GameCommonConfig.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/PieceDropper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/PieceBench.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Citizen.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/PieceContainer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Prefab.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4CC8EC07-5538-4164-96E5-DB5D391208AC/92/e2acc8b2/Renderer.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Piece.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/SNM/MeshBoundsClicker.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/PrefabManager.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Board.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
-    <option name="CHANGED_PATHS">
-      <list>
-        <option value="$PROJECT_DIR$/Assets/Scripts/TileSelector.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Piece.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/PrefabManager.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/CitizenContainer.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Board.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/PieceBench.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/PieceContainer.cs" />
-        <option value="$PROJECT_DIR$/Assets/SNM/Utils.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Tile.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Player.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/PlayersManager.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Main.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Citizen.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Mandarin.cs" />
-      </list>
-    </option>
+    <changedPaths>
+      <option value="$PROJECT_DIR$/Assets/Scripts/Tile.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/Player.cs" />
+      <option value="$PROJECT_DIR$/Assets/SNM/RayPointer.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/PrefabManager.cs" />
+      <option value="$PROJECT_DIR$/Assets/SNM/MeshBoundsClicker.cs" />
+      <option value="$PROJECT_DIR$/Assets/SNM/MonoBehaviourExtension.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/Prefab.cs" />
+      <option value="$PROJECT_DIR$/Assets/SNM/Utils.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/Citizen.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/TileSelector.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/GameReseter.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/PlayersManager.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/PieceBench.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/Mover.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/GameResetter.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/Mandarin.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/GameCommonConfig.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/Board.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/PerMatchData.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/Main.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/Piece.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/PieceContainer.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/PieceDropper.cs" />
+    </changedPaths>
   </component>
   <component name="ProjectId" id="1vKy3IWfIk5SwOHupZAQkEhelk9" />
   <component name="ProjectViewState">
@@ -93,12 +103,13 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="DebuggerViewTab_PTCS_FirstProportionKey" value="0.34994584" />
-    <property name="DebuggerViewTab_PTCS_LastProportionKey" value="0.30010834" />
+    <property name="DebuggerViewTab_PTCS_FirstProportionKey" value="0.3498452" />
+    <property name="DebuggerViewTab_PTCS_LastProportionKey" value="0.0" />
     <property name="Discover.Launch.Via.Unity" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="do_not_show_solution_notification" value="true" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
@@ -107,7 +118,7 @@
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
       <option name="selectedOptions">
-        <set />
+        <list />
       </option>
       <method v="2" />
     </configuration>
@@ -116,7 +127,7 @@
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
       <option name="selectedOptions">
-        <set />
+        <list />
       </option>
       <method v="2" />
     </configuration>
@@ -144,6 +155,31 @@
       <workItem from="1626912362245" duration="2141000" />
       <workItem from="1626931516587" duration="1645000" />
       <workItem from="1627016164842" duration="10818000" />
+      <workItem from="1627094716173" duration="7390000" />
+      <workItem from="1627135456124" duration="3904000" />
+      <workItem from="1627544931172" duration="826000" />
+      <workItem from="1627565242080" duration="4212000" />
+      <workItem from="1627641885925" duration="1672000" />
+      <workItem from="1627647620649" duration="5641000" />
+      <workItem from="1628082688879" duration="1554000" />
+      <workItem from="1628432474981" duration="1144000" />
+      <workItem from="1628469024709" duration="2362000" />
+      <workItem from="1628681518830" duration="5279000" />
+      <workItem from="1628725031265" duration="29972000" />
+      <workItem from="1628853447192" duration="589000" />
+      <workItem from="1628858833824" duration="7572000" />
+      <workItem from="1628903781381" duration="6858000" />
+      <workItem from="1628991408978" duration="6289000" />
+      <workItem from="1629015181597" duration="3195000" />
+      <workItem from="1629018698562" duration="14040000" />
+      <workItem from="1629206931331" duration="12116000" />
+      <workItem from="1629333885273" duration="5016000" />
+      <workItem from="1629373539226" duration="3933000" />
+      <workItem from="1629422460054" duration="361000" />
+      <workItem from="1629423164591" duration="7979000" />
+      <workItem from="1629517592472" duration="1261000" />
+      <workItem from="1629552084809" duration="9166000" />
+      <workItem from="1629594262327" duration="4084000" />
     </task>
     <servers />
   </component>
@@ -166,11 +202,5 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="92" y="92" width="1736" height="856" key="VCS.FileHistoryDialog" timestamp="1627035718733">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="92" y="92" width="1736" height="856" key="VCS.FileHistoryDialog/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1627035718733" />
   </component>
 </project>
