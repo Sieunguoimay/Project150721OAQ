@@ -29,7 +29,7 @@ namespace Manager
                 var pieceBench = SNM.Utils.NewGameObject<PieceBench>();
                 pieceBench.transform.SetPositionAndRotation(location.Item1, location.Item2);
 
-                if (false) //i == n - 1)
+                if (true) //i == n - 1)
                 {
                     players[i] = new RealPlayer(tileGroups[i], pieceBench, tileSelector);
                 }

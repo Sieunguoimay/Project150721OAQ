@@ -72,32 +72,28 @@ public class Board : Prefab
 
     public static bool IsTileGroupEmpty(TileGroup tileGroup)
     {
-        bool empty = true;
         foreach (var t in tileGroup.tiles)
         {
             if (t.Pieces.Count > 0)
             {
-                empty = false;
-                break;
+                return false;
             }
         }
 
-        return empty;
+        return true;
     }
 
     public bool AreMandarinTilesAllEmpty()
     {
-        bool allEmpty = true;
         foreach (var tg in TileGroups)
         {
             if (tg.mandarinTile.Pieces.Count > 0)
             {
-                allEmpty = false;
-                break;
+                return false;
             }
         }
 
-        return allEmpty;
+        return true;
     }
 
     public struct TileGroup

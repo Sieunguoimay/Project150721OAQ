@@ -5,44 +5,43 @@ using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class PieceContainer : MonoBehaviour
+public interface IPieceHolder
 {
-    private const int maxPiecesSupported = 25;
-    public List<Piece> Pieces { get; private set; } = new List<Piece>();
+    List<Piece> Pieces { get; }
+    void Grasp(Piece piece, Action<Piece> onGrasp = null);
+    void Grasp(IPieceHolder other, Action<Piece> onGrasp = null);
+    void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null);
+}
 
-    public event Action<PieceContainer> OnEmpty = delegate { };
+public class PieceHolder : IPieceHolder
+{
+    public const int MaxPiecesSupported = 25;
 
-    public virtual void Grasp(Piece piece)
+    public List<Piece> Pieces { get; } = new List<Piece>();
+
+    public void Grasp(Piece piece, Action<Piece> onGrasp = null)
     {
         Pieces.Add(piece);
+        onGrasp?.Invoke(piece);
     }
 
-    public void Grasp(PieceContainer other, bool localize = true)
+    public void Grasp(IPieceHolder other, Action<Piece> onGrasp = null)
     {
         foreach (var b in other.Pieces)
         {
-            Grasp(b);
-            if (localize)
-            {
-                Reposition(b.transform);
-            }
+            Grasp(b, onGrasp);
         }
 
         other.Pieces.Clear();
-        other.OnEmpty?.Invoke(other);
     }
 
-    public void Grasp(List<Piece> otherPieces, int count = -1, bool reposition = false)
+    public void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null)
     {
         if (count == otherPieces.Count || count == -1)
         {
             foreach (var b in otherPieces)
             {
-                Grasp(b);
-                if (reposition)
-                {
-                    Reposition(b.transform);
-                }
+                Grasp(b, onGrasp);
             }
 
             otherPieces.Clear();
@@ -52,14 +51,65 @@ public class PieceContainer : MonoBehaviour
             int n = Mathf.Min(count, otherPieces.Count);
             for (int i = n - 1; i >= 0; i--)
             {
-                Grasp(otherPieces[i]);
-                if (reposition)
-                {
-                    Reposition(otherPieces[i].transform);
-                }
-
+                Grasp(otherPieces[i], onGrasp);
                 otherPieces.RemoveAt(i);
             }
+        }
+    }
+}
+
+public class PieceContainer : MonoBehaviour, IPieceHolder
+{
+    private PieceHolder pieceHolder = new PieceDropper();
+    private int graspFlag = -1;
+
+
+    #region IPieceHolder
+
+    public List<Piece> Pieces => pieceHolder.Pieces;
+
+    public virtual void Grasp(Piece piece, Action<Piece> onGrasp = null)
+    {
+        pieceHolder?.Grasp(piece, p =>
+        {
+            OnGrasp(p);
+            onGrasp?.Invoke(p);
+        });
+        SetGraspFlag(-1);
+    }
+
+    public void Grasp(IPieceHolder other, Action<Piece> onGrasp = null)
+    {
+        pieceHolder.Grasp(other, p =>
+        {
+            OnGrasp(p);
+            onGrasp?.Invoke(p);
+        });
+        SetGraspFlag(-1);
+    }
+
+    public void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null)
+    {
+        pieceHolder.Grasp(otherPieces, count, p =>
+        {
+            OnGrasp(p);
+            onGrasp?.Invoke(p);
+        });
+        SetGraspFlag(-1);
+    }
+
+    #endregion
+
+    public void SetGraspFlag(int graspFlag)
+    {
+        this.graspFlag = graspFlag;
+    }
+
+    private void OnGrasp(Piece piece)
+    {
+        if (graspFlag == 1)
+        {
+            Reposition(piece.transform);
         }
     }
 
@@ -125,7 +175,7 @@ public class PieceContainer : MonoBehaviour
         if (existing.Count > 0)
         {
             var e = existing[existing.Count - 1];
-            int n = (int) Mathf.Sqrt(maxPiecesSupported);
+            int n = (int) Mathf.Sqrt(PieceHolder.MaxPiecesSupported);
             float scale = 1f / n;
             pos.x = e.Item1 * scale * size;
             pos.z = e.Item2 * scale * size;

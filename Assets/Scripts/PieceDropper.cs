@@ -4,8 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-
-public class PieceDropper
+public class PieceDropper : PieceHolder
 {
     [Serializable]
     public class Config
@@ -28,7 +27,7 @@ public class PieceDropper
 
     private ActionID actionID;
     private bool forward;
-    private List<Piece> pieces;
+
 
     public void Setup(Board board, Config config)
     {
@@ -41,11 +40,10 @@ public class PieceDropper
 
     public void GetReady(Tile tile)
     {
-        pieces = tile.Pieces;
-        boardTraveller.Start(tile, pieces.Count);
-        actionID = ActionID.DROPPING_IN_TURN;
-
         Debug.Log("GetReady");
+        Grasp(tile);
+        boardTraveller.Start(tile, Pieces.Count);
+        actionID = ActionID.DROPPING_IN_TURN;
     }
 
     public void GetReadyForTakingBackCitizens(Board.TileGroup tileGroup, List<Piece> citizens)
@@ -53,15 +51,9 @@ public class PieceDropper
         var cs = citizens.Where(c => c is Citizen).ToList();
 
         int n = Mathf.Min(tileGroup.tiles.Count, cs.Count);
+        Grasp(cs, n, p => citizens.Remove(p));
 
-        pieces = new List<Piece>();
-        
-        for (int i = n - 1; i >= 0; i++)
-        {
-            tileGroup.tiles[i].Grasp(cs[i]);
-        }
-
-        boardTraveller.Start(tileGroup.mandarinTile, pieces.Count);
+        boardTraveller.Start(tileGroup.mandarinTile, Pieces.Count);
         actionID = ActionID.TAKING_BACK;
     }
 
@@ -71,17 +63,17 @@ public class PieceDropper
 
         this.forward = forward;
         float delay = 0f;
-        for (int i = 0; i < pieces.Count; i++)
+        for (int i = 0; i < Pieces.Count; i++)
         {
             boardTraveller.Next(forward);
 
-            for (int j = 0; j < pieces.Count - i; j++)
+            for (int j = 0; j < Pieces.Count - i; j++)
             {
-                var b = pieces[i + j];
+                var b = Pieces[i + j];
                 b.Mover.EnqueueTarget(new Mover.JumpTarget
                 {
-                    target = boardTraveller.CurrentTile.SpawnRandomPosition(false),
-                    flag = (i == pieces.Count - 1) ? 2 : (j == 0 ? 1 : 0),
+                    target = boardTraveller.CurrentTile.SpawnPositionInUnityUnit(Math.Max(0, boardTraveller.CurrentTile.Pieces.Count - 1), false),
+                    flag = (i == Pieces.Count - 1) ? 2 : (j == 0 ? 1 : 0),
                     onDone = OnJumpDone
                 });
 
@@ -92,16 +84,16 @@ public class PieceDropper
                 }
             }
 
-            boardTraveller.CurrentTile.Grasp(pieces[i]);
+            boardTraveller.CurrentTile.Grasp(Pieces[i]);
         }
 
-        pieces.Clear();
-        Debug.Log("DropAll Done");
+        Pieces.Clear();
+        // Debug.Log("DropAll Done");
     }
 
     public void OnJumpDone(Mover last, int flag)
     {
-        Debug.Log("OnJumpDone Done");
+        // Debug.Log("OnJumpDone Done");
 
         if (flag == 2)
         {
@@ -111,33 +103,44 @@ public class PieceDropper
 
     private void OnDropAllDone()
     {
+        Debug.Log("A");
         if (actionID == ActionID.DROPPING_IN_TURN)
         {
-            Debug.Log("do something");
-
             var t = boardTraveller.CurrentTile.Success(forward);
             boardTraveller.Reset();
+            Debug.Log("B");
 
             if (t.Pieces.Count > 0 && t.TileType == Tile.Type.Citizen)
             {
+                Debug.Log("C");
                 GetReady(t);
-                Main.Instance.Delay(.3f, () => DropAll(forward));
+                Main.Instance.Delay(.3f, () =>
+                {
+                    Debug.Log("CC");
+                    DropAll(forward);
+                    Debug.Log("CCC");
+                });
+                Debug.Log("D");
             }
             else
             {
                 if (CanEatSucc(t, forward))
                 {
-                    Eat(t, forward, () => OnDone?.Invoke(actionID));
+                    Debug.Log("E");
+                    Eat(t, forward, () => { OnDone?.Invoke(actionID); });
+                    Debug.Log("F");
                 }
                 else
                 {
+                    Debug.Log("G");
                     OnDone?.Invoke(actionID);
+                    Debug.Log("H");
                 }
             }
         }
         else if (actionID == ActionID.TAKING_BACK)
         {
-            Debug.Log("takingback");
+            // Debug.Log("takingback");
 
             boardTraveller.Reset();
 

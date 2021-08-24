@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 [Serializable]
 public class Player
@@ -17,6 +18,8 @@ public class Player
 
     public virtual void MakeDecision(Board board)
     {
+        Debug.Log("X");
+
         Tile selectedTile = null;
         bool selectedDirection = UnityEngine.Random.Range(0, 100f) > 50f;
 
@@ -32,7 +35,9 @@ public class Player
             }
         }
 
+        Debug.Log("XX");
         pieceBench.Delay(1f, () => { InvokeOnDecisionResult(selectedTile, selectedDirection); });
+        Debug.Log("XXX");
     }
 
     protected virtual void InvokeOnDecisionResult(Tile arg1, bool arg2) => OnDecisionResult?.Invoke(arg1, arg2);
@@ -60,6 +65,7 @@ public class RealPlayer : Player
     {
         tileSelector.Display(TileGroup);
     }
+
     public override void AcquireTurn()
     {
         this.tileSelector.OnDone = InvokeOnDecisionResult;

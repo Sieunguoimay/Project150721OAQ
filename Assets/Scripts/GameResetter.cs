@@ -41,11 +41,13 @@ public class GameResetter
         {
             if (tile.TileType == Tile.Type.Mandarin)
             {
-                tile.Grasp(mandarins, Math.Max(0, 1 - tile.Pieces.Count), true);
+                tile.SetGraspFlag(1);
+                tile.Grasp(mandarins, Math.Max(0, 1 - tile.Pieces.Count));
             }
             else
             {
-                tile.Grasp(citizens, Math.Max(0, 5 - tile.Pieces.Count), true);
+                tile.SetGraspFlag(1);
+                tile.Grasp(citizens, Math.Max(0, 5 - tile.Pieces.Count));
             }
         }
     }

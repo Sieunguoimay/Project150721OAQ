@@ -51,6 +51,7 @@ public class TileSelector : Prefab
 
         InvokeDeselect();
 
+        Debug.Log("Selected tile " + tile.Pieces.Count);
         foreach (var p in selectedTile.Pieces)
         {
             var sa = new Piece.PieceToTileSelectorAdaptor(p);
