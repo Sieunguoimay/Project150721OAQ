@@ -40,7 +40,6 @@ public class PieceDropper : PieceHolder
 
     public void GetReady(Tile tile)
     {
-        Debug.Log("GetReady");
         Grasp(tile);
         boardTraveller.Start(tile, Pieces.Count);
         actionID = ActionID.DROPPING_IN_TURN;
@@ -59,8 +58,6 @@ public class PieceDropper : PieceHolder
 
     public void DropAll(bool forward)
     {
-        Debug.Log("DropAll");
-
         this.forward = forward;
         float delay = 0f;
         for (int i = 0; i < Pieces.Count; i++)
@@ -88,13 +85,10 @@ public class PieceDropper : PieceHolder
         }
 
         Pieces.Clear();
-        // Debug.Log("DropAll Done");
     }
 
     public void OnJumpDone(Mover last, int flag)
     {
-        // Debug.Log("OnJumpDone Done");
-
         if (flag == 2)
         {
             OnDropAllDone();
@@ -103,45 +97,33 @@ public class PieceDropper : PieceHolder
 
     private void OnDropAllDone()
     {
-        Debug.Log("A");
         if (actionID == ActionID.DROPPING_IN_TURN)
         {
             var t = boardTraveller.CurrentTile.Success(forward);
             boardTraveller.Reset();
-            Debug.Log("B");
 
             if (t.Pieces.Count > 0 && t.TileType == Tile.Type.Citizen)
             {
-                Debug.Log("C");
                 GetReady(t);
                 Main.Instance.Delay(.3f, () =>
                 {
-                    Debug.Log("CC");
                     DropAll(forward);
-                    Debug.Log("CCC");
                 });
-                Debug.Log("D");
             }
             else
             {
                 if (CanEatSucc(t, forward))
                 {
-                    Debug.Log("E");
                     Eat(t, forward, () => { OnDone?.Invoke(actionID); });
-                    Debug.Log("F");
                 }
                 else
                 {
-                    Debug.Log("G");
                     OnDone?.Invoke(actionID);
-                    Debug.Log("H");
                 }
             }
         }
         else if (actionID == ActionID.TAKING_BACK)
         {
-            // Debug.Log("takingback");
-
             boardTraveller.Reset();
 
             OnDone?.Invoke(actionID);

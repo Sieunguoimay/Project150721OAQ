@@ -21,5 +21,7 @@ MonoBehaviour:
   upVector: {x: 0, y: 1, z: 0}
   citizenConfigData:
     point: 1
+    size: {x: 0.2, y: 0.4, z: 0.2}
   mandarinConfigData:
     point: 10
+    size: {x: 0.4, y: 0.6, z: 0.4}

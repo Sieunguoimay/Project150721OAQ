@@ -112,28 +112,22 @@ public class Main : MonoBehaviour
 
     private void MakeDecision(bool canChangePlayer)
     {
-        Debug.Log("0");
-
         if (board.AreMandarinTilesAllEmpty())
         {
             GameOver();
         }
         else
         {
-            Debug.Log("1");
             if (canChangePlayer)
             {
                 playerManager.ChangePlayer();
             }
-            Debug.Log("2");
 
             if (Board.IsTileGroupEmpty(CurrentPlayer.TileGroup))
             {
                 if (CurrentPlayer.pieceBench.Pieces.Count > 0)
                 {
-                    Debug.Log("3");
                     TakeBackTiles();
-                    Debug.Log("4");
                 }
                 else
                 {
@@ -142,17 +136,14 @@ public class Main : MonoBehaviour
             }
             else
             {
-                Debug.Log("5");
                 CurrentPlayer.MakeDecision(board);
-                Debug.Log("6");
             }
         }
     }
 
     private void OnBunnieDropperEat(PieceContainer pieceContainerMb)
     {
-        CurrentPlayer.pieceBench.SetGraspFlag(1);
-        CurrentPlayer.pieceBench.Grasp(pieceContainerMb);
+        CurrentPlayer.pieceBench.Grasp(pieceContainerMb, p => CurrentPlayer.pieceBench.Reposition(p.transform));
     }
 
     private void TakeBackTiles()

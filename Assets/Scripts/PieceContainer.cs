@@ -60,58 +60,16 @@ public class PieceHolder : IPieceHolder
 
 public class PieceContainer : MonoBehaviour, IPieceHolder
 {
-    private PieceHolder pieceHolder = new PieceDropper();
-    private int graspFlag = -1;
-
-
     #region IPieceHolder
 
+    private PieceHolder pieceHolder = new PieceDropper();
     public List<Piece> Pieces => pieceHolder.Pieces;
-
-    public virtual void Grasp(Piece piece, Action<Piece> onGrasp = null)
-    {
-        pieceHolder?.Grasp(piece, p =>
-        {
-            OnGrasp(p);
-            onGrasp?.Invoke(p);
-        });
-        SetGraspFlag(-1);
-    }
-
-    public void Grasp(IPieceHolder other, Action<Piece> onGrasp = null)
-    {
-        pieceHolder.Grasp(other, p =>
-        {
-            OnGrasp(p);
-            onGrasp?.Invoke(p);
-        });
-        SetGraspFlag(-1);
-    }
-
-    public void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null)
-    {
-        pieceHolder.Grasp(otherPieces, count, p =>
-        {
-            OnGrasp(p);
-            onGrasp?.Invoke(p);
-        });
-        SetGraspFlag(-1);
-    }
+    public virtual void Grasp(Piece piece, Action<Piece> onGrasp = null) => pieceHolder.Grasp(piece, onGrasp);
+    public void Grasp(IPieceHolder other, Action<Piece> onGrasp = null) => pieceHolder.Grasp(other, onGrasp);
+    public void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null) => pieceHolder.Grasp(otherPieces, count, onGrasp);
 
     #endregion
 
-    public void SetGraspFlag(int graspFlag)
-    {
-        this.graspFlag = graspFlag;
-    }
-
-    private void OnGrasp(Piece piece)
-    {
-        if (graspFlag == 1)
-        {
-            Reposition(piece.transform);
-        }
-    }
 
     public void Reposition(Transform t)
     {

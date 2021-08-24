@@ -87,6 +87,7 @@ public class Piece : Prefab
 
 #if UNITY_EDITOR
     private Vector3 initialPosition;
+
     [ContextMenu("Test Jump")]
     private void TestJump()
     {
@@ -96,6 +97,12 @@ public class Piece : Prefab
             Mover.JumpTo(initialPosition + Vector3.right * 2f,
                 () => { this.Delay(1f, () => { transform.position = initialPosition; }); });
         });
+    }
+
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireCube(transform.position, ConfigDataProp.size);
     }
 #endif
     public class PieceToTileSelectorAdaptor : TileSelector.ISelectionAdaptor
@@ -136,8 +143,10 @@ public class Piece : Prefab
         public ConfigData(ConfigData prototype)
         {
             point = prototype.point;
+            size = prototype.size;
         }
 
         public int point;
+        public Vector3 size;
     }
 }

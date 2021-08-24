@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace SNM
 {
@@ -31,6 +33,50 @@ namespace SNM
         public static Vector3 MotionEquation(Vector3 initialPos, Vector3 initialVel, Vector3 initialAcc, float t)
         {
             return initialPos + initialVel * t + initialAcc * (0.5f * t * t);
+        }
+
+        public List<Vector2Int> BresenhamCircleAlgorithm(int xc, int yc, int r)
+        {
+            int x = 0;
+            int y = r;
+            int d = 3 - 2 * r;
+            List<Vector2Int>[] pixels = new List<Vector2Int>[8];
+            BresenhamDrawCircle(xc, yc, x, y, pixels);
+            while (y >= x)
+            {
+                x++;
+                if (d > 0)
+                {
+                    y--;
+                    d = d + 4 * (x - y) + 10;
+                }
+                else
+                {
+                    d = d + 4 * x + 6;
+                }
+
+                BresenhamDrawCircle(xc, yc, x, y, pixels);
+            }
+
+            var combinedPixels = new List<Vector2Int>();
+            foreach (var p in pixels)
+            {
+                combinedPixels.AddRange(p);
+            }
+
+            return combinedPixels;
+        }
+
+        private static void BresenhamDrawCircle(int xc, int yc, int x, int y, List<Vector2Int>[] pixels)
+        {
+            pixels[0].Add(new Vector2Int(xc + x, yc + y));
+            pixels[1].Add(new Vector2Int(xc - x, yc + y));
+            pixels[2].Add(new Vector2Int(xc + x, yc - y));
+            pixels[3].Add(new Vector2Int(xc - x, yc - y));
+            pixels[4].Add(new Vector2Int(xc + y, yc + x));
+            pixels[5].Add(new Vector2Int(xc - y, yc + x));
+            pixels[6].Add(new Vector2Int(xc + y, yc - x));
+            pixels[7].Add(new Vector2Int(xc - y, yc - x));
         }
     }
 }
