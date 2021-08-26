@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SNM
@@ -35,12 +36,17 @@ namespace SNM
             return initialPos + initialVel * t + initialAcc * (0.5f * t * t);
         }
 
-        public List<Vector2Int> BresenhamCircleAlgorithm(int xc, int yc, int r)
+        public static List<Vector2Int> BresenhamCircleAlgorithm(int xc, int yc, int r)
         {
             int x = 0;
             int y = r;
             int d = 3 - 2 * r;
             List<Vector2Int>[] pixels = new List<Vector2Int>[8];
+            for (var i = 0; i < 8; i++)
+            {
+                pixels[i] = new List<Vector2Int>();
+            }
+
             BresenhamDrawCircle(xc, yc, x, y, pixels);
             while (y >= x)
             {
@@ -64,7 +70,7 @@ namespace SNM
                 combinedPixels.AddRange(p);
             }
 
-            return combinedPixels;
+            return combinedPixels.Distinct().ToList();
         }
 
         private static void BresenhamDrawCircle(int xc, int yc, int x, int y, List<Vector2Int>[] pixels)

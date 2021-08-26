@@ -73,7 +73,7 @@ public class PieceContainer : MonoBehaviour, IPieceHolder
 
     public void Reposition(Transform t)
     {
-        t.position = SpawnPositionInUnityUnit(Mathf.Max(0, Pieces.Count - 1), false);
+        t.position = SpawnPositionInCircle(Mathf.Max(0, Pieces.Count - 1), false);
     }
 
     public Vector3 SpawnRandomPosition(bool local = true)
@@ -81,6 +81,24 @@ public class PieceContainer : MonoBehaviour, IPieceHolder
         var randomPos = Random.insideUnitCircle * 0.2f;
         var offset = transform.up + new Vector3(randomPos.x, 0f, randomPos.y);
         var pos = Vector3.Scale(offset, transform.localScale);
+        if (!local)
+        {
+            pos = transform.TransformPoint(pos);
+        }
+
+        return pos;
+    }
+
+    public Vector3 SpawnPositionInCircle(int index, bool local = false, float size = 0.15f)
+    {
+        var points = new List<Vector2Int>();
+        int r = 1;
+        while (index > points.Count - 1)
+        {
+            points.AddRange(SNM.Math.BresenhamCircleAlgorithm(0, 0, r++));
+        }
+
+        var pos = new Vector3(points[index].x, 0, points[index].y) * size;
         if (!local)
         {
             pos = transform.TransformPoint(pos);

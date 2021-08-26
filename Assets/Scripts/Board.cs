@@ -43,7 +43,7 @@ public class Board : Prefab
             }
             else
             {
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i <20; i++)
                 {
                     var b = Prefab.Instantiates(Main.Instance.PrefabManager.CitizenPrefab);
                     b.transform.SetParent(container.transform);

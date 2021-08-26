@@ -102,7 +102,8 @@ public class Piece : Prefab
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireCube(transform.position, ConfigDataProp.size);
+        if (ConfigDataProp != null)
+            Gizmos.DrawWireCube(transform.position, ConfigDataProp.size);
     }
 #endif
     public class PieceToTileSelectorAdaptor : TileSelector.ISelectionAdaptor
