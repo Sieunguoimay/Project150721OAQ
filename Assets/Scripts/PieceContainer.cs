@@ -11,12 +11,11 @@ public interface IPieceHolder
     void Grasp(Piece piece, Action<Piece> onGrasp = null);
     void Grasp(IPieceHolder other, Action<Piece> onGrasp = null);
     void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null);
+    void OnGrasp(IPieceHolder other);
 }
 
-public class PieceHolder : IPieceHolder
+public abstract class PieceHolder : IPieceHolder
 {
-    public const int MaxPiecesSupported = 25;
-
     public List<Piece> Pieces { get; } = new List<Piece>();
 
     public void Grasp(Piece piece, Action<Piece> onGrasp = null)
@@ -32,6 +31,7 @@ public class PieceHolder : IPieceHolder
             Grasp(b, onGrasp);
         }
 
+        other.OnGrasp(this);
         other.Pieces.Clear();
     }
 
@@ -56,10 +56,15 @@ public class PieceHolder : IPieceHolder
             }
         }
     }
+
+    public virtual void OnGrasp(IPieceHolder whom){}
 }
 
 public class PieceContainer : MonoBehaviour, IPieceHolder
 {
+    public const int MaxPiecesSupported = 50;
+    Vector2Int[] reservedPoints = new Vector2Int[MaxPiecesSupported];
+
     #region IPieceHolder
 
     private PieceHolder pieceHolder = new PieceDropper();
@@ -68,12 +73,21 @@ public class PieceContainer : MonoBehaviour, IPieceHolder
     public void Grasp(IPieceHolder other, Action<Piece> onGrasp = null) => pieceHolder.Grasp(other, onGrasp);
     public void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null) => pieceHolder.Grasp(otherPieces, count, onGrasp);
 
+    public virtual void OnGrasp(IPieceHolder whom)
+    {
+        pieceHolder.OnGrasp(whom);
+    }
+
     #endregion
 
+    public virtual void Setup()
+    {
+        ReservePositionsInFilledCircle();
+    }
 
     public void Reposition(Transform t)
     {
-        t.position = SpawnPositionInCircle(Mathf.Max(0, Pieces.Count - 1), false);
+        t.position = GetPositionInFilledCircle(Mathf.Max(0, Pieces.Count - 1), false);
     }
 
     public Vector3 SpawnRandomPosition(bool local = true)
@@ -87,6 +101,54 @@ public class PieceContainer : MonoBehaviour, IPieceHolder
         }
 
         return pos;
+    }
+
+    public virtual Vector3 GetPositionInFilledCircle(int index, bool local = false, float size = 0.15f)
+    {
+        var pos = new Vector3(reservedPoints[index].x, 0, reservedPoints[index].y) * size;
+        if (!local)
+        {
+            pos = transform.TransformPoint(pos);
+        }
+
+        return pos;
+    }
+
+    private void ReservePositionsInFilledCircle()
+    {
+        int r = 1;
+        int n = 0;
+        var points = new List<Vector2Int>();
+        while (n < MaxPiecesSupported)
+        {
+            n = 0;
+            points.Clear();
+            for (int x = -r; x <= r; x++)
+            {
+                for (int y = -r; y <= r; y++)
+                {
+                    if (x * x + y * y <= r * r)
+                    {
+                        points.Add(new Vector2Int(x, y));
+                        n++;
+                    }
+                }
+            }
+
+            r++;
+        }
+
+        points.Sort((a, b) =>
+        {
+            var da = a.x * a.x + a.y * a.y;
+            var db = b.x * b.x + b.y * b.y;
+            return (da == db ? 0 : (da < db ? -1 : 1));
+        });
+
+        for (int i = 0; i < MaxPiecesSupported; i++)
+        {
+            reservedPoints[i] = points[i];
+        }
     }
 
     public Vector3 SpawnPositionInCircle(int index, bool local = false, float size = 0.15f)
@@ -107,7 +169,7 @@ public class PieceContainer : MonoBehaviour, IPieceHolder
         return pos;
     }
 
-    public Vector3 SpawnPositionInUnityUnit(int index, bool local = false, float size = 0.6f)
+    public Vector3 SpawnPositionInUnityUnit(int index, bool local = false, float size = 0.15f)
     {
         int a = 0;
         int b = 0;
@@ -151,10 +213,10 @@ public class PieceContainer : MonoBehaviour, IPieceHolder
         if (existing.Count > 0)
         {
             var e = existing[existing.Count - 1];
-            int n = (int) Mathf.Sqrt(PieceHolder.MaxPiecesSupported);
-            float scale = 1f / n;
-            pos.x = e.Item1 * scale * size;
-            pos.z = e.Item2 * scale * size;
+            // int n = (int) Mathf.Sqrt(PieceHolder.MaxPiecesSupported);
+            // float scale = 1f / n;
+            pos.x = e.Item1 * size;
+            pos.z = e.Item2 * size;
         }
 
         if (!local)

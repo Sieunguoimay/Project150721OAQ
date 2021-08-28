@@ -27,6 +27,7 @@ namespace Manager
             {
                 var location = CalculatePlayerPosition(tileGroups[i]);
                 var pieceBench = SNM.Utils.NewGameObject<PieceBench>();
+                pieceBench.Setup();
                 pieceBench.transform.SetPositionAndRotation(location.Item1, location.Item2);
 
                 if (true) //i == n - 1)

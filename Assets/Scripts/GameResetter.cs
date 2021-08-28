@@ -39,7 +39,7 @@ public class GameResetter
 
         foreach (var tile in board.Tiles)
         {
-            if (tile.TileType == Tile.Type.Mandarin)
+            if (tile is MandarinTile)
             {
                 tile.Grasp(mandarins, Math.Max(0, 1 - tile.Pieces.Count), p => tile.Reposition(p.transform));
             }

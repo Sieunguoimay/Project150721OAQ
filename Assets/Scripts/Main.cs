@@ -141,7 +141,7 @@ public class Main : MonoBehaviour
         }
     }
 
-    private void OnBunnieDropperEat(PieceContainer pieceContainerMb)
+    private void OnBunnieDropperEat(IPieceHolder pieceContainerMb)
     {
         CurrentPlayer.pieceBench.Grasp(pieceContainerMb, p => CurrentPlayer.pieceBench.Reposition(p.transform));
     }

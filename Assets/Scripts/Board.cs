@@ -30,7 +30,7 @@ public class Board : Prefab
 
             t.Setup();
 
-            if (t.TileType == Tile.Type.Mandarin)
+            if (t is MandarinTile)
             {
                 var tg = new TileGroup() {id = id++, mandarinTile = t, tiles = new List<Tile>()};
                 InitializeTileGroup(ref tg);
@@ -43,7 +43,7 @@ public class Board : Prefab
             }
             else
             {
-                for (int i = 0; i <20; i++)
+                for (int i = 0; i < 5; i++)
                 {
                     var b = Prefab.Instantiates(Main.Instance.PrefabManager.CitizenPrefab);
                     b.transform.SetParent(container.transform);
@@ -58,7 +58,7 @@ public class Board : Prefab
     private void InitializeTileGroup(ref TileGroup tg)
     {
         var t = tg.mandarinTile.Next;
-        while (t.TileType != Tile.Type.Mandarin)
+        while (!(t is MandarinTile))
         {
             tg.tiles.Add(t);
             t = t.Next;

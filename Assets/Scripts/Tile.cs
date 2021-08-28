@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(PerObjectMaterial))]
-[DisallowMultipleComponent]
+// [DisallowMultipleComponent]
 [SelectionBase]
 public class Tile : PieceContainer, RayPointer.IListener
 {
@@ -13,7 +13,7 @@ public class Tile : PieceContainer, RayPointer.IListener
 
     public Tile Prev => prev;
     public Tile Next => next;
-    public Type TileType => type;
+    // public Type TileType => type;
 
     public bool IsConnected => Prev != null && Next != null;
 
@@ -26,8 +26,9 @@ public class Tile : PieceContainer, RayPointer.IListener
         Id = gameObject.GetInstanceID();
     }
 
-    public void Setup()
+    public override void Setup()
     {
+        base.Setup();
         PerObjectMaterial = GetComponent<PerObjectMaterial>();
         Main.Instance.RayPointer.Register(this);
     }
@@ -40,17 +41,6 @@ public class Tile : PieceContainer, RayPointer.IListener
 
     public Tile Success(bool forward) => forward ? Next : Prev;
 
-    // private void OnMouseDown()
-    // {
-    //     OnSelect?.Invoke(this);
-    // }
-
-    public enum Type
-    {
-        Citizen,
-        Mandarin
-    }
-
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(Bounds.center, Bounds.size);
@@ -58,10 +48,7 @@ public class Tile : PieceContainer, RayPointer.IListener
 
     public Bounds Bounds
     {
-        get
-        {
-            return GetComponent<BoxCollider>().bounds;
-        }
+        get { return GetComponent<BoxCollider>().bounds; }
     }
 
     public void OnHit(Ray ray, float distance)

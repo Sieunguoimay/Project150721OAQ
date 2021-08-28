@@ -22,7 +22,7 @@ public class PieceDropper : PieceHolder
     //                             (boardTraveller.CurrentTile.Next.Next.Pieces.Count == 0 ||
     //                              boardTraveller.CurrentTile.Next.Next.TileType == Tile.Type.Mandarin);
 
-    public event Action<PieceContainer> OnEat = delegate { };
+    public event Action<IPieceHolder> OnEat = delegate { };
     public event Action<ActionID> OnDone = delegate { };
 
     private ActionID actionID;
@@ -67,9 +67,11 @@ public class PieceDropper : PieceHolder
             for (int j = 0; j < Pieces.Count - i; j++)
             {
                 var b = Pieces[i + j];
+                var further = b is Citizen && (boardTraveller.CurrentTile is MandarinTile m) && m.HasMandarin;
+
                 b.Mover.EnqueueTarget(new Mover.JumpTarget
                 {
-                    target = boardTraveller.CurrentTile.SpawnPositionInUnityUnit(Math.Max(0, boardTraveller.CurrentTile.Pieces.Count - 1), false),
+                    target = boardTraveller.CurrentTile.GetPositionInFilledCircle(boardTraveller.CurrentTile.Pieces.Count + j + (further ? 5 : 0), false),
                     flag = (i == Pieces.Count - 1) ? 2 : (j == 0 ? 1 : 0),
                     onDone = OnJumpDone
                 });
@@ -102,13 +104,10 @@ public class PieceDropper : PieceHolder
             var t = boardTraveller.CurrentTile.Success(forward);
             boardTraveller.Reset();
 
-            if (t.Pieces.Count > 0 && t.TileType == Tile.Type.Citizen)
+            if (t.Pieces.Count > 0 && !(t is MandarinTile))
             {
                 GetReady(t);
-                Main.Instance.Delay(.3f, () =>
-                {
-                    DropAll(forward);
-                });
+                Main.Instance.Delay(.3f, () => { DropAll(forward); });
             }
             else
             {
@@ -150,7 +149,7 @@ public class PieceDropper : PieceHolder
     {
         var succ = tile.Success(forward);
 
-        return (tile.Pieces.Count == 0 && (tile.TileType == Tile.Type.Citizen) && (succ.Pieces.Count > 0));
+        return (tile.Pieces.Count == 0 && (!(tile is MandarinTile)) && (succ.Pieces.Count > 0));
     }
 
     public enum ActionID
