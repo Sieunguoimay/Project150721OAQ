@@ -14,11 +14,11 @@ public interface IPieceHolder
     void OnGrasp(IPieceHolder other);
 }
 
-public abstract class PieceHolder : IPieceHolder
+public class PieceHolder : IPieceHolder
 {
     public List<Piece> Pieces { get; } = new List<Piece>();
 
-    public void Grasp(Piece piece, Action<Piece> onGrasp = null)
+    public virtual void Grasp(Piece piece, Action<Piece> onGrasp = null)
     {
         Pieces.Add(piece);
         onGrasp?.Invoke(piece);

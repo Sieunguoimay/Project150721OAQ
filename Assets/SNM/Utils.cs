@@ -84,5 +84,15 @@ namespace SNM
             pixels[6].Add(new Vector2Int(xc + y, yc - x));
             pixels[7].Add(new Vector2Int(xc - y, yc - x));
         }
+
+        public static Vector3 ClampMagnitude(Vector3 a, float mag)
+        {
+            if (a.sqrMagnitude > mag * mag)
+            {
+                a = a.normalized * mag;
+            }
+
+            return a;
+        }
     }
 }

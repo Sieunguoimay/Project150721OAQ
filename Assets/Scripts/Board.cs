@@ -101,6 +101,13 @@ public class Board : Prefab
         public Tile mandarinTile;
         public int id;
         public List<Tile> tiles;
+
+        public Vector3 GetForward()
+        {
+            var pos1 = tiles[0].transform.position;
+            var pos2 = tiles[tiles.Count - 1].transform.position;
+            return (pos2 - pos1).normalized;
+        }
     }
 #if UNITY_EDITOR
     private void TravelBoard(Tile tile, int steps, bool forward)

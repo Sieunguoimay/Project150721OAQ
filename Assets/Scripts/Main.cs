@@ -8,6 +8,7 @@ using UnityEngine.Serialization;
 
 public class Main : MonoBehaviour
 {
+    [SerializeField] private Transform tester;
     [SerializeField] private GameCommonConfig gameCommonConfig;
     [SerializeField] private PrefabManager prefabManager;
 
@@ -143,13 +144,35 @@ public class Main : MonoBehaviour
 
     private void OnBunnieDropperEat(IPieceHolder pieceContainerMb)
     {
-        CurrentPlayer.pieceBench.Grasp(pieceContainerMb, p => CurrentPlayer.pieceBench.Reposition(p.transform));
+        var tile = pieceContainerMb as Tile;
+        var player = CurrentPlayer;
+        player.pieceBench.Grasp(pieceContainerMb, p =>
+        {
+            var forward = player.TileGroup.GetForward();
+            var right = -Vector3.Cross(forward, GameCommonConfig.UpVector);
+            var offset = UnityEngine.Random.insideUnitCircle;
+            var jumpPos = tile.transform.position + right + new Vector3(offset.x, 0, offset.y);
+
+            var movePos = p is Mandarin
+                ? player.pieceBench.GetMandarinPlacement(player.pieceBench.MandarinCount - 1).Position
+                : player.pieceBench.GetPlacement(player.pieceBench.Pieces.Count - player.pieceBench.MandarinCount - 1).Position;
+
+            p.PieceAnimator.Add(new PieceAnimator.JumpAnim(p.transform, new PieceAnimator.JumpTarget {target = jumpPos, height = 2f}));
+            p.PieceAnimator.Add(new Boid(p.transform, new Boid.InputData() {target = movePos}));
+        });
     }
 
     private void TakeBackTiles()
     {
-        pieceDropper.GetReadyForTakingBackCitizens(CurrentPlayer.TileGroup, CurrentPlayer.pieceBench.Pieces);
-        pieceDropper.DropAll(true);
+        if (CurrentPlayer.pieceBench.Pieces.Count > 0)
+        {
+            pieceDropper.GetReadyForTakingBackCitizens(CurrentPlayer.TileGroup, CurrentPlayer.pieceBench.Pieces);
+            pieceDropper.DropAll(true);
+        }
+        else
+        {
+            GameOver();
+        }
     }
 
     public void GameOver()
@@ -166,6 +189,11 @@ public class Main : MonoBehaviour
     {
         for (int i = 0; i < playerManager.Players.Length; i++)
         {
+            foreach (var tile in board.TileGroups[i].tiles)
+            {
+                playerManager.Players[i].pieceBench.Grasp(tile);
+            }
+
             int sum = 0;
 
             foreach (var p in playerManager.Players[i].pieceBench.Pieces)
@@ -180,13 +208,6 @@ public class Main : MonoBehaviour
                 }
             }
 
-            foreach (var tile in board.TileGroups[i].tiles)
-            {
-                foreach (var p in tile.Pieces)
-                {
-                    sum += p.ConfigDataProp.point;
-                }
-            }
 
             Debug.Log("sum " + sum);
             perMatchData.SetPlayerScore(i, sum);

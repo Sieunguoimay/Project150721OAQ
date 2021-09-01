@@ -263,13 +263,13 @@ MonoBehaviour:
   m_margin: {x: 7.9456177, y: 1.6169187, z: 7.958435, w: 2.3117383}
   m_textInfo:
     textComponent: {fileID: 166010752}
-    characterCount: 1
+    characterCount: 0
     spriteCount: 0
     spaceCount: 0
-    wordCount: 1
+    wordCount: 0
     linkCount: 0
-    lineCount: 1
-    pageCount: 1
+    lineCount: 0
+    pageCount: 0
     materialCount: 1
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
@@ -1026,6 +1026,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c281d5d6ca172a1479371ae18c781f5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tester: {fileID: 0}
   gameCommonConfig: {fileID: 11400000, guid: ee513d3ad67a85d44a160c91190cfe15, type: 2}
   prefabManager: {fileID: 11400000, guid: 5c720f08f999f514a93c43575aa06159, type: 2}
 --- !u!4 &1482999572

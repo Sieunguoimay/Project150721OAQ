@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SNM;
 using UnityEngine;
 
 namespace Manager
@@ -25,12 +26,14 @@ namespace Manager
 
             for (int i = 0; i < n; i++)
             {
-                var location = CalculatePlayerPosition(tileGroups[i]);
-                var pieceBench = SNM.Utils.NewGameObject<PieceBench>();
-                pieceBench.Setup();
-                pieceBench.transform.SetPositionAndRotation(location.Item1, location.Item2);
+                var pieceBench = new PieceBench(new PieceBench.ConfigData
+                {
+                    placement = CalculatePlayerPosition(tileGroups[i]),
+                    spacing = 0.25f,
+                    perRow = 15
+                });
 
-                if (true) //i == n - 1)
+                if (i == n - 1)
                 {
                     players[i] = new RealPlayer(tileGroups[i], pieceBench, tileSelector);
                 }
@@ -43,14 +46,14 @@ namespace Manager
             CurrentPlayer.AcquireTurn();
         }
 
-        private (Vector3, Quaternion) CalculatePlayerPosition(Board.TileGroup tg)
+        private Placement CalculatePlayerPosition(Board.TileGroup tg)
         {
             var pos1 = tg.tiles[0].transform.position;
             var pos2 = tg.tiles[tg.tiles.Count - 1].transform.position;
             var diff = pos2 - pos1;
             var pos = pos1 + new Vector3(diff.z, diff.y, -diff.x) * 0.5f;
-            var qua = Quaternion.LookRotation(pos1 - pos, Vector3.up);
-            return (pos, qua);
+            var qua = Quaternion.LookRotation(pos1 - pos, Main.Instance.GameCommonConfig.UpVector);
+            return new Placement(pos, qua);
         }
 
         public void ChangePlayer()

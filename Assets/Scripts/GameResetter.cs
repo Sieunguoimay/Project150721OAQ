@@ -45,7 +45,7 @@ public class GameResetter
             }
             else
             {
-                tile.Grasp(citizens, Math.Max(0, 5 - tile.Pieces.Count), p => tile.Reposition(p.transform));
+                tile.Grasp(citizens, 5, p => tile.Reposition(p.transform));
             }
         }
     }

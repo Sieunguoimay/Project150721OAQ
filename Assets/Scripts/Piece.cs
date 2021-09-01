@@ -3,31 +3,26 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
-using Random = System.Random;
 
 public class Piece : Prefab
 {
-    private Mover mover;
-    public Mover Mover => mover ?? (mover = new Mover(transform));
+    private PieceAnimator _pieceAnimator;
+    public PieceAnimator PieceAnimator => _pieceAnimator ?? (_pieceAnimator = new PieceAnimator(transform));
 
     private Animator animator;
     private Animator Animator => animator ? animator : (animator = GetComponentInChildren<Animator>());
+
+    private ConfigData configData;
     public ConfigData ConfigDataProp => configData;
 
     private bool isRandomlyRotating = false;
-    private ConfigData configData;
-
-    protected override void Start()
-    {
-        base.Start();
-        this.Delay(UnityEngine.Random.Range(0.1f, 2f), () => { Animator?.Play("idle"); });
-        Mover.OnJump += OnJump;
-        FaceCamera(true, new Vector3(0, UnityEngine.Random.Range(-45f, 45f), 0));
-    }
 
     public void Setup(ConfigData configData)
     {
         this.configData = configData;
+        this.Delay(UnityEngine.Random.Range(0.1f, 2f), () => Animator?.Play("idle"));
+        FaceCamera(true, new Vector3(0, UnityEngine.Random.Range(-45f, 45f), 0));
+        PieceAnimator.OnJump += OnJump;
     }
 
     private void OnJump(bool last)
@@ -44,7 +39,7 @@ public class Piece : Prefab
                 Animator?.CrossFade("land", 0.1f);
                 this.Delay(UnityEngine.Random.Range(0.5f, 1f), () =>
                 {
-                    if (!(Mover?.IsJumping ?? false))
+                    if (!(PieceAnimator?.IsJumping ?? false))
                     {
                         isRandomlyRotating = true;
 
@@ -61,7 +56,7 @@ public class Piece : Prefab
 
     private void Update()
     {
-        Mover?.Update(Time.deltaTime);
+        PieceAnimator?.Update(Time.deltaTime);
     }
 
     public void FaceCamera(bool immediate, Vector3 offset = new Vector3())
@@ -79,26 +74,13 @@ public class Piece : Prefab
             else
             {
                 var target = Quaternion.LookRotation(dir, up).eulerAngles + offset;
-                var duration = (target - transform.eulerAngles).magnitude / Mover.Config.angularSpeed;
+                var duration = (target - transform.eulerAngles).magnitude / PieceAnimator.Config.angularSpeed;
                 transform.DORotate(target, duration);
             }
         }
     }
 
 #if UNITY_EDITOR
-    private Vector3 initialPosition;
-
-    [ContextMenu("Test Jump")]
-    private void TestJump()
-    {
-        initialPosition = transform.position;
-        this.ExecuteInNextFrame(() =>
-        {
-            Mover.JumpTo(initialPosition + Vector3.right * 2f,
-                () => { this.Delay(1f, () => { transform.position = initialPosition; }); });
-        });
-    }
-
 
     private void OnDrawGizmos()
     {

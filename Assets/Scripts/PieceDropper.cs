@@ -64,23 +64,24 @@ public class PieceDropper : PieceHolder
         {
             boardTraveller.Next(forward);
 
-            for (int j = 0; j < Pieces.Count - i; j++)
+            for (int j = Pieces.Count - i - 1; j >= 0; j--)
             {
-                var b = Pieces[i + j];
-                var further = b is Citizen && (boardTraveller.CurrentTile is MandarinTile m) && m.HasMandarin;
+                var p = Pieces[i + j];
+                var further = p is Citizen && (boardTraveller.CurrentTile is MandarinTile m) && m.HasMandarin;
 
-                b.Mover.EnqueueTarget(new Mover.JumpTarget
+                if (i == 0)
+                {
+                    // p.Delay(delay, p.Jumper.JumpInQueue);
+                    p.PieceAnimator.Add(new PieceAnimator.Delay(delay));
+                    delay += 0.08f;
+                }
+
+                p.PieceAnimator.Add(new PieceAnimator.JumpAnim(p.transform, new PieceAnimator.JumpTarget
                 {
                     target = boardTraveller.CurrentTile.GetPositionInFilledCircle(boardTraveller.CurrentTile.Pieces.Count + j + (further ? 5 : 0), false),
                     flag = (i == Pieces.Count - 1) ? 2 : (j == 0 ? 1 : 0),
                     onDone = OnJumpDone
-                });
-
-                if (i == 0)
-                {
-                    b.Delay(delay, b.Mover.JumpInQueue);
-                    delay += 0.08f;
-                }
+                }));
             }
 
             boardTraveller.CurrentTile.Grasp(Pieces[i]);
@@ -89,7 +90,7 @@ public class PieceDropper : PieceHolder
         Pieces.Clear();
     }
 
-    public void OnJumpDone(Mover last, int flag)
+    public void OnJumpDone(PieceAnimator last, int flag)
     {
         if (flag == 2)
         {
