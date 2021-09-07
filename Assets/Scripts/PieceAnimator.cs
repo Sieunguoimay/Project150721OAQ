@@ -54,7 +54,7 @@ public class PieceAnimator : SNM.Animator
             float t = jumpTarget.height * 0.3f;
             var pos = transform.position;
             var dir = jumpTarget.target - pos;
-            float a = (-8f * h) / (t * t); //-v * v / (2f * h);
+            float a = (-8f * h) / (t * t); 
 
             time = 0;
             done = false;
