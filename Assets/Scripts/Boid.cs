@@ -2,64 +2,56 @@
 using UnityEditor;
 using UnityEngine;
 
-public class Boid : SNM.IAnimation
+public class Boid : SNM.Animation
 {
-    private Transform transform;
-
     private MotionMetrics motion;
 
-    private ControlData controlData;
-
     private ConfigData configData;
+    private InputData inputData;
+    private Boid[] others;
 
-    public Boid(Transform transform, InputData inputData)
+    public Boid(ConfigData configData, InputData inputData, Boid[] others)
     {
-        this.transform = transform;
+        this.others = others;
+        this.configData = configData;
+        this.inputData = inputData;
         motion = new MotionMetrics();
-        configData = new ConfigData()
-        {
-            maxSpeed = 3f,
-            maxAcceleration = 10f,
-            arriveDistance = 1f
-        };
-        controlData = new ControlData
-        {
-            inputData = inputData,
-            moving = true
-        };
     }
 
-    public bool IsDone => !controlData.moving;
+    public override bool IsDone => !motion.moving;
 
-    public void Start()
+    public override void Begin()
     {
-        motion.position = transform.position;
+        motion.position = inputData.transform.position;
+        motion.moving = true;
     }
 
-    public void Update(float deltaTime)
+    public override void Update(float deltaTime)
     {
-        if (controlData.moving)
+        if (motion.moving)
         {
-            if (CheckDistance(motion, controlData.inputData, configData.arriveDistance))
+            if (CheckDistance(motion, inputData, configData.arriveDistance))
             {
-                motion.acceleration += Arrive(motion, controlData.inputData.target);
+                motion.acceleration += Arrive(motion, inputData.target);
             }
             else
             {
-                motion.acceleration += Seek(motion, controlData.inputData.target);
+                motion.acceleration += Seek(motion, inputData.target);
+                motion.acceleration += Separate(others);
             }
 
-            transform.position = motion.GetFinalPosition(deltaTime, configData);
+            inputData.transform.position = motion.GetFinalPosition(deltaTime, configData);
+            inputData.transform.forward = motion.direction;
             motion.acceleration = Vector3.zero;
 
-            if (CheckDistance(motion, controlData.inputData, 0.001f))
+            if (CheckDistance(motion, inputData, 0.001f))
             {
                 CancelMove();
             }
         }
     }
 
-    public void End()
+    public override void End()
     {
     }
 
@@ -71,9 +63,8 @@ public class Boid : SNM.IAnimation
     public void CancelMove()
     {
         motion.velocity = Vector3.zero;
-        motion.position = controlData.inputData.target;
-        controlData.moving = false;
-        controlData.inputData.onDone?.Invoke();
+        motion.position = inputData.target;
+        motion.moving = false;
     }
 
     private Vector3 Arrive(MotionMetrics motion, Vector3 target)
@@ -101,17 +92,58 @@ public class Boid : SNM.IAnimation
         return desiredAcceleration;
     }
 
+    private Vector3 Separate(Boid[] others)
+    {
+        float desiredSeperation = configData.spacing;
+        var sum = new Vector3();
+        int count = 0;
+        foreach (var other in others)
+        {
+            float d = Vector3.Distance(motion.position, other.motion.position);
+            if ((d > 0) && (d < desiredSeperation))
+            {
+                var diff = motion.position - other.motion.position;
+                diff = diff.normalized;
+                diff /= d;
+                sum += diff;
+                count++;
+            }
+        }
+
+        if (count > 0)
+        {
+            sum /= count;
+            sum = sum.normalized;
+            sum *= configData.maxSpeed;
+
+            var desiredAcceleration = sum - motion.velocity;
+            desiredAcceleration = SNM.Math.ClampMagnitude(desiredAcceleration, configData.maxAcceleration);
+
+            return desiredAcceleration;
+        }
+
+        return Vector3.zero;
+    }
+
     private struct MotionMetrics
     {
+        public bool moving;
+
         public Vector3 position;
         public Vector3 velocity;
         public Vector3 acceleration;
+        public Vector3 direction;
 
         public Vector3 GetFinalPosition(float deltaTime, Boid.ConfigData config)
         {
             velocity += acceleration * deltaTime;
             velocity = SNM.Math.ClampMagnitude(velocity, config.maxSpeed);
             position += velocity * deltaTime;
+            if (velocity.magnitude > 0.0001f)
+            {
+                direction = velocity;
+            }
+
             return position;
         }
     }
@@ -119,13 +151,7 @@ public class Boid : SNM.IAnimation
     public struct InputData
     {
         public Vector3 target;
-        public Action onDone;
-    }
-
-    private struct ControlData
-    {
-        public InputData inputData;
-        public bool moving;
+        public Transform transform;
     }
 
     [Serializable]
@@ -134,5 +160,6 @@ public class Boid : SNM.IAnimation
         public float maxSpeed;
         public float maxAcceleration;
         public float arriveDistance;
+        public float spacing;
     }
 }

@@ -6,8 +6,7 @@ using UnityEngine;
 
 public class Piece : Prefab
 {
-    private PieceAnimator _pieceAnimator;
-    public PieceAnimator PieceAnimator => _pieceAnimator ?? (_pieceAnimator = new PieceAnimator(transform));
+    public PieceAnimator PieceAnimator { get; private set; }
 
     private Animator animator;
     private Animator Animator => animator ? animator : (animator = GetComponentInChildren<Animator>());
@@ -22,6 +21,8 @@ public class Piece : Prefab
         this.configData = configData;
         this.Delay(UnityEngine.Random.Range(0.1f, 2f), () => Animator?.Play("idle"));
         FaceCamera(true, new Vector3(0, UnityEngine.Random.Range(-45f, 45f), 0));
+
+        PieceAnimator = new PieceAnimator();
         PieceAnimator.OnJump += OnJump;
     }
 
@@ -61,11 +62,10 @@ public class Piece : Prefab
 
     public void FaceCamera(bool immediate, Vector3 offset = new Vector3())
     {
-        var t = transform;
-        if (!(Camera.main is null))
+        if (Main.Instance.References.Camera != null)
         {
-            var dir = Camera.main.transform.position - t.position;
-            var up = t.up;
+            var dir = Main.Instance.References.Camera.transform.position - transform.position;
+            var up = transform.up;
             dir = SNM.Math.Projection(dir, up);
             if (immediate)
             {

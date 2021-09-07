@@ -1,21 +1,63 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace SNM
 {
-    public interface IAnimation
+    public class Ease
     {
-        bool IsDone { get; }
-        void Start();
-        void Update(float deltaTime);
-        void End();
+        public virtual float GetEase(float t)
+        {
+            return t;
+        }
+    }
+
+    public class InOutExpo : Ease
+    {
+        public override float GetEase(float t)
+        {
+            if (t == 0)
+            {
+                return 0;
+            }
+
+            if (t == 1)
+            {
+                return 1;
+            }
+
+            if (t < 0.5) return Mathf.Pow(2f, 20f * t - 10f) / 2f;
+            return (2f - Mathf.Pow(2f, -20f * t + 10)) / 2f;
+        }
+    }
+
+    public abstract class Animation
+    {
+        protected Ease ease = new Ease();
+        public virtual bool IsDone { get; protected set; }
+
+        public virtual void Begin()
+        {
+        }
+
+        public abstract void Update(float deltaTime);
+
+        public virtual void End()
+        {
+        }
+
+        public Animation SetEase(Ease ease)
+        {
+            this.ease = ease;
+            return this;
+        }
     }
 
     public class Animator
     {
-        protected Queue<IAnimation> animations = new Queue<IAnimation>();
-        protected IAnimation currentAnim;
+        protected Queue<Animation> animations = new Queue<Animation>();
+        protected Animation currentAnim;
 
-        public void Add(IAnimation anim)
+        public void Add(Animation anim)
         {
             animations.Enqueue(anim);
         }
@@ -27,7 +69,7 @@ namespace SNM
                 if (animations.Count > 0)
                 {
                     currentAnim = animations.Dequeue();
-                    currentAnim.Start();
+                    currentAnim.Begin();
                     OnNewAnim(currentAnim);
                 }
                 else
@@ -42,7 +84,7 @@ namespace SNM
                 if (animations.Count > 0)
                 {
                     currentAnim = animations.Dequeue();
-                    currentAnim.Start();
+                    currentAnim.Begin();
                     OnNewAnim(currentAnim);
                 }
                 else
@@ -66,11 +108,11 @@ namespace SNM
             animations.Clear();
         }
 
-        protected virtual void OnNewAnim(IAnimation anim)
+        protected virtual void OnNewAnim(Animation anim)
         {
         }
 
-        protected virtual void OnAnimEnd(IAnimation anim)
+        protected virtual void OnAnimEnd(Animation anim)
         {
         }
     }

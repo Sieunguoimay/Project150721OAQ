@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Manager;
+using SNM;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -25,8 +26,14 @@ public class Main : MonoBehaviour
         public bool gameOver = false;
     }
 
+    public class ReferenceData
+    {
+        public Camera Camera;
+    }
+
     private Config config;
     private StateData state = new StateData();
+    private ReferenceData references = new ReferenceData();
 
     private Board board;
     private PlayersManager playerManager;
@@ -40,6 +47,7 @@ public class Main : MonoBehaviour
     public GameCommonConfig GameCommonConfig => gameCommonConfig;
     public PrefabManager PrefabManager => prefabManager;
     public StateData State => state;
+    public ReferenceData References => references;
 
     private PerMatchData perMatchData;
 
@@ -59,6 +67,7 @@ public class Main : MonoBehaviour
     void Start()
     {
         config = gameCommonConfig.Main;
+        SetupReferenceData();
 
         board = Prefab.Instantiates(PrefabManager.BoardPrefab);
         board.Setup();
@@ -79,6 +88,11 @@ public class Main : MonoBehaviour
         }
 
         this.Delay(1f, StartNewMatch);
+    }
+
+    private void SetupReferenceData()
+    {
+        references.Camera = Camera.main;
     }
 
     private void StartNewMatch()
@@ -146,6 +160,8 @@ public class Main : MonoBehaviour
     {
         var tile = pieceContainerMb as Tile;
         var player = CurrentPlayer;
+        var boids = new Boid[pieceContainerMb.Pieces.Count];
+        var index = 0;
         player.pieceBench.Grasp(pieceContainerMb, p =>
         {
             var forward = player.TileGroup.GetForward();
@@ -157,8 +173,15 @@ public class Main : MonoBehaviour
                 ? player.pieceBench.GetMandarinPlacement(player.pieceBench.MandarinCount - 1).Position
                 : player.pieceBench.GetPlacement(player.pieceBench.Pieces.Count - player.pieceBench.MandarinCount - 1).Position;
 
-            p.PieceAnimator.Add(new PieceAnimator.JumpAnim(p.transform, new PieceAnimator.JumpTarget {target = jumpPos, height = 2f}));
-            p.PieceAnimator.Add(new Boid(p.transform, new Boid.InputData() {target = movePos}));
+            // p.PieceAnimator.Add(new PieceAnimator.JumpAnim(p.transform, new PieceAnimator.JumpTarget {target = jumpPos, height = 2f}));
+            boids[index] = new Boid(GameCommonConfig.BoidConfigData,
+                new Boid.InputData()
+                {
+                    target = movePos,
+                    transform = p.transform
+                }, boids);
+            p.PieceAnimator.Add(boids[index]);
+            index++;
         });
     }
 
