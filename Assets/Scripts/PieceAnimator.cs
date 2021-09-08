@@ -22,13 +22,13 @@ public class PieceAnimator : SNM.Animator
     {
         if (anim is JumpAnim ja)
         {
-            OnJump?.Invoke(ja.jumpTarget.flag > 0);
+            OnJump?.Invoke(ja.inputData.flag > 0);
         }
     }
 
     public class JumpAnim : SNM.Animation
     {
-        public JumpTarget jumpTarget;
+        public InputData inputData;
         public Vector3 initialPosition;
         public Vector3 initialVelocity;
         public Vector3 initialAcceleration;
@@ -38,10 +38,10 @@ public class PieceAnimator : SNM.Animator
         private Transform transform;
         public override bool IsDone => done;
 
-        public JumpAnim(Transform transform, JumpTarget jumpTarget, Ease ease = null)
+        public JumpAnim(Transform transform, InputData inputData, Ease ease = null)
         {
             this.transform = transform;
-            this.jumpTarget = jumpTarget;
+            this.inputData = inputData;
             if (ease != null)
             {
                 SetEase(ease);
@@ -50,11 +50,11 @@ public class PieceAnimator : SNM.Animator
 
         public override void Begin()
         {
-            float h = jumpTarget.height;
-            float t = jumpTarget.height * 0.3f;
+            float h = inputData.height;
+            float t = inputData.duration;
             var pos = transform.position;
-            var dir = jumpTarget.target - pos;
-            float a = (-8f * h) / (t * t); 
+            var dir = inputData.target - pos;
+            float a = (-8f * h) / (t * t);
 
             time = 0;
             done = false;
@@ -65,7 +65,7 @@ public class PieceAnimator : SNM.Animator
                 dir / duration + Vector3.up * (-a * 0.5f * duration);
 
             transform.rotation =
-                UnityEngine.Quaternion.LookRotation(SNM.Math.Projection(jumpTarget.target - pos,
+                UnityEngine.Quaternion.LookRotation(SNM.Math.Projection(inputData.target - pos,
                     Main.Instance.GameCommonConfig.UpVector));
         }
 
@@ -89,7 +89,7 @@ public class PieceAnimator : SNM.Animator
 
         public override void End()
         {
-            jumpTarget.onDone?.Invoke(null, jumpTarget.flag);
+            inputData.onDone?.Invoke(null, inputData.flag);
         }
     }
 
@@ -102,6 +102,7 @@ public class PieceAnimator : SNM.Animator
         {
             this.duration = duration;
         }
+
         public override void Update(float deltaTime)
         {
             time += deltaTime;
@@ -119,10 +120,11 @@ public class PieceAnimator : SNM.Animator
         public float angularSpeed;
     }
 
-    public class JumpTarget
+    public class InputData
     {
         public Vector3 target;
         public float height = 1f;
+        public float duration = 0.5f;
         public int flag;
         public Action<PieceAnimator, int> onDone;
     }
