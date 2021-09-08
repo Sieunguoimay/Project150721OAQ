@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using SNM;
 using UnityEngine;
 
 public class PieceDropper : PieceHolder
@@ -81,7 +82,7 @@ public class PieceDropper : PieceHolder
                     target = boardTraveller.CurrentTile.GetPositionInFilledCircle(boardTraveller.CurrentTile.Pieces.Count + j + (further ? 5 : 0), false),
                     flag = (i == Pieces.Count - 1) ? 2 : (j == 0 ? 1 : 0),
                     onDone = OnJumpDone
-                }));
+                }, new InOutExpo()));
             }
 
             boardTraveller.CurrentTile.Grasp(Pieces[i]);
