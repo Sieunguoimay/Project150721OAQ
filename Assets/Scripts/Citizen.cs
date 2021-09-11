@@ -6,4 +6,5 @@ using UnityEngine;
 [SelectionBase]
 public class Citizen : Piece
 {
+    
 }

@@ -13,6 +13,8 @@ public class Main : MonoBehaviour
     [SerializeField] private Transform tester;
     [SerializeField] private GameCommonConfig gameCommonConfig;
     [SerializeField] private PrefabManager prefabManager;
+    [SerializeField, Range(0, 1)] private float a;
+    [SerializeField] private float b;
 
     [Serializable]
     public class Config
@@ -172,7 +174,8 @@ public class Main : MonoBehaviour
 
             var movePos = p is Mandarin
                 ? player.pieceBench.GetMandarinPlacement(player.pieceBench.MandarinCount - 1).Position
-                : player.pieceBench.GetPlacement(player.pieceBench.Pieces.Count - player.pieceBench.MandarinCount - 1).Position;
+                : player.pieceBench.GetPlacement(player.pieceBench.Pieces.Count - player.pieceBench.MandarinCount - 1)
+                    .Position;
 
             // p.PieceAnimator.Add(new PieceAnimator.JumpAnim(p.transform, new PieceAnimator.JumpTarget {target = jumpPos, height = 2f}));
             boids[index] = new Boid(GameCommonConfig.BoidConfigData,
@@ -262,5 +265,10 @@ public class Main : MonoBehaviour
         var gameResetter = new GameResetter(board, playerManager);
         gameResetter.Reset();
         this.Delay(1f, () => { CurrentPlayer.MakeDecision(board); });
+    }
+
+    private void OnValidate()
+    {
+        b = BezierEasing.Blueprint1.GetEase(a);
     }
 }

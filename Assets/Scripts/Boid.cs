@@ -141,7 +141,7 @@ public class Boid : SNM.Animation
             position += velocity * deltaTime;
             if (velocity.magnitude > 0.0001f)
             {
-                direction = velocity;
+                direction = velocity.normalized;
             }
 
             return position;

@@ -3,36 +3,22 @@ using UnityEngine;
 
 namespace SNM
 {
-    public class Ease
+    public interface IEasing
     {
-        public virtual float GetEase(float t)
-        {
-            return t;
-        }
+        float GetEase(float x);
     }
 
-    public class InOutExpo : Ease
+    public class LinearEasing : IEasing
     {
-        public override float GetEase(float t)
+        public virtual float GetEase(float x)
         {
-            if (t == 0)
-            {
-                return 0;
-            }
-
-            if (t == 1)
-            {
-                return 1;
-            }
-
-            if (t < 0.5) return Mathf.Pow(2f, 20f * t - 10f) / 2f;
-            return (2f - Mathf.Pow(2f, -20f * t + 10)) / 2f;
+            return x;
         }
     }
 
     public abstract class Animation
     {
-        protected Ease ease = new Ease();
+        protected IEasing ease = new LinearEasing();
         public virtual bool IsDone { get; protected set; }
 
         public virtual void Begin()
@@ -45,10 +31,67 @@ namespace SNM
         {
         }
 
-        public Animation SetEase(Ease ease)
+        public Animation SetEase(IEasing linearEasing)
         {
-            this.ease = ease;
+            this.ease = linearEasing;
             return this;
+        }
+    }
+
+    public class ParallelAnimation : Animation
+    {
+        private List<Animation> animations = new List<Animation>();
+
+        public void Add(Animation anim)
+        {
+            animations.Add(anim);
+        }
+
+        public override void Begin()
+        {
+            base.Begin();
+            foreach (var anim in animations)
+            {
+                anim.Begin();
+            }
+        }
+
+        public override void Update(float deltaTime)
+        {
+            for (int i = 0; i < animations.Count; i++)
+            {
+                animations[i].Update(deltaTime);
+                if (animations[i].IsDone)
+                {
+                    animations[i].End();
+                    RemoveAt(i--);
+                }
+            }
+
+            if (animations.Count == 0)
+            {
+                IsDone = true;
+            }
+        }
+
+        private void RemoveAt(int i)
+        {
+            int lastIndex = animations.Count - 1;
+            var last = animations[lastIndex];
+            animations[lastIndex] = animations[i];
+            animations[i] = last;
+            animations.RemoveAt(lastIndex);
+        }
+
+        public override void End()
+        {
+            foreach (var anim in animations)
+            {
+                anim.End();
+            }
+
+            base.End();
+            IsDone = true;
         }
     }
 

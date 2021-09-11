@@ -24,7 +24,7 @@ public class PieceDropper : PieceHolder
     //                              boardTraveller.CurrentTile.Next.Next.TileType == Tile.Type.Mandarin);
 
     public event Action<IPieceHolder> OnEat = delegate { };
-    public event Action<ActionID> OnDone = delegate { };
+    public event Action<PieceDropper.ActionID> OnDone = delegate { };
 
     private ActionID actionID;
     private bool forward;
@@ -72,20 +72,24 @@ public class PieceDropper : PieceHolder
 
                 if (i == 0)
                 {
-                    // p.Delay(delay, p.Jumper.JumpInQueue);
-                    p.PieceAnimator.Add(new PieceAnimator.Delay(delay));
+                    if (delay > 0f)
+                        p.PieceAnimator.Add(new PieceAnimator.Delay(delay));
                     delay += 0.08f;
                 }
 
-                p.PieceAnimator.Add(new PieceAnimator.JumpAnim(p.transform, new PieceAnimator.InputData
-                {
-                    target = boardTraveller.CurrentTile.GetPositionInFilledCircle(boardTraveller.CurrentTile.Pieces.Count + j + (further ? 5 : 0), false),
-                    flag = (i == Pieces.Count - 1) ? 2 : (j == 0 ? 1 : 0),
-                    onDone = OnJumpDone
-                }, new InOutExpo()));
+                var pos = boardTraveller.CurrentTile.GetPositionInFilledCircle(
+                    boardTraveller.CurrentTile.Pieces.Count + j + (further ? 5 : 0), false);
+                var flag = (i == Pieces.Count - 1) ? 2 : (j == 0 ? 1 : 0);
+
+                p.JumpTo(pos,flag,OnJumpDone);
             }
 
             boardTraveller.CurrentTile.Grasp(Pieces[i]);
+        }
+
+        foreach (var p in Pieces)
+        {
+            p.Land();
         }
 
         Pieces.Clear();

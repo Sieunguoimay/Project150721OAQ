@@ -94,5 +94,35 @@ namespace SNM
 
             return a;
         }
+
+        public static Vector2 CubicBezier(float t, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3)
+        {
+            float cx = 3 * (p1.x - p0.x);
+            float cy = 3 * (p1.y - p0.y);
+            float bx = 3 * (p2.x - p1.x) - cx;
+            float by = 3 * (p2.y - p1.y) - cy;
+            float ax = p3.x - p0.x - cx - bx;
+            float ay = p3.y - p0.y - cy - by;
+            float Cube = t * t * t;
+            float Square = t * t;
+
+            float resX = (ax * Cube) + (bx * Square) + (cx * t) + p0.x;
+            float resY = (ay * Cube) + (by * Square) + (cy * t) + p0.y;
+
+            return new Vector2(resX, resY);
+        }
+
+        public static float CubicBezier(float t, float p0, float p1, float p2, float p3)
+        {
+            float cx = 3 * (p1 - p0);
+            float bx = 3 * (p2 - p1) - cx;
+            float ax = p3 - p0 - cx - bx;
+            float Cube = t * t * t;
+            float Square = t * t;
+
+            float resX = (ax * Cube) + (bx * Square) + (cx * t) + p0;
+
+            return resX;
+        }
     }
 }

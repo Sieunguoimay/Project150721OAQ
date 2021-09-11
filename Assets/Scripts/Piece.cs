@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
+using SNM;
 using UnityEngine;
+using Animation = SNM.Animation;
+using Animator = UnityEngine.Animator;
 
 public class Piece : Prefab
 {
@@ -15,6 +19,8 @@ public class Piece : Prefab
     public ConfigData ConfigDataProp => configData;
 
     private bool isRandomlyRotating = false;
+    private Tag[] taggedGameObjects;
+    private Transform footTransform;
 
     public void Setup(ConfigData configData)
     {
@@ -23,36 +29,8 @@ public class Piece : Prefab
         FaceCamera(true, new Vector3(0, UnityEngine.Random.Range(-45f, 45f), 0));
 
         PieceAnimator = new PieceAnimator();
-        PieceAnimator.OnJump += OnJump;
-    }
-
-    private void OnJump(bool last)
-    {
-        if (isRandomlyRotating)
-        {
-            DOTween.Kill(nameof(isRandomlyRotating));
-        }
-
-        if (last)
-        {
-            this.Delay(0.2f, () =>
-            {
-                Animator?.CrossFade("land", 0.1f);
-                this.Delay(UnityEngine.Random.Range(0.5f, 1f), () =>
-                {
-                    if (!(PieceAnimator?.IsJumping ?? false))
-                    {
-                        isRandomlyRotating = true;
-
-                        var lr = transform.localEulerAngles;
-                        lr.y += UnityEngine.Random.Range(-60f, 60f);
-                        transform.DOLocalRotate(lr, 1f)
-                            .SetId(nameof(isRandomlyRotating))
-                            .OnComplete(() => { isRandomlyRotating = false; });
-                    }
-                });
-            });
-        }
+        taggedGameObjects = GetComponentsInChildren<Tag>();
+        footTransform = taggedGameObjects.FirstOrDefault(t => t.ID.Equals("foot"))?.transform;
     }
 
     private void Update()
@@ -76,6 +54,75 @@ public class Piece : Prefab
                 var target = Quaternion.LookRotation(dir, up).eulerAngles + offset;
                 var duration = (target - transform.eulerAngles).magnitude / PieceAnimator.Config.angularSpeed;
                 transform.DORotate(target, duration);
+            }
+        }
+    }
+
+    public void JumpTo(Vector3 pos, int flag, Action<PieceAnimator, int> callback)
+    {
+        var parallelAnimation = new ParallelAnimation();
+        parallelAnimation.Add(new PieceAnimator.JumpAnim(transform,
+            new PieceAnimator.JumpAnim.InputData
+            {
+                target = pos,
+                flag = flag,
+                callback = callback
+            }, BezierEasing.Blueprint1));
+        PieceAnimator.Add(new BounceAnim(footTransform, 0.15f));
+        PieceAnimator.Add(parallelAnimation);
+    }
+
+    public void Land()
+    {
+        PieceAnimator.Add(new BounceAnim(footTransform, 0.15f));
+        PieceAnimator.Add(new PieceAnimator.TurnAway(transform));
+    }
+
+    public class BounceAnim : Animation
+    {
+        private Transform transform;
+        private float duration;
+        private float time;
+        private float offset;
+        private bool fullPhase;
+
+        public BounceAnim(Transform transform, float duration, bool fullPhase = false)
+        {
+            this.transform = transform;
+            this.duration = duration;
+            this.offset = 0.3f;
+            this.fullPhase = fullPhase;
+        }
+
+        public override void Update(float deltaTime)
+        {
+            if (!IsDone)
+            {
+                time += deltaTime;
+                float t = Mathf.Min(time / duration, 1f);
+
+                var scale = transform.localScale;
+                if (fullPhase)
+                {
+                    var s = Mathf.Sin(Mathf.Lerp(0, Mathf.PI * 2f, t));
+                    scale.y = 1 + (-s) * offset;
+                    scale.x = 1 + (s) * offset * 0.35f;
+                    scale.z = 1 + (s) * offset * 0.35f;
+                }
+                else
+                {
+                    var c = Mathf.Cos(Mathf.Lerp(0, Mathf.PI * 2f, t));
+                    scale.y = 1 + (c) * offset * 0.5f;
+                    scale.x = 1 + (-c) * offset * 0.25f;
+                    scale.z = 1 + (-c) * offset * 0.25f;
+                }
+
+                transform.localScale = scale;
+
+                if (time >= duration)
+                {
+                    IsDone = true;
+                }
             }
         }
     }

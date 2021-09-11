@@ -1029,6 +1029,8 @@ MonoBehaviour:
   tester: {fileID: 0}
   gameCommonConfig: {fileID: 11400000, guid: ee513d3ad67a85d44a160c91190cfe15, type: 2}
   prefabManager: {fileID: 11400000, guid: 5c720f08f999f514a93c43575aa06159, type: 2}
+  a: 0.383
+  b: 0.40946242
 --- !u!4 &1482999572
 Transform:
   m_ObjectHideFlags: 0
@@ -1330,6 +1332,10 @@ PrefabInstance:
     - target: {fileID: 703847356640706343, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2073740755641609046, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.73
       objectReference: {fileID: 0}
     - target: {fileID: 4393973210023763556, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
       propertyPath: m_Name
