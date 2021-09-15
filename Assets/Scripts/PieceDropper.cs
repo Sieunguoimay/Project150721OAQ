@@ -24,7 +24,7 @@ public class PieceDropper : PieceHolder
     //                              boardTraveller.CurrentTile.Next.Next.TileType == Tile.Type.Mandarin);
 
     public event Action<IPieceHolder> OnEat = delegate { };
-    public event Action<PieceDropper.ActionID> OnDone = delegate { };
+    public event Action<ActionID> OnDone = delegate { };
 
     private ActionID actionID;
     private bool forward;
@@ -48,10 +48,19 @@ public class PieceDropper : PieceHolder
 
     public void GetReadyForTakingBackCitizens(Board.TileGroup tileGroup, List<Piece> citizens)
     {
-        var cs = citizens.Where(c => c is Citizen).ToList();
+        int n = citizens.Count;
+        for (int i = n - 1; i >= 0; i--)
+        {
+            if (n - i > tileGroup.tiles.Count) break;
 
-        int n = Mathf.Min(tileGroup.tiles.Count, cs.Count);
-        Grasp(cs, n, p => citizens.Remove(p));
+            var p = citizens[i];
+
+            if (p is Citizen)
+            {
+                Grasp(p);
+                citizens.RemoveAt(i);
+            }
+        }
 
         boardTraveller.Start(tileGroup.mandarinTile, Pieces.Count);
         actionID = ActionID.TAKING_BACK;
@@ -61,27 +70,28 @@ public class PieceDropper : PieceHolder
     {
         this.forward = forward;
         float delay = 0f;
-        for (int i = 0; i < Pieces.Count; i++)
+        int n = Pieces.Count;
+
+        for (int i = 0; i < n; i++)
         {
             boardTraveller.Next(forward);
 
-            for (int j = Pieces.Count - i - 1; j >= 0; j--)
+            for (int j = n - i - 1; j >= 0; j--)
             {
                 var p = Pieces[i + j];
                 var further = p is Citizen && (boardTraveller.CurrentTile is MandarinTile m) && m.HasMandarin;
 
                 if (i == 0)
                 {
-                    if (delay > 0f)
-                        p.PieceAnimator.Add(new PieceAnimator.Delay(delay));
-                    delay += 0.08f;
+                    p.PieceAnimator.Add(new PieceAnimator.Delay(delay));
+                    delay += 0.2f;
                 }
 
                 var pos = boardTraveller.CurrentTile.GetPositionInFilledCircle(
                     boardTraveller.CurrentTile.Pieces.Count + j + (further ? 5 : 0), false);
-                var flag = (i == Pieces.Count - 1) ? 2 : (j == 0 ? 1 : 0);
+                var flag = (i == n - 1) ? 2 : (j == 0 ? 1 : 0);
 
-                p.JumpTo(pos,flag,OnJumpDone);
+                p.JumpTo(pos, flag, OnJumpDone);
             }
 
             boardTraveller.CurrentTile.Grasp(Pieces[i]);

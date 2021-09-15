@@ -5,6 +5,15 @@ using UnityEngine;
 
 public class PieceBench : PieceHolder
 {
+    
+    [Serializable]
+    public struct ConfigData
+    {
+        public Placement placement;
+        public float spacing;
+        public int perRow;
+    }
+    
     private ConfigData configData;
 
     public int MandarinCount { get; private set; } = 0;
@@ -63,11 +72,4 @@ public class PieceBench : PieceHolder
         return new Placement(configData.placement.Position + dirX * offsetX + dirY * offsetY, configData.placement.Rotation);
     }
 
-    [Serializable]
-    public struct ConfigData
-    {
-        public Placement placement;
-        public float spacing;
-        public int perRow;
-    }
 }

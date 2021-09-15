@@ -64,12 +64,21 @@ public class Piece : Prefab
         parallelAnimation.Add(new PieceAnimator.JumpAnim(transform,
             new PieceAnimator.JumpAnim.InputData
             {
-                target = pos,
                 flag = flag,
-                callback = callback
+                callback = callback,
+                duration = 0.4f
             }, BezierEasing.Blueprint1));
-        PieceAnimator.Add(new BounceAnim(footTransform, 0.15f));
-        PieceAnimator.Add(parallelAnimation);
+        parallelAnimation.Add(new PieceAnimator.StraightMove(transform, pos, 0.4f));
+
+        var sA = new SequentialAnimation();
+        sA.Add(new PieceAnimator.Delay(0.1f));
+        sA.Add(parallelAnimation);
+
+        var parallelAnimation2 = new ParallelAnimation();
+        parallelAnimation2.Add(new BounceAnim(footTransform, 0.15f));
+        parallelAnimation2.Add(sA);
+        
+        PieceAnimator.Add(parallelAnimation2);
     }
 
     public void Land()

@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Boid : SNM.Animation
 {
-    private MotionMetrics motion;
+    protected MotionMetrics motion;
 
     private ConfigData configData;
-    private InputData inputData;
+    protected InputData inputData;
     private Boid[] others;
 
     public Boid(ConfigData configData, InputData inputData, Boid[] others)
@@ -32,7 +32,7 @@ public class Boid : SNM.Animation
         {
             if (CheckDistance(motion, inputData, configData.arriveDistance))
             {
-                motion.acceleration += Arrive(motion, inputData.target);
+                motion.acceleration += Arrive(motion, inputData.target, deltaTime);
             }
             else
             {
@@ -40,8 +40,8 @@ public class Boid : SNM.Animation
                 motion.acceleration += Separate(others);
             }
 
-            inputData.transform.position = motion.GetFinalPosition(deltaTime, configData);
-            inputData.transform.forward = motion.direction;
+            SetPosAndForward(motion.GetFinalPosition(deltaTime, configData), motion.direction);
+
             motion.acceleration = Vector3.zero;
 
             if (CheckDistance(motion, inputData, 0.001f))
@@ -53,6 +53,12 @@ public class Boid : SNM.Animation
 
     public override void End()
     {
+    }
+
+    protected virtual void SetPosAndForward(Vector3 pos, Vector3 forward)
+    {
+        inputData.transform.position = pos;
+        inputData.transform.forward = forward;
     }
 
     private bool CheckDistance(MotionMetrics motionMetrics, InputData inputData, float distance)
@@ -67,14 +73,14 @@ public class Boid : SNM.Animation
         motion.moving = false;
     }
 
-    private Vector3 Arrive(MotionMetrics motion, Vector3 target)
+    private Vector3 Arrive(MotionMetrics motion, Vector3 target, float deltaTime)
     {
         var diff = target - motion.position;
         var mag = diff.magnitude;
         var f = mag / configData.arriveDistance;
         var desiredVelocity = (diff / mag) * Mathf.Lerp(0f, configData.maxSpeed, 1 - (f - 1) * (f - 1));
 
-        var desiredAcceleration = (desiredVelocity - motion.velocity) / Time.deltaTime;
+        var desiredAcceleration = (desiredVelocity - motion.velocity) / deltaTime;
 
         return desiredAcceleration;
     }
@@ -125,7 +131,7 @@ public class Boid : SNM.Animation
         return Vector3.zero;
     }
 
-    private struct MotionMetrics
+    protected struct MotionMetrics
     {
         public bool moving;
 
@@ -161,5 +167,66 @@ public class Boid : SNM.Animation
         public float maxAcceleration;
         public float arriveDistance;
         public float spacing;
+    }
+}
+
+public class JumpingBoid : Boid
+{
+    private Vector3 boidingPos;
+    private PieceAnimator.JumpAnim jump;
+    private bool delay = false;
+    private float intervalTime = 0f;
+    public override bool IsDone => base.IsDone && jump.IsDone;
+
+    public JumpingBoid(ConfigData configData, InputData inputData, Boid[] others)
+        : base(configData, inputData, others)
+    {
+        jump = new PieceAnimator.JumpAnim(inputData.transform, new PieceAnimator.JumpAnim.InputData()
+        {
+            height = 0.3f,
+            duration = 0.25f
+        });
+    }
+
+    protected override void SetPosAndForward(Vector3 pos, Vector3 forward)
+    {
+        boidingPos = pos;
+        inputData.transform.forward = forward;
+
+        var p = inputData.transform.position;
+        inputData.transform.position = new Vector3(boidingPos.x, p.y, boidingPos.z);
+    }
+
+    public override void Begin()
+    {
+        base.Begin();
+        jump.Begin();
+    }
+
+    public override void Update(float deltaTime)
+    {
+        jump.Update(deltaTime);
+        if (motion.moving)
+        {
+            if (jump.IsDone)
+            {
+                delay = true;
+            }
+            else
+            {
+                base.Update(deltaTime);
+            }
+        }
+
+        if (delay)
+        {
+            intervalTime += deltaTime;
+            if (intervalTime >= 0.08f)
+            {
+                delay = false;
+                intervalTime = 0f;
+                jump.Begin();
+            }
+        }
     }
 }

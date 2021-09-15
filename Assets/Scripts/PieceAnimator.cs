@@ -5,6 +5,7 @@ using System.Numerics;
 using DG.Tweening;
 using SNM;
 using UnityEngine;
+using Animation = SNM.Animation;
 using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -32,19 +33,17 @@ public class PieceAnimator : SNM.Animator
         public Vector3 initialPosition;
         public Vector3 initialVelocity;
         public Vector3 initialAcceleration;
-        public bool done;
         public float time;
         public float duration;
         private Transform transform;
-        public override bool IsDone => done;
 
-        public JumpAnim(Transform transform, InputData inputData, IEasing linearEasing = null)
+        public JumpAnim(Transform transform, InputData inputData, IEasing easing = null)
         {
             this.transform = transform;
             this.inputData = inputData;
-            if (linearEasing != null)
+            if (easing != null)
             {
-                SetEase(linearEasing);
+                SetEase(easing);
             }
         }
 
@@ -53,47 +52,38 @@ public class PieceAnimator : SNM.Animator
             float h = inputData.height;
             float t = inputData.duration;
             var pos = transform.position;
-            var dir = inputData.target - pos;
             float a = (-8f * h) / (t * t);
 
             time = 0;
-            done = false;
+            IsDone = false;
             duration = t;
             initialPosition = pos;
             initialAcceleration = Vector3.up * a;
-            initialVelocity =
-                dir / duration + Vector3.up * (-a * 0.5f * duration);
-
-            transform.rotation =
-                UnityEngine.Quaternion.LookRotation(SNM.Math.Projection(inputData.target - pos,
-                    Main.Instance.GameCommonConfig.UpVector));
-            // Main.Instance.Delay(duration * 0.25f, () =>
-            // {
-            //     transform.DOLocalRotate(transform.eulerAngles + new Vector3(360f, 0, 0), duration * 0.5f,
-            //         RotateMode.FastBeyond360);
-            // });
+            initialVelocity = Vector3.up * (-a * 0.5f * duration);
         }
 
         public override void Update(float deltaTime)
         {
-            if (!done)
+            if (!IsDone)
             {
                 time += deltaTime;
 
-                if (time >= duration)
-                {
-                    done = true;
-                    time = duration;
-                }
+                float t = Mathf.Min(time / duration, 1f);
 
-                var xz = SNM.Math.MotionEquation(
-                    initialPosition, initialVelocity,
-                    initialAcceleration, time);
+                // var xz = SNM.Math.MotionEquation(
+                //     initialPosition, initialVelocity,
+                //     initialAcceleration, time);
 
+                var xz = transform.position;
                 var y = SNM.Math.MotionEquation(
                     initialPosition, initialVelocity,
-                    initialAcceleration, ease.GetEase(time / duration) * duration);
+                    initialAcceleration, ease.GetEase(t) * duration);
                 transform.position = new Vector3(xz.x, y.y, xz.z);
+
+                if (time >= duration)
+                {
+                    IsDone = true;
+                }
             }
         }
 
@@ -104,11 +94,57 @@ public class PieceAnimator : SNM.Animator
 
         public class InputData
         {
-            public Vector3 target;
+            // public Vector3 target;
             public float height = 1f;
             public float duration = 0.4f;
             public int flag;
             public Action<PieceAnimator, int> callback;
+        }
+    }
+
+    public class StraightMove : Animation
+    {
+        private Vector3 target;
+        private Vector3 origin;
+        private float duration;
+        private Transform transform;
+
+        private float time;
+
+        public StraightMove(Transform transform, Vector3 target, float duration, IEasing ease = null)
+        {
+            this.transform = transform;
+            this.target = target;
+            this.duration = duration;
+            if (ease != null)
+            {
+                SetEase(ease);
+            }
+        }
+
+        public override void Begin()
+        {
+            base.Begin();
+            time = 0;
+            origin = transform.position;
+            transform.rotation = Quaternion.LookRotation(SNM.Math.Projection(target - origin,
+                Main.Instance.GameCommonConfig.UpVector));
+        }
+
+        public override void Update(float deltaTime)
+        {
+            if (!IsDone)
+            {
+                time += deltaTime;
+                float t = Mathf.Min(time / duration, 1f);
+                var pos = Vector3.Lerp(origin, target, ease.GetEase(t));
+                pos.y = transform.position.y;
+                transform.position = pos;
+                if (time >= duration)
+                {
+                    IsDone = true;
+                }
+            }
         }
     }
 

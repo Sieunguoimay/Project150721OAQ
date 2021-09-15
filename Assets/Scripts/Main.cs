@@ -78,7 +78,7 @@ public class Main : MonoBehaviour
         pieceDropper = new PieceDropper();
         pieceDropper.Setup(board, gameCommonConfig.PieceDropper);
         pieceDropper.OnDone += OnBunnieDropperDone;
-        pieceDropper.OnEat += OnBunnieDropperEat;
+        pieceDropper.OnEat += OnEatPieces;
 
         tileSelector = Prefab.Instantiates(PrefabManager.TileSelector);
         tileSelector.Setup(gameCommonConfig.TileSelector);
@@ -159,7 +159,7 @@ public class Main : MonoBehaviour
         }
     }
 
-    private void OnBunnieDropperEat(IPieceHolder pieceContainerMb)
+    private void OnEatPieces(IPieceHolder pieceContainerMb)
     {
         var tile = pieceContainerMb as Tile;
         var player = CurrentPlayer;
@@ -178,12 +178,21 @@ public class Main : MonoBehaviour
                     .Position;
 
             // p.PieceAnimator.Add(new PieceAnimator.JumpAnim(p.transform, new PieceAnimator.JumpTarget {target = jumpPos, height = 2f}));
-            boids[index] = new Boid(GameCommonConfig.BoidConfigData,
+            boids[index] = new JumpingBoid(
+                new Boid.ConfigData()
+                {
+                    arriveDistance = GameCommonConfig.BoidConfigData.arriveDistance,
+                    maxAcceleration = GameCommonConfig.BoidConfigData.maxAcceleration,
+                    maxSpeed = GameCommonConfig.BoidConfigData.maxSpeed ,
+                    spacing = GameCommonConfig.BoidConfigData.spacing,
+                },
+                //GameCommonConfig.BoidConfigData,
                 new Boid.InputData()
                 {
                     target = movePos,
                     transform = p.transform
                 }, boids);
+            p.PieceAnimator.Add(new PieceAnimator.Delay(0.08f * index));
             p.PieceAnimator.Add(boids[index]);
             index++;
         });

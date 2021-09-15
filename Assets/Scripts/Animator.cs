@@ -95,6 +95,51 @@ namespace SNM
         }
     }
 
+    public class SequentialAnimation : Animation
+    {
+        private Queue<Animation> animations = new Queue<Animation>();
+        protected Animation currentAnim;
+
+        public void Add(Animation anim)
+        {
+            animations.Enqueue(anim);
+        }
+
+        public override void Update(float deltaTime)
+        {
+            if (currentAnim == null)
+            {
+                if (animations.Count > 0)
+                {
+                    currentAnim = animations.Dequeue();
+                    currentAnim.Begin();
+                }
+                else
+                {
+                    currentAnim = null;
+                }
+            }
+            else if (currentAnim.IsDone)
+            {
+                currentAnim.End();
+                if (animations.Count > 0)
+                {
+                    currentAnim = animations.Dequeue();
+                    currentAnim.Begin();
+                }
+                else
+                {
+                    currentAnim = null;
+                    IsDone = true;
+                }
+            }
+            else
+            {
+                currentAnim.Update(deltaTime);
+            }
+        }
+    }
+
     public class Animator
     {
         protected Queue<Animation> animations = new Queue<Animation>();
