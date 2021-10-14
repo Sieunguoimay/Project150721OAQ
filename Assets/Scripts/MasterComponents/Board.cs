@@ -6,7 +6,7 @@ using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 
-public class Board : Prefab
+public class Board : MasterComponent
 {
     private Tile[] tiles;
     public Tile[] Tiles => tiles ?? (tiles = GetComponentsInChildren<Tile>());
@@ -36,7 +36,7 @@ public class Board : Prefab
                 InitializeTileGroup(ref tg);
                 tileGroups.Add(tg);
 
-                var m = Prefab.Instantiates(Main.Instance.PrefabManager.MandarinPrefab);
+                var m = Instantiate(Main.Instance.PrefabManager.GetPrefab<Mandarin>()).GetComponent<Mandarin>();
                 m.Setup(new Piece.ConfigData(Main.Instance.GameCommonConfig.MandarinConfigData));
                 t.Grasp(m);
                 t.Reposition(m.transform);
@@ -45,7 +45,7 @@ public class Board : Prefab
             {
                 for (int i = 0; i < 5; i++)
                 {
-                    var b = Prefab.Instantiates(Main.Instance.PrefabManager.CitizenPrefab);
+                    var b = Instantiate(Main.Instance.PrefabManager.GetPrefab<Citizen>()).GetComponent<Citizen>();
                     b.transform.SetParent(container.transform);
                     b.Setup(new Piece.ConfigData(Main.Instance.GameCommonConfig.CitizenConfigData));
                     t.Grasp(b);

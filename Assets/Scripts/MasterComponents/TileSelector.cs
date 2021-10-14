@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileSelector : Prefab
+public class TileSelector : MasterComponent
 {
     [Serializable]
     public class Config
@@ -34,11 +34,12 @@ public class TileSelector : Prefab
             t.OnSelect -= OnTileSelect;
             t.OnSelect += OnTileSelect;
 
-            prevColor = t.PerObjectMaterial.Color;
+            var p = t.GetComponent<PerObjectMaterial>();
+            prevColor = p.Color;
 
             if (t.Pieces.Count > 0)
             {
-                t.PerObjectMaterial.Color = config.ActiveColor;
+                p.Color = config.ActiveColor;
             }
         }
     }
@@ -72,7 +73,7 @@ public class TileSelector : Prefab
 
         foreach (var t in tileGroup?.tiles)
         {
-            t.PerObjectMaterial.Color = t == selectedTile ? config.ActiveColor : prevColor;
+            t.GetComponent<PerObjectMaterial>().Color = t == selectedTile ? config.ActiveColor : prevColor;
         }
     }
 
@@ -91,7 +92,7 @@ public class TileSelector : Prefab
         foreach (var t in tileGroup?.tiles)
         {
             t.OnSelect -= OnTileSelect;
-            t.PerObjectMaterial.Color = prevColor;
+            t.GetComponent<PerObjectMaterial>().Color = prevColor;
         }
 
         InvokeDeselect();

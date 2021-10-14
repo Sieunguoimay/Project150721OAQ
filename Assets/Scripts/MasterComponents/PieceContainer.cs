@@ -57,10 +57,12 @@ public class PieceHolder : IPieceHolder
         }
     }
 
-    public virtual void OnGrasp(IPieceHolder whom){}
+    public virtual void OnGrasp(IPieceHolder whom)
+    {
+    }
 }
 
-public class PieceContainer : MonoBehaviour, IPieceHolder
+public class PieceContainer : MasterComponent, IPieceHolder
 {
     public const int MaxPiecesSupported = 50;
     Vector2Int[] reservedPoints = new Vector2Int[MaxPiecesSupported];
@@ -71,7 +73,9 @@ public class PieceContainer : MonoBehaviour, IPieceHolder
     public List<Piece> Pieces => pieceHolder.Pieces;
     public virtual void Grasp(Piece piece, Action<Piece> onGrasp = null) => pieceHolder.Grasp(piece, onGrasp);
     public void Grasp(IPieceHolder other, Action<Piece> onGrasp = null) => pieceHolder.Grasp(other, onGrasp);
-    public void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null) => pieceHolder.Grasp(otherPieces, count, onGrasp);
+
+    public void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null) =>
+        pieceHolder.Grasp(otherPieces, count, onGrasp);
 
     public virtual void OnGrasp(IPieceHolder whom)
     {

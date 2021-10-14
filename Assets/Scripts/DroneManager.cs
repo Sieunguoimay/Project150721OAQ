@@ -1,19 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
+using SNM.Bezier;
 using UnityEngine;
 
-public class DroneManager
+[CreateAssetMenu(menuName = "Managers/DroneManager")]
+public class DroneManager : ScriptableObject
 {
-    private List<Drone> drones;
+    [SerializeField] private ConfigData configData;
+
+    [NonSerialized] private List<Drone> drones = new List<Drone>();
+    [NonSerialized] private GameObject container;
 
     [Serializable]
     public class ConfigData
     {
-         
+        [SerializeField] public Drone.ConfigData droneCommonConfig;
     }
-    
-    public DroneManager()
+
+    public void Setup(BezierPlotter bezierPlotter)
     {
-        drones = new List<Drone>();
+        container = new GameObject(name);
+        var d = Instantiate(Main.Instance.PrefabManager.GetPrefab<Drone>(), container.transform)
+            .GetComponent<Drone>();
+        d.Setup(configData.droneCommonConfig, bezierPlotter);
+        drones.Add(d);
+    }
+
+    public void Loop(float deltaTime)
+    {
+        foreach (var drone in drones)
+        {
+            drone.Loop(deltaTime);
+        }
+    }
+
+    public void Cleanup()
+    {
+        foreach (var drone in drones)
+        {
+            drone.Cleanup();
+        }
+
+        GameObject.Destroy(container);
+    }
+
+    public Drone GetDrone()
+    {
+        return drones[0];
     }
 }

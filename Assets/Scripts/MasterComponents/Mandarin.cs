@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[DisallowMultipleComponent]
 [SelectionBase]
-public class Citizen : Piece
+public class Mandarin : Piece
 {
-    
+
 }

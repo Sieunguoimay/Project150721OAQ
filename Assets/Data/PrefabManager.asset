@@ -12,9 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde4a10d73374ec479fa235aa37e6d4c, type: 3}
   m_Name: PrefabManager
   m_EditorClassIdentifier: 
-  boardPrefab: {fileID: 4969991599171890943, guid: 04845be1075dce74797bf8e6f3000296, type: 3}
-  citizenTilePrefab: {fileID: 2106036659000400842, guid: 039c12b9678732843a8cd5fd08787dab, type: 3}
-  mandarinTilePrefab: {fileID: 3062968884145060854, guid: a0c9f3be3038f2c48b96c6d52d196e0b, type: 3}
-  citizenPrefab: {fileID: -2858626238098160244, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
-  mandarinPrefab: {fileID: 7237692838130529961, guid: d7513236ad9972b4dbfaa615a28dce11, type: 3}
-  tileSelector: {fileID: 8659019025283783880, guid: ed42140ac79d9d7468323f1ef4b78add, type: 3}
+  prefabs:
+  - {fileID: 3960245732270797140, guid: 04845be1075dce74797bf8e6f3000296, type: 3}
+  - {fileID: 4393973210023763556, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
+  - {fileID: 6512947924339371903, guid: 039c12b9678732843a8cd5fd08787dab, type: 3}
+  - {fileID: 6322332230626821368, guid: 02e1e52f3e32b6b41bcdf67d5a7c284e, type: 3}
+  - {fileID: 1396097034152937368, guid: 4aef1705c5e370e479601e1c52f56b53, type: 3}
+  - {fileID: 822649934157487132, guid: d7513236ad9972b4dbfaa615a28dce11, type: 3}
+  - {fileID: 4708701738288824118, guid: a0c9f3be3038f2c48b96c6d52d196e0b, type: 3}
+  - {fileID: 8659019025283783883, guid: ed42140ac79d9d7468323f1ef4b78add, type: 3}
+  prefabName: 

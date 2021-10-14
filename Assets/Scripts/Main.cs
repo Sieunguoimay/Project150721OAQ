@@ -4,17 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Manager;
 using SNM;
+using SNM.Bezier;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 public class Main : MonoBehaviour
 {
-    [SerializeField] private Transform tester;
     [SerializeField] private GameCommonConfig gameCommonConfig;
     [SerializeField] private PrefabManager prefabManager;
-    [SerializeField, Range(0, 1)] private float a;
-    [SerializeField] private float b;
+    [SerializeField] private DroneManager droneManager;
+    [SerializeField] private BezierPlotter bezierPlotter;
 
     [Serializable]
     public class Config
@@ -29,30 +29,31 @@ public class Main : MonoBehaviour
         public bool gameOver = false;
     }
 
+    [Serializable]
     public class ReferenceData
     {
-        public Camera Camera;
+        [HideInInspector] public Camera camera;
     }
 
-    private Config config;
-    private StateData state = new StateData();
-    private ReferenceData references = new ReferenceData();
+    private Config _config;
+    private readonly StateData _state = new StateData();
+    private readonly ReferenceData _references = new ReferenceData();
 
-    private Board board;
-    private PlayersManager playerManager;
-    private PieceDropper pieceDropper;
-    private TileSelector tileSelector;
+    private Board _board;
+    private PlayersManager _playerManager;
+    private PieceDropper _pieceDropper;
+    private TileSelector _tileSelector;
 
-    private Player CurrentPlayer => playerManager.CurrentPlayer;
+    private Player CurrentPlayer => _playerManager.CurrentPlayer;
 
     public static Main Instance { get; private set; }
     public RayPointer RayPointer { get; private set; }
     public GameCommonConfig GameCommonConfig => gameCommonConfig;
     public PrefabManager PrefabManager => prefabManager;
-    public StateData State => state;
-    public ReferenceData References => references;
+    public StateData State => _state;
+    public ReferenceData References => _references;
 
-    private PerMatchData perMatchData;
+    private PerMatchData _perMatchData;
 
     private void Awake()
     {
@@ -69,58 +70,63 @@ public class Main : MonoBehaviour
 
     void Start()
     {
-        config = gameCommonConfig.Main;
-        SetupReferenceData();
+        _config = gameCommonConfig.Main;
+        PrefabManager.Setup();
+        SetupReferences();
 
-        board = Prefab.Instantiates(PrefabManager.BoardPrefab);
-        board.Setup();
+        _board = Instantiate(PrefabManager.GetPrefab<Board>()).GetComponent<Board>();
+        _board.Setup();
 
-        pieceDropper = new PieceDropper();
-        pieceDropper.Setup(board, gameCommonConfig.PieceDropper);
-        pieceDropper.OnDone += OnBunnieDropperDone;
-        pieceDropper.OnEat += OnEatPieces;
+        _pieceDropper = new PieceDropper();
+        _pieceDropper.Setup(_board, gameCommonConfig.PieceDropper);
+        _pieceDropper.OnDone += OnBunnieDropperDone;
+        _pieceDropper.OnEat += OnEatPieces;
 
-        tileSelector = Prefab.Instantiates(PrefabManager.TileSelector);
-        tileSelector.Setup(gameCommonConfig.TileSelector);
+        _tileSelector = Instantiate(PrefabManager.GetPrefab<TileSelector>()).GetComponent<TileSelector>();
+        _tileSelector.Setup(gameCommonConfig.TileSelector);
 
-        playerManager = new PlayersManager();
-        playerManager.Setup(board.TileGroups, tileSelector);
-        foreach (var player in playerManager.Players)
+        _playerManager = new PlayersManager();
+        _playerManager.Setup(_board.TileGroups, _tileSelector);
+        foreach (var player in _playerManager.Players)
         {
             player.OnDecisionResult += OnDecisionResult;
         }
-
+        bezierPlotter.Setup();
+        droneManager.Setup(bezierPlotter);
         this.Delay(1f, StartNewMatch);
+        // Test();
     }
 
-    private void SetupReferenceData()
+    private void SetupReferences()
     {
-        references.Camera = Camera.main;
+        _references.camera = Camera.main;
     }
 
     private void StartNewMatch()
     {
-        perMatchData = new PerMatchData(playerManager.Players.Length);
-        CurrentPlayer.MakeDecision(board);
+        _perMatchData = new PerMatchData(_playerManager.Players.Length);
+        CurrentPlayer.MakeDecision(_board);
     }
 
     private void Update()
     {
         RayPointer.Update(Time.deltaTime);
 
-        if (state.gameOver)
+        if (_state.gameOver)
         {
             if (Input.GetKeyUp(KeyCode.Return))
             {
                 ResetGame();
             }
         }
+
+        droneManager.Loop(Time.deltaTime);
     }
 
     private void OnDecisionResult(Tile tile, bool forward)
     {
-        pieceDropper.GetReady(tile);
-        pieceDropper.DropAll(forward);
+        _pieceDropper.GetReady(tile);
+        _pieceDropper.DropAll(forward);
     }
 
     private void OnBunnieDropperDone(PieceDropper.ActionID actionID)
@@ -130,7 +136,7 @@ public class Main : MonoBehaviour
 
     private void MakeDecision(bool canChangePlayer)
     {
-        if (board.AreMandarinTilesAllEmpty())
+        if (_board.AreMandarinTilesAllEmpty())
         {
             GameOver();
         }
@@ -138,7 +144,7 @@ public class Main : MonoBehaviour
         {
             if (canChangePlayer)
             {
-                playerManager.ChangePlayer();
+                _playerManager.ChangePlayer();
             }
 
             if (Board.IsTileGroupEmpty(CurrentPlayer.TileGroup))
@@ -154,7 +160,7 @@ public class Main : MonoBehaviour
             }
             else
             {
-                CurrentPlayer.MakeDecision(board);
+                CurrentPlayer.MakeDecision(_board);
             }
         }
     }
@@ -163,19 +169,29 @@ public class Main : MonoBehaviour
     {
         var tile = pieceContainerMb as Tile;
         var player = CurrentPlayer;
-        var boids = new Boid[pieceContainerMb.Pieces.Count];
+        var boids = new Boid[pieceContainerMb.Pieces.Count(p => p is Citizen)];
         var index = 0;
         player.pieceBench.Grasp(pieceContainerMb, p =>
         {
+            if (p is Mandarin)
+            {
+                var pos = player.pieceBench.GetMandarinPlacement(player.pieceBench.MandarinCount - 1);
+                droneManager.GetDrone().GraspObjectToTarget(p, pos);
+                return;
+            }
+
             var forward = player.TileGroup.GetForward();
             var right = -Vector3.Cross(forward, GameCommonConfig.UpVector);
             var offset = UnityEngine.Random.insideUnitCircle;
             var jumpPos = tile.transform.position + right + new Vector3(offset.x, 0, offset.y);
 
-            var movePos = p is Mandarin
-                ? player.pieceBench.GetMandarinPlacement(player.pieceBench.MandarinCount - 1).Position
-                : player.pieceBench.GetPlacement(player.pieceBench.Pieces.Count - player.pieceBench.MandarinCount - 1)
-                    .Position;
+            var movePos = player.pieceBench
+                .GetPlacement(player.pieceBench.Pieces.Count - player.pieceBench.MandarinCount - 1)
+                .Position;
+
+            // p is Mandarin
+            //     ? player.pieceBench.GetMandarinPlacement(player.pieceBench.MandarinCount - 1).Position
+            //     :
 
             // p.PieceAnimator.Add(new PieceAnimator.JumpAnim(p.transform, new PieceAnimator.JumpTarget {target = jumpPos, height = 2f}));
             boids[index] = new JumpingBoid(
@@ -183,7 +199,7 @@ public class Main : MonoBehaviour
                 {
                     arriveDistance = GameCommonConfig.BoidConfigData.arriveDistance,
                     maxAcceleration = GameCommonConfig.BoidConfigData.maxAcceleration,
-                    maxSpeed = GameCommonConfig.BoidConfigData.maxSpeed ,
+                    maxSpeed = GameCommonConfig.BoidConfigData.maxSpeed,
                     spacing = GameCommonConfig.BoidConfigData.spacing,
                 },
                 //GameCommonConfig.BoidConfigData,
@@ -192,8 +208,8 @@ public class Main : MonoBehaviour
                     target = movePos,
                     transform = p.transform
                 }, boids);
-            p.PieceAnimator.Add(new PieceAnimator.Delay(0.08f * index));
-            p.PieceAnimator.Add(boids[index]);
+            p.PieceActor.Add(new CommonActivities.Delay(0.08f * index));
+            p.PieceActor.Add(boids[index]);
             index++;
         });
     }
@@ -202,8 +218,8 @@ public class Main : MonoBehaviour
     {
         if (CurrentPlayer.pieceBench.Pieces.Count > 0)
         {
-            pieceDropper.GetReadyForTakingBackCitizens(CurrentPlayer.TileGroup, CurrentPlayer.pieceBench.Pieces);
-            pieceDropper.DropAll(true);
+            _pieceDropper.GetReadyForTakingBackCitizens(CurrentPlayer.TileGroup, CurrentPlayer.pieceBench.Pieces);
+            _pieceDropper.DropAll(true);
         }
         else
         {
@@ -215,24 +231,24 @@ public class Main : MonoBehaviour
     {
         CheckForWinner();
 
-        if (!state.gameOver)
+        if (!_state.gameOver)
         {
-            state.gameOver = true;
+            _state.gameOver = true;
         }
     }
 
     private void CheckForWinner()
     {
-        for (int i = 0; i < playerManager.Players.Length; i++)
+        for (int i = 0; i < _playerManager.Players.Length; i++)
         {
-            foreach (var tile in board.TileGroups[i].tiles)
+            foreach (var tile in _board.TileGroups[i].tiles)
             {
-                playerManager.Players[i].pieceBench.Grasp(tile);
+                _playerManager.Players[i].pieceBench.Grasp(tile);
             }
 
             int sum = 0;
 
-            foreach (var p in playerManager.Players[i].pieceBench.Pieces)
+            foreach (var p in _playerManager.Players[i].pieceBench.Pieces)
             {
                 if (p is Citizen)
                 {
@@ -246,10 +262,10 @@ public class Main : MonoBehaviour
 
 
             Debug.Log("sum " + sum);
-            perMatchData.SetPlayerScore(i, sum);
+            _perMatchData.SetPlayerScore(i, sum);
         }
 
-        TellWinner(perMatchData.PlayerScores);
+        TellWinner(_perMatchData.PlayerScores);
     }
 
     private void TellWinner(int[] scores)
@@ -270,14 +286,20 @@ public class Main : MonoBehaviour
 
     private void ResetGame()
     {
-        state.gameOver = false;
-        var gameResetter = new GameResetter(board, playerManager);
+        _state.gameOver = false;
+        var gameResetter = new GameResetter(_board, _playerManager);
         gameResetter.Reset();
-        this.Delay(1f, () => { CurrentPlayer.MakeDecision(board); });
+        this.Delay(1f, () => { CurrentPlayer.MakeDecision(_board); });
     }
 
-    private void OnValidate()
-    {
-        b = BezierEasing.Blueprint1.GetEase(a);
-    }
+    // private void Test()
+    // {
+    //     var points = new Vector3[] {new Vector3(), new Vector3(1, -2, 0), new Vector3(2, 1, 0), new Vector3(3, 0, 0)};
+    //     float t = 0.0f;
+    //     for (; t <= 1.0f; t += 0.1f)
+    //     {
+    //         var c = Instantiate(PrefabManager.GetPrefab<Drone>());
+    //         c.transform.position = SNM.Bezier.Bezier.ComputeBezierCurve3D(points, t);
+    //     }
+    // }
 }

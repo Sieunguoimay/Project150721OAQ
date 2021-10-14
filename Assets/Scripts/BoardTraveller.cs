@@ -18,14 +18,16 @@ public class BoardTraveller
         {
             if (currentTile != null)
             {
-                currentTile.PerObjectMaterial.Color = oldColor;
+                var perObjectMaterial = currentTile.gameObject.GetComponent<PerObjectMaterial>();
+                perObjectMaterial.Color = oldColor;
             }
 
             currentTile = value;
             if (currentTile != null)
             {
-                oldColor = currentTile.PerObjectMaterial.Color;
-                currentTile.PerObjectMaterial.Color = activeColor;
+                var perObjectMaterial = currentTile.gameObject.GetComponent<PerObjectMaterial>();
+                oldColor = perObjectMaterial.Color;
+                perObjectMaterial.Color = activeColor;
             }
         }
     }

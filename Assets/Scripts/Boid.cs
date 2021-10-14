@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-public class Boid : SNM.Animation
+public class Boid : SNM.Activity
 {
     protected MotionMetrics motion;
 
@@ -12,7 +12,7 @@ public class Boid : SNM.Animation
 
     public Boid(ConfigData configData, InputData inputData, Boid[] others)
     {
-        this.others = others;
+        this.others = others ?? new Boid[0];
         this.configData = configData;
         this.inputData = inputData;
         motion = new MotionMetrics();
@@ -173,7 +173,7 @@ public class Boid : SNM.Animation
 public class JumpingBoid : Boid
 {
     private Vector3 boidingPos;
-    private PieceAnimator.JumpAnim jump;
+    private PieceActor.Jump jump;
     private bool delay = false;
     private float intervalTime = 0f;
     public override bool IsDone => base.IsDone && jump.IsDone;
@@ -181,7 +181,7 @@ public class JumpingBoid : Boid
     public JumpingBoid(ConfigData configData, InputData inputData, Boid[] others)
         : base(configData, inputData, others)
     {
-        jump = new PieceAnimator.JumpAnim(inputData.transform, new PieceAnimator.JumpAnim.InputData()
+        jump = new PieceActor.Jump(inputData.transform, new PieceActor.Jump.InputData()
         {
             height = 0.3f,
             duration = 0.25f

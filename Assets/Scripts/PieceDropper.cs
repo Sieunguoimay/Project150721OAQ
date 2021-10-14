@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SNM;
 using UnityEngine;
+using Action = System.Action;
 
 public class PieceDropper : PieceHolder
 {
@@ -58,6 +59,7 @@ public class PieceDropper : PieceHolder
             if (p is Citizen)
             {
                 Grasp(p);
+                p.PieceActor.CancelAll();
                 citizens.RemoveAt(i);
             }
         }
@@ -83,7 +85,7 @@ public class PieceDropper : PieceHolder
 
                 if (i == 0)
                 {
-                    p.PieceAnimator.Add(new PieceAnimator.Delay(delay));
+                    p.PieceActor.Add(new CommonActivities.Delay(delay));
                     delay += 0.2f;
                 }
 
@@ -105,7 +107,7 @@ public class PieceDropper : PieceHolder
         Pieces.Clear();
     }
 
-    public void OnJumpDone(PieceAnimator last, int flag)
+    public void OnJumpDone(PieceActor last, int flag)
     {
         if (flag == 2)
         {
