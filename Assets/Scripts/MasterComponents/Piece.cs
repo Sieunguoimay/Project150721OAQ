@@ -196,10 +196,11 @@ public class Piece : MasterComponent, Drone.IPickedUpObject
         transform.SetParent(attachTarget);
     }
 
-    public void OnDrop(Transform oldParent)
+    public void OnDrop(Transform oldParent, Placement targetPlacement)
     {
         Debug.Log("On Dropped");
         transform.SetParent(oldParent);
+        transform.position = targetPlacement.Position;
     }
 
     public Transform Transform => pickupPoint;

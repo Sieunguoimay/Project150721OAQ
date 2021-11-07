@@ -22,16 +22,16 @@ public class Drone : MasterComponent
     //references
     private IPickedUpObject pickedUpObject;
     private Placement targetPlacement;
-    private BezierPlotter _bezierPlotter;
+    private Transform endPoint;
 
-    public void Setup(ConfigData configData, BezierPlotter bezierPlotter)
+    public void Setup(ConfigData configData, Transform endPoint)
     {
         this.configData = configData;
-        _bezierPlotter = bezierPlotter;
         stateData = new StateData();
         stateData.visual = this;
         actor = new Actor();
         stateData.visual.transform.position = UnityEngine.Random.insideUnitSphere + Vector3.up;
+        this.endPoint = endPoint;
         SetupReferences();
     }
 
@@ -52,8 +52,8 @@ public class Drone : MasterComponent
         actor.Add(new BezierMotionActivity(_bezierMotion, 0.5f, this.pickedUpObject.Transform.position));
         actor.Add(new PickUp(stateData.visual, this.pickedUpObject));
         actor.Add(new BezierMotionDropActivity(this.pickedUpObject,
-            Main.Instance.transform, _bezierMotion, _bezierPlotter.CalculateT(this.targetPlacement.Position),
-            _bezierPlotter.GetPoints()));
+            Main.Instance.transform, _bezierMotion, this.targetPlacement, endPoint));
+
         // actor.Add(new Boid(Main.Instance.GameCommonConfig.BoidConfigData, new Boid.InputData()
         // {
         //     transform = stateData.visual.transform,
@@ -82,7 +82,7 @@ public class Drone : MasterComponent
     public interface IPickedUpObject
     {
         void OnPick(Transform attachTarget);
-        void OnDrop(Transform oldParent);
+        void OnDrop(Transform oldParent, Placement targetPlacement);
         Transform Transform { get; }
     }
 
@@ -100,24 +100,6 @@ public class Drone : MasterComponent
         public override void Update(float deltaTime)
         {
             pickedUpObject.OnPick(visual.transform);
-            IsDone = true;
-        }
-    }
-
-    private class Drop : Activity
-    {
-        private IPickedUpObject pickedUpObject;
-        private Transform newParent;
-
-        public Drop(Transform newParent, IPickedUpObject pickedUpObject)
-        {
-            this.newParent = newParent;
-            this.pickedUpObject = pickedUpObject;
-        }
-
-        public override void Update(float deltaTime)
-        {
-            pickedUpObject.OnDrop(newParent);
             IsDone = true;
         }
     }
@@ -177,23 +159,21 @@ public class Drone : MasterComponent
         private Transform _newParent;
         private int _listenerId;
         private float _dropPoint;
+        private Placement _targetPlacement;
 
-        private readonly Vector3[] _points;
+        private Vector3[] _points;
+        private Transform endPoint;
 
-        public BezierMotionDropActivity(IPickedUpObject pickedUpObject, Transform newParent, BezierMotion bezierMotion,
-            float dropPoint,
-            Vector3[] targetPoints)
+        public BezierMotionDropActivity(IPickedUpObject pickedUpObject, Transform newParent,
+            BezierMotion bezierMotion,
+            Placement targetPlacement,
+            Transform endPoint)
         {
             _pickedUpObject = pickedUpObject;
             _bezierMotion = bezierMotion;
             _newParent = newParent;
-            _dropPoint = dropPoint;
-
-            _points = new Vector3[targetPoints.Length + 1];
-            for (int i = 0; i < targetPoints.Length; i++)
-            {
-                _points[i + 1] = targetPoints[i];
-            }
+            _targetPlacement = targetPlacement;
+            this.endPoint = endPoint;
         }
 
         public override void Update(float deltaTime)
@@ -202,6 +182,19 @@ public class Drone : MasterComponent
 
         public override void Begin()
         {
+            var pos = _bezierMotion.transform.position;
+            var diff = _targetPlacement.Position - pos;
+            var perpend = Vector3.Cross(diff, Vector3.up);
+
+            _points = new Vector3[5];
+            _points[0] = pos;
+            _points[1] = pos + perpend * 2f;
+            _points[3] = pos + diff * 0.1f;
+            _points[2] = pos - perpend * 2f;
+            _points[4] = endPoint.position;
+
+            _dropPoint = BezierPlotter.CalculateT(_points, _targetPlacement.Position);
+
             _bezierMotion.RegisterListener(this, _dropPoint);
             _bezierMotion.Move(_points);
         }
@@ -219,7 +212,7 @@ public class Drone : MasterComponent
 
         public void OnThresholdExceeded()
         {
-            _pickedUpObject.OnDrop(_newParent);
+            _pickedUpObject.OnDrop(_newParent, _targetPlacement);
             Debug.Log("Dropper OnThresholdExceeded");
         }
 

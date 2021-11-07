@@ -13,7 +13,7 @@ public class Main : MonoBehaviour
 {
     [SerializeField] private GameCommonConfig gameCommonConfig;
     [SerializeField] private PrefabManager prefabManager;
-    [SerializeField] private DroneManager droneManager;
+    [SerializeField] private Drone drone;
     [SerializeField] private BezierPlotter bezierPlotter;
 
     [Serializable]
@@ -91,8 +91,9 @@ public class Main : MonoBehaviour
         {
             player.OnDecisionResult += OnDecisionResult;
         }
+
         bezierPlotter.Setup();
-        droneManager.Setup(bezierPlotter);
+        drone.Setup(null, null);
         this.Delay(1f, StartNewMatch);
         // Test();
     }
@@ -120,7 +121,7 @@ public class Main : MonoBehaviour
             }
         }
 
-        droneManager.Loop(Time.deltaTime);
+        drone.Loop(Time.deltaTime);
     }
 
     private void OnDecisionResult(Tile tile, bool forward)
@@ -176,7 +177,7 @@ public class Main : MonoBehaviour
             if (p is Mandarin)
             {
                 var pos = player.pieceBench.GetMandarinPlacement(player.pieceBench.MandarinCount - 1);
-                droneManager.GetDrone().GraspObjectToTarget(p, pos);
+                drone.GraspObjectToTarget(p, pos);
                 return;
             }
 

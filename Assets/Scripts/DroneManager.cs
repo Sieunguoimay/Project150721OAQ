@@ -17,35 +17,37 @@ public class DroneManager : ScriptableObject
         [SerializeField] public Drone.ConfigData droneCommonConfig;
     }
 
-    public void Setup(BezierPlotter bezierPlotter)
+    public void Setup(Transform endPoint)
     {
         container = new GameObject(name);
-        var d = Instantiate(Main.Instance.PrefabManager.GetPrefab<Drone>(), container.transform)
-            .GetComponent<Drone>();
-        d.Setup(configData.droneCommonConfig, bezierPlotter);
+        
+        var d = Instantiate(Main.Instance.PrefabManager.GetPrefab<Drone>(), container.transform).GetComponent<Drone>();
+
+        d.Setup(configData.droneCommonConfig, endPoint);
+
         drones.Add(d);
     }
 
     public void Loop(float deltaTime)
     {
-        foreach (var drone in drones)
-        {
-            drone.Loop(deltaTime);
-        }
+        // foreach (var drone in drones)
+        // {
+        //     drone.Loop(deltaTime);
+        // }
     }
 
     public void Cleanup()
     {
-        foreach (var drone in drones)
-        {
-            drone.Cleanup();
-        }
-
-        GameObject.Destroy(container);
+        // foreach (var drone in drones)
+        // {
+        //     drone.Cleanup();
+        // }
+        //
+        // GameObject.Destroy(container);
     }
 
-    public Drone GetDrone()
-    {
-        return drones[0];
-    }
+    // public Drone GetDrone()
+    // {
+    //     // return drones[0];
+    // }
 }
