@@ -38,7 +38,7 @@ namespace CommonActivities
             {
                 time += deltaTime;
                 float t = Mathf.Min(time / duration, 1f);
-                var pos = Vector3.Lerp(origin, target, ease.GetEase(t));
+                var pos = Vector3.Lerp(origin, target, Ease.GetEase(t));
                 pos.y = transform.position.y;
                 transform.position = pos;
                 if (time >= duration)

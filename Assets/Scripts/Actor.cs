@@ -8,9 +8,9 @@ namespace SNM
         float GetEase(float x);
     }
 
-    public class LinearEasing : IEasing
+    public sealed class LinearEasing : IEasing
     {
-        public virtual float GetEase(float x)
+        public float GetEase(float x)
         {
             return x;
         }
@@ -18,7 +18,7 @@ namespace SNM
 
     public abstract class Activity
     {
-        protected IEasing ease = new LinearEasing();
+        protected IEasing Ease = new LinearEasing();
         public virtual bool IsDone { get; protected set; }
 
         public virtual void Begin()
@@ -36,24 +36,24 @@ namespace SNM
 
         public Activity SetEase(IEasing linearEasing)
         {
-            this.ease = linearEasing;
+            this.Ease = linearEasing;
             return this;
         }
     }
 
     public class ParallelActivity : Activity
     {
-        private List<Activity> activities = new List<Activity>();
+        private readonly List<Activity> _activities = new List<Activity>();
 
         public void Add(Activity activity)
         {
-            activities.Add(activity);
+            _activities.Add(activity);
         }
 
         public override void Begin()
         {
             base.Begin();
-            foreach (var activity in activities)
+            foreach (var activity in _activities)
             {
                 activity.Begin();
             }
@@ -61,17 +61,17 @@ namespace SNM
 
         public override void Update(float deltaTime)
         {
-            for (int i = 0; i < activities.Count; i++)
+            for (int i = 0; i < _activities.Count; i++)
             {
-                activities[i].Update(deltaTime);
-                if (activities[i].IsDone)
+                _activities[i].Update(deltaTime);
+                if (_activities[i].IsDone)
                 {
-                    activities[i].End();
+                    _activities[i].End();
                     RemoveAt(i--);
                 }
             }
 
-            if (activities.Count == 0)
+            if (_activities.Count == 0)
             {
                 IsDone = true;
             }
@@ -79,16 +79,16 @@ namespace SNM
 
         private void RemoveAt(int i)
         {
-            int lastIndex = activities.Count - 1;
-            var last = activities[lastIndex];
-            activities[lastIndex] = activities[i];
-            activities[i] = last;
-            activities.RemoveAt(lastIndex);
+            int lastIndex = _activities.Count - 1;
+            var last = _activities[lastIndex];
+            _activities[lastIndex] = _activities[i];
+            _activities[i] = last;
+            _activities.RemoveAt(lastIndex);
         }
 
         public override void End()
         {
-            foreach (var activity in activities)
+            foreach (var activity in _activities)
             {
                 activity.End();
             }
@@ -100,103 +100,103 @@ namespace SNM
 
     public class SequentialActivity : Activity
     {
-        private Queue<Activity> activities = new Queue<Activity>();
-        protected Activity currentActivity;
+        private readonly Queue<Activity> _activities = new Queue<Activity>();
+        private Activity _currentActivity;
 
         public void Add(Activity anim)
         {
-            activities.Enqueue(anim);
+            _activities.Enqueue(anim);
         }
 
         public override void Update(float deltaTime)
         {
-            if (currentActivity == null)
+            if (_currentActivity == null)
             {
-                if (activities.Count > 0)
+                if (_activities.Count > 0)
                 {
-                    currentActivity = activities.Dequeue();
-                    currentActivity.Begin();
+                    _currentActivity = _activities.Dequeue();
+                    _currentActivity.Begin();
                 }
                 else
                 {
-                    currentActivity = null;
+                    _currentActivity = null;
                 }
             }
-            else if (currentActivity.IsDone)
+            else if (_currentActivity.IsDone)
             {
-                currentActivity.End();
-                if (activities.Count > 0)
+                _currentActivity.End();
+                if (_activities.Count > 0)
                 {
-                    currentActivity = activities.Dequeue();
-                    currentActivity.Begin();
+                    _currentActivity = _activities.Dequeue();
+                    _currentActivity.Begin();
                 }
                 else
                 {
-                    currentActivity = null;
+                    _currentActivity = null;
                     IsDone = true;
                 }
             }
             else
             {
-                currentActivity.Update(deltaTime);
+                _currentActivity.Update(deltaTime);
             }
         }
     }
 
     public class Actor
     {
-        protected Queue<Activity> activities = new Queue<Activity>();
-        protected Activity currentActivity;
+        private readonly Queue<Activity> _activities = new Queue<Activity>();
+        protected Activity CurrentActivity;
 
         public void Add(Activity activity)
         {
-            activities.Enqueue(activity);
+            _activities.Enqueue(activity);
         }
 
         public void Update(float deltaTime)
         {
-            if (currentActivity == null)
+            if (CurrentActivity == null)
             {
-                if (activities.Count > 0)
+                if (_activities.Count > 0)
                 {
-                    currentActivity = activities.Dequeue();
-                    currentActivity.Begin();
-                    OnNewActivity(currentActivity);
+                    CurrentActivity = _activities.Dequeue();
+                    CurrentActivity.Begin();
+                    OnNewActivity(CurrentActivity);
                 }
                 else
                 {
-                    currentActivity = null;
+                    CurrentActivity = null;
                 }
             }
-            else if (currentActivity.IsDone)
+            else if (CurrentActivity.IsDone)
             {
-                currentActivity.End();
-                OnActivityEnd(currentActivity);
-                if (activities.Count > 0)
+                CurrentActivity.End();
+                OnActivityEnd(CurrentActivity);
+                if (_activities.Count > 0)
                 {
-                    currentActivity = activities.Dequeue();
-                    currentActivity.Begin();
-                    OnNewActivity(currentActivity);
+                    CurrentActivity = _activities.Dequeue();
+                    CurrentActivity.Begin();
+                    OnNewActivity(CurrentActivity);
                 }
                 else
                 {
-                    currentActivity = null;
+                    CurrentActivity = null;
                 }
             }
             else
             {
-                currentActivity.Update(deltaTime);
+                CurrentActivity.Update(deltaTime);
             }
         }
 
         public void CancelAll()
         {
-            foreach (var a in activities)
+            foreach (var a in _activities)
             {
                 a.End();
             }
 
-            activities.Clear();
+            _activities.Clear();
         }
 
         protected virtual void OnNewActivity(Activity activity)

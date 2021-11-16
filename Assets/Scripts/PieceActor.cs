@@ -14,7 +14,7 @@ public class PieceActor : SNM.Actor
     private ConfigData config = new ConfigData() {gravity = -10f, angularSpeed = 270f};
 
     public event Action<bool> OnJump = delegate(bool last) { };
-    public bool IsJumping => currentActivity != null;
+    public bool IsJumping => CurrentActivity != null;
 
     public ConfigData Config => config;
 
@@ -76,7 +76,7 @@ public class PieceActor : SNM.Actor
                 var xz = transform.position;
                 var y = SNM.Math.MotionEquation(
                     initialPosition, initialVelocity,
-                    initialAcceleration, ease.GetEase(t) * duration);
+                    initialAcceleration, Ease.GetEase(t) * duration);
                 transform.position = new Vector3(xz.x, y.y, xz.z);
 
                 if (time >= duration)

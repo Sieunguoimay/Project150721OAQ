@@ -92,8 +92,8 @@ public class Main : MonoBehaviour
             player.OnDecisionResult += OnDecisionResult;
         }
 
-        bezierPlotter.Setup();
-        drone.Setup(null, null);
+        bezierPlotter?.Setup();
+        drone?.Setup(null, null);
         this.Delay(1f, StartNewMatch);
         // Test();
     }
