@@ -4,16 +4,16 @@ using UnityEngine;
 [Serializable]
 public class Player
 {
-    public PieceBench pieceBench;
-    private Board.TileGroup tileGroup;
+    public PieceBench PieceBench;
+    private Board.TileGroup _tileGroup;
     public event Action<Tile, bool> OnDecisionResult = delegate(Tile tile, bool b) { };
 
-    public Board.TileGroup TileGroup => tileGroup;
+    public Board.TileGroup TileGroup => _tileGroup;
 
     public Player(Board.TileGroup tileGroup, PieceBench pieceBench)
     {
-        this.tileGroup = tileGroup;
-        this.pieceBench = pieceBench;
+        _tileGroup = tileGroup;
+        PieceBench = pieceBench;
     }
 
     public virtual void MakeDecision(Board board)
@@ -21,7 +21,7 @@ public class Player
         Tile selectedTile = null;
         bool selectedDirection = UnityEngine.Random.Range(0, 100f) > 50f;
 
-        foreach (var t in tileGroup.tiles)
+        foreach (var t in _tileGroup.Tiles)
         {
             if (t.Pieces.Count > 0)
             {

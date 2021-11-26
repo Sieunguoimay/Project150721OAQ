@@ -28,8 +28,7 @@ namespace CommonActivities
             base.Begin();
             time = 0;
             origin = transform.position;
-            transform.rotation = Quaternion.LookRotation(SNM.Math.Projection(target - origin,
-                Main.Instance.GameCommonConfig.UpVector));
+            transform.rotation = Quaternion.LookRotation(SNM.Math.Projection(target - origin, Vector3.up));
         }
 
         public override void Update(float deltaTime)
@@ -68,5 +67,4 @@ namespace CommonActivities
             }
         }
     }
-
 }

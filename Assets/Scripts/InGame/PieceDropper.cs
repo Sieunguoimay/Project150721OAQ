@@ -15,14 +15,8 @@ public class PieceDropper : PieceHolder
         public Color ActiveColor => activeColor;
     }
 
-    private Config config;
-
     private BoardTraveller boardTraveller = null;
     public bool IsTravelling => boardTraveller?.IsTravelling ?? false;
-
-    // public bool IsTerminated => Pieces.Count == 0 && boardTraveller.CurrentTile.Next.Pieces.Count == 0 &&
-    //                             (boardTraveller.CurrentTile.Next.Next.Pieces.Count == 0 ||
-    //                              boardTraveller.CurrentTile.Next.Next.TileType == Tile.Type.Mandarin);
 
     public event Action<IPieceHolder> OnEat = delegate { };
     public event Action<ActionID> OnDone = delegate { };
@@ -31,12 +25,11 @@ public class PieceDropper : PieceHolder
     private bool forward;
 
 
-    public void Setup(Board board, Config config)
+    public void Setup(Board board)
     {
-        this.config = config;
         if (boardTraveller == null || boardTraveller.Board != board)
         {
-            boardTraveller = new BoardTraveller(board, config.ActiveColor);
+            boardTraveller = new BoardTraveller(board, Color.black);
         }
     }
 
@@ -52,7 +45,7 @@ public class PieceDropper : PieceHolder
         int n = citizens.Count;
         for (int i = n - 1; i >= 0; i--)
         {
-            if (n - i > tileGroup.tiles.Count) break;
+            if (n - i > tileGroup.Tiles.Count) break;
 
             var p = citizens[i];
 
@@ -64,7 +57,7 @@ public class PieceDropper : PieceHolder
             }
         }
 
-        boardTraveller.Start(tileGroup.mandarinTile, Pieces.Count);
+        boardTraveller.Start(tileGroup.MandarinTile, Pieces.Count);
         actionID = ActionID.TAKING_BACK;
     }
 

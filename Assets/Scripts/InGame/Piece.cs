@@ -88,6 +88,8 @@ public class Piece : MasterComponent, Drone.IPickedUpObject
         PieceActor.Add(new PieceActor.TurnAway(transform));
     }
 
+
+
     public class BounceAnim : Activity
     {
         private Transform transform;

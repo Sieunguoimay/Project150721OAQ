@@ -43,6 +43,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c281d5d6ca172a1479371ae18c781f5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameCommonConfig: {fileID: 11400000, guid: ee513d3ad67a85d44a160c91190cfe15, type: 2}
   prefabManager: {fileID: 11400000, guid: 5c720f08f999f514a93c43575aa06159, type: 2}
-  droneManager: {fileID: 11400000, guid: efa2acb33812771439199eee92970f8b, type: 2}
+  dronePrefab: {fileID: 6322332230626821368, guid: 02e1e52f3e32b6b41bcdf67d5a7c284e, type: 3}
+  bezierPlotter: {fileID: 0}
+  boardPrefab: {fileID: 3960245732270797140, guid: 04845be1075dce74797bf8e6f3000296, type: 3}
+  tileSelector: {fileID: 8659019025283783883, guid: ed42140ac79d9d7468323f1ef4b78add, type: 3}
+  config:
+    playerNum: 2

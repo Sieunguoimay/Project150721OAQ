@@ -4,25 +4,25 @@ using System.Linq;
 using Manager;
 using UnityEngine;
 
-public class GameResetter
+public class GameReset
 {
-    private Board board;
-    private PlayersManager playersManager;
+    private readonly Board _board;
+    private readonly PlayersManager _playersManager;
     public Action OnDone = delegate { };
 
-    public GameResetter(Board board, PlayersManager playersManager)
+    public GameReset(Board board, PlayersManager playersManager)
     {
-        this.playersManager = playersManager;
-        this.board = board;
+        _playersManager = playersManager;
+        _board = board;
     }
 
     public void Reset()
     {
         var citizens = new List<Piece>();
         var mandarins = new List<Piece>();
-        foreach (var player in playersManager.Players)
+        foreach (var player in _playersManager.Players)
         {
-            foreach (var p in player.pieceBench.Pieces)
+            foreach (var p in player.PieceBench.Pieces)
             {
                 if (p is Citizen)
                 {
@@ -34,10 +34,10 @@ public class GameResetter
                 }
             }
 
-            player.pieceBench.Pieces.Clear();
+            player.PieceBench.Pieces.Clear();
         }
 
-        foreach (var tile in board.Tiles)
+        foreach (var tile in _board.Tiles)
         {
             if (tile is MandarinTile)
             {

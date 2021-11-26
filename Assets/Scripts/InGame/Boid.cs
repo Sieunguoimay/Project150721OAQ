@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -55,6 +56,10 @@ public class Boid : SNM.Activity
     {
     }
 
+    public void SetOthers(Boid[] others)
+    {
+        this.others = others;
+    }
     protected virtual void SetPosAndForward(Vector3 pos, Vector3 forward)
     {
         inputData.transform.position = pos;

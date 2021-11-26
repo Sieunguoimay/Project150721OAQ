@@ -21,11 +21,11 @@ public class DroneManager : ScriptableObject
     {
         container = new GameObject(name);
         
-        var d = Instantiate(Main.Instance.PrefabManager.GetPrefab<Drone>(), container.transform).GetComponent<Drone>();
-
-        d.Setup(configData.droneCommonConfig, endPoint);
-
-        drones.Add(d);
+        // var d = Instantiate(Main.Instance.PrefabManager.GetPrefab<Drone>(), container.transform).GetComponent<Drone>();
+        //
+        // d.Setup(configData.droneCommonConfig, endPoint);
+        //
+        // drones.Add(d);
     }
 
     public void Loop(float deltaTime)

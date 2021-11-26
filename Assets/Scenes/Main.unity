@@ -282,6 +282,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5592389154637034424, guid: 37681356262e09a4b84806d9f1b755e0, type: 3}
+      propertyPath: bezierPlotter
+      value: 
+      objectReference: {fileID: 1248389130}
     - target: {fileID: 5592389154637034425, guid: 37681356262e09a4b84806d9f1b755e0, type: 3}
       propertyPath: m_Name
       value: Main
@@ -765,6 +769,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 613322723, guid: 4aef1705c5e370e479601e1c52f56b53, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 857195081, guid: 4aef1705c5e370e479601e1c52f56b53, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 76469457773387194, guid: 4aef1705c5e370e479601e1c52f56b53, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 76469457791307596, guid: 4aef1705c5e370e479601e1c52f56b53, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 76469458881277962, guid: 4aef1705c5e370e479601e1c52f56b53, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1396097034152937368, guid: 4aef1705c5e370e479601e1c52f56b53, type: 3}
       propertyPath: m_Name
       value: Environment

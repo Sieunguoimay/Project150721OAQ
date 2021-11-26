@@ -15,44 +15,42 @@ public class Drone : MasterComponent
     {
     }
 
-    private ConfigData configData;
-    private StateData stateData;
-    private Actor actor;
+    private StateData _stateData;
+    private Actor _actor;
 
     //references
-    private IPickedUpObject pickedUpObject;
-    private Placement targetPlacement;
-    private Transform endPoint;
+    private IPickedUpObject _pickedUpObject;
+    private Placement _targetPlacement;
+    private Transform _endPoint;
 
-    public void Setup(ConfigData configData, Transform endPoint)
+    public void Setup(Transform endPoint)
     {
-        this.configData = configData;
-        stateData = new StateData();
-        stateData.visual = this;
-        actor = new Actor();
-        stateData.visual.transform.position = UnityEngine.Random.insideUnitSphere + Vector3.up;
-        this.endPoint = endPoint;
+        _stateData = new StateData();
+        _stateData.visual = this;
+        _actor = new Actor();
+        _stateData.visual.transform.position = UnityEngine.Random.insideUnitSphere + Vector3.up;
+        _endPoint = endPoint;
         SetupReferences();
     }
 
     public void Loop(float deltaTime)
     {
-        actor.Update(deltaTime);
+        _actor.Update(deltaTime);
     }
 
     public void GraspObjectToTarget(IPickedUpObject pickedUpObject, Placement targetPlacement)
     {
-        this.pickedUpObject = pickedUpObject;
-        this.targetPlacement = targetPlacement;
+        this._pickedUpObject = pickedUpObject;
+        this._targetPlacement = targetPlacement;
         // actor.Add(new Boid(Main.Instance.GameCommonConfig.BoidConfigData, new Boid.InputData()
         // {
         //     transform = stateData.visual.transform,
         //     target = this.pickedUpObject.Transform.position
         // }, null));
-        actor.Add(new BezierMotionActivity(_bezierMotion, 0.5f, this.pickedUpObject.Transform.position));
-        actor.Add(new PickUp(stateData.visual, this.pickedUpObject));
-        actor.Add(new BezierMotionDropActivity(this.pickedUpObject,
-            Main.Instance.transform, _bezierMotion, this.targetPlacement, endPoint));
+        _actor.Add(new BezierMotionActivity(_bezierMotion, 0.5f, this._pickedUpObject.Transform.position));
+        _actor.Add(new PickUp(_stateData.visual, this._pickedUpObject));
+        _actor.Add(new BezierMotionDropActivity(this._pickedUpObject,
+            Main.Instance.transform, _bezierMotion, this._targetPlacement, _endPoint));
 
         // actor.Add(new Boid(Main.Instance.GameCommonConfig.BoidConfigData, new Boid.InputData()
         // {
@@ -69,7 +67,7 @@ public class Drone : MasterComponent
 
     public void Cleanup()
     {
-        pickedUpObject = null;
+        _pickedUpObject = null;
     }
 
     private void SetupReferences()
@@ -162,7 +160,7 @@ public class Drone : MasterComponent
         private Placement _targetPlacement;
 
         private Vector3[] _points;
-        private Transform endPoint;
+        private readonly Transform _endPoint;
 
         public BezierMotionDropActivity(IPickedUpObject pickedUpObject, Transform newParent,
             BezierMotion bezierMotion,
@@ -173,7 +171,7 @@ public class Drone : MasterComponent
             _bezierMotion = bezierMotion;
             _newParent = newParent;
             _targetPlacement = targetPlacement;
-            this.endPoint = endPoint;
+            _endPoint = endPoint;
         }
 
         public override void Update(float deltaTime)
@@ -191,7 +189,7 @@ public class Drone : MasterComponent
             _points[1] = pos + perpend * 2f;
             _points[3] = pos + diff * 0.1f;
             _points[2] = pos - perpend * 2f;
-            _points[4] = endPoint.position;
+            _points[4] = _endPoint.position;
 
             _dropPoint = BezierPlotter.CalculateT(_points, _targetPlacement.Position);
 

@@ -8,11 +8,13 @@ using Random = UnityEngine.Random;
 
 public class Board : MasterComponent
 {
-    private Tile[] tiles;
-    public Tile[] Tiles => tiles ?? (tiles = GetComponentsInChildren<Tile>());
-
-    private List<TileGroup> tileGroups = new List<TileGroup>();
-    public List<TileGroup> TileGroups => tileGroups;
+    [SerializeField] private Piece.ConfigData citizenConfigData;
+    [SerializeField] private Piece.ConfigData mandarinConfigData;
+    [SerializeField] private GameObject mandarinPrefab;
+    [SerializeField] private GameObject citizenPrefab;
+    private Tile[] _tiles;
+    public Tile[] Tiles => _tiles ?? (_tiles = GetComponentsInChildren<Tile>());
+    public List<TileGroup> TileGroups { get; } = new List<TileGroup>();
 
     public void Setup()
     {
@@ -32,12 +34,12 @@ public class Board : MasterComponent
 
             if (t is MandarinTile)
             {
-                var tg = new TileGroup() {id = id++, mandarinTile = t, tiles = new List<Tile>()};
+                var tg = new TileGroup() {ID = id++, MandarinTile = t, Tiles = new List<Tile>()};
                 InitializeTileGroup(ref tg);
-                tileGroups.Add(tg);
+                TileGroups.Add(tg);
 
-                var m = Instantiate(Main.Instance.PrefabManager.GetPrefab<Mandarin>()).GetComponent<Mandarin>();
-                m.Setup(new Piece.ConfigData(Main.Instance.GameCommonConfig.MandarinConfigData));
+                var m = Instantiate(mandarinPrefab).GetComponent<Mandarin>();
+                m.Setup(new Piece.ConfigData(mandarinConfigData));
                 t.Grasp(m);
                 t.Reposition(m.transform);
             }
@@ -45,9 +47,9 @@ public class Board : MasterComponent
             {
                 for (int i = 0; i < 5; i++)
                 {
-                    var b = Instantiate(Main.Instance.PrefabManager.GetPrefab<Citizen>()).GetComponent<Citizen>();
+                    var b = Instantiate(citizenPrefab).GetComponent<Citizen>();
                     b.transform.SetParent(container.transform);
-                    b.Setup(new Piece.ConfigData(Main.Instance.GameCommonConfig.CitizenConfigData));
+                    b.Setup(new Piece.ConfigData(citizenConfigData));
                     t.Grasp(b);
                     t.Reposition(b.transform);
                 }
@@ -57,10 +59,10 @@ public class Board : MasterComponent
 
     private void InitializeTileGroup(ref TileGroup tg)
     {
-        var t = tg.mandarinTile.Next;
+        var t = tg.MandarinTile.Next;
         while (!(t is MandarinTile))
         {
-            tg.tiles.Add(t);
+            tg.Tiles.Add(t);
             t = t.Next;
         }
     }
@@ -72,7 +74,7 @@ public class Board : MasterComponent
 
     public static bool IsTileGroupEmpty(TileGroup tileGroup)
     {
-        foreach (var t in tileGroup.tiles)
+        foreach (var t in tileGroup.Tiles)
         {
             if (t.Pieces.Count > 0)
             {
@@ -87,7 +89,7 @@ public class Board : MasterComponent
     {
         foreach (var tg in TileGroups)
         {
-            if (tg.mandarinTile.Pieces.Count > 0)
+            if (tg.MandarinTile.Pieces.Count > 0)
             {
                 return false;
             }
@@ -98,14 +100,14 @@ public class Board : MasterComponent
 
     public struct TileGroup
     {
-        public Tile mandarinTile;
-        public int id;
-        public List<Tile> tiles;
+        public Tile MandarinTile;
+        public int ID;
+        public List<Tile> Tiles;
 
         public Vector3 GetForward()
         {
-            var pos1 = tiles[0].transform.position;
-            var pos2 = tiles[tiles.Count - 1].transform.position;
+            var pos1 = Tiles[0].transform.position;
+            var pos2 = Tiles[Tiles.Count - 1].transform.position;
             return (pos2 - pos1).normalized;
         }
     }

@@ -11,7 +11,6 @@ public class TileSelector : MasterComponent
         public Color ActiveColor => activeColor;
     }
 
-    private Config config;
     private Board.TileGroup? tileGroup;
     private Tile selectedTile = null;
     private Color prevColor = Color.black;
@@ -19,9 +18,8 @@ public class TileSelector : MasterComponent
 
     public Action<Tile, bool> OnDone = delegate { };
 
-    public void Setup(Config config)
+    public void Setup()
     {
-        this.config = config;
         gameObject.SetActive(false);
     }
 
@@ -29,7 +27,7 @@ public class TileSelector : MasterComponent
     {
         selectedTile = null;
         this.tileGroup = tileGroup;
-        foreach (var t in tileGroup.tiles)
+        foreach (var t in tileGroup.Tiles)
         {
             t.OnSelect -= OnTileSelect;
             t.OnSelect += OnTileSelect;
@@ -39,7 +37,7 @@ public class TileSelector : MasterComponent
 
             if (t.Pieces.Count > 0)
             {
-                p.Color = config.ActiveColor;
+                p.Color = Color.black;
             }
         }
     }
@@ -60,20 +58,20 @@ public class TileSelector : MasterComponent
             selectionAdaptors.Add(sa);
         }
 
-        transform.position = tile.transform.position + Main.Instance.GameCommonConfig.UpVector * 0.3f;
-        var tiles = tileGroup?.tiles;
+        transform.position = tile.transform.position + Vector3.up * 0.3f;
+        var tiles = tileGroup?.Tiles;
         if (tiles != null)
         {
             var dir = tiles[tiles.Count - 1].transform.position - tiles[0].transform.position;
-            dir = SNM.Math.Projection(dir, Main.Instance.GameCommonConfig.UpVector);
+            dir = SNM.Math.Projection(dir, Vector3.up);
             transform.rotation = Quaternion.LookRotation(dir, transform.up);
         }
 
         gameObject.SetActive(true);
 
-        foreach (var t in tileGroup?.tiles)
+        foreach (var t in tileGroup?.Tiles)
         {
-            t.GetComponent<PerObjectMaterial>().Color = t == selectedTile ? config.ActiveColor : prevColor;
+            t.GetComponent<PerObjectMaterial>().Color = t == selectedTile ? Color.black : prevColor;
         }
     }
 
@@ -89,7 +87,7 @@ public class TileSelector : MasterComponent
 
     public void ChooseDirection(bool forward)
     {
-        foreach (var t in tileGroup?.tiles)
+        foreach (var t in tileGroup?.Tiles)
         {
             t.OnSelect -= OnTileSelect;
             t.GetComponent<PerObjectMaterial>().Color = prevColor;

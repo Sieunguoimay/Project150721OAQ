@@ -11,10 +11,11 @@ using UnityEngine.Serialization;
 
 public class Main : MonoBehaviour
 {
-    [SerializeField] private GameCommonConfig gameCommonConfig;
     [SerializeField] private PrefabManager prefabManager;
-    [SerializeField] private Drone drone;
+    [SerializeField] private GameObject dronePrefab;
     [SerializeField] private BezierPlotter bezierPlotter;
+    [SerializeField] private GameObject boardPrefab;
+    [SerializeField] private GameObject tileSelector;
 
     [Serializable]
     public class Config
@@ -35,7 +36,7 @@ public class Main : MonoBehaviour
         [HideInInspector] public Camera camera;
     }
 
-    private Config _config;
+    [SerializeField] private Config config;
     private readonly StateData _state = new StateData();
     private readonly ReferenceData _references = new ReferenceData();
 
@@ -43,12 +44,14 @@ public class Main : MonoBehaviour
     private PlayersManager _playerManager;
     private PieceDropper _pieceDropper;
     private TileSelector _tileSelector;
+    private Drone _drone;
 
     private Player CurrentPlayer => _playerManager.CurrentPlayer;
 
     public static Main Instance { get; private set; }
+
     public RayPointer RayPointer { get; private set; }
-    public GameCommonConfig GameCommonConfig => gameCommonConfig;
+
     public PrefabManager PrefabManager => prefabManager;
     public StateData State => _state;
     public ReferenceData References => _references;
@@ -70,20 +73,19 @@ public class Main : MonoBehaviour
 
     void Start()
     {
-        _config = gameCommonConfig.Main;
         PrefabManager.Setup();
         SetupReferences();
 
-        _board = Instantiate(PrefabManager.GetPrefab<Board>()).GetComponent<Board>();
+        _board = Instantiate(boardPrefab).GetComponent<Board>();
         _board.Setup();
 
         _pieceDropper = new PieceDropper();
-        _pieceDropper.Setup(_board, gameCommonConfig.PieceDropper);
+        _pieceDropper.Setup(_board);
         _pieceDropper.OnDone += OnBunnieDropperDone;
         _pieceDropper.OnEat += OnEatPieces;
 
-        _tileSelector = Instantiate(PrefabManager.GetPrefab<TileSelector>()).GetComponent<TileSelector>();
-        _tileSelector.Setup(gameCommonConfig.TileSelector);
+        _tileSelector = Instantiate(tileSelector).GetComponent<TileSelector>();
+        _tileSelector.Setup();
 
         _playerManager = new PlayersManager();
         _playerManager.Setup(_board.TileGroups, _tileSelector);
@@ -93,9 +95,9 @@ public class Main : MonoBehaviour
         }
 
         bezierPlotter?.Setup();
-        drone?.Setup(null, null);
+        _drone = Instantiate(dronePrefab).GetComponent<Drone>();
+        _drone?.Setup(transform);
         this.Delay(1f, StartNewMatch);
-        // Test();
     }
 
     private void SetupReferences()
@@ -121,7 +123,7 @@ public class Main : MonoBehaviour
             }
         }
 
-        drone.Loop(Time.deltaTime);
+        _drone.Loop(Time.deltaTime);
     }
 
     private void OnDecisionResult(Tile tile, bool forward)
@@ -150,7 +152,7 @@ public class Main : MonoBehaviour
 
             if (Board.IsTileGroupEmpty(CurrentPlayer.TileGroup))
             {
-                if (CurrentPlayer.pieceBench.Pieces.Count > 0)
+                if (CurrentPlayer.PieceBench.Pieces.Count > 0)
                 {
                     TakeBackTiles();
                 }
@@ -168,58 +170,30 @@ public class Main : MonoBehaviour
 
     private void OnEatPieces(IPieceHolder pieceContainerMb)
     {
-        var tile = pieceContainerMb as Tile;
-        var player = CurrentPlayer;
-        var boids = new Boid[pieceContainerMb.Pieces.Count(p => p is Citizen)];
-        var index = 0;
-        player.pieceBench.Grasp(pieceContainerMb, p =>
+        var bench = CurrentPlayer.PieceBench;
+
+        bench.Grasp(pieceContainerMb, p =>
         {
             if (p is Mandarin)
             {
-                var pos = player.pieceBench.GetMandarinPlacement(player.pieceBench.MandarinCount - 1);
-                drone.GraspObjectToTarget(p, pos);
-                return;
+                var pos = bench.GetMandarinPlacement(bench.MandarinCount - 1);
+                _drone.GraspObjectToTarget(p, pos);
             }
-
-            var forward = player.TileGroup.GetForward();
-            var right = -Vector3.Cross(forward, GameCommonConfig.UpVector);
-            var offset = UnityEngine.Random.insideUnitCircle;
-            var jumpPos = tile.transform.position + right + new Vector3(offset.x, 0, offset.y);
-
-            var movePos = player.pieceBench
-                .GetPlacement(player.pieceBench.Pieces.Count - player.pieceBench.MandarinCount - 1)
-                .Position;
-
-            // p is Mandarin
-            //     ? player.pieceBench.GetMandarinPlacement(player.pieceBench.MandarinCount - 1).Position
-            //     :
-
-            // p.PieceAnimator.Add(new PieceAnimator.JumpAnim(p.transform, new PieceAnimator.JumpTarget {target = jumpPos, height = 2f}));
-            boids[index] = new JumpingBoid(
-                new Boid.ConfigData()
-                {
-                    arriveDistance = GameCommonConfig.BoidConfigData.arriveDistance,
-                    maxAcceleration = GameCommonConfig.BoidConfigData.maxAcceleration,
-                    maxSpeed = GameCommonConfig.BoidConfigData.maxSpeed,
-                    spacing = GameCommonConfig.BoidConfigData.spacing,
-                },
-                //GameCommonConfig.BoidConfigData,
-                new Boid.InputData()
-                {
-                    target = movePos,
-                    transform = p.transform
-                }, boids);
-            p.PieceActor.Add(new CommonActivities.Delay(0.08f * index));
-            p.PieceActor.Add(boids[index]);
-            index++;
+            else if (p is Citizen c)
+            {
+                var movePos = bench
+                    .GetPlacement(bench.Pieces.Count - bench.MandarinCount - 1)
+                    .Position;
+                c.JumpingMoveTo(movePos);
+            }
         });
     }
 
     private void TakeBackTiles()
     {
-        if (CurrentPlayer.pieceBench.Pieces.Count > 0)
+        if (CurrentPlayer.PieceBench.Pieces.Count > 0)
         {
-            _pieceDropper.GetReadyForTakingBackCitizens(CurrentPlayer.TileGroup, CurrentPlayer.pieceBench.Pieces);
+            _pieceDropper.GetReadyForTakingBackCitizens(CurrentPlayer.TileGroup, CurrentPlayer.PieceBench.Pieces);
             _pieceDropper.DropAll(true);
         }
         else
@@ -242,14 +216,14 @@ public class Main : MonoBehaviour
     {
         for (int i = 0; i < _playerManager.Players.Length; i++)
         {
-            foreach (var tile in _board.TileGroups[i].tiles)
+            foreach (var tile in _board.TileGroups[i].Tiles)
             {
-                _playerManager.Players[i].pieceBench.Grasp(tile);
+                _playerManager.Players[i].PieceBench.Grasp(tile);
             }
 
             int sum = 0;
 
-            foreach (var p in _playerManager.Players[i].pieceBench.Pieces)
+            foreach (var p in _playerManager.Players[i].PieceBench.Pieces)
             {
                 if (p is Citizen)
                 {
@@ -288,7 +262,7 @@ public class Main : MonoBehaviour
     private void ResetGame()
     {
         _state.gameOver = false;
-        var gameResetter = new GameResetter(_board, _playerManager);
+        var gameResetter = new GameReset(_board, _playerManager);
         gameResetter.Reset();
         this.Delay(1f, () => { CurrentPlayer.MakeDecision(_board); });
     }
