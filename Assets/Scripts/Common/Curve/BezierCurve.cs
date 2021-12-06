@@ -16,5 +16,10 @@ namespace Curve
                 new Vector3(3f,0f,0f), 
             };
         }
+
+        public Vector3 GetPoint(float t)
+        {
+            return transform.TransformPoint(Bezier.GetPoint(points[0], points[1], points[2], t));
+        }
     }
 }

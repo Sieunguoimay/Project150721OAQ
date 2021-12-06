@@ -11,6 +11,8 @@ namespace Curve
         private Transform _handleTransform;
         private Quaternion _handleRotation;
 
+        private const int lineSteps = 10;
+
         private void OnSceneGUI()
         {
             _curve = target as BezierCurve;
@@ -21,9 +23,18 @@ namespace Curve
             Vector3 p1 = ShowPoint(1);
             Vector3 p2 = ShowPoint(2);
 
-            Handles.color = Color.white;
+            Handles.color = Color.gray;
             Handles.DrawLine(p0, p1);
             Handles.DrawLine(p1, p2);
+
+            Handles.color = Color.white;
+            var lineStart = _curve.GetPoint(0f);
+            for (int i = 1; i <= lineSteps; i++)
+            {
+                var lineEnd = _curve.GetPoint(i / (float) lineSteps);
+                Handles.DrawLine(lineStart, lineEnd);
+                lineStart = lineEnd;
+            }
         }
 
         private Vector3 ShowPoint(int index)

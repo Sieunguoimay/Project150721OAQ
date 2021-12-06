@@ -450,6 +450,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Board
       objectReference: {fileID: 0}
+    - target: {fileID: 3960245732270797140, guid: 04845be1075dce74797bf8e6f3000296, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3960245732270797144, guid: 04845be1075dce74797bf8e6f3000296, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -709,7 +713,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1972190332}
-  - component: {fileID: 1972190331}
   - component: {fileID: 1972190333}
   m_Layer: 0
   m_Name: Line
@@ -718,20 +721,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1972190331
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1972190330}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5e27f92d8d471449b1ddb72844a2212, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  p0: {x: 3.1411057, y: 0.052498378, z: 0.7456218}
-  p1: {x: 4.821444, y: -0.30942294, z: -3.0716074}
 --- !u!4 &1972190332
 Transform:
   m_ObjectHideFlags: 0
@@ -759,9 +748,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   points:
-  - {x: 1, y: 0, z: 3.0815792}
-  - {x: 2, y: 0, z: 1.8455074}
-  - {x: 4.8174944, y: 0, z: 0}
+  - {x: 0.705096, y: 0, z: 1.4259051}
+  - {x: 2.1286952, y: 0, z: 0.29020825}
+  - {x: 0.79514265, y: 0, z: -2.6452162}
 --- !u!1001 &994949448639750993
 PrefabInstance:
   m_ObjectHideFlags: 0
