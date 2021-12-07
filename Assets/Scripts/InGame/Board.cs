@@ -98,7 +98,7 @@ public class Board : MasterComponent
         return true;
     }
 
-    public struct TileGroup
+    public class TileGroup
     {
         public Tile MandarinTile;
         public int ID;
@@ -109,6 +109,18 @@ public class Board : MasterComponent
             var pos1 = Tiles[0].transform.position;
             var pos2 = Tiles[Tiles.Count - 1].transform.position;
             return (pos2 - pos1).normalized;
+        }
+
+        public bool TakeBackTiles(List<Piece> pieces, PieceDropper dropper)
+        {
+            if (pieces.Count > 0)
+            {
+                dropper.GetReadyForTakingBackCitizens(this, pieces);
+                dropper.DropAll(true);
+                return true;
+            }
+
+            return false;
         }
     }
 #if UNITY_EDITOR

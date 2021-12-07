@@ -4,21 +4,27 @@ using UnityEngine;
 
 public class RayPointer
 {
-    private List<IListener> listeners = new List<IListener>();
+    private readonly List<IListener> _listeners = new List<IListener>();
+    private readonly Camera _camera;
+
+    public RayPointer()
+    {
+        _camera = Camera.main;
+    }
 
     public void Reset()
     {
-        listeners.Clear();
+        _listeners.Clear();
     }
 
     public void Register(IListener listener)
     {
-        listeners.Add(listener);
+        _listeners.Add(listener);
     }
 
     public void Unregister(IListener listener)
     {
-        listeners.Remove(listener);
+        _listeners.Remove(listener);
     }
 
     public void Update(float deltaTime)
@@ -31,12 +37,12 @@ public class RayPointer
 
     private void ProcessMouse(Vector3 position)
     {
-        var ray = Camera.main.ScreenPointToRay(position);
+        var ray = _camera.ScreenPointToRay(position);
 
         float minDistance = float.MaxValue;
         IListener selectedListener = null;
 
-        foreach (var l in listeners)
+        foreach (var l in _listeners)
         {
             if (l.Bounds.IntersectRay(ray, out float distance))
             {
@@ -46,7 +52,7 @@ public class RayPointer
                     selectedListener = l;
                 }
 
-                Debug.Log((l as MonoBehaviour).name + " " + distance);
+                Debug.Log((l as MonoBehaviour)?.name + " " + distance);
             }
         }
 

@@ -1,45 +1,17 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Manager;
-using SNM;
-using SNM.Bezier;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.Serialization;
+﻿using UnityEngine;
 
 public class Main : MonoBehaviour
 {
-    [SerializeField] private PrefabManager prefabManager;
     [SerializeField] private GameObject dronePrefab;
-    [SerializeField] private BezierPlotter bezierPlotter;
     [SerializeField] private GameObject boardPrefab;
     [SerializeField] private GameObject tileSelector;
 
-    [Serializable]
-    public class Config
+    private class StateData
     {
-        [SerializeField] private int playerNum;
-        public int PlayerNum => playerNum;
+        public bool GameOver;
     }
 
-    public class StateData
-    {
-        public int turn = 0;
-        public bool gameOver = false;
-    }
-
-    [Serializable]
-    public class ReferenceData
-    {
-        [HideInInspector] public Camera camera;
-    }
-
-    [SerializeField] private Config config;
     private readonly StateData _state = new StateData();
-    private readonly ReferenceData _references = new ReferenceData();
-
     private Board _board;
     private PlayersManager _playerManager;
     private PieceDropper _pieceDropper;
@@ -47,14 +19,8 @@ public class Main : MonoBehaviour
     private Drone _drone;
 
     private Player CurrentPlayer => _playerManager.CurrentPlayer;
-
     public static Main Instance { get; private set; }
-
     public RayPointer RayPointer { get; private set; }
-
-    public PrefabManager PrefabManager => prefabManager;
-    public StateData State => _state;
-    public ReferenceData References => _references;
 
     private PerMatchData _perMatchData;
 
@@ -73,15 +39,14 @@ public class Main : MonoBehaviour
 
     void Start()
     {
-        PrefabManager.Setup();
-        SetupReferences();
-
         _board = Instantiate(boardPrefab).GetComponent<Board>();
         _board.Setup();
 
         _pieceDropper = new PieceDropper();
         _pieceDropper.Setup(_board);
+        _pieceDropper.OnDone -= OnBunnieDropperDone;
         _pieceDropper.OnDone += OnBunnieDropperDone;
+        _pieceDropper.OnEat -= OnEatPieces;
         _pieceDropper.OnEat += OnEatPieces;
 
         _tileSelector = Instantiate(tileSelector).GetComponent<TileSelector>();
@@ -94,15 +59,9 @@ public class Main : MonoBehaviour
             player.OnDecisionResult += OnDecisionResult;
         }
 
-        bezierPlotter?.Setup();
         _drone = Instantiate(dronePrefab).GetComponent<Drone>();
-        _drone?.Setup(transform);
+        _drone.Setup(transform);
         this.Delay(1f, StartNewMatch);
-    }
-
-    private void SetupReferences()
-    {
-        _references.camera = Camera.main;
     }
 
     private void StartNewMatch()
@@ -115,7 +74,7 @@ public class Main : MonoBehaviour
     {
         RayPointer.Update(Time.deltaTime);
 
-        if (_state.gameOver)
+        if (_state.GameOver)
         {
             if (Input.GetKeyUp(KeyCode.Return))
             {
@@ -137,15 +96,13 @@ public class Main : MonoBehaviour
         MakeDecision(actionID == PieceDropper.ActionID.DROPPING_IN_TURN);
     }
 
-    private void MakeDecision(bool canChangePlayer)
+    private void MakeDecision(bool changePlayer)
     {
-        if (_board.AreMandarinTilesAllEmpty())
+        bool gameOver = true;
+
+        if (!_board.AreMandarinTilesAllEmpty())
         {
-            GameOver();
-        }
-        else
-        {
-            if (canChangePlayer)
+            if (changePlayer)
             {
                 _playerManager.ChangePlayer();
             }
@@ -154,17 +111,22 @@ public class Main : MonoBehaviour
             {
                 if (CurrentPlayer.PieceBench.Pieces.Count > 0)
                 {
-                    TakeBackTiles();
-                }
-                else
-                {
-                    GameOver();
+                    if (!CurrentPlayer.TileGroup.TakeBackTiles(CurrentPlayer.PieceBench.Pieces, _pieceDropper))
+                    {
+                        gameOver = false;
+                    }
                 }
             }
             else
             {
                 CurrentPlayer.MakeDecision(_board);
+                gameOver = false;
             }
+        }
+
+        if (gameOver)
+        {
+            GameOver();
         }
     }
 
@@ -181,34 +143,19 @@ public class Main : MonoBehaviour
             }
             else if (p is Citizen c)
             {
-                var movePos = bench
-                    .GetPlacement(bench.Pieces.Count - bench.MandarinCount - 1)
-                    .Position;
+                var movePos = bench.GetPlacement(bench.Pieces.Count - bench.MandarinCount - 1).Position;
                 c.JumpingMoveTo(movePos);
             }
         });
     }
 
-    private void TakeBackTiles()
-    {
-        if (CurrentPlayer.PieceBench.Pieces.Count > 0)
-        {
-            _pieceDropper.GetReadyForTakingBackCitizens(CurrentPlayer.TileGroup, CurrentPlayer.PieceBench.Pieces);
-            _pieceDropper.DropAll(true);
-        }
-        else
-        {
-            GameOver();
-        }
-    }
-
-    public void GameOver()
+    private void GameOver()
     {
         CheckForWinner();
 
-        if (!_state.gameOver)
+        if (!_state.GameOver)
         {
-            _state.gameOver = true;
+            _state.GameOver = true;
         }
     }
 
@@ -243,7 +190,7 @@ public class Main : MonoBehaviour
         TellWinner(_perMatchData.PlayerScores);
     }
 
-    private void TellWinner(int[] scores)
+    private static void TellWinner(int[] scores)
     {
         if (scores[0] > scores[1])
         {
@@ -261,20 +208,8 @@ public class Main : MonoBehaviour
 
     private void ResetGame()
     {
-        _state.gameOver = false;
-        var gameResetter = new GameReset(_board, _playerManager);
-        gameResetter.Reset();
+        _state.GameOver = false;
+        new GameReset(_board, _playerManager).Reset();
         this.Delay(1f, () => { CurrentPlayer.MakeDecision(_board); });
     }
-
-    // private void Test()
-    // {
-    //     var points = new Vector3[] {new Vector3(), new Vector3(1, -2, 0), new Vector3(2, 1, 0), new Vector3(3, 0, 0)};
-    //     float t = 0.0f;
-    //     for (; t <= 1.0f; t += 0.1f)
-    //     {
-    //         var c = Instantiate(PrefabManager.GetPrefab<Drone>());
-    //         c.transform.position = SNM.Bezier.Bezier.ComputeBezierCurve3D(points, t);
-    //     }
-    // }
 }

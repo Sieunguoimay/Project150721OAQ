@@ -6,16 +6,7 @@ using SNM.Bezier;
 
 public class Drone : MasterComponent
 {
-    public class StateData
-    {
-        public Drone visual;
-    }
 
-    public class ConfigData
-    {
-    }
-
-    private StateData _stateData;
     private Actor _actor;
 
     //references
@@ -25,10 +16,8 @@ public class Drone : MasterComponent
 
     public void Setup(Transform endPoint)
     {
-        _stateData = new StateData();
-        _stateData.visual = this;
         _actor = new Actor();
-        _stateData.visual.transform.position = UnityEngine.Random.insideUnitSphere + Vector3.up;
+        transform.position = UnityEngine.Random.insideUnitSphere + Vector3.up;
         _endPoint = endPoint;
         SetupReferences();
     }
@@ -40,29 +29,12 @@ public class Drone : MasterComponent
 
     public void GraspObjectToTarget(IPickedUpObject pickedUpObject, Placement targetPlacement)
     {
-        this._pickedUpObject = pickedUpObject;
-        this._targetPlacement = targetPlacement;
-        // actor.Add(new Boid(Main.Instance.GameCommonConfig.BoidConfigData, new Boid.InputData()
-        // {
-        //     transform = stateData.visual.transform,
-        //     target = this.pickedUpObject.Transform.position
-        // }, null));
+        _pickedUpObject = pickedUpObject;
+        _targetPlacement = targetPlacement;
         _actor.Add(new BezierMotionActivity(_bezierMotion, 0.5f, this._pickedUpObject.Transform.position));
-        _actor.Add(new PickUp(_stateData.visual, this._pickedUpObject));
-        _actor.Add(new BezierMotionDropActivity(this._pickedUpObject,
-            Main.Instance.transform, _bezierMotion, this._targetPlacement, _endPoint));
-
-        // actor.Add(new Boid(Main.Instance.GameCommonConfig.BoidConfigData, new Boid.InputData()
-        // {
-        //     transform = stateData.visual.transform,
-        //     target = this.targetPlacement.Position
-        // }, null));
-        // actor.Add(new Drop(Main.Instance.transform, this.pickedUpObject));
-        // actor.Add(new Boid(Main.Instance.GameCommonConfig.BoidConfigData, new Boid.InputData()
-        // {
-        //     transform = stateData.visual.transform,
-        //     target = stateData.visual.transform.position
-        // }, null));
+        _actor.Add(new PickUp(this, _pickedUpObject));
+        _actor.Add(new BezierMotionDropActivity(_pickedUpObject,
+            Main.Instance.transform, _bezierMotion, _targetPlacement, _endPoint));
     }
 
     public void Cleanup()

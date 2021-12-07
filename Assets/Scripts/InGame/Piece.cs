@@ -7,31 +7,37 @@ using SNM;
 using UnityEngine;
 using Animator = UnityEngine.Animator;
 
+[RequireComponent(typeof(Animator))]
 public class Piece : MasterComponent, Drone.IPickedUpObject
 {
     [SerializeField] private Transform pickupPoint;
 
     public PieceActor PieceActor { get; private set; }
 
-    private Animator animator;
-    private Animator Animator => animator ? animator : (animator = GetComponentInChildren<Animator>());
+    // private Animator _animator;
+    // private Animator Animator => _animator ? _animator : (_animator = GetComponentInChildren<Animator>());
 
-    private ConfigData configData;
-    public ConfigData ConfigDataProp => configData;
+    private ConfigData _configData;
+    public ConfigData ConfigDataProp => _configData;
 
-    private bool isRandomlyRotating = false;
-    private Tag[] taggedGameObjects;
-    private Transform footTransform;
+    private Tag[] _taggedGameObjects;
+    private Transform _footTransform;
+    private Camera _camera;
+
+    private void Start()
+    {
+        _camera = Camera.main;
+    }
 
     public void Setup(ConfigData configData)
     {
-        this.configData = configData;
-        this.Delay(UnityEngine.Random.Range(0.1f, 2f), () => Animator?.Play("idle"));
+        _configData = configData;
+        // this.Delay(UnityEngine.Random.Range(0.1f, 2f), () => Animator.Play("idle"));
         FaceCamera(true, new Vector3(0, UnityEngine.Random.Range(-45f, 45f), 0));
 
         PieceActor = new PieceActor();
-        taggedGameObjects = GetComponentsInChildren<Tag>();
-        footTransform = taggedGameObjects.FirstOrDefault(t => t.ID.Equals("foot"))?.transform;
+        _taggedGameObjects = GetComponentsInChildren<Tag>();
+        _footTransform = _taggedGameObjects.FirstOrDefault(t => t.ID.Equals("foot"))?.transform;
     }
 
     private void Update()
@@ -41,9 +47,9 @@ public class Piece : MasterComponent, Drone.IPickedUpObject
 
     public void FaceCamera(bool immediate, Vector3 offset = new Vector3())
     {
-        if (Main.Instance.References.camera != null)
+        if (_camera != null)
         {
-            var dir = Main.Instance.References.camera.transform.position - transform.position;
+            var dir = _camera.transform.position - transform.position;
             var up = transform.up;
             dir = SNM.Math.Projection(dir, up);
             if (immediate)
@@ -68,7 +74,8 @@ public class Piece : MasterComponent, Drone.IPickedUpObject
                 flag = flag,
                 callback = callback,
                 duration = 0.4f
-            }, BezierEasing.Blueprint1));
+            }, 
+            BezierEasing.Blueprint1));
         parallelAnimation.Add(new CommonActivities.StraightMove(transform, pos, 0.4f));
 
         var sA = new SequentialActivity();
@@ -76,7 +83,7 @@ public class Piece : MasterComponent, Drone.IPickedUpObject
         sA.Add(parallelAnimation);
 
         var parallelAnimation2 = new ParallelActivity();
-        parallelAnimation2.Add(new BounceAnim(footTransform, 0.15f));
+        parallelAnimation2.Add(new BounceAnim(_footTransform, 0.15f));
         parallelAnimation2.Add(sA);
 
         PieceActor.Add(parallelAnimation2);
@@ -84,54 +91,52 @@ public class Piece : MasterComponent, Drone.IPickedUpObject
 
     public void Land()
     {
-        PieceActor.Add(new BounceAnim(footTransform, 0.15f));
+        PieceActor.Add(new BounceAnim(_footTransform, 0.15f));
         PieceActor.Add(new PieceActor.TurnAway(transform));
     }
 
-
-
-    public class BounceAnim : Activity
+    private class BounceAnim : Activity
     {
-        private Transform transform;
-        private float duration;
-        private float time;
-        private float offset;
-        private bool fullPhase;
+        private readonly Transform _transform;
+        private readonly float _duration;
+        private float _time;
+        private readonly float _offset;
+        private readonly bool _fullPhase;
 
         public BounceAnim(Transform transform, float duration, bool fullPhase = false)
         {
-            this.transform = transform;
-            this.duration = duration;
-            this.offset = 0.3f;
-            this.fullPhase = fullPhase;
+            _transform = transform;
+            _duration = duration;
+            _offset = 0.3f;
+            _fullPhase = fullPhase;
         }
 
         public override void Update(float deltaTime)
         {
             if (!IsDone)
             {
-                time += deltaTime;
-                float t = Mathf.Min(time / duration, 1f);
+                _time += deltaTime;
+                float t = Mathf.Min(_time / _duration, 1f);
 
-                var scale = transform.localScale;
-                if (fullPhase)
+                var scale = _transform.localScale;
+                if (_fullPhase)
                 {
                     var s = Mathf.Sin(Mathf.Lerp(0, Mathf.PI * 2f, t));
-                    scale.y = 1 + (-s) * offset;
-                    scale.x = 1 + (s) * offset * 0.35f;
-                    scale.z = 1 + (s) * offset * 0.35f;
+                    scale.y = 1 + (-s) * _offset;
+                    scale.x = 1 + (s) * _offset * 0.35f;
+                    scale.z = 1 + (s) * _offset * 0.35f;
                 }
                 else
                 {
                     var c = Mathf.Cos(Mathf.Lerp(0, Mathf.PI * 2f, t));
-                    scale.y = 1 + (c) * offset * 0.5f;
-                    scale.x = 1 + (-c) * offset * 0.25f;
-                    scale.z = 1 + (-c) * offset * 0.25f;
+                    scale.y = 1 + (c) * _offset * 0.5f;
+                    scale.x = 1 + (-c) * _offset * 0.25f;
+                    scale.z = 1 + (-c) * _offset * 0.25f;
                 }
 
-                transform.localScale = scale;
+                _transform.localScale = scale;
 
-                if (time >= duration)
+                if (_time >= _duration)
                 {
                     IsDone = true;
                 }
@@ -149,24 +154,24 @@ public class Piece : MasterComponent, Drone.IPickedUpObject
 #endif
     public class PieceToTileSelectorAdaptor : TileSelector.ISelectionAdaptor
     {
-        private Piece piece;
+        private readonly Piece _piece;
 
-        private bool isDeselected;
+        private bool _isDeselected;
 
         public PieceToTileSelectorAdaptor(Piece piece)
         {
-            this.piece = piece;
-            isDeselected = false;
+            _piece = piece; 
+            _isDeselected = false;
         }
 
         public void OnTileSelected()
         {
-            piece.FaceCamera(false, new Vector3(0, UnityEngine.Random.Range(-25f, 25f), 0));
-            piece.Delay(UnityEngine.Random.Range(0, 0.5f), () =>
+            _piece.FaceCamera(false, new Vector3(0, UnityEngine.Random.Range(-25f, 25f), 0));
+            _piece.Delay(UnityEngine.Random.Range(0, 0.5f), () =>
                 {
-                    if (!isDeselected)
+                    if (!_isDeselected)
                     {
-                        piece.Animator?.CrossFade("jump", 0.1f);
+                        // _piece.Animator.CrossFade("jump", 0.1f);
                     }
                 }
             );
@@ -174,8 +179,8 @@ public class Piece : MasterComponent, Drone.IPickedUpObject
 
         public void OnTileDeselected()
         {
-            piece.Animator?.CrossFade("idle", 0.1f);
-            isDeselected = true;
+            // _piece.Animator.CrossFade("idle", 0.1f);
+            _isDeselected = true;
         }
     }
 

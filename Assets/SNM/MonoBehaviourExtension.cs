@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class MonoBehaviourExtensionMethods
+public static class UtilityExtension
 {
     public static void Delay(this MonoBehaviour mb, float duration, Action onDone)
     {
