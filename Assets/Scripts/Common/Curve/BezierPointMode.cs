@@ -1,6 +1,6 @@
 ﻿namespace Curve
 {
-    public enum BezierControlPointMode
+    public enum BezierPointMode
     {
         Free,
         Aligned,
