@@ -9,7 +9,7 @@ namespace Curve
 
         public void Reset()
         {
-            points = new Vector3[]
+            points = new []
             {
                 new Vector3(1f, 0f, 0f),
                 new Vector3(2f, 0f, 0f),

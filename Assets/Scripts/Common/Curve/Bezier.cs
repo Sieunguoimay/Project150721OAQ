@@ -32,5 +32,20 @@ namespace Curve
             var oneMinusT = 1f - t;
             return 3f * oneMinusT * oneMinusT * (p1 - p0) + 6f * oneMinusT * t * (p2 - p1) + 3f * t * t * (p3 - p2);
         }
+
+        public static float GetCurveLength(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
+        {
+            float length = 0f;
+            var oldPoint = GetPoint(p0, p1, p2, p3, 0f);
+            var delta = 0.02f;
+            for (float i = delta; i <= 1.0f; i += delta)
+            {
+                var newPoint = GetPoint(p0, p1, p2, p3, i);
+                length += Vector3.Distance(newPoint, oldPoint);
+                oldPoint = newPoint;
+            }
+
+            return length;
+        }
     }
 }

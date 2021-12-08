@@ -6,13 +6,15 @@ namespace Curve
 {
     public class BezierSpline : MonoBehaviour
     {
-        [SerializeField] private Vector3[] points;
-        [SerializeField] private BezierPointMode[] modes;
-        [SerializeField] private bool closed;
+        public Vector3[] points;
+        public BezierPointMode[] modes;
+        public bool closed;
 
+        public float CurveLength { get; private set; }
+#if UNITY_EDITOR
         public void Reset()
         {
-            points = new []
+            points = new[]
             {
                 new Vector3(1f, 0f, 0f),
                 new Vector3(2f, 0f, 0f),
@@ -20,6 +22,34 @@ namespace Curve
                 new Vector3(4f, 0f, 0f),
             };
             modes = new[] {BezierPointMode.Free, BezierPointMode.Free};
+        }
+
+        public void AddSegment()
+        {
+            var point = points[points.Length - 1];
+            Array.Resize(ref points, points.Length + 3);
+            point.x += 1f;
+            points[points.Length - 3] = point;
+            point.x += 1f;
+            points[points.Length - 2] = point;
+            point.x += 1f;
+            points[points.Length - 1] = point;
+
+            Array.Resize(ref modes, modes.Length + 1);
+            modes[modes.Length - 1] = modes[modes.Length - 2];
+            EnforceMode(points.Length - 4);
+            if (closed)
+            {
+                points[points.Length - 1] = points[0];
+                modes[modes.Length - 1] = modes[0];
+                EnforceMode(0);
+            }
+        }
+
+#endif
+        public void UpdateCurveLength()
+        {
+            CurveLength = CalculateSplineLength();
         }
 
         public Vector3 GetPosition(float t)
@@ -67,35 +97,14 @@ namespace Curve
             return GetVelocity(t).normalized;
         }
 
-        public void AddSegment()
-        {
-            var point = points[points.Length - 1];
-            Array.Resize(ref points, points.Length + 3);
-            point.x += 1f;
-            points[points.Length - 3] = point;
-            point.x += 1f;
-            points[points.Length - 2] = point;
-            point.x += 1f;
-            points[points.Length - 1] = point;
-
-            Array.Resize(ref modes, modes.Length + 1);
-            modes[modes.Length - 1] = modes[modes.Length - 2];
-            EnforceMode(points.Length - 4);
-            if (closed)
-            {
-                points[points.Length - 1] = points[0];
-                modes[modes.Length - 1] = modes[0];
-                EnforceMode(0);
-            }
-        }
-
-        public int SegmentCount => (points.Length - 1) / 3;
-
-        public int ControlPointCount => points.Length;
-
         public Vector3 GetPoint(int index)
         {
             return points[index];
+        }
+
+        public int GetIndexOfPointOnSegment(int segmentIndex, int pointIndex)
+        {
+            return segmentIndex * 3 + pointIndex;
         }
 
         public void SetPoint(int index, Vector3 point)
@@ -139,6 +148,7 @@ namespace Curve
 
             points[index] = point;
             EnforceMode(index);
+            UpdateCurveLength();
         }
 
         public BezierPointMode GetPointMode(int index)
@@ -163,6 +173,23 @@ namespace Curve
             }
 
             EnforceMode(index);
+            UpdateCurveLength();
+        }
+
+        public float CalculateSplineLength()
+        {
+            float length = 0f;
+            var n = SegmentCount;
+            for (int i = 0; i < n; i++)
+            {
+                var p0 = GetPoint(GetIndexOfPointOnSegment(i, 0));
+                var p1 = GetPoint(GetIndexOfPointOnSegment(i, 1));
+                var p2 = GetPoint(GetIndexOfPointOnSegment(i, 2));
+                var p3 = GetPoint(GetIndexOfPointOnSegment(i, 3));
+                length += Bezier.GetCurveLength(p0, p1, p2, p3);
+            }
+
+            return length;
         }
 
         private void EnforceMode(int index)
@@ -214,6 +241,9 @@ namespace Curve
 
             points[enforcedIndex] = middle + enforcedTangent;
         }
+
+        public int SegmentCount => (points.Length - 1) / 3;
+        public int ControlPointCount => points.Length;
 
         public bool Closed
         {
