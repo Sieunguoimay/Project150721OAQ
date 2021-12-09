@@ -38,7 +38,7 @@ namespace Curve
                 _spline.Closed = closed;
             }
 
-            if (_selectedIndex >= 0 && _selectedIndex < _spline.ControlPointCount)
+            if (_selectedIndex >= 0 && _selectedIndex < _spline.PointCount)
             {
                 DrawSelectedPointInspector();
             }
@@ -83,7 +83,7 @@ namespace Curve
                 : Quaternion.identity;
 
             Vector3 p0 = ShowPoint(0);
-            for (int i = 1; i < _spline.ControlPointCount; i += 3)
+            for (int i = 1; i < _spline.PointCount; i += 3)
             {
                 Vector3 p1 = ShowPoint(i);
                 Vector3 p2 = ShowPoint(i + 1);

@@ -153,8 +153,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   config:
-    speed: 0.1
+    speed: 0.511
     initialPath: {fileID: 1880143305}
+    loop: 1
+  onMove:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1880143307}
+        m_TargetAssemblyTypeName: Common.SplineRandomizerProvider, Assembly-CSharp
+        m_MethodName: Randomize
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!4 &30749997
 Transform:
   m_ObjectHideFlags: 0
@@ -579,7 +595,7 @@ Transform:
   m_GameObject: {fileID: 1234417705}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.1, z: 0.1}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.5}
   m_Children: []
   m_Father: {fileID: 30749997}
   m_RootOrder: 0
@@ -881,17 +897,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   points:
-  - {x: 1.3036535, y: 0, z: -0.002396822}
-  - {x: 1.235554, y: 0, z: 1.8413563}
-  - {x: 4.011238, y: -1.7122116, z: 1.9748967}
-  - {x: 4, y: 0, z: 0}
-  - {x: 3.988762, y: 1.7122116, z: -1.9748967}
-  - {x: 6.9781675, y: 0, z: 2.612112}
-  - {x: 7, y: 0, z: 0}
-  - {x: 7.0218325, y: 0, z: -2.612112}
-  - {x: 10.214888, y: 0, z: 1.337199}
-  - {x: 10.307355, y: 0, z: 0.110418975}
-  modes: 00000000020000000200000000000000
+  - {x: 0.08612728, y: 0, z: -4.108427}
+  - {x: 2.5684977, y: 2.005116, z: -3.445466}
+  - {x: 5.050868, y: 4.010232, z: -2.782505}
+  - {x: 7.713443, y: 0, z: -4.0951376}
+  - {x: 10.376018, y: -4.010232, z: -5.40777}
+  - {x: 13.158682, y: -2.2749496, z: -4.737481}
+  - {x: 15.340758, y: 0, z: -4.0818486}
+  - {x: 17.522835, y: 2.2749496, z: -3.4262164}
+  - {x: 20.708345, y: 2.097281, z: -3.9293773}
+  - {x: 22.968075, y: 0, z: -4.0685596}
+  - {x: 25.227804, y: -2.097281, z: -4.2077417}
+  - {x: 27.911598, y: -1.0486405, z: -4.131506}
+  - {x: 30.59539, y: 0, z: -4.05527}
+  modes: 0200000002000000020000000200000002000000
   closed: 0
 --- !u!4 &1880143306
 Transform:
@@ -920,7 +939,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   config:
-    radius: 1
+    radius: {x: 2.98, y: 5.11}
+  spline: {fileID: 1880143305}
+  startPoint: {x: 0.08612728, y: 0, z: -4.108427}
+  endPoint: {x: 30.59539, y: 0, z: -4.05527}
 --- !u!1001 &994949448639750993
 PrefabInstance:
   m_ObjectHideFlags: 0

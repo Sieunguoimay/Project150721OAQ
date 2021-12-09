@@ -1,20 +1,24 @@
 ﻿using System;
 using Curve;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Common
 {
     public class BezierMover : MonoBehaviour
     {
         [SerializeField] private Config config;
+        [SerializeField] private UnityEvent onMove;
 
         [Serializable]
         public class Config
         {
             [SerializeField, Range(0.01f, 1f)] private float speed = 0.1f;
             [SerializeField] private BezierSpline initialPath;
+            [SerializeField] private bool loop;
             public float Speed => speed;
             public BezierSpline InitialPath => initialPath;
+            public bool Loop => loop;
         }
 
         private BezierSpline _path;
@@ -37,6 +41,7 @@ namespace Common
         {
             _moving = true;
             _position = 0f;
+            onMove?.Invoke();
         }
 
         [ContextMenu("Stop")]
@@ -59,7 +64,14 @@ namespace Common
 
                 if (_position >= 1f)
                 {
-                    _moving = false;
+                    if (config.Loop)
+                    {
+                        Move();
+                    }
+                    else
+                    {
+                        _moving = false;
+                    }
                 }
             }
         }

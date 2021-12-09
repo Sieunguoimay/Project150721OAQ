@@ -243,7 +243,7 @@ namespace Curve
         }
 
         public int SegmentCount => (points.Length - 1) / 3;
-        public int ControlPointCount => points.Length;
+        public int PointCount => points.Length;
 
         public bool Closed
         {
