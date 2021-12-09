@@ -26,7 +26,7 @@ public class PlayersManager
         {
             var pieceBench = new PieceBench(new PieceBench.ConfigData
             {
-                placement = CalculatePlayerPosition(tileGroups[i]),
+                LinearTransform = CalculatePlayerPosition(tileGroups[i]),
                 spacing = 0.25f,
                 perRow = 15
             });
@@ -44,14 +44,14 @@ public class PlayersManager
         CurrentPlayer.AcquireTurn();
     }
 
-    private Placement CalculatePlayerPosition(Board.TileGroup tg)
+    private LinearTransform CalculatePlayerPosition(Board.TileGroup tg)
     {
         var pos1 = tg.Tiles[0].transform.position;
         var pos2 = tg.Tiles[tg.Tiles.Count - 1].transform.position;
         var diff = pos2 - pos1;
         var pos = pos1 + new Vector3(diff.z, diff.y, -diff.x) * 0.5f;
         var qua = Quaternion.LookRotation(pos1 - pos, Vector3.up);
-        return new Placement(pos, qua);
+        return new LinearTransform(pos, qua);
     }
 
     public void ChangePlayer()

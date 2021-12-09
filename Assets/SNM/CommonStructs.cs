@@ -2,24 +2,24 @@
 
 namespace SNM
 {
-    public class Placement
+    public class LinearTransform
     {
         public Vector3 Position;
         public Quaternion Rotation;
 
-        public Placement()
+        public LinearTransform()
         {
             Position = Vector3.zero;
             Rotation = Quaternion.identity;
         }
 
-        public Placement(Vector3 position, Quaternion rotation)
+        public LinearTransform(Vector3 position, Quaternion rotation)
         {
             Position = position;
             Rotation = rotation;
         }
 
-        public Placement(Placement other)
+        public LinearTransform(LinearTransform other)
         {
             Position = other.Position;
             Rotation = other.Rotation;

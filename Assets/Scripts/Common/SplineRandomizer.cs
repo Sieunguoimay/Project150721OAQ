@@ -40,7 +40,7 @@ namespace Common
                 var pos = startPoint + (diff / segmentNum) * i;
 
                 _spline.SetPointMode(pointIndex, BezierPointMode.Mirrored);
-                _spline.SetPoint(pointIndex, pos);
+                _spline.SetPoint(pointIndex, pos + quaternion * (0.25f * segmentSpace * Random.Range(-1f, 1f) * Vector3.forward));
                 _spline.SetPoint(pointIndex + (up ? 1 : -1), pos + GetRandomControlPoint(quaternion, !up));
                 up = !up;
             }

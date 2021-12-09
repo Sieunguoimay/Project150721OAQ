@@ -59,8 +59,6 @@ public class Main : MonoBehaviour
             player.OnDecisionResult += OnDecisionResult;
         }
 
-        _drone = Instantiate(dronePrefab).GetComponent<Drone>();
-        _drone.Setup(transform);
         this.Delay(1f, StartNewMatch);
     }
 
@@ -81,8 +79,6 @@ public class Main : MonoBehaviour
                 ResetGame();
             }
         }
-
-        _drone.Loop(Time.deltaTime);
     }
 
     private void OnDecisionResult(Tile tile, bool forward)

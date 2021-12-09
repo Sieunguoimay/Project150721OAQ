@@ -8,7 +8,7 @@ using UnityEngine;
 using Animator = UnityEngine.Animator;
 
 [RequireComponent(typeof(Animator))]
-public class Piece : MasterComponent, Drone.IPickedUpObject
+public class Piece : MasterComponent
 {
     [SerializeField] private Transform pickupPoint;
 
@@ -203,11 +203,11 @@ public class Piece : MasterComponent, Drone.IPickedUpObject
         transform.SetParent(attachTarget);
     }
 
-    public void OnDrop(Transform oldParent, Placement targetPlacement)
+    public void OnDrop(Transform oldParent, LinearTransform targetLinearTransform)
     {
         Debug.Log("On Dropped");
         transform.SetParent(oldParent);
-        transform.position = targetPlacement.Position;
+        transform.position = targetLinearTransform.Position;
     }
 
     public Transform Transform => pickupPoint;

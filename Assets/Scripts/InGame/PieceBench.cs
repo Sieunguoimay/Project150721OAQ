@@ -9,7 +9,7 @@ public class PieceBench : PieceHolder
     [Serializable]
     public struct ConfigData
     {
-        public Placement placement;
+        public LinearTransform LinearTransform;
         public float spacing;
         public int perRow;
     }
@@ -33,11 +33,11 @@ public class PieceBench : PieceHolder
         base.Grasp(piece, onGrasp);
     }
 
-    public Placement[] GetPlacements(int n)
+    public LinearTransform[] GetPlacements(int n)
     {
-        var placements = new Placement[n];
-        var dirX = configData.placement.Rotation * Vector3.right;
-        var dirY = configData.placement.Rotation * Vector3.forward;
+        var transforms = new LinearTransform[n];
+        var dirX = configData.LinearTransform.Rotation * Vector3.right;
+        var dirY = configData.LinearTransform.Rotation * Vector3.forward;
         var existing = Pieces.Count;
         for (int i = 0; i < n; i++)
         {
@@ -45,31 +45,31 @@ public class PieceBench : PieceHolder
             var y = (existing + i) / configData.perRow;
             var offsetX = configData.spacing * x;
             var offsetY = configData.spacing * y;
-            placements[i] = new Placement(configData.placement.Position + dirX * offsetX + dirY * offsetY, configData.placement.Rotation);
+            transforms[i] = new LinearTransform(configData.LinearTransform.Position + dirX * offsetX + dirY * offsetY, configData.LinearTransform.Rotation);
         }
 
-        return placements;
+        return transforms;
     }
 
-    public Placement GetPlacement(int index)
+    public LinearTransform GetPlacement(int index)
     {
-        var dirX = configData.placement.Rotation * Vector3.right;
-        var dirY = configData.placement.Rotation * Vector3.forward;
+        var dirX = configData.LinearTransform.Rotation * Vector3.right;
+        var dirY = configData.LinearTransform.Rotation * Vector3.forward;
         var x = index % configData.perRow;
         var y = index / configData.perRow;
         var offsetX = configData.spacing * x;
         var offsetY = configData.spacing * y;
-        return new Placement(configData.placement.Position + dirX * offsetX + dirY * offsetY, configData.placement.Rotation);
+        return new LinearTransform(configData.LinearTransform.Position + dirX * offsetX + dirY * offsetY, configData.LinearTransform.Rotation);
     }
 
-    public Placement GetMandarinPlacement(int index)
+    public LinearTransform GetMandarinPlacement(int index)
     {
-        var dirX = configData.placement.Rotation * Vector3.left;
-        var dirY = configData.placement.Rotation * Vector3.forward;
+        var dirX = configData.LinearTransform.Rotation * Vector3.left;
+        var dirY = configData.LinearTransform.Rotation * Vector3.forward;
         var y = index;
         var offsetX = configData.spacing;
         var offsetY = configData.spacing * y;
-        return new Placement(configData.placement.Position + dirX * offsetX + dirY * offsetY, configData.placement.Rotation);
+        return new LinearTransform(configData.LinearTransform.Position + dirX * offsetX + dirY * offsetY, configData.LinearTransform.Rotation);
     }
 
 }
