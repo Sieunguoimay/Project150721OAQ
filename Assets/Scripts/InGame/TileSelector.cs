@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileSelector : MasterComponent
+public class TileSelector : MonoBehaviour
 {
     private Board.TileGroup _tileGroup;
     private Tile _selectedTile;

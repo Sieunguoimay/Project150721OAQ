@@ -8,7 +8,7 @@ using UnityEngine;
 using Animator = UnityEngine.Animator;
 
 [RequireComponent(typeof(Animator))]
-public class Piece : MasterComponent
+public class Piece : MonoBehaviour
 {
     [SerializeField] private Transform pickupPoint;
 

@@ -62,7 +62,7 @@ public class PieceHolder : IPieceHolder
     }
 }
 
-public class PieceContainer : MasterComponent, IPieceHolder
+public class PieceContainer : MonoBehaviour, IPieceHolder
 {
     public const int MaxPiecesSupported = 50;
     Vector2Int[] reservedPoints = new Vector2Int[MaxPiecesSupported];

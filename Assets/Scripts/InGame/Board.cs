@@ -6,7 +6,7 @@ using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 
-public class Board : MasterComponent
+public class Board : MonoBehaviour
 {
     [SerializeField] private Piece.ConfigData citizenConfigData;
     [SerializeField] private Piece.ConfigData mandarinConfigData;

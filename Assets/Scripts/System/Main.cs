@@ -2,7 +2,6 @@
 
 public class Main : MonoBehaviour
 {
-    [SerializeField] private GameObject dronePrefab;
     [SerializeField] private GameObject boardPrefab;
     [SerializeField] private GameObject tileSelector;
 
