@@ -11,6 +11,8 @@ namespace Movement
         [SerializeField, Range(0f, 10f)] private float jumpHeight = 5f;
         [SerializeField, Range(0, 5)] private int maxAirJumps = 2;
         [SerializeField, Range(0f, 90f)] private float maxGroundAngle = 25f;
+        [SerializeField, Range(0f, 100f)] private float maxSnappingSpeed = 8f;
+        [SerializeField, Min(0f)] private float probeDistance = 1f;
 
         private Vector3 _velocity;
         private Vector3 _desiredVelocity;
@@ -21,6 +23,7 @@ namespace Movement
         private int _jumpPhase;
         private float _minGroundDotProduct;
         private int _stepsSinceLastGrounded;
+        private int _stepsSinceLastJump;
 
         private bool OnGround => _groundContactCount > 0;
 
@@ -99,6 +102,7 @@ namespace Movement
         private void UpdateState()
         {
             _stepsSinceLastGrounded++;
+            _stepsSinceLastJump++;
             _velocity = _rigidbody.velocity;
 
             if (OnGround || SnapToGround())
@@ -115,12 +119,19 @@ namespace Movement
 
         private bool SnapToGround()
         {
-            if (_stepsSinceLastGrounded > 1)
+            if (_stepsSinceLastGrounded > 1 || _stepsSinceLastJump <= 2)
             {
                 return false;
             }
 
-            if (!Physics.Raycast(transform.position, -transform.up, out var hit))
+            var speed = _velocity.magnitude;
+
+            if (speed > maxSnappingSpeed)
+            {
+                return false;
+            }
+
+            if (!Physics.Raycast(transform.position, -transform.up, out var hit, probeDistance))
             {
                 return false;
             }
@@ -133,7 +144,6 @@ namespace Movement
             _groundContactCount = 1;
             _contactNormal = hit.normal;
 
-            var speed = _velocity.magnitude;
             var dot = Vector3.Dot(_contactNormal, _velocity);
             if (dot > 0f)
             {
@@ -171,6 +181,7 @@ namespace Movement
             if (OnGround || _jumpPhase < maxAirJumps)
             {
                 _jumpPhase++;
+                _stepsSinceLastJump = 0;
 
                 var jumpSpeed = Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
                 var alignedSpeed = Vector3.Dot(_velocity, _contactNormal);
