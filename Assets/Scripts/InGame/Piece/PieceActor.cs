@@ -6,14 +6,18 @@ using Vector3 = UnityEngine.Vector3;
 
 public class PieceActor : SNM.Actor
 {
-    private ConfigData config = new ConfigData() {gravity = -10f, angularSpeed = 270f};
-
     public event Action<bool> OnJump = delegate(bool last) { };
     public bool IsJumping => CurrentActivity != null;
 
-    public ConfigData Config => config;
+    [Serializable]
+    public struct ConfigData
+    {
+        public float angularSpeed;
+    }
 
-    protected override void OnNewActivity(SNM.Activity activity)
+    public ConfigData Config { get; } = new ConfigData() {angularSpeed = 270f};
+
+    protected override void OnNewActivity(Activity activity)
     {
         if (activity is Jump ja)
         {
@@ -21,7 +25,7 @@ public class PieceActor : SNM.Actor
         }
     }
 
-    public class Jump : SNM.Activity
+    public class Jump : Activity
     {
         public InputData inputData;
         public Vector3 initialPosition;
@@ -95,8 +99,7 @@ public class PieceActor : SNM.Actor
             public Action<PieceActor, int> callback;
         }
     }
-
-    public class TurnAway : SNM.Activity
+    public class TurnAway : Activity
     {
         private Transform transform;
 
@@ -125,11 +128,52 @@ public class PieceActor : SNM.Actor
             DOTween.Kill(this);
         }
     }
-
-    [Serializable]
-    public struct ConfigData
+    public class BounceAnim : Activity
     {
-        public float gravity;
-        public float angularSpeed;
+        private readonly Transform _transform;
+        private readonly float _duration;
+        private float _time;
+        private readonly float _offset;
+        private readonly bool _fullPhase;
+
+        public BounceAnim(Transform transform, float duration, bool fullPhase = false)
+        {
+            _transform = transform;
+            _duration = duration;
+            _offset = 0.3f;
+            _fullPhase = fullPhase;
+        }
+
+        public override void Update(float deltaTime)
+        {
+            if (!IsDone)
+            {
+                _time += deltaTime;
+                float t = Mathf.Min(_time / _duration, 1f);
+
+                var scale = _transform.localScale;
+                if (_fullPhase)
+                {
+                    var s = Mathf.Sin(Mathf.Lerp(0, Mathf.PI * 2f, t));
+                    scale.y = 1 + (-s) * _offset;
+                    scale.x = 1 + (s) * _offset * 0.35f;
+                    scale.z = 1 + (s) * _offset * 0.35f;
+                }
+                else
+                {
+                    var c = Mathf.Cos(Mathf.Lerp(0, Mathf.PI * 2f, t));
+                    scale.y = 1 + (c) * _offset * 0.5f;
+                    scale.x = 1 + (-c) * _offset * 0.25f;
+                    scale.z = 1 + (-c) * _offset * 0.25f;
+                }
+
+                _transform.localScale = scale;
+
+                if (_time >= _duration)
+                {
+                    IsDone = true;
+                }
+            }
+        }
     }
 }

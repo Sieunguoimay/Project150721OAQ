@@ -6,7 +6,7 @@ using SNM.Bezier;
 
 public class Drone : MonoBehaviour
 {
-    public void GraspObjectToTarget(Piece piece, LinearTransform pos)
+    public void GraspObjectToTarget(Piece piece, PosAndRot pos)
     {
     }
 }

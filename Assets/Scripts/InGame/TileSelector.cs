@@ -46,7 +46,7 @@ public class TileSelector : MonoBehaviour
         Debug.Log("Selected tile " + tile.Pieces.Count);
         foreach (var p in _selectedTile.Pieces)
         {
-            ISelectionAdaptor sa = new Piece.PieceToTileSelectorAdaptor(p);
+            ISelectionAdaptor sa = new PieceToTileSelectorAdaptor(p);
             sa.OnTileSelected();
             _selectionAdaptors.Add(sa);
         }

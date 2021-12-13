@@ -7,7 +7,7 @@ namespace SNM
         private bool _moving = false;
         private float _time = 0f;
         private float _duration = 0f;
-        private IListener _listener;
+        private readonly IListener _listener;
 
         public TimeRunner(IListener listener)
         {

@@ -157,8 +157,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdd932c911368994990ebdb44cf82a66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idExtension: 
   pickupPoint: {fileID: 6775343186302278359}
+  config:
+    point: 1
+    size: {x: 0.2, y: 0.4, z: 0.2}
+  boidConfigData:
+    maxSpeed: 3
+    maxAcceleration: 10
+    arriveDistance: 1
+    spacing: 0.3
 --- !u!95 &1810190299783536076
 Animator:
   serializedVersion: 3

@@ -2,24 +2,24 @@
 
 namespace SNM
 {
-    public class LinearTransform
+    public class PosAndRot
     {
         public Vector3 Position;
         public Quaternion Rotation;
 
-        public LinearTransform()
+        public PosAndRot()
         {
             Position = Vector3.zero;
             Rotation = Quaternion.identity;
         }
 
-        public LinearTransform(Vector3 position, Quaternion rotation)
+        public PosAndRot(Vector3 position, Quaternion rotation)
         {
             Position = position;
             Rotation = rotation;
         }
 
-        public LinearTransform(LinearTransform other)
+        public PosAndRot(PosAndRot other)
         {
             Position = other.Position;
             Rotation = other.Rotation;

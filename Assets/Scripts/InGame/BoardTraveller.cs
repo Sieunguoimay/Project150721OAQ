@@ -5,29 +5,33 @@ using UnityEngine;
 
 public class BoardTraveller
 {
-    private Board board = null;
+    [Serializable]
+    public class Config
+    {
+        public Color activeColor;
+    }
 
-    private Tile currentTile = null;
-    private Color activeColor;
-    private Color oldColor;
+    private readonly Config _config;
+    private Tile _currentTile;
+    private Color _oldColor;
 
     public Tile CurrentTile
     {
-        get => currentTile;
+        get => _currentTile;
         private set
         {
-            if (currentTile != null)
+            if (_currentTile != null)
             {
-                var perObjectMaterial = currentTile.gameObject.GetComponent<PerObjectMaterial>();
-                perObjectMaterial.Color = oldColor;
+                var perObjectMaterial = _currentTile.gameObject.GetComponent<PerObjectMaterial>();
+                perObjectMaterial.Color = _oldColor;
             }
 
-            currentTile = value;
-            if (currentTile != null)
+            _currentTile = value;
+            if (_currentTile != null)
             {
-                var perObjectMaterial = currentTile.gameObject.GetComponent<PerObjectMaterial>();
-                oldColor = perObjectMaterial.Color;
-                perObjectMaterial.Color = activeColor;
+                var perObjectMaterial = _currentTile.gameObject.GetComponent<PerObjectMaterial>();
+                _oldColor = perObjectMaterial.Color;
+                perObjectMaterial.Color = _config.activeColor;
             }
         }
     }
@@ -35,14 +39,14 @@ public class BoardTraveller
     public int Steps { get; private set; } = 0;
     public int StepCount { get; private set; } = -1;
     public bool IsTravelling => StepCount >= 0 && StepCount < Steps;
-    public Board Board => board;
+    public Board Board { get; }
 
-    public Action OnEnd = delegate { };
+    public readonly Action OnEnd = delegate { };
 
-    public BoardTraveller(Board board, Color activeColor)
+    public BoardTraveller(Board board, Config config)
     {
-        this.board = board;
-        this.activeColor = activeColor;
+        Board = board;
+        _config = config;
     }
 
     public void Start(Tile startTile, int steps)

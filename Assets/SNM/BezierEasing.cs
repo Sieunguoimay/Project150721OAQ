@@ -4,26 +4,26 @@ namespace SNM
 {
     public class BezierEasing : IEasing
     {
-        float SUBDIVISION_PRECISION = 0.0000001f;
-        float SUBDIVISION_MAX_ITERATIONS = 10f;
-        int NEWTON_ITERATIONS = 4;
-        float NEWTON_MIN_SLOPE = 0.001f;
+        private const float SubdivisionPrecision = 0.0000001f;
+        private const float SubdivisionMAXIterations = 10f;
+        private const int NewtonIterations = 4;
+        private const float NewtonMINSlope = 0.001f;
 
-        int kSplineTableSize = 11;
-        float kSampleStepSize => 1f / (kSplineTableSize - 1f);
+        private const int KSplineTableSize = 11;
+        private static float KSampleStepSize => 1f / (KSplineTableSize - 1f);
 
-        private float[] sampleValues;
-        private Vector2 p0;
-        private Vector2 p1;
+        private readonly float[] _sampleValues;
+        private readonly Vector2 _p0;
+        private readonly Vector2 _p1;
 
         public BezierEasing(Vector2 p0, Vector2 p1)
         {
-            this.p0 = p0;
-            this.p1 = p1;
-            sampleValues = new float[kSplineTableSize];
-            for (var i = 0; i < kSplineTableSize; ++i)
+            _p0 = p0;
+            _p1 = p1;
+            _sampleValues = new float[KSplineTableSize];
+            for (var i = 0; i < KSplineTableSize; ++i)
             {
-                sampleValues[i] = calcBezier(i * kSampleStepSize, p0.x, p1.x);
+                _sampleValues[i] = calcBezier(i * KSampleStepSize, p0.x, p1.x);
             }
         }
 
@@ -31,7 +31,7 @@ namespace SNM
         {
             if (x == 0f || System.Math.Abs(x - 1f) < 0.0001f) return x;
 
-            return calcBezier(GetTForX(x), p0.y, p1.y);
+            return calcBezier(GetTForX(x), _p0.y, _p1.y);
         }
 
         private float A(float aA1, float aA2)
@@ -49,16 +49,16 @@ namespace SNM
             return 3f * aA1;
         }
 
-        private float getSlope(float aT, float aA1, float aA2)
+        private float GetSlope(float aT, float aA1, float aA2)
         {
             return 3f * A(aA1, aA2) * aT * aT + 2f * B(aA1, aA2) * aT + C(aA1);
         }
 
-        private float newtonRaphsonIterate(float aX, float aGuessT, float mX1, float mX2)
+        private float NewtonRaphsonIterate(float aX, float aGuessT, float mX1, float mX2)
         {
-            for (var i = 0; i < NEWTON_ITERATIONS; ++i)
+            for (var i = 0; i < NewtonIterations; ++i)
             {
-                var currentSlope = getSlope(aGuessT, mX1, mX2);
+                var currentSlope = GetSlope(aGuessT, mX1, mX2);
                 if (currentSlope == 0f)
                 {
                     return aGuessT;
@@ -71,7 +71,7 @@ namespace SNM
             return aGuessT;
         }
 
-        private float binarySubdivide(float aX, float aA, float aB, float mX1, float mX2)
+        private float BinarySubdivide(float aX, float aA, float aB, float mX1, float mX2)
         {
             float currentX, currentT = 0f;
             int i = 0;
@@ -87,7 +87,7 @@ namespace SNM
                 {
                     aA = currentT;
                 }
-            } while (Mathf.Abs(currentX) > SUBDIVISION_PRECISION && ++i < SUBDIVISION_MAX_ITERATIONS);
+            } while (Mathf.Abs(currentX) > SubdivisionPrecision && ++i < SubdivisionMAXIterations);
 
             return currentT;
         }
@@ -96,25 +96,25 @@ namespace SNM
         {
             var intervalStart = 0f;
             var currentSample = 1;
-            var lastSample = kSplineTableSize - 1;
+            var lastSample = KSplineTableSize - 1;
 
-            for (; currentSample != lastSample && sampleValues[currentSample] <= f; ++currentSample)
+            for (; currentSample != lastSample && _sampleValues[currentSample] <= f; ++currentSample)
             {
-                intervalStart += kSampleStepSize;
+                intervalStart += KSampleStepSize;
             }
 
             --currentSample;
 
             // Interpolate to provide an initial guess for t
-            var dist = (f - sampleValues[currentSample]) /
-                       (sampleValues[currentSample + 1] - sampleValues[currentSample]);
-            var guessForT = intervalStart + dist * kSampleStepSize;
+            var dist = (f - _sampleValues[currentSample]) /
+                       (_sampleValues[currentSample + 1] - _sampleValues[currentSample]);
+            var guessForT = intervalStart + dist * KSampleStepSize;
 
 
-            var initialSlope = getSlope(guessForT, p0.x, p1.x);
-            if (initialSlope >= NEWTON_MIN_SLOPE)
+            var initialSlope = GetSlope(guessForT, _p0.x, _p1.x);
+            if (initialSlope >= NewtonMINSlope)
             {
-                return newtonRaphsonIterate(f, guessForT, p0.x, p1.x);
+                return NewtonRaphsonIterate(f, guessForT, _p0.x, _p1.x);
             }
             else if (initialSlope == 0f)
             {
@@ -122,7 +122,7 @@ namespace SNM
             }
             else
             {
-                return binarySubdivide(f, intervalStart, intervalStart + kSampleStepSize, p0.x, p1.x);
+                return BinarySubdivide(f, intervalStart, intervalStart + KSampleStepSize, _p0.x, _p1.x);
             }
         }
 

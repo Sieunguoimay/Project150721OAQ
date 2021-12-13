@@ -8,36 +8,27 @@ using Action = System.Action;
 
 public class PieceDropper : PieceHolder
 {
-    [Serializable]
-    public class Config
-    {
-        [SerializeField] private Color activeColor;
-        public Color ActiveColor => activeColor;
-    }
-
-    private BoardTraveller boardTraveller = null;
-    public bool IsTravelling => boardTraveller?.IsTravelling ?? false;
-
+    private BoardTraveller _boardTraveller;
+    public bool IsTravelling => _boardTraveller?.IsTravelling ?? false;
     public event Action<IPieceHolder> OnEat = delegate { };
     public event Action<ActionID> OnDone = delegate { };
 
-    private ActionID actionID;
-    private bool forward;
-
+    private ActionID _actionID;
+    private bool _forward;
 
     public void Setup(Board board)
     {
-        if (boardTraveller == null || boardTraveller.Board != board)
+        if (_boardTraveller == null || _boardTraveller.Board != board)
         {
-            boardTraveller = new BoardTraveller(board, Color.black);
+            _boardTraveller = new BoardTraveller(board, new BoardTraveller.Config {activeColor = Color.black});
         }
     }
 
     public void GetReady(Tile tile)
     {
         Grasp(tile);
-        boardTraveller.Start(tile, Pieces.Count);
-        actionID = ActionID.DROPPING_IN_TURN;
+        _boardTraveller.Start(tile, Pieces.Count);
+        _actionID = ActionID.DroppingInTurn;
     }
 
     public void GetReadyForTakingBackCitizens(Board.TileGroup tileGroup, List<Piece> citizens)
@@ -57,24 +48,23 @@ public class PieceDropper : PieceHolder
             }
         }
 
-        boardTraveller.Start(tileGroup.MandarinTile, Pieces.Count);
-        actionID = ActionID.TAKING_BACK;
+        _boardTraveller.Start(tileGroup.MandarinTile, Pieces.Count);
+        _actionID = ActionID.TakingBack;
     }
 
     public void DropAll(bool forward)
     {
-        this.forward = forward;
+        _forward = forward;
         float delay = 0f;
         int n = Pieces.Count;
 
         for (int i = 0; i < n; i++)
         {
-            boardTraveller.Next(forward);
+            _boardTraveller.Next(forward);
 
             for (int j = n - i - 1; j >= 0; j--)
             {
                 var p = Pieces[i + j];
-                var further = p is Citizen && (boardTraveller.CurrentTile is MandarinTile m) && m.HasMandarin;
 
                 if (i == 0)
                 {
@@ -82,19 +72,20 @@ public class PieceDropper : PieceHolder
                     delay += 0.2f;
                 }
 
-                var pos = boardTraveller.CurrentTile.GetPositionInFilledCircle(
-                    boardTraveller.CurrentTile.Pieces.Count + j + (further ? 5 : 0), false);
+                var skipSlot = p is Citizen && (_boardTraveller.CurrentTile is MandarinTile m) && m.HasMandarin;
+                var citizenPos = _boardTraveller.CurrentTile.GetPositionInFilledCircle(
+                    _boardTraveller.CurrentTile.Pieces.Count + j + (skipSlot ? 5 : 0), false);
                 var flag = (i == n - 1) ? 2 : (j == 0 ? 1 : 0);
 
-                p.JumpTo(pos, flag, OnJumpDone);
+                p.PieceScheduler.CreateNewJump(citizenPos, flag, OnJumpDone);
             }
 
-            boardTraveller.CurrentTile.Grasp(Pieces[i]);
+            _boardTraveller.CurrentTile.Grasp(Pieces[i]);
         }
 
         foreach (var p in Pieces)
         {
-            p.Land();
+            p.PieceScheduler.CreateNewLandAnim();
         }
 
         Pieces.Clear();
@@ -110,45 +101,45 @@ public class PieceDropper : PieceHolder
 
     private void OnDropAllDone()
     {
-        if (actionID == ActionID.DROPPING_IN_TURN)
+        if (_actionID == ActionID.DroppingInTurn)
         {
-            var t = boardTraveller.CurrentTile.Success(forward);
-            boardTraveller.Reset();
+            var t = _boardTraveller.CurrentTile.Success(_forward);
+            _boardTraveller.Reset();
 
             if (t.Pieces.Count > 0 && !(t is MandarinTile))
             {
                 GetReady(t);
-                Main.Instance.Delay(.3f, () => { DropAll(forward); });
+                Main.Instance.Delay(.3f, () => { DropAll(_forward); });
             }
             else
             {
-                if (CanEatSucc(t, forward))
+                if (CheckSuccessEatable(t, _forward))
                 {
-                    Eat(t, forward, () => { OnDone?.Invoke(actionID); });
+                    Eat(t, _forward, () => { OnDone?.Invoke(_actionID); });
                 }
                 else
                 {
-                    OnDone?.Invoke(actionID);
+                    OnDone?.Invoke(_actionID);
                 }
             }
         }
-        else if (actionID == ActionID.TAKING_BACK)
+        else if (_actionID == ActionID.TakingBack)
         {
-            boardTraveller.Reset();
+            _boardTraveller.Reset();
 
-            OnDone?.Invoke(actionID);
+            OnDone?.Invoke(_actionID);
         }
     }
 
     private void Eat(Tile tile, bool forward, Action done)
     {
-        var succ = tile.Success(forward);
+        var success = tile.Success(forward);
 
-        OnEat?.Invoke(succ);
+        OnEat?.Invoke(success);
 
-        if (CanEatSucc(succ.Success(forward), forward))
+        if (CheckSuccessEatable(success.Success(forward), forward))
         {
-            Main.Instance.Delay(0.2f, () => { Eat(succ.Success(forward), forward, done); });
+            Main.Instance.Delay(0.2f, () => { Eat(success.Success(forward), forward, done); });
         }
         else
         {
@@ -156,16 +147,16 @@ public class PieceDropper : PieceHolder
         }
     }
 
-    private bool CanEatSucc(Tile tile, bool forward)
+    private static bool CheckSuccessEatable(Tile tile, bool forward)
     {
-        var succ = tile.Success(forward);
+        var success = tile.Success(forward);
 
-        return (tile.Pieces.Count == 0 && (!(tile is MandarinTile)) && (succ.Pieces.Count > 0));
+        return (tile.Pieces.Count == 0 && (!(tile is MandarinTile)) && (success.Pieces.Count > 0));
     }
 
     public enum ActionID
     {
-        DROPPING_IN_TURN,
-        TAKING_BACK
+        DroppingInTurn,
+        TakingBack
     }
 }

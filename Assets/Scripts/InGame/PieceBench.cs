@@ -5,22 +5,21 @@ using UnityEngine;
 
 public class PieceBench : PieceHolder
 {
-    
     [Serializable]
     public struct ConfigData
     {
-        public LinearTransform LinearTransform;
+        public PosAndRot PosAndRot;
         public float spacing;
         public int perRow;
     }
     
-    private ConfigData configData;
+    private readonly ConfigData _config;
 
     public int MandarinCount { get; private set; } = 0;
 
-    public PieceBench(ConfigData configData)
+    public PieceBench(ConfigData config)
     {
-        this.configData = configData;
+        _config = config;
     }
 
     public override void Grasp(Piece piece, Action<Piece> onGrasp = null)
@@ -33,43 +32,43 @@ public class PieceBench : PieceHolder
         base.Grasp(piece, onGrasp);
     }
 
-    public LinearTransform[] GetPlacements(int n)
+    public PosAndRot[] GetPosAndRots(int n)
     {
-        var transforms = new LinearTransform[n];
-        var dirX = configData.LinearTransform.Rotation * Vector3.right;
-        var dirY = configData.LinearTransform.Rotation * Vector3.forward;
+        var transforms = new PosAndRot[n];
+        var dirX = _config.PosAndRot.Rotation * Vector3.right;
+        var dirY = _config.PosAndRot.Rotation * Vector3.forward;
         var existing = Pieces.Count;
         for (int i = 0; i < n; i++)
         {
-            var x = (existing + i) % configData.perRow;
-            var y = (existing + i) / configData.perRow;
-            var offsetX = configData.spacing * x;
-            var offsetY = configData.spacing * y;
-            transforms[i] = new LinearTransform(configData.LinearTransform.Position + dirX * offsetX + dirY * offsetY, configData.LinearTransform.Rotation);
+            var x = (existing + i) % _config.perRow;
+            var y = (existing + i) / _config.perRow;
+            var offsetX = _config.spacing * x;
+            var offsetY = _config.spacing * y;
+            transforms[i] = new PosAndRot(_config.PosAndRot.Position + dirX * offsetX + dirY * offsetY, _config.PosAndRot.Rotation);
         }
 
         return transforms;
     }
 
-    public LinearTransform GetPlacement(int index)
+    public PosAndRot GetPosAndRot(int index)
     {
-        var dirX = configData.LinearTransform.Rotation * Vector3.right;
-        var dirY = configData.LinearTransform.Rotation * Vector3.forward;
-        var x = index % configData.perRow;
-        var y = index / configData.perRow;
-        var offsetX = configData.spacing * x;
-        var offsetY = configData.spacing * y;
-        return new LinearTransform(configData.LinearTransform.Position + dirX * offsetX + dirY * offsetY, configData.LinearTransform.Rotation);
+        var dirX = _config.PosAndRot.Rotation * Vector3.right;
+        var dirY = _config.PosAndRot.Rotation * Vector3.forward;
+        var x = index % _config.perRow;
+        var y = index / _config.perRow;
+        var offsetX = _config.spacing * x;
+        var offsetY = _config.spacing * y;
+        return new PosAndRot(_config.PosAndRot.Position + dirX * offsetX + dirY * offsetY, _config.PosAndRot.Rotation);
     }
 
-    public LinearTransform GetMandarinPlacement(int index)
+    public PosAndRot GetMandarinPosAndRot(int index)
     {
-        var dirX = configData.LinearTransform.Rotation * Vector3.left;
-        var dirY = configData.LinearTransform.Rotation * Vector3.forward;
+        var dirX = _config.PosAndRot.Rotation * Vector3.left;
+        var dirY = _config.PosAndRot.Rotation * Vector3.forward;
         var y = index;
-        var offsetX = configData.spacing;
-        var offsetY = configData.spacing * y;
-        return new LinearTransform(configData.LinearTransform.Position + dirX * offsetX + dirY * offsetY, configData.LinearTransform.Rotation);
+        var offsetX = _config.spacing;
+        var offsetY = _config.spacing * y;
+        return new PosAndRot(_config.PosAndRot.Position + dirX * offsetX + dirY * offsetY, _config.PosAndRot.Rotation);
     }
 
 }

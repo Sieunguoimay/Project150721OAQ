@@ -5,7 +5,7 @@ using InGame.Common;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class FlyingObject : MonoBehaviour
+public class PathMover : MonoBehaviour
 {
     [FormerlySerializedAs("speed")] [SerializeField] private float desiredSpeed = 0.1f;
 

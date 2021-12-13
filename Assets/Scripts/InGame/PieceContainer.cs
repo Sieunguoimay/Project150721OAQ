@@ -65,7 +65,7 @@ public class PieceHolder : IPieceHolder
 public class PieceContainer : MonoBehaviour, IPieceHolder
 {
     public const int MaxPiecesSupported = 50;
-    Vector2Int[] reservedPoints = new Vector2Int[MaxPiecesSupported];
+    private readonly Vector2Int[] _reservedPoints = new Vector2Int[MaxPiecesSupported];
 
     #region IPieceHolder
 
@@ -109,7 +109,7 @@ public class PieceContainer : MonoBehaviour, IPieceHolder
 
     public virtual Vector3 GetPositionInFilledCircle(int index, bool local = false, float size = 0.15f)
     {
-        var pos = new Vector3(reservedPoints[index].x, 0, reservedPoints[index].y) * size;
+        var pos = new Vector3(_reservedPoints[index].x, 0, _reservedPoints[index].y) * size;
         if (!local)
         {
             pos = transform.TransformPoint(pos);
@@ -151,7 +151,7 @@ public class PieceContainer : MonoBehaviour, IPieceHolder
 
         for (int i = 0; i < MaxPiecesSupported; i++)
         {
-            reservedPoints[i] = points[i];
+            _reservedPoints[i] = points[i];
         }
     }
 
