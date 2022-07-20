@@ -5,9 +5,8 @@ using Random = UnityEngine.Random;
 
 namespace Common
 {
-    public class SplineRandomizer
+    public class SplineRandomizer : ISplineModifier
     {
-        private readonly BezierSpline _spline;
         private readonly Config _config;
 
         [Serializable]
@@ -16,14 +15,19 @@ namespace Common
             [SerializeField] private Vector2 radius = new Vector2(0.5f, 1f);
             public Vector2 Radius => radius;
         }
+        private BezierSpline _spline;
 
-        public SplineRandomizer(Config config, BezierSpline spline)
+        public void Setup(BezierSpline spline)
         {
             _spline = spline;
+        }
+
+        public SplineRandomizer(Config config)
+        {
             _config = config;
         }
 
-        public void Randomize(Vector3 startPoint, Vector3 endPoint)
+        public void Modify(Vector3 startPoint, Vector3 endPoint)
         {
             var diff = endPoint - startPoint;
             var quaternion = Quaternion.LookRotation(diff);
@@ -40,7 +44,8 @@ namespace Common
                 var pos = startPoint + (diff / segmentNum) * i;
 
                 _spline.SetPointMode(pointIndex, BezierPointMode.Mirrored);
-                _spline.SetPoint(pointIndex, pos + quaternion * (0.25f * segmentSpace * Random.Range(-1f, 1f) * Vector3.forward));
+                _spline.SetPoint(pointIndex,
+                    pos + quaternion * (0.25f * segmentSpace * Random.Range(-1f, 1f) * Vector3.forward));
                 _spline.SetPoint(pointIndex + (up ? 1 : -1), pos + GetRandomControlPoint(quaternion, !up));
                 up = !up;
             }

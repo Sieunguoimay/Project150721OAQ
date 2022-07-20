@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Common
 {
-    public class SplineRandomizerProvider : MonoBehaviour
+    public class SplineRandomizerProvider : MonoBehaviour, ISplineModifier
     {
         [SerializeField] private SplineRandomizer.Config config;
         [SerializeField] private BezierSpline spline;
@@ -14,20 +14,36 @@ namespace Common
 
         private SplineRandomizer _randomizer;
 
-        public SplineRandomizer CreateRandomizer(BezierSpline spline)
+        public void Setup(BezierSpline spline)
         {
-            return new SplineRandomizer(config, spline);
+            this.spline = spline;
+            _randomizer = CreateRandomizer();
+            _randomizer.Setup(spline);
+        }
+
+        public void Modify(Vector3 startPoint, Vector3 endPoint)
+        {
+            this.startPoint = startPoint;
+            this.endPoint = endPoint;
+            Randomize();
+        }
+
+        public SplineRandomizer CreateRandomizer()
+        {
+            var splineRandomizer = new SplineRandomizer(config);
+            splineRandomizer.Setup(spline);
+            return splineRandomizer;
         }
 
         [ContextMenu("Randomize")]
-        public void Randomize()
+        private void Randomize()
         {
             if (_randomizer == null)
             {
-                _randomizer = CreateRandomizer(spline);
+                _randomizer = CreateRandomizer();
             }
 
-            _randomizer.Randomize(startPoint, endPoint);
+            _randomizer.Modify(startPoint, endPoint);
         }
     }
 
@@ -40,7 +56,9 @@ namespace Common
         {
             _provider = target as SplineRandomizerProvider;
 
-            var handleRotation = Tools.pivotRotation == PivotRotation.Local ? _provider.transform.rotation : Quaternion.identity;
+            var handleRotation = Tools.pivotRotation == PivotRotation.Local
+                ? _provider.transform.rotation
+                : Quaternion.identity;
             Handles.DrawDottedLine(_provider.startPoint, _provider.endPoint, 5f);
             EditorGUI.BeginChangeCheck();
             var point = Handles.DoPositionHandle(_provider.startPoint, handleRotation);

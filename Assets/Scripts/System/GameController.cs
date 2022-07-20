@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Implementations.Transporter;
+using InGame.ShippingSystem;
+using UnityEngine;
 
 namespace System
 {
@@ -7,7 +9,7 @@ namespace System
         private readonly Main.Config _config;
 
         private Board _board;
-        private Drone _drone;
+        private DroneMono _droneMono;
         private TileSelector _tileSelector;
 
         private PlayersManager _playerManager = new PlayersManager();
@@ -40,13 +42,13 @@ namespace System
 
             _playerManager = new PlayersManager();
             _playerManager.Setup(_board.TileGroups, _tileSelector);
-            
+
             foreach (var player in _playerManager.Players)
             {
                 player.OnDecisionResult += OnDecisionResult;
             }
 
-            _drone = UnityEngine.Object.Instantiate(_config.DronePrefab).GetComponent<Drone>();
+            _droneMono = UnityEngine.Object.Instantiate(_config.DronePrefab).GetComponent<DroneMono>();
         }
 
 
@@ -105,10 +107,15 @@ namespace System
             var bench = CurrentPlayer.PieceBench;
             bench.Grasp(pieceContainerMb, p =>
             {
-                if (p is Mandarin)
+                if (p is Mandarin mandarin)
                 {
                     var pos = bench.GetMandarinPosAndRot(bench.MandarinCount - 1);
-                    _drone.GraspObjectToTarget(p, pos);
+                    mandarin.Passenger.SetTicket(new TransportTicket(new TransportTicket.ConfigData()
+                    {
+                        attachPoint = Vector3.up,
+                        destination = pos.Position
+                    }));
+                    _droneMono.Target.Attach(mandarin.Passenger);
                 }
                 else if (p is Citizen c)
                 {

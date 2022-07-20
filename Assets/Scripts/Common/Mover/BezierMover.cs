@@ -13,7 +13,7 @@ namespace Common
         [Serializable]
         public class Config
         {
-            [SerializeField, Range(0.01f, 1f)] private float speed = 0.1f;
+            [SerializeField, Range(0.01f, 5f)] private float speed = 0.1f;
             [SerializeField] private BezierSpline initialPath;
             [SerializeField] private bool loop;
             public float Speed => speed;
@@ -23,11 +23,19 @@ namespace Common
 
         private BezierSpline _path;
         private bool _moving;
-        private float _position;
+        private float _time;
+        private float _duration;
+        public event Action OnComplete = delegate { };
+
+        public Config GetConfig() => config;
 
         private void Start()
         {
-            ChangePath(config.InitialPath);
+            if (_path == null)
+            {
+                ChangePath(config.InitialPath);
+            }
+
             _path.UpdateCurveLength();
         }
 
@@ -37,10 +45,11 @@ namespace Common
         }
 
         [ContextMenu("Move")]
-        public void Move()
+        public void Move(float duration)
         {
             _moving = true;
-            _position = 0f;
+            _time = 0f;
+            _duration = duration;
             onMove?.Invoke();
         }
 
@@ -54,23 +63,24 @@ namespace Common
         {
             if (_moving && _path != null)
             {
-                _position += Time.deltaTime * config.Speed;
+                _time += Time.deltaTime;
 
-                var pos3D = _path.GetPosition(_position);
-                var dir = _path.GetDirection(_position);
+                var pos3D = _path.GetPosition(_time / _duration);
+                var dir = _path.GetDirection(_time / _duration);
 
                 transform.position = pos3D;
                 transform.rotation = Quaternion.LookRotation(dir);
 
-                if (_position >= 1f)
+                if (_time >= _duration)
                 {
                     if (config.Loop)
                     {
-                        Move();
+                        Move(_duration);
                     }
                     else
                     {
                         _moving = false;
+                        OnComplete?.Invoke();
                     }
                 }
             }
