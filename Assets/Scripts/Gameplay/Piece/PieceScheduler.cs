@@ -1,5 +1,6 @@
 ﻿using System;
 using SNM;
+using SNM.Easings;
 using UnityEngine;
 
 namespace InGame

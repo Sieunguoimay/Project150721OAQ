@@ -23,7 +23,7 @@ namespace SNM
             _sampleValues = new float[KSplineTableSize];
             for (var i = 0; i < KSplineTableSize; ++i)
             {
-                _sampleValues[i] = calcBezier(i * KSampleStepSize, p0.x, p1.x);
+                _sampleValues[i] = CalcBezier(i * KSampleStepSize, p0.x, p1.x);
             }
         }
 
@@ -31,25 +31,25 @@ namespace SNM
         {
             if (x == 0f || System.Math.Abs(x - 1f) < 0.0001f) return x;
 
-            return calcBezier(GetTForX(x), _p0.y, _p1.y);
+            return CalcBezier(GetTForX(x), _p0.y, _p1.y);
         }
 
-        private float A(float aA1, float aA2)
+        private static float A(float aA1, float aA2)
         {
             return 1f - 3f * aA2 + 3f * aA1;
         }
 
-        private float B(float aA1, float aA2)
+        private static float B(float aA1, float aA2)
         {
             return 3f * aA2 - 6f * aA1;
         }
 
-        private float C(float aA1)
+        private static float C(float aA1)
         {
             return 3f * aA1;
         }
 
-        private float GetSlope(float aT, float aA1, float aA2)
+        private static float GetSlope(float aT, float aA1, float aA2)
         {
             return 3f * A(aA1, aA2) * aT * aT + 2f * B(aA1, aA2) * aT + C(aA1);
         }
@@ -64,7 +64,7 @@ namespace SNM
                     return aGuessT;
                 }
 
-                var currentX = calcBezier(aGuessT, mX1, mX2) - aX;
+                var currentX = CalcBezier(aGuessT, mX1, mX2) - aX;
                 aGuessT -= currentX / currentSlope;
             }
 
@@ -74,11 +74,11 @@ namespace SNM
         private float BinarySubdivide(float aX, float aA, float aB, float mX1, float mX2)
         {
             float currentX, currentT = 0f;
-            int i = 0;
+            var i = 0;
             do
             {
                 currentT = aA + (aB - aA) / 2f;
-                currentX = calcBezier(currentT, mX1, mX2) - aX;
+                currentX = CalcBezier(currentT, mX1, mX2) - aX;
                 if (currentX > 0.0)
                 {
                     aB = currentT;
@@ -126,14 +126,14 @@ namespace SNM
             }
         }
 
-        private float calcBezier(float aT, float aA1, float aA2)
+        private float CalcBezier(float aT, float aA1, float aA2)
         {
             return ((A(aA1, aA2) * aT + B(aA1, aA2)) * aT + C(aA1)) * aT;
         }
 
-        private static BezierEasing blueprint1;
+        private static BezierEasing _blueprint1;
 
         public static BezierEasing Blueprint1 =>
-            blueprint1 ?? (blueprint1 = new BezierEasing(new Vector2(0, 0.23f), new Vector2(1f, 0.77f)));
+            _blueprint1 ??= new BezierEasing(new Vector2(0, 0.35f), new Vector2(1f, 0.75f));
     }
 }

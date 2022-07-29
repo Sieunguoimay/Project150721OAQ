@@ -613,6 +613,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 274169239, guid: 04845be1075dce74797bf8e6f3000296, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3960245732270797140, guid: 04845be1075dce74797bf8e6f3000296, type: 3}
       propertyPath: m_Name
       value: Board
@@ -796,6 +800,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: papaya_tree
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3abcb2babef26f940bc4ab8c0dde0e60, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3abcb2babef26f940bc4ab8c0dde0e60, type: 3}
 --- !u!1 &1363433541 stripped
@@ -921,7 +929,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1396097034152937368, guid: 4aef1705c5e370e479601e1c52f56b53, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5214614559396334074, guid: 4aef1705c5e370e479601e1c52f56b53, type: 3}
       propertyPath: m_RootOrder
