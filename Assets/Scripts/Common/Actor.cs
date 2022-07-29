@@ -34,10 +34,9 @@ namespace SNM
         {
         }
 
-        public Activity SetEase(IEasing linearEasing)
+        public void SetEase(IEasing linearEasing)
         {
-            this.Ease = linearEasing;
-            return this;
+            Ease = linearEasing;
         }
     }
 

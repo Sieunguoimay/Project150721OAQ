@@ -1,4 +1,7 @@
-﻿using Implementations.Transporter;
+﻿using System.Collections.Generic;
+using Gameplay;
+using Implementations.Transporter;
+using InGame;
 using InGame.ShippingSystem;
 using UnityEngine;
 
@@ -9,7 +12,7 @@ namespace System
         private readonly Main.Config _config;
 
         private Board _board;
-        private DroneMono _droneMono;
+        // private DroneMono _droneMono;
         private TileSelector _tileSelector;
 
         private PlayersManager _playerManager = new PlayersManager();
@@ -48,7 +51,7 @@ namespace System
                 player.OnDecisionResult += OnDecisionResult;
             }
 
-            _droneMono = UnityEngine.Object.Instantiate(_config.DronePrefab).GetComponent<DroneMono>();
+            // _droneMono = UnityEngine.Object.Instantiate(_config.DronePrefab).GetComponent<DroneMono>();
         }
 
 
@@ -71,7 +74,7 @@ namespace System
 
         private void MakeDecision(bool changePlayer)
         {
-            bool gameOver = true;
+            var gameOver = true;
             if (!_board.AreMandarinTilesAllEmpty())
             {
                 if (changePlayer)
@@ -107,21 +110,23 @@ namespace System
             var bench = CurrentPlayer.PieceBench;
             bench.Grasp(pieceContainerMb, p =>
             {
-                if (p is Mandarin mandarin)
-                {
-                    var pos = bench.GetMandarinPosAndRot(bench.MandarinCount - 1);
-                    mandarin.Passenger.SetTicket(new TransportTicket(new TransportTicket.ConfigData()
-                    {
-                        attachPoint = Vector3.up,
-                        destination = pos.Position
-                    }));
-                    _droneMono.Target.Attach(mandarin.Passenger);
-                }
-                else if (p is Citizen c)
-                {
-                    var movePos = bench.GetPosAndRot(bench.Pieces.Count - bench.MandarinCount - 1).Position;
-                    c.JumpingMoveTo(movePos);
-                }
+                var movePos = bench.GetPosAndRot(bench.Pieces.Count - 1).Position;
+                p.JumpingMoveTo(movePos);
+                // if (p is Mandarin mandarin)
+                // {
+                //     var pos = bench.GetMandarinPosAndRot(bench.MandarinCount - 1);
+                //     mandarin.Passenger.SetTicket(new TransportTicket(new TransportTicket.ConfigData()
+                //     {
+                //         attachPoint = Vector3.up,
+                //         destination = pos.Position
+                //     }));
+                //     _droneMono.Target.Attach(mandarin.Passenger);
+                // }
+                // else if (p is Citizen c)
+                // {
+                //     var movePos = bench.GetPosAndRot(bench.Pieces.Count - bench.MandarinCount - 1).Position;
+                //     c.JumpingMoveTo(movePos);
+                // }
             });
         }
 
@@ -136,26 +141,23 @@ namespace System
 
         private void CheckForWinner()
         {
-            for (int i = 0;
-                i < _playerManager.Players.Length;
-                i++)
+            for (var i = 0; i < _playerManager.Players.Length; i++)
             {
                 foreach (var tile in _board.TileGroups[i].Tiles)
                 {
                     _playerManager.Players[i].PieceBench.Grasp(tile);
                 }
 
-                int sum = 0;
+                var sum = 0;
 
                 foreach (var p in _playerManager.Players[i].PieceBench.Pieces)
                 {
-                    if (p is Citizen)
+                    switch (p)
                     {
-                        sum += p.Config.point;
-                    }
-                    else if (p is Mandarin)
-                    {
-                        sum += p.Config.point;
+                        case Citizen _:
+                        case Mandarin _:
+                            sum += p.Config.point;
+                            break;
                     }
                 }
 
@@ -165,7 +167,7 @@ namespace System
             TellWinner(_perMatchData.PlayerScores);
         }
 
-        private static void TellWinner(int[] scores)
+        private static void TellWinner(IReadOnlyList<int> scores)
         {
             if (scores[0] > scores[1])
             {

@@ -123,7 +123,7 @@ namespace Curve
             }
 
             Handles.color = modeColors[(int) _spline.GetPointMode(index)];
-            if (Handles.Button(point, _handleRotation, size * handleSize, size * pickSize, Handles.DotCap))
+            if (Handles.Button(point, _handleRotation, size * handleSize, size * pickSize, Handles.DotHandleCap))
             {
                 _selectedIndex = index;
                 Repaint();
