@@ -1,10 +1,11 @@
 ﻿using System;
+using Common;
+using CommonActivities;
 using DG.Tweening;
-using SNM;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
-public class PieceActor : SNM.Actor
+public class PieceActivityQueue : ActivityQueue
 {
     [Serializable]
     public struct ConfigData
@@ -12,13 +13,10 @@ public class PieceActor : SNM.Actor
         public float angularSpeed;
     }
 
-    public ConfigData Config { get; } = new ConfigData {angularSpeed = 270f};
+    public ConfigData Config { get; } = new() {angularSpeed = 270f};
 
-    protected override void OnNewActivity(Activity activity)
-    {
-    }
 
-    public class Jump : Activity
+    public class Jump : EasingActivity
     {
         private readonly InputData _inputData;
         private Vector3 _initialPosition;
@@ -28,14 +26,10 @@ public class PieceActor : SNM.Actor
         private float _duration;
         private readonly Transform _transform;
 
-        public Jump(Transform transform, InputData inputData, IEasing easing = null)
+        public Jump(Transform transform, InputData inputData, IEasing easing) : base(easing)
         {
             _transform = transform;
             _inputData = inputData;
-            if (easing != null)
-            {
-                SetEase(easing);
-            }
         }
 
         public override void Begin()
@@ -55,22 +49,21 @@ public class PieceActor : SNM.Actor
 
         public override void Update(float deltaTime)
         {
-            if (!IsDone)
+            if (IsDone) return;
+            
+            _time += deltaTime;
+
+            var t = Mathf.Min(_time / _duration, 1f);
+
+            var xz = _transform.position;
+            var y = SNM.Math.MotionEquation(
+                _initialPosition, _initialVelocity,
+                _initialAcceleration, Ease.GetEase(t) * _duration);
+            _transform.position = new Vector3(xz.x, y.y, xz.z);
+
+            if (_time >= _duration)
             {
-                _time += deltaTime;
-
-                var t = Mathf.Min(_time / _duration, 1f);
-
-                var xz = _transform.position;
-                var y = SNM.Math.MotionEquation(
-                    _initialPosition, _initialVelocity,
-                    _initialAcceleration, Ease.GetEase(t) * _duration);
-                _transform.position = new Vector3(xz.x, y.y, xz.z);
-
-                if (_time >= _duration)
-                {
-                    IsDone = true;
-                }
+                IsDone = true;
             }
         }
 
@@ -83,30 +76,29 @@ public class PieceActor : SNM.Actor
 
         public class InputData
         {
-            // public Vector3 target;
             public float height = 1f;
             public float duration = 0.4f;
             public int flag;
-            public Action<PieceActor, int> callback;
+            public Action<PieceActivityQueue, int> callback;
         }
     }
 
     public class TurnAway : Activity
     {
-        private Transform transform;
+        private readonly Transform _transform;
 
         public TurnAway(Transform transform)
         {
-            this.transform = transform;
+            _transform = transform;
         }
 
         public override void Begin()
         {
             base.Begin();
 
-            var lr = transform.localEulerAngles;
+            var lr = _transform.localEulerAngles;
             lr.y += UnityEngine.Random.Range(-60f, 60f);
-            transform.DOLocalRotate(lr, 1f).SetId(this)
+            _transform.DOLocalRotate(lr, 1f).SetId(this)
                 .OnComplete(() => { IsDone = true; });
         }
 
@@ -139,33 +131,32 @@ public class PieceActor : SNM.Actor
 
         public override void Update(float deltaTime)
         {
-            if (!IsDone)
+            if (IsDone) return;
+            
+            _time += deltaTime;
+            var t = Mathf.Min(_time / _duration, 1f);
+
+            var scale = _transform.localScale;
+            if (_fullPhase)
             {
-                _time += deltaTime;
-                float t = Mathf.Min(_time / _duration, 1f);
+                var s = Mathf.Sin(Mathf.Lerp(0, Mathf.PI * 2f, t));
+                scale.y = 1 + (-s) * _offset;
+                scale.x = 1 + (s) * _offset * 0.35f;
+                scale.z = 1 + (s) * _offset * 0.35f;
+            }
+            else
+            {
+                var c = Mathf.Cos(Mathf.Lerp(0, Mathf.PI * 2f, t));
+                scale.y = 1 + (c) * _offset * 0.5f;
+                scale.x = 1 + (-c) * _offset * 0.25f;
+                scale.z = 1 + (-c) * _offset * 0.25f;
+            }
 
-                var scale = _transform.localScale;
-                if (_fullPhase)
-                {
-                    var s = Mathf.Sin(Mathf.Lerp(0, Mathf.PI * 2f, t));
-                    scale.y = 1 + (-s) * _offset;
-                    scale.x = 1 + (s) * _offset * 0.35f;
-                    scale.z = 1 + (s) * _offset * 0.35f;
-                }
-                else
-                {
-                    var c = Mathf.Cos(Mathf.Lerp(0, Mathf.PI * 2f, t));
-                    scale.y = 1 + (c) * _offset * 0.5f;
-                    scale.x = 1 + (-c) * _offset * 0.25f;
-                    scale.z = 1 + (-c) * _offset * 0.25f;
-                }
+            _transform.localScale = scale;
 
-                _transform.localScale = scale;
-
-                if (_time >= _duration)
-                {
-                    IsDone = true;
-                }
+            if (_time >= _duration)
+            {
+                IsDone = true;
             }
         }
     }

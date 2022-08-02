@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Common;
+using CommonActivities;
+using UnityEngine;
 
 namespace SNM
 {
@@ -96,7 +98,7 @@ namespace SNM
         {
             var intervalStart = 0f;
             var currentSample = 1;
-            var lastSample = KSplineTableSize - 1;
+            const int lastSample = KSplineTableSize - 1;
 
             for (; currentSample != lastSample && _sampleValues[currentSample] <= f; ++currentSample)
             {
@@ -112,18 +114,12 @@ namespace SNM
 
 
             var initialSlope = GetSlope(guessForT, _p0.x, _p1.x);
-            if (initialSlope >= NewtonMINSlope)
+            return initialSlope switch
             {
-                return NewtonRaphsonIterate(f, guessForT, _p0.x, _p1.x);
-            }
-            else if (initialSlope == 0f)
-            {
-                return guessForT;
-            }
-            else
-            {
-                return BinarySubdivide(f, intervalStart, intervalStart + KSampleStepSize, _p0.x, _p1.x);
-            }
+                >= NewtonMINSlope => NewtonRaphsonIterate(f, guessForT, _p0.x, _p1.x),
+                0f => guessForT,
+                _ => BinarySubdivide(f, intervalStart, intervalStart + KSampleStepSize, _p0.x, _p1.x)
+            };
         }
 
         private float CalcBezier(float aT, float aA1, float aA2)
@@ -131,9 +127,6 @@ namespace SNM
             return ((A(aA1, aA2) * aT + B(aA1, aA2)) * aT + C(aA1)) * aT;
         }
 
-        private static BezierEasing _blueprint1;
-
-        public static BezierEasing Blueprint1 =>
-            _blueprint1 ??= new BezierEasing(new Vector2(0, 0.35f), new Vector2(1f, 0.75f));
+        public static BezierEasing CreateBezierEasing(float a, float b) => new(new Vector2(0, a), new Vector2(1f, b));
     }
 }

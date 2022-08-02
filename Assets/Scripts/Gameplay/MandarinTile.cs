@@ -1,21 +1,21 @@
-﻿using System;
-using UnityEngine;
-
-public class MandarinTile : Tile
+﻿namespace Gameplay
 {
-    public bool HasMandarin { get; private set; } = false;
-
-    public override void Setup()
+    public class MandarinTile : Tile
     {
-        base.Setup();
-        HasMandarin = true;
-    }
+        [field: System.NonSerialized] public bool HasMandarin { get; private set; } = false;
 
-    public override void OnGrasp(IPieceHolder whom)
-    {
-        if (HasMandarin)
+        public override void Setup()
         {
-            HasMandarin = false;
+            base.Setup();
+            HasMandarin = true;
+        }
+
+        public override void OnGrasp(IPieceHolder whom)
+        {
+            if (HasMandarin)
+            {
+                HasMandarin = false;
+            }
         }
     }
 }

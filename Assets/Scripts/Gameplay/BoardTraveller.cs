@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Common;
 using Gameplay;
 using InGame;
 using UnityEngine;
@@ -60,21 +61,16 @@ public class BoardTraveller
 
     public bool Next(bool forward)
     {
-        if (IsTravelling)
+        if (!IsTravelling) return false;
+        
+        StepCount++;
+        CurrentTile = forward ? CurrentTile.Next : CurrentTile.Prev;
+        if (StepCount == Steps)
         {
-            StepCount++;
-            CurrentTile = forward ? CurrentTile.Next : CurrentTile.Prev;
-            if (StepCount == Steps)
-            {
-                _onEnd?.Invoke();
-            }
+            _onEnd?.Invoke();
+        }
 
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return true;
     }
 
     public void Reset()

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -9,9 +10,10 @@ namespace Gameplay
     {
         [SerializeField] private GameObject mandarinPrefab;
         [SerializeField] private GameObject citizenPrefab;
+        
         private Tile[] _tiles;
-        public Tile[] Tiles => _tiles ?? (_tiles = GetComponentsInChildren<Tile>());
-        public List<TileGroup> TileGroups { get; } = new List<TileGroup>();
+        public Tile[] Tiles => _tiles ??= GetComponentsInChildren<Tile>();
+        [field: System.NonSerialized] public List<TileGroup> TileGroups { get; } = new();
 
         public void Setup()
         {
@@ -56,7 +58,7 @@ namespace Gameplay
         private void InitializeTileGroup(ref TileGroup tg)
         {
             var t = tg.MandarinTile.Next;
-            while (!(t is MandarinTile))
+            while (t is not MandarinTile)
             {
                 tg.Tiles.Add(t);
                 t = t.Next;
@@ -70,28 +72,12 @@ namespace Gameplay
 
         public static bool IsTileGroupEmpty(TileGroup tileGroup)
         {
-            foreach (var t in tileGroup.Tiles)
-            {
-                if (t.Pieces.Count > 0)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return tileGroup.Tiles.All(t => t.Pieces.Count <= 0);
         }
 
         public bool AreMandarinTilesAllEmpty()
         {
-            foreach (var tg in TileGroups)
-            {
-                if (tg.MandarinTile.Pieces.Count > 0)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return TileGroups.All(tg => tg.MandarinTile.Pieces.Count <= 0);
         }
 
         public class TileGroup
@@ -102,20 +88,19 @@ namespace Gameplay
             public Vector3 GetForward()
             {
                 var pos1 = Tiles[0].transform.position;
-                var pos2 = Tiles[Tiles.Count - 1].transform.position;
+                var pos2 = Tiles[^1].transform.position;
                 return (pos2 - pos1).normalized;
             }
 
             public bool TakeBackTiles(List<Piece> pieces, PieceDropper dropper)
             {
-                if (pieces.Count > 0)
-                {
-                    dropper.GetReadyForTakingBackCitizens(this, pieces);
-                    dropper.DropAll(true);
-                    return true;
-                }
+                if (pieces.Count <= 0) return false;
+                
+                dropper.GetReadyForTakingBackCitizens(this, pieces);
+                dropper.DropAll(true);
+                
+                return true;
 
-                return false;
             }
         }
 #if UNITY_EDITOR
@@ -153,7 +138,8 @@ namespace Gameplay
         [ContextMenu("Test Travel X")]
         private void TestTravel()
         {
-            TravelBoard(Tiles[UnityEngine.Random.Range(0, Tiles.Length)], Random.Range(5, 10), Random.Range(0, 100) > 50);
+            TravelBoard(Tiles[UnityEngine.Random.Range(0, Tiles.Length)], Random.Range(5, 10),
+                Random.Range(0, 100) > 50);
         }
 #endif
     }

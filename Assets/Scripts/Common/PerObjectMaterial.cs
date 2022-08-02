@@ -1,41 +1,38 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-[RequireComponent(typeof(MeshRenderer))]
-public class PerObjectMaterial : MonoBehaviour
+namespace Common
 {
-    [SerializeField] private Color color;
-    private static MaterialPropertyBlock block;
-    private static int colorId = Shader.PropertyToID("_BaseColor");
-
-    private MeshRenderer meshRenderer;
-    private MeshRenderer MeshRenderer => meshRenderer ?? (meshRenderer = GetComponent<MeshRenderer>());
-
-    public Color Color
+    [RequireComponent(typeof(MeshRenderer))]
+    public class PerObjectMaterial : MonoBehaviour
     {
-        get => color;
-        set
+        [SerializeField] private Color color;
+        private static MaterialPropertyBlock _block;
+        private static readonly int ColorId = Shader.PropertyToID("_BaseColor");
+
+        private MeshRenderer _meshRenderer;
+        private MeshRenderer MeshRenderer => _meshRenderer ? _meshRenderer : _meshRenderer = GetComponent<MeshRenderer>();
+
+        public Color Color
         {
-            color = value;
+            get => color;
+            set
+            {
+                color = value;
+                OnValidate();
+            }
+        }
+
+        private void Awake()
+        {
             OnValidate();
         }
-    }
 
-    private void Awake()
-    {
-        OnValidate();
-    }
-
-    private void OnValidate()
-    {
-        if (block == null)
+        private void OnValidate()
         {
-            block = new MaterialPropertyBlock();
-        }
+            _block ??= new MaterialPropertyBlock();
 
-        block.SetColor(colorId, color);
-        MeshRenderer.SetPropertyBlock(block);
+            _block.SetColor(ColorId, color);
+            MeshRenderer.SetPropertyBlock(_block);
+        }
     }
 }

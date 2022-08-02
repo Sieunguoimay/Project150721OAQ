@@ -1,9 +1,33 @@
-﻿using SNM;
+﻿using Common;
+using SNM;
 using UnityEngine;
 
 namespace CommonActivities
 {
-    public class StraightMove : Activity
+    public interface IEasing
+    {
+        float GetEase(float x);
+    }
+
+    public sealed class LinearEasing : IEasing
+    {
+        public float GetEase(float x)
+        {
+            return x;
+        }
+    }
+
+    public abstract class EasingActivity : Activity
+    {
+        protected readonly IEasing Ease;
+
+        protected EasingActivity(IEasing ease)
+        {
+            Ease = ease;
+        }
+    }
+
+    public class StraightMove : EasingActivity
     {
         private readonly Vector3 _target;
         private Vector3 _origin;
@@ -12,15 +36,11 @@ namespace CommonActivities
 
         private float _time;
 
-        public StraightMove(Transform transform, Vector3 target, float duration, IEasing ease = null)
+        public StraightMove(Transform transform, Vector3 target, float duration, IEasing ease) : base(ease)
         {
             _transform = transform;
             _target = target;
             _duration = duration;
-            if (ease != null)
-            {
-                SetEase(ease);
-            }
         }
 
         public override void Begin()
@@ -33,35 +53,34 @@ namespace CommonActivities
 
         public override void Update(float deltaTime)
         {
-            if (!IsDone)
+            if (IsDone) return;
+
+            _time += deltaTime;
+            var t = Mathf.Min(_time / _duration, 1f);
+            var pos = Vector3.Lerp(_origin, _target, Ease.GetEase(t));
+            pos.y = _transform.position.y;
+            _transform.position = pos;
+            if (_time >= _duration)
             {
-                _time += deltaTime;
-                float t = Mathf.Min(_time / _duration, 1f);
-                var pos = Vector3.Lerp(_origin, _target, Ease.GetEase(t));
-                pos.y = _transform.position.y;
-                _transform.position = pos;
-                if (_time >= _duration)
-                {
-                    IsDone = true;
-                }
+                IsDone = true;
             }
         }
     }
 
-    public class Delay : SNM.Activity
+    public class Delay : Activity
     {
-        private float duration;
-        private float time = 0;
+        private readonly float _duration;
+        private float _time = 0;
 
         public Delay(float duration)
         {
-            this.duration = duration;
+            _duration = duration;
         }
 
         public override void Update(float deltaTime)
         {
-            time += deltaTime;
-            if (time >= duration)
+            _time += deltaTime;
+            if (_time >= _duration)
             {
                 IsDone = true;
             }

@@ -1,63 +1,64 @@
 ﻿using System;
 using System.Collections.Generic;
-using Gameplay;
-using InGame;
+using System.Linq;
+using Common;
 using UnityEngine;
 
-public class TileSelector : MonoBehaviour
+namespace Gameplay
 {
-    private Board.TileGroup _tileGroup;
-    private Tile _selectedTile;
-    private Color _prevColor = Color.black;
-    private readonly List<ISelectionAdaptor> _selectionAdaptors = new List<ISelectionAdaptor>();
-
-    public Action<Tile, bool> OnDone = delegate { };
-
-    public void Setup()
+    public class TileSelector : MonoBehaviour
     {
-        gameObject.SetActive(false);
-    }
+        private Board.TileGroup _tileGroup;
+        private Tile _selectedTile;
+        private Color _prevColor = Color.black;
+        private readonly List<ISelectionAdaptor> _selectionAdaptors = new List<ISelectionAdaptor>();
 
-    public void Display(Board.TileGroup tileGroup)
-    {
-        _selectedTile = null;
-        _tileGroup = tileGroup;
-        foreach (var t in tileGroup.Tiles)
+        public Action<Tile, bool> OnDone = delegate { };
+
+        public void Setup()
         {
-            t.OnSelect -= OnTileSelect;
-            t.OnSelect += OnTileSelect;
+            gameObject.SetActive(false);
+        }
 
-            var p = t.GetComponent<PerObjectMaterial>();
-            _prevColor = p.Color;
-
-            if (t.Pieces.Count > 0)
+        public void Display(Board.TileGroup tileGroup)
+        {
+            _selectedTile = null;
+            _tileGroup = tileGroup;
+            foreach (var t in tileGroup.Tiles)
             {
-                p.Color = Color.black;
+                t.OnSelect -= OnTileSelect;
+                t.OnSelect += OnTileSelect;
+
+                var p = t.GetComponent<PerObjectMaterial>();
+                _prevColor = p.Color;
+
+                if (t.Pieces.Count > 0)
+                {
+                    p.Color = Color.black;
+                }
             }
         }
-    }
 
-    private void OnTileSelect(Tile tile)
-    {
-        if (tile.Pieces.Count <= 0) return;
-
-        _selectedTile = tile;
-
-        InvokeDeselect();
-
-        Debug.Log("Selected tile " + tile.Pieces.Count);
-        foreach (var p in _selectedTile.Pieces)
+        private void OnTileSelect(Tile tile)
         {
-            ISelectionAdaptor sa = new PieceToTileSelectorAdaptor(p);
-            sa.OnTileSelected();
-            _selectionAdaptors.Add(sa);
-        }
+            if (tile.Pieces.Count <= 0) return;
 
-        transform.position = tile.transform.position + Vector3.up * 0.3f;
-        var tiles = _tileGroup?.Tiles;
-        if (tiles != null)
-        {
-            var dir = tiles[tiles.Count - 1].transform.position - tiles[0].transform.position;
+            _selectedTile = tile;
+
+            InvokeDeselect();
+
+            Debug.Log("Selected tile " + tile.Pieces.Count);
+            
+            foreach (var sa in _selectedTile.Pieces.Select(p => new PieceToTileSelectorAdaptor(p)))
+            {
+                ((ISelectionAdaptor) sa).OnTileSelected();
+                _selectionAdaptors.Add(sa);
+            }
+
+            transform.position = tile.transform.position + Vector3.up * 0.3f;
+            var tiles = _tileGroup?.Tiles;
+            if (tiles == null) return;
+            var dir = tiles[^1].transform.position - tiles[0].transform.position;
             dir = SNM.Math.Projection(dir, Vector3.up);
             transform.rotation = Quaternion.LookRotation(dir, transform.up);
 
@@ -68,40 +69,40 @@ public class TileSelector : MonoBehaviour
                 t.GetComponent<PerObjectMaterial>().Color = t == _selectedTile ? Color.black : _prevColor;
             }
         }
-    }
 
-    private void InvokeDeselect()
-    {
-        foreach (var sa in _selectionAdaptors)
+        private void InvokeDeselect()
         {
-            sa.OnTileDeselected();
-        }
-
-        _selectionAdaptors.Clear();
-    }
-
-    public void ChooseDirection(bool forward)
-    {
-        if (_tileGroup?.Tiles != null)
-        {
-            foreach (var t in _tileGroup.Tiles)
+            foreach (var sa in _selectionAdaptors)
             {
-                t.OnSelect -= OnTileSelect;
-                t.GetComponent<PerObjectMaterial>().Color = _prevColor;
+                sa.OnTileDeselected();
             }
+
+            _selectionAdaptors.Clear();
         }
 
-        InvokeDeselect();
+        public void ChooseDirection(bool forward)
+        {
+            if (_tileGroup?.Tiles != null)
+            {
+                foreach (var t in _tileGroup.Tiles)
+                {
+                    t.OnSelect -= OnTileSelect;
+                    t.GetComponent<PerObjectMaterial>().Color = _prevColor;
+                }
+            }
 
-        _tileGroup = null;
+            InvokeDeselect();
 
-        OnDone?.Invoke(_selectedTile, forward);
-        gameObject.SetActive(false);
-    }
+            _tileGroup = null;
 
-    public interface ISelectionAdaptor
-    {
-        void OnTileSelected();
-        void OnTileDeselected();
+            OnDone?.Invoke(_selectedTile, forward);
+            gameObject.SetActive(false);
+        }
+
+        public interface ISelectionAdaptor
+        {
+            void OnTileSelected();
+            void OnTileDeselected();
+        }
     }
 }

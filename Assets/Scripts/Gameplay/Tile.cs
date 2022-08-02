@@ -1,21 +1,23 @@
 ﻿using System;
+using Common;
+using Gameplay;
+using SNM;
 using UnityEngine;
 
 [RequireComponent(typeof(PerObjectMaterial))]
-// [DisallowMultipleComponent]
 [SelectionBase]
 public class Tile : PieceContainer, RayPointer.IListener
 {
     [SerializeField] private Tile prev;
     [SerializeField] private Tile next;
-    public int Id { get; private set; } = 0;
+    [field: System.NonSerialized] public int Id { get; private set; } = 0;
 
     public Tile Prev => prev;
     public Tile Next => next;
 
     public bool IsConnected => Prev != null && Next != null;
 
-    public event Action<Tile> OnSelect = delegate(Tile tile) { };
+    public event Action<Tile> OnSelect = delegate { };
 
     private void Awake()
     {

@@ -1,15 +1,17 @@
-﻿public class PerMatchData
+﻿namespace System
 {
-    private int[] playerScores;
-    public int[] PlayerScores => playerScores;
-
-    public PerMatchData(int playerNum)
+    public class PerMatchData
     {
-        playerScores = new int[playerNum];
-    }
+        public int[] PlayerScores { get; }
 
-    public void SetPlayerScore(int playerIndex, int score)
-    {
-        PlayerScores[playerIndex] = score;
+        public PerMatchData(int playerNum)
+        {
+            PlayerScores = new int[playerNum];
+        }
+
+        public void SetPlayerScore(int playerIndex, int score)
+        {
+            PlayerScores[playerIndex] = score;
+        }
     }
 }

@@ -56,6 +56,8 @@ namespace Common
         {
             _provider = target as SplineRandomizerProvider;
 
+            if (_provider is null) return;
+            
             var handleRotation = Tools.pivotRotation == PivotRotation.Local
                 ? _provider.transform.rotation
                 : Quaternion.identity;

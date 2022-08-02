@@ -14,22 +14,18 @@ public class PathMover : MonoBehaviour
 
     private Path _path;
 
-    void Start()
-    {
-    }
 
-    void Update()
+    private void Update()
     {
-        // _vel = GetVelocity();
-
         if (_path)
         {
             Follow(_path);
         }
 
-        var pos = transform.position;
+        var t = transform;
+        var pos = t.position;
         pos += _vel;
-        transform.position = pos;
+        t.position = pos;
     }
 
     public void SetPath(Path path) => _path = path;

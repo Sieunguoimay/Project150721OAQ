@@ -1,24 +1,9 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
-namespace SNM
+namespace Common
 {
-    public interface IEasing
-    {
-        float GetEase(float x);
-    }
-
-    public sealed class LinearEasing : IEasing
-    {
-        public float GetEase(float x)
-        {
-            return x;
-        }
-    }
-
     public abstract class Activity
     {
-        protected IEasing Ease = new LinearEasing();
         public virtual bool IsDone { get; protected set; }
 
         public virtual void Begin()
@@ -27,22 +12,16 @@ namespace SNM
 
         public virtual void Update(float deltaTime)
         {
-            
         }
 
         public virtual void End()
         {
         }
-
-        public void SetEase(IEasing linearEasing)
-        {
-            Ease = linearEasing;
-        }
     }
 
     public class ParallelActivity : Activity
     {
-        private readonly List<Activity> _activities = new List<Activity>();
+        private readonly List<Activity> _activities = new();
 
         public void Add(Activity activity)
         {
@@ -60,14 +39,15 @@ namespace SNM
 
         public override void Update(float deltaTime)
         {
-            for (int i = 0; i < _activities.Count; i++)
+            for (var i = 0; i < _activities.Count; i++)
             {
                 _activities[i].Update(deltaTime);
-                if (_activities[i].IsDone)
-                {
-                    _activities[i].End();
-                    RemoveAt(i--);
-                }
+
+                if (!_activities[i].IsDone) continue;
+
+                _activities[i].End();
+
+                RemoveAt(i--);
             }
 
             if (_activities.Count == 0)
@@ -78,7 +58,7 @@ namespace SNM
 
         private void RemoveAt(int i)
         {
-            int lastIndex = _activities.Count - 1;
+            var lastIndex = _activities.Count - 1;
             var last = _activities[lastIndex];
             _activities[lastIndex] = _activities[i];
             _activities[i] = last;
@@ -97,23 +77,24 @@ namespace SNM
         }
     }
 
-    public class SequentialActivity : Activity
+    public class ActivityQueue : Activity
     {
-        private readonly Queue<Activity> _activities = new Queue<Activity>();
         private Activity _currentActivity;
+
+        public Queue<Activity> Activities { get; } = new();
 
         public void Add(Activity anim)
         {
-            _activities.Enqueue(anim);
+            Activities.Enqueue(anim);
         }
 
         public override void Update(float deltaTime)
         {
             if (_currentActivity == null)
             {
-                if (_activities.Count > 0)
+                if (Activities.Count > 0)
                 {
-                    _currentActivity = _activities.Dequeue();
+                    _currentActivity = Activities.Dequeue();
                     _currentActivity.Begin();
                 }
                 else
@@ -124,9 +105,9 @@ namespace SNM
             else if (_currentActivity.IsDone)
             {
                 _currentActivity.End();
-                if (_activities.Count > 0)
+                if (Activities.Count > 0)
                 {
-                    _currentActivity = _activities.Dequeue();
+                    _currentActivity = Activities.Dequeue();
                     _currentActivity.Begin();
                 }
                 else
@@ -140,70 +121,15 @@ namespace SNM
                 _currentActivity.Update(deltaTime);
             }
         }
-    }
-
-    public class Actor
-    {
-        private readonly Queue<Activity> _activities = new Queue<Activity>();
-        protected Activity CurrentActivity;
-
-        public void Add(Activity activity)
-        {
-            _activities.Enqueue(activity);
-        }
-
-        public void Update(float deltaTime)
-        {
-            if (CurrentActivity == null)
-            {
-                if (_activities.Count > 0)
-                {
-                    CurrentActivity = _activities.Dequeue();
-                    CurrentActivity.Begin();
-                    OnNewActivity(CurrentActivity);
-                }
-                else
-                {
-                    CurrentActivity = null;
-                }
-            }
-            else if (CurrentActivity.IsDone)
-            {
-                CurrentActivity.End();
-                OnActivityEnd(CurrentActivity);
-                if (_activities.Count > 0)
-                {
-                    CurrentActivity = _activities.Dequeue();
-                    CurrentActivity.Begin();
-                    OnNewActivity(CurrentActivity);
-                }
-                else
-                {
-                    CurrentActivity = null;
-                }
-            }
-            else
-            {
-                CurrentActivity.Update(deltaTime);
-            }
-        }
 
         public void CancelAll()
         {
-            foreach (var a in _activities)
+            foreach (var a in Activities)
             {
                 a.End();
             }
 
-            _activities.Clear();
-        }
-
-        protected virtual void OnNewActivity(Activity activity)
-        {
-        }
-
-        protected virtual void OnActivityEnd(Activity activity)
-        {
+            Activities.Clear();
         }
     }
 }

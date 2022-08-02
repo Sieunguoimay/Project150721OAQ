@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
+using Gameplay;
 using InGame;
 using SNM;
 using UnityEngine;
@@ -17,7 +18,7 @@ public class Piece : MonoBehaviour
         public int point;
         public Vector3 size;
 
-        public Boid.ConfigData boidConfigData = new Boid.ConfigData()
+        public Flocking.ConfigData flockingConfigData = new()
         {
             maxSpeed = 3f,
             maxAcceleration = 10f,
@@ -26,76 +27,71 @@ public class Piece : MonoBehaviour
         };
     }
 
-    public PieceActor PieceActor { get; } = new PieceActor();
-    public PieceScheduler PieceScheduler { get; private set; }
+    [field: NonSerialized] public PieceActivityQueue PieceActivityQueue { get; } = new();
+    [field: NonSerialized] public PieceScheduler PieceScheduler { get; private set; }
     public ConfigData Config => config;
-    // public Transform FootTransform { get; private set; }
-    //
-    // private Tag[] _taggedGameObjects;
-    private Camera _camera;
+    private Transform _cameraTransform;
 
     private void Start()
     {
-        _camera = Camera.main;
+        if (Camera.main is not null) _cameraTransform = Camera.main.transform;
     }
 
     public void Setup()
     {
         FaceCamera(true, new Vector3(0, UnityEngine.Random.Range(-45f, 45f), 0));
 
-        // _taggedGameObjects = GetComponentsInChildren<Tag>();
-        //
-        // FootTransform = _taggedGameObjects.FirstOrDefault(t => t.ID.Equals("foot"))?.transform;
-
         PieceScheduler = new PieceScheduler(this);
     }
 
     private void Update()
     {
-        PieceActor?.Update(Time.deltaTime);
+        PieceActivityQueue?.Update(Time.deltaTime);
     }
 
-    public void FaceCamera(bool immediate, Vector3 offset = new Vector3())
+    public void FaceCamera(bool immediate, Vector3 offset = new())
     {
-        if (_camera != null)
+        if (_cameraTransform == null) return;
+
+        var t = transform;
+        var dir = _cameraTransform.position - t.position;
+        var up = t.up;
+        dir = SNM.Math.Projection(dir, up);
+        if (immediate)
         {
-            var t = transform;
-            var dir = _camera.transform.position - t.position;
-            var up = t.up;
-            dir = SNM.Math.Projection(dir, up);
-            if (immediate)
-            {
-                transform.rotation = Quaternion.LookRotation(dir, up);
-            }
-            else
-            {
-                var target = Quaternion.LookRotation(dir, up).eulerAngles + offset;
-                var duration = (target - transform.eulerAngles).magnitude / PieceActor.Config.angularSpeed;
-                transform.DORotate(target, duration);
-            }
+            transform.rotation = Quaternion.LookRotation(dir, up);
+        }
+        else
+        {
+            var target = Quaternion.LookRotation(dir, up).eulerAngles + offset;
+            var duration = (target - transform.eulerAngles).magnitude / PieceActivityQueue.Config.angularSpeed;
+            transform.DORotate(target, duration);
         }
     }
 
     public void JumpingMoveTo(Vector3 target)
     {
-        var newBoid = new JumpingBoid(
-            config.boidConfigData,
-            new Boid.InputData()
-            {
-                target = target,
-                transform = transform
-            }, null);
-        PieceActor.Add(newBoid);
+        // var flocking = new JumpingFlocking(
+        //     config.flockingConfigData,
+        //     new Flocking.InputData()
+        //     {
+        //         target = target,
+        //         transform = transform
+        //     }, null);
+        var flocking = new Flocking(config.flockingConfigData,
+            new Flocking.InputData {target = target, transform = transform}, null);
+        flocking.AddVelocity(Vector3.one);
+        PieceActivityQueue.Add(flocking);
     }
 
 #if UNITY_EDITOR
 
     private void OnDrawGizmos()
     {
-        if (Config != null)
-        {
-            Gizmos.DrawWireCube(transform.position + transform.up * Config.size.y * 0.5f, Config.size);
-        }
+        if (Config == null) return;
+
+        var t = transform;
+        Gizmos.DrawWireCube(t.position + t.up * Config.size.y * 0.5f, Config.size);
     }
 #endif
 }

@@ -12,7 +12,7 @@ namespace Common
         [Serializable]
         public class Config
         {
-            [SerializeField] private Vector2 radius = new Vector2(0.5f, 1f);
+            [SerializeField] private Vector2 radius = new(0.5f, 1f);
             public Vector2 Radius => radius;
         }
         private BezierSpline _spline;
@@ -36,11 +36,11 @@ namespace Common
             var segmentNum = Mathf.RoundToInt(distance / segmentSpace);
             _spline.Reset();
             var up = Random.Range(0f, 1f) > 0.5f;
-            for (int i = 1; i < segmentNum; i++)
+            for (var i = 1; i < segmentNum; i++)
             {
                 _spline.AddSegment();
 
-                int pointIndex = _spline.GetIndexOfPointOnSegment(i, 0);
+                var pointIndex = _spline.GetIndexOfPointOnSegment(i, 0);
                 var pos = startPoint + (diff / segmentNum) * i;
 
                 _spline.SetPointMode(pointIndex, BezierPointMode.Mirrored);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Gameplay;
 using SNM;
 using UnityEngine;
 
@@ -32,23 +33,23 @@ public class PieceBench : PieceHolder
         base.Grasp(piece, onGrasp);
     }
 
-    public PosAndRot[] GetPosAndRots(int n)
-    {
-        var transforms = new PosAndRot[n];
-        var dirX = _config.PosAndRot.Rotation * Vector3.right;
-        var dirY = _config.PosAndRot.Rotation * Vector3.forward;
-        var existing = Pieces.Count;
-        for (int i = 0; i < n; i++)
-        {
-            var x = (existing + i) % _config.perRow;
-            var y = (existing + i) / _config.perRow;
-            var offsetX = _config.spacing * x;
-            var offsetY = _config.spacing * y;
-            transforms[i] = new PosAndRot(_config.PosAndRot.Position + dirX * offsetX + dirY * offsetY, _config.PosAndRot.Rotation);
-        }
-
-        return transforms;
-    }
+    // public PosAndRot[] GetPosAndRots(int n)
+    // {
+    //     var transforms = new PosAndRot[n];
+    //     var dirX = _config.PosAndRot.Rotation * Vector3.right;
+    //     var dirY = _config.PosAndRot.Rotation * Vector3.forward;
+    //     var existing = Pieces.Count;
+    //     for (var i = 0; i < n; i++)
+    //     {
+    //         var x = (existing + i) % _config.perRow;
+    //         var y = (existing + i) / _config.perRow;
+    //         var offsetX = _config.spacing * x;
+    //         var offsetY = _config.spacing * y;
+    //         transforms[i] = new PosAndRot(_config.PosAndRot.Position + dirX * offsetX + dirY * offsetY, _config.PosAndRot.Rotation);
+    //     }
+    //
+    //     return transforms;
+    // }
 
     public PosAndRot GetPosAndRot(int index)
     {

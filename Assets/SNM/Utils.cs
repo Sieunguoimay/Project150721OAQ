@@ -5,19 +5,8 @@ using UnityEngine;
 
 namespace SNM
 {
-    public class Utils
-    {
-        public static T NewGameObject<T>() where T : MonoBehaviour
-        {
-            //create a GameObject that should be automatically added to the game scene
-            var go = (new GameObject());
-            var t = go.AddComponent<T>();
-            go.name = t.GetType().Name;
-            return t;
-        }
-    }
 
-    public class Math
+    public static class Math
     {
         public static Vector3 Projection(Vector3 v, Vector3 up)
         {
@@ -36,12 +25,12 @@ namespace SNM
             return initialPos + initialVel * t + initialAcc * (0.5f * t * t);
         }
 
-        public static List<Vector2Int> BresenhamCircleAlgorithm(int xc, int yc, int r)
+        public static IEnumerable<Vector2Int> BresenhamCircleAlgorithm(int xc, int yc, int r)
         {
-            int x = 0;
-            int y = r;
-            int d = 3 - 2 * r;
-            List<Vector2Int>[] pixels = new List<Vector2Int>[8];
+            var x = 0;
+            var y = r;
+            var d = 3 - 2 * r;
+            var pixels = new List<Vector2Int>[8];
             for (var i = 0; i < 8; i++)
             {
                 pixels[i] = new List<Vector2Int>();
@@ -97,30 +86,30 @@ namespace SNM
 
         public static Vector2 CubicBezier(float t, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3)
         {
-            float cx = 3 * (p1.x - p0.x);
-            float cy = 3 * (p1.y - p0.y);
-            float bx = 3 * (p2.x - p1.x) - cx;
-            float by = 3 * (p2.y - p1.y) - cy;
-            float ax = p3.x - p0.x - cx - bx;
-            float ay = p3.y - p0.y - cy - by;
-            float Cube = t * t * t;
-            float Square = t * t;
+            var cx = 3 * (p1.x - p0.x);
+            var cy = 3 * (p1.y - p0.y);
+            var bx = 3 * (p2.x - p1.x) - cx;
+            var by = 3 * (p2.y - p1.y) - cy;
+            var ax = p3.x - p0.x - cx - bx;
+            var ay = p3.y - p0.y - cy - by;
+            var cube = t * t * t;
+            var square = t * t;
 
-            float resX = (ax * Cube) + (bx * Square) + (cx * t) + p0.x;
-            float resY = (ay * Cube) + (by * Square) + (cy * t) + p0.y;
+            var resX = (ax * cube) + (bx * square) + (cx * t) + p0.x;
+            var resY = (ay * cube) + (by * square) + (cy * t) + p0.y;
 
             return new Vector2(resX, resY);
         }
 
         public static float CubicBezier(float t, float p0, float p1, float p2, float p3)
         {
-            float cx = 3 * (p1 - p0);
-            float bx = 3 * (p2 - p1) - cx;
-            float ax = p3 - p0 - cx - bx;
-            float Cube = t * t * t;
-            float Square = t * t;
+            var cx = 3 * (p1 - p0);
+            var bx = 3 * (p2 - p1) - cx;
+            var ax = p3 - p0 - cx - bx;
+            var Cube = t * t * t;
+            var Square = t * t;
 
-            float resX = (ax * Cube) + (bx * Square) + (cx * t) + p0;
+            var resX = (ax * Cube) + (bx * Square) + (cx * t) + p0;
 
             return resX;
         }

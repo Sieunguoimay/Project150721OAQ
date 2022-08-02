@@ -2,14 +2,14 @@
 
 namespace SNM.Bezier
 {
-    public class Bezier
+    public static class Bezier
     {
         private static double ComputeBinominal(int n, int k)
         {
-            double value = 1.0;
-            for (int i = 1; i <= k; i++)
+            var value = 1.0;
+            for (var i = 1; i <= k; i++)
             {
-                value = value * ((n + 1 - i) / (double) i);
+                value *= (n + 1 - i) / (double) i;
             }
 
             if (n == k)
@@ -22,11 +22,11 @@ namespace SNM.Bezier
 
         public static Vector3 ComputeBezierCurve3D(Vector3[] points, float t)
         {
-            Vector3 outputPoint = Vector3.zero;
+            var outputPoint = Vector3.zero;
 
-            int n = points.Length - 1;
+            var n = points.Length - 1;
 
-            for (int i = 0; i <= n; i++)
+            for (var i = 0; i <= n; i++)
             {
                 var x = ((float) ComputeBinominal(n, i))
                         * Mathf.Pow(1f - t, n - i)

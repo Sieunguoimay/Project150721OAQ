@@ -23,19 +23,17 @@ namespace SNM
 
         public void Update(float deltaTime)
         {
-            if (_moving)
+            if (!_moving) return;
+            if (_time < _duration)
             {
-                if (_time < _duration)
-                {
-                    _time += deltaTime;
-                    float t = Mathf.Min(_time / _duration, 1f);
-                    _listener.HandleTimeRunnerValue(t);
-                }
-                else
-                {
-                    _moving = false;
-                    _listener.OnComplete();
-                }
+                _time += deltaTime;
+                var t = Mathf.Min(_time / _duration, 1f);
+                _listener.HandleTimeRunnerValue(t);
+            }
+            else
+            {
+                _moving = false;
+                _listener.OnComplete();
             }
         }
 

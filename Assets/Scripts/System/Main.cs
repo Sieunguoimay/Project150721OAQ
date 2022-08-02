@@ -1,25 +1,15 @@
 ﻿using System;
+using SNM;
 using UnityEngine;
 
 public class Main : MonoBehaviour
 {
-    [SerializeField] private Config config;
-
-    [Serializable]
-    public class Config
-    {
-        [SerializeField] private GameObject boardPrefab;
-        [SerializeField] private GameObject tileSelector;
-        [SerializeField] private GameObject dronePrefab;
-        public GameObject BoardPrefab => boardPrefab;
-        public GameObject TileSelector => tileSelector;
-        public GameObject DronePrefab => dronePrefab;
-    }
+    [SerializeField] private System.Gameplay.Config config;
 
     public static Main Instance { get; private set; }
     public RayPointer RayPointer { get; private set; }
 
-    private GameController _controller;
+    private System.Gameplay _gameplay;
 
     private void Awake()
     {
@@ -31,26 +21,25 @@ public class Main : MonoBehaviour
 
         RayPointer = new RayPointer();
         RayPointer.Reset();
-        _controller = new GameController(config);
+        _gameplay = new System.Gameplay(config);
     }
 
-    void Start()
+    private void Start()
     {
-        _controller.Setup();
+        _gameplay.Setup();
 
-        this.Delay(1f, _controller.StartNewMatch);
+        this.Delay(1f, _gameplay.StartNewMatch);
     }
 
     private void Update()
     {
         RayPointer.Update(Time.deltaTime);
 
-        if (_controller.IsGameOver)
+        if (!_gameplay.IsGameOver) return;
+
+        if (Input.GetKeyUp(KeyCode.Return))
         {
-            if (Input.GetKeyUp(KeyCode.Return))
-            {
-                _controller.ResetGame(this);
-            }
+            _gameplay.ResetGame(this);
         }
     }
 }

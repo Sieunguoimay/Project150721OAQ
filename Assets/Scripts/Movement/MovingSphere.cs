@@ -24,6 +24,7 @@ namespace Movement
         private float _minGroundDotProduct;
         private int _stepsSinceLastGrounded;
         private int _stepsSinceLastJump;
+        private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
 
         private bool OnGround => _groundContactCount > 0;
 
@@ -35,7 +36,7 @@ namespace Movement
 
         private void Update()
         {
-            Vector2 playerInput = Vector2.zero;
+            var playerInput = Vector2.zero;
             if (Input.GetKey(KeyCode.A))
             {
                 playerInput.x = -1f;
@@ -64,7 +65,7 @@ namespace Movement
             playerInput = Vector2.ClampMagnitude(playerInput, 1f);
             _desiredVelocity = new Vector3(playerInput.x, 0f, playerInput.y) * maxSpeed;
 
-            GetComponent<Renderer>().material.SetColor("_BaseColor", OnGround ? Color.black : Color.white);
+            GetComponent<Renderer>().material.SetColor(BaseColor, OnGround ? Color.black : Color.white);
         }
 
         private void FixedUpdate()
@@ -164,8 +165,8 @@ namespace Movement
             var currentVelocityX = Vector3.Dot(_velocity, xAxis);
             var currentVelocityZ = Vector3.Dot(_velocity, zAxis);
 
-            float newVelocityX = Mathf.MoveTowards(currentVelocityX, _desiredVelocity.x, maxSpeedChange);
-            float newVelocityZ = Mathf.MoveTowards(currentVelocityZ, _desiredVelocity.z, maxSpeedChange);
+            var newVelocityX = Mathf.MoveTowards(currentVelocityX, _desiredVelocity.x, maxSpeedChange);
+            var newVelocityZ = Mathf.MoveTowards(currentVelocityZ, _desiredVelocity.z, maxSpeedChange);
 
             _velocity += xAxis * (newVelocityX - currentVelocityX) + zAxis * (newVelocityZ - currentVelocityZ);
         }
@@ -196,14 +197,12 @@ namespace Movement
 
         private void EvaluateCollision(Collision collision)
         {
-            for (int i = 0; i < collision.contactCount; i++)
+            for (var i = 0; i < collision.contactCount; i++)
             {
                 var normal = collision.GetContact(i).normal;
-                if (normal.y >= _minGroundDotProduct)
-                {
-                    _groundContactCount++;
-                    _contactNormal += normal;
-                }
+                if (!(normal.y >= _minGroundDotProduct)) continue;
+                _groundContactCount++;
+                _contactNormal += normal;
             }
         }
 

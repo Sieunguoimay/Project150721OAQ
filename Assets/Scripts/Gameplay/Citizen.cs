@@ -1,9 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-[SelectionBase]
-public class Citizen : Piece
+namespace Gameplay
 {
+    [SelectionBase]
+    public class Citizen : Piece
+    {
 
+    }
 }

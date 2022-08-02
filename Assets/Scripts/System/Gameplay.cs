@@ -1,29 +1,37 @@
 ﻿using System.Collections.Generic;
 using Gameplay;
-using Implementations.Transporter;
-using InGame;
-using InGame.ShippingSystem;
+using SNM;
 using UnityEngine;
 
 namespace System
 {
-    public class GameController
+    public class Gameplay
     {
-        private readonly Main.Config _config;
+        [Serializable]
+        public class Config
+        {
+            [SerializeField] private GameObject boardPrefab;
+            [SerializeField] private GameObject tileSelector;
+            [SerializeField] private GameObject dronePrefab;
+            public GameObject BoardPrefab => boardPrefab;
+            public GameObject TileSelector => tileSelector;
+            public GameObject DronePrefab => dronePrefab;
+        }
+        
+        private readonly Gameplay.Config _config;
 
         private Board _board;
-        // private DroneMono _droneMono;
         private TileSelector _tileSelector;
 
-        private PlayersManager _playerManager = new PlayersManager();
-        private PieceDropper _pieceDropper = new PieceDropper();
+        private PlayersManager _playerManager = new();
+        private PieceDropper _pieceDropper = new();
 
         private PerMatchData _perMatchData;
         private Player CurrentPlayer => _playerManager.CurrentPlayer;
 
         public bool IsGameOver { get; private set; }
 
-        public GameController(Main.Config config)
+        public Gameplay(Gameplay.Config config)
         {
             _config = config;
         }
@@ -50,8 +58,6 @@ namespace System
             {
                 player.OnDecisionResult += OnDecisionResult;
             }
-
-            // _droneMono = UnityEngine.Object.Instantiate(_config.DronePrefab).GetComponent<DroneMono>();
         }
 
 
@@ -108,26 +114,18 @@ namespace System
         private void OnEatPieces(IPieceHolder pieceContainerMb)
         {
             var bench = CurrentPlayer.PieceBench;
+            var positions = new Vector3[pieceContainerMb.Pieces.Count];
+            var pieces = new Piece[pieceContainerMb.Pieces.Count];
+            var i = 0;
+            var centerPoint = Vector3.zero;
             bench.Grasp(pieceContainerMb, p =>
             {
-                var movePos = bench.GetPosAndRot(bench.Pieces.Count - 1).Position;
-                p.JumpingMoveTo(movePos);
-                // if (p is Mandarin mandarin)
-                // {
-                //     var pos = bench.GetMandarinPosAndRot(bench.MandarinCount - 1);
-                //     mandarin.Passenger.SetTicket(new TransportTicket(new TransportTicket.ConfigData()
-                //     {
-                //         attachPoint = Vector3.up,
-                //         destination = pos.Position
-                //     }));
-                //     _droneMono.Target.Attach(mandarin.Passenger);
-                // }
-                // else if (p is Citizen c)
-                // {
-                //     var movePos = bench.GetPosAndRot(bench.Pieces.Count - bench.MandarinCount - 1).Position;
-                //     c.JumpingMoveTo(movePos);
-                // }
+                positions[i] = bench.GetPosAndRot(bench.Pieces.Count - 1).Position;
+                pieces[i] = p;
+                centerPoint += positions[i++];
             });
+            centerPoint /= i;
+                        
         }
 
         private void GameOver()

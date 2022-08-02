@@ -1,30 +1,29 @@
 ﻿using System;
-using Gameplay;
-using InGame;
-using UnityEngine;
+using System.Linq;
+using SNM;
 
-[Serializable]
-public class Player
+namespace Gameplay
 {
-    public event Action<Tile, bool> OnDecisionResult = delegate(Tile tile, bool b) { };
-
-    public Board.TileGroup TileGroup { get; }
-    public PieceBench PieceBench { get; }
-
-    public Player(Board.TileGroup tileGroup, PieceBench pieceBench)
+    [Serializable]
+    public class Player
     {
-        TileGroup = tileGroup;
-        PieceBench = pieceBench;
-    }
+        public event Action<Tile, bool> OnDecisionResult = delegate { };
 
-    public virtual void MakeDecision(Board board)
-    {
-        Tile selectedTile = null;
-        bool selectedDirection = UnityEngine.Random.Range(0, 100f) > 50f;
+        public Board.TileGroup TileGroup { get; }
+        public PieceBench PieceBench { get; }
 
-        foreach (var t in TileGroup.Tiles)
+        public Player(Board.TileGroup tileGroup, PieceBench pieceBench)
         {
-            if (t.Pieces.Count > 0)
+            TileGroup = tileGroup;
+            PieceBench = pieceBench;
+        }
+
+        public virtual void MakeDecision(Board board)
+        {
+            Tile selectedTile = null;
+            var selectedDirection = UnityEngine.Random.Range(0, 100f) > 50f;
+
+            foreach (var t in TileGroup.Tiles.Where(t => t.Pieces.Count > 0))
             {
                 selectedTile = t;
                 if (UnityEngine.Random.Range(0, 100f) > 50f)
@@ -32,39 +31,39 @@ public class Player
                     break;
                 }
             }
+
+            board.Delay(1f, () => { InvokeOnDecisionResult(selectedTile, selectedDirection); });
         }
 
-        board.Delay(1f, () => { InvokeOnDecisionResult(selectedTile, selectedDirection); });
+        protected virtual void InvokeOnDecisionResult(Tile arg1, bool arg2) => OnDecisionResult?.Invoke(arg1, arg2);
+
+        public virtual void ReleaseTurn()
+        {
+        }
+
+        public virtual void AcquireTurn()
+        {
+        }
     }
 
-    protected virtual void InvokeOnDecisionResult(Tile arg1, bool arg2) => OnDecisionResult?.Invoke(arg1, arg2);
-
-    public virtual void ReleaseTurn()
+    public class RealPlayer : Player
     {
-    }
+        private readonly TileSelector _tileSelector;
 
-    public virtual void AcquireTurn()
-    {
-    }
-}
+        public RealPlayer(Board.TileGroup tileGroup, PieceBench pieceBench, TileSelector tileSelector)
+            : base(tileGroup, pieceBench)
+        {
+            _tileSelector = tileSelector;
+        }
 
-public class RealPlayer : Player
-{
-    private TileSelector tileSelector;
+        public override void MakeDecision(Board board)
+        {
+            _tileSelector.Display(TileGroup);
+        }
 
-    public RealPlayer(Board.TileGroup tileGroup, PieceBench pieceBench, TileSelector tileSelector)
-        : base(tileGroup, pieceBench)
-    {
-        this.tileSelector = tileSelector;
-    }
-
-    public override void MakeDecision(Board board)
-    {
-        tileSelector.Display(TileGroup);
-    }
-
-    public override void AcquireTurn()
-    {
-        this.tileSelector.OnDone = InvokeOnDecisionResult;
+        public override void AcquireTurn()
+        {
+            _tileSelector.OnDone = InvokeOnDecisionResult;
+        }
     }
 }

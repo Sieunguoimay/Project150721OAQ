@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Gameplay;
+using SNM;
+using UnityEngine;
 
 public class PieceToTileSelectorAdaptor : TileSelector.ISelectionAdaptor
 {
