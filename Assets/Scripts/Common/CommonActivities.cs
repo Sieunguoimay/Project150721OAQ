@@ -29,26 +29,27 @@ namespace CommonActivities
 
     public class StraightMove : EasingActivity
     {
-        private readonly Vector3 _target;
+        protected Vector3 target { get; }
         private Vector3 _origin;
-        private readonly float _duration;
-        private readonly Transform _transform;
+        protected Transform Transform { get; }
 
         private float _time;
+        protected float Duration { get; set; }
 
         public StraightMove(Transform transform, Vector3 target, float duration, IEasing ease) : base(ease)
         {
-            _transform = transform;
-            _target = target;
-            _duration = duration;
+            Transform = transform;
+            this.target = target;
+            Duration = duration;
         }
+
 
         public override void Begin()
         {
             base.Begin();
             _time = 0;
-            _origin = _transform.position;
-            _transform.rotation = Quaternion.LookRotation(SNM.Math.Projection(_target - _origin, Vector3.up));
+            _origin = Transform.position;
+            Transform.rotation = Quaternion.LookRotation(SNM.Math.Projection(target - _origin, Vector3.up));
         }
 
         public override void Update(float deltaTime)
@@ -56,14 +57,76 @@ namespace CommonActivities
             if (IsDone) return;
 
             _time += deltaTime;
-            var t = Mathf.Min(_time / _duration, 1f);
-            var pos = Vector3.Lerp(_origin, _target, Ease.GetEase(t));
-            pos.y = _transform.position.y;
-            _transform.position = pos;
-            if (_time >= _duration)
+            var t = Mathf.Min(_time / Duration, 1f);
+
+            UpdatePosition(t);
+
+            if (_time >= Duration)
             {
                 IsDone = true;
             }
+        }
+
+        protected virtual void UpdatePosition(float t)
+        {
+            var pos = Vector3.Lerp(_origin, target, Ease.GetEase(t));
+            pos.y = Transform.position.y;
+            Transform.position = pos;
+        }
+    }
+
+    public class StraightMoveBySpeed : StraightMove
+    {
+        private readonly float _speed;
+
+        protected StraightMoveBySpeed(Transform transform, Vector3 target, float speed, IEasing ease) : base(transform, target, 1f, ease)
+        {
+            _speed = speed;
+        }
+
+        public override void Begin()
+        {
+            Duration = Vector3.Distance(target, Transform.position) / _speed;
+            base.Begin();
+        }
+    }
+
+
+    public class JumpForward : StraightMoveBySpeed
+    {
+        private Vector3 _initialPosition;
+        private Vector3 _initialVelocity;
+        private Vector3 _initialAcceleration;
+        private readonly float _height;
+        private readonly IEasing _jumpEase;
+
+        public JumpForward(Transform transform, Vector3 target, float duration, IEasing moveEase, float height, IEasing jumpEase) : base(transform, target, duration, moveEase)
+        {
+            _height = height;
+            _jumpEase = jumpEase;
+        }
+
+        public override void Begin()
+        {
+            base.Begin();
+            var h = _height;
+            var t = Duration;
+            var pos = Transform.position;
+            var a = (-8f * h) / (t * t);
+
+            _initialPosition = pos;
+            _initialAcceleration = Vector3.up * a;
+            _initialVelocity = Vector3.up * (-a * 0.5f * Duration);
+        }
+
+        protected override void UpdatePosition(float t)
+        {
+            var xz = Transform.position;
+            var y = SNM.Math.MotionEquation(
+                _initialPosition, _initialVelocity,
+                _initialAcceleration, _jumpEase.GetEase(t) * Duration);
+            Transform.position = new Vector3(xz.x, y.y, xz.z);            
+            base.UpdatePosition(t);
         }
     }
 

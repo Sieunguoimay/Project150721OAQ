@@ -7,6 +7,7 @@ using Gameplay;
 using InGame;
 using SNM;
 using UnityEngine;
+using Random = System.Random;
 
 public class Piece : MonoBehaviour
 {
@@ -80,7 +81,6 @@ public class Piece : MonoBehaviour
         //     }, null);
         var flocking = new Flocking(config.flockingConfigData,
             new Flocking.InputData {target = target, transform = transform}, null);
-        flocking.AddVelocity(Vector3.one);
         PieceActivityQueue.Add(flocking);
     }
 

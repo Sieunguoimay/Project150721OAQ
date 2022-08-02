@@ -18,26 +18,28 @@ namespace InGame
 
         public void CreateNewJump(Vector3 pos, int flag, Action<PieceActivityQueue, int> callback)
         {
-            var parallelAnimation = new ParallelActivity();
-            parallelAnimation.Add(new PieceActivityQueue.Jump(_piece.transform,
-                new PieceActivityQueue.Jump.InputData
-                {
-                    flag = flag,
-                    callback = callback,
-                    duration = 0.4f
-                },
-                BezierEasing.CreateBezierEasing(0.35f, 0.75f)));
-            parallelAnimation.Add(new CommonActivities.StraightMove(_piece.transform, pos, 0.4f, new LinearEasing()));
+            // var parallelAnimation = new ParallelActivity();
+            // parallelAnimation.Add(new PieceActivityQueue.Jump(_piece.transform,
+            //     new PieceActivityQueue.Jump.InputData
+            //     {
+            //         flag = flag,
+            //         callback = callback,
+            //         duration = duration
+            //     },
+            //     BezierEasing.CreateBezierEasing(0.35f, 0.75f)));
+            var jumpForward = new JumpForward(_piece.transform, pos, _piece.Config.flockingConfigData.maxSpeed, new LinearEasing(), 1f, BezierEasing.CreateBezierEasing(0.35f, 0.75f));
+            // parallelAnimation.Add();
 
             var sA = new ActivityQueue();
-            sA.Add(new CommonActivities.Delay(0.1f));
-            sA.Add(parallelAnimation);
+            sA.Add(new Delay(0.1f));
+            sA.Add(jumpForward);
 
-            var parallelAnimation2 = new ParallelActivity();
+            // var parallelAnimation2 = new ParallelActivity();
             // parallelAnimation2.Add(new PieceActor.BounceAnim(_piece.FootTransform, 0.15f));
-            parallelAnimation2.Add(sA);
+            // parallelAnimation2.Add(sA);
 
-            _piece.PieceActivityQueue.Add(parallelAnimation2);
+            _piece.PieceActivityQueue.Add(new Delay(0.1f));
+            _piece.PieceActivityQueue.Add(jumpForward);
         }
 
         public void CreateNewLandAnim()

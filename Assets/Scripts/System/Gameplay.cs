@@ -17,14 +17,14 @@ namespace System
             public GameObject TileSelector => tileSelector;
             public GameObject DronePrefab => dronePrefab;
         }
-        
+
         private readonly Gameplay.Config _config;
 
         private Board _board;
         private TileSelector _tileSelector;
 
-        private PlayersManager _playerManager = new();
-        private PieceDropper _pieceDropper = new();
+        private PlayersManager _playerManager = new ();
+        private PieceDropper _pieceDropper = new ();
 
         private PerMatchData _perMatchData;
         private Player CurrentPlayer => _playerManager.CurrentPlayer;
@@ -116,16 +116,26 @@ namespace System
             var bench = CurrentPlayer.PieceBench;
             var positions = new Vector3[pieceContainerMb.Pieces.Count];
             var pieces = new Piece[pieceContainerMb.Pieces.Count];
-            var i = 0;
+            var count = 0;
             var centerPoint = Vector3.zero;
             bench.Grasp(pieceContainerMb, p =>
             {
-                positions[i] = bench.GetPosAndRot(bench.Pieces.Count - 1).Position;
-                pieces[i] = p;
-                centerPoint += positions[i++];
+                positions[count] = bench.GetPosAndRot(bench.Pieces.Count - 1).Position;
+                pieces[count] = p;
+                centerPoint += positions[count++];
             });
-            centerPoint /= i;
-                        
+            centerPoint /= count;
+            Array.Sort(pieces, (a, b) =>
+            {
+                var da = Vector3.SqrMagnitude(centerPoint - a.transform.position);
+                var db = Vector3.SqrMagnitude(centerPoint - b.transform.position);
+                return da < db ? -1 : 1;
+            });
+            
+            for (var i = 0; i < pieces.Length; i++)
+            {
+                pieces[i].JumpingMoveTo(positions[i]);
+            }
         }
 
         private void GameOver()
@@ -152,8 +162,8 @@ namespace System
                 {
                     switch (p)
                     {
-                        case Citizen _:
-                        case Mandarin _:
+                        case Citizen:
+                        case Mandarin:
                             sum += p.Config.point;
                             break;
                     }
