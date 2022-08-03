@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Common
 {
     public abstract class Activity
     {
         public virtual bool IsDone { get; protected set; }
-
+        public event Action Done;
         public virtual void Begin()
         {
+            IsDone = false;
         }
 
         public virtual void Update(float deltaTime)
@@ -16,6 +18,12 @@ namespace Common
 
         public virtual void End()
         {
+        }
+
+        protected void NotifyDone()
+        {
+            IsDone = true;
+            Done?.Invoke();
         }
     }
 
@@ -52,7 +60,7 @@ namespace Common
 
             if (_activities.Count == 0)
             {
-                IsDone = true;
+                NotifyDone();
             }
         }
 
@@ -73,7 +81,6 @@ namespace Common
             }
 
             base.End();
-            IsDone = true;
         }
     }
 
@@ -113,7 +120,7 @@ namespace Common
                 else
                 {
                     _currentActivity = null;
-                    IsDone = true;
+                    NotifyDone();
                 }
             }
             else
@@ -122,8 +129,9 @@ namespace Common
             }
         }
 
-        public void CancelAll()
+        public override void End()
         {
+            base.End();
             foreach (var a in Activities)
             {
                 a.End();

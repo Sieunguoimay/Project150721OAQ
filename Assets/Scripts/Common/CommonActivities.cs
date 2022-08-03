@@ -29,7 +29,7 @@ namespace CommonActivities
 
     public class StraightMove : EasingActivity
     {
-        protected Vector3 target { get; }
+        protected Vector3 Target { get; }
         private Vector3 _origin;
         protected Transform Transform { get; }
 
@@ -39,7 +39,7 @@ namespace CommonActivities
         public StraightMove(Transform transform, Vector3 target, float duration, IEasing ease) : base(ease)
         {
             Transform = transform;
-            this.target = target;
+            Target = target;
             Duration = duration;
         }
 
@@ -49,7 +49,7 @@ namespace CommonActivities
             base.Begin();
             _time = 0;
             _origin = Transform.position;
-            Transform.rotation = Quaternion.LookRotation(SNM.Math.Projection(target - _origin, Vector3.up));
+            Transform.rotation = Quaternion.LookRotation(SNM.Math.Projection(Target - _origin, Vector3.up));
         }
 
         public override void Update(float deltaTime)
@@ -63,13 +63,13 @@ namespace CommonActivities
 
             if (_time >= Duration)
             {
-                IsDone = true;
+                NotifyDone();
             }
         }
 
         protected virtual void UpdatePosition(float t)
         {
-            var pos = Vector3.Lerp(_origin, target, Ease.GetEase(t));
+            var pos = Vector3.Lerp(_origin, Target, Ease.GetEase(t));
             pos.y = Transform.position.y;
             Transform.position = pos;
         }
@@ -86,8 +86,9 @@ namespace CommonActivities
 
         public override void Begin()
         {
-            Duration = Vector3.Distance(target, Transform.position) / _speed;
+            Duration = Vector3.Distance(Target, Transform.position) / _speed;
             base.Begin();
+            Debug.Log(Duration);
         }
     }
 
@@ -145,7 +146,7 @@ namespace CommonActivities
             _time += deltaTime;
             if (_time >= _duration)
             {
-                IsDone = true;
+                NotifyDone();
             }
         }
     }

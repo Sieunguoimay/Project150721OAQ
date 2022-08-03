@@ -43,7 +43,7 @@ namespace Gameplay
                 if (p is not Citizen) continue;
             
                 Grasp(p);
-                p.PieceActivityQueue.CancelAll();
+                p.PieceActivityQueue.End();
                 citizens.RemoveAt(i);
             }
 
@@ -90,7 +90,7 @@ namespace Gameplay
             Pieces.Clear();
         }
 
-        private void OnJumpDone(PieceActivityQueue last, int flag)
+        private void OnJumpDone(Piece last, int flag)
         {
             if (flag == 2)
             {
