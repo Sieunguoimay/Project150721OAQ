@@ -10,40 +10,40 @@ namespace System
     public class Gameplay
     {
         [Serializable]
-        public class Config
+        public class GameplaySerializable
         {
             [SerializeField] private GameObject boardPrefab;
             [SerializeField] private GameObject tileSelector;
-            [SerializeField] private GameObject dronePrefab;
+            [SerializeField] private PieceManager pieceManager;
             public GameObject BoardPrefab => boardPrefab;
             public GameObject TileSelector => tileSelector;
-            public GameObject DronePrefab => dronePrefab;
+            public PieceManager PieceManager => pieceManager;
         }
 
-        private readonly Gameplay.Config _config;
+        private readonly Gameplay.GameplaySerializable _gameplaySerializable;
 
         private Board _board;
         private TileSelector _tileSelector;
 
-        private PlayersManager _playerManager = new();
-        private PieceDropper _pieceDropper = new();
+        private PlayersManager _playerManager = new ();
+        private PieceDropper _pieceDropper = new ();
 
         private PerMatchData _perMatchData;
         private Player CurrentPlayer => _playerManager.CurrentPlayer;
 
         public bool IsGameOver { get; private set; }
 
-        public Gameplay(Gameplay.Config config)
+        public Gameplay(Gameplay.GameplaySerializable gameplaySerializable)
         {
-            _config = config;
+            _gameplaySerializable = gameplaySerializable;
         }
 
         public void Setup()
         {
-            _board = UnityEngine.Object.Instantiate(_config.BoardPrefab).GetComponent<Board>();
+            _board = UnityEngine.Object.Instantiate(_gameplaySerializable.BoardPrefab).GetComponent<Board>();
             _board.Setup();
 
-            new PieceManager(null, null).SpawnPieces(_board);
+            _gameplaySerializable.PieceManager.SpawnPieces(_board);
 
             _pieceDropper = new PieceDropper();
             _pieceDropper.Setup(_board);
@@ -52,7 +52,7 @@ namespace System
             _pieceDropper.OnEat -= OnEatPieces;
             _pieceDropper.OnEat += OnEatPieces;
 
-            _tileSelector = UnityEngine.Object.Instantiate(_config.TileSelector).GetComponent<TileSelector>();
+            _tileSelector = UnityEngine.Object.Instantiate(_gameplaySerializable.TileSelector).GetComponent<TileSelector>();
             _tileSelector.Setup();
 
             _playerManager = new PlayersManager();

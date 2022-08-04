@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Main : MonoBehaviour
 {
-    [SerializeField] private System.Gameplay.Config config;
+    [SerializeField] private System.Gameplay.GameplaySerializable gameplaySerializable;
 
     public static Main Instance { get; private set; }
     public RayPointer RayPointer { get; private set; }
@@ -21,11 +21,12 @@ public class Main : MonoBehaviour
 
         RayPointer = new RayPointer();
         RayPointer.Reset();
-        _gameplay = new System.Gameplay(config);
+        _gameplay = new System.Gameplay(gameplaySerializable);
     }
 
     private void Start()
     {
+        Debug.Log("Start");
         _gameplay.Setup();
 
         this.Delay(1f, _gameplay.StartNewMatch);

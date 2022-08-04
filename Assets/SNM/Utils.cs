@@ -24,7 +24,10 @@ namespace SNM
         {
             return initialPos + initialVel * t + initialAcc * (0.5f * t * t);
         }
-
+        public static float MotionEquation(float initialPos, float initialVel, float initialAcc, float t)
+        {
+            return initialPos + initialVel * t + initialAcc * (0.5f * t * t);
+        }
         public static IEnumerable<Vector2Int> BresenhamCircleAlgorithm(int xc, int yc, int r)
         {
             var x = 0;

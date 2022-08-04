@@ -1,26 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Gameplay;
 using UnityEngine;
 
 namespace InGame
 {
-    public class PieceManager
+    public class PieceManager : MonoBehaviour
     {
-        private readonly Piece _mandarinPrefab;
-        private readonly Piece _citizenPrefab;
-        
-        public PieceManager(Piece mandarinPrefab,Piece citizenPrefab)
-        {
-            _mandarinPrefab = mandarinPrefab;
-            _citizenPrefab = citizenPrefab;
-        }
-        
+        [SerializeField] private Piece mandarinPrefab;
+        [SerializeField] private Piece citizenPrefab;
+
         public void SpawnPieces(Board board)
         {
-            var container = new GameObject("Container");
-            container.transform.SetParent(board.transform);
-            container.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
-            
             for (var i = 0; i < board.Tiles.Length; i++)
             {
                 var t = board.Tiles[i];
@@ -30,19 +21,23 @@ namespace InGame
                     Board.InitializeTileGroup(ref tg);
                     board.TileGroups.Add(tg);
 
-                    var m = Object.Instantiate(_mandarinPrefab) as Mandarin;
+                    var m = Instantiate(mandarinPrefab) as Mandarin;
                     m.Setup();
                     t.Grasp(m);
-                    t.Reposition(m.transform);
+                    var position = t.GetPositionInFilledCircle(Mathf.Max(0, t.Pieces.Count - 1), false);
+                    m.PieceActivityQueue.Add(new Flocking(m.Config.flockingConfigData, new Flocking.InputData() {target = position, transform = m.transform}, null));
+                    // t.Reposition(m.transform);
                 }
                 else
                 {
                     for (var j = 0; j < 5; j++)
                     {
-                        var b = Object.Instantiate(_citizenPrefab, container.transform, true) as Citizen;
+                        var b = Instantiate(citizenPrefab, transform, true) as Citizen;
                         b.Setup();
                         t.Grasp(b);
-                        t.Reposition(b.transform);
+                        // t.Reposition(b.transform);
+                        var position = t.GetPositionInFilledCircle(Mathf.Max(0, t.Pieces.Count - 1), false);
+                        b.PieceActivityQueue.Add(new Flocking(b.Config.flockingConfigData, new Flocking.InputData() {target = position, transform = b.transform}, null));
                     }
                 }
             }
