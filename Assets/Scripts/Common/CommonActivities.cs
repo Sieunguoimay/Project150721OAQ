@@ -79,7 +79,8 @@ namespace CommonActivities
     {
         private readonly float _speed;
 
-        protected StraightMoveBySpeed(Transform transform, Vector3 target, float speed, IEasing ease) : base(transform, target, 1f, ease)
+        protected StraightMoveBySpeed(Transform transform, Vector3 target, float speed, IEasing ease) : base(transform,
+            target, 1f, ease)
         {
             _speed = speed;
         }
@@ -93,7 +94,7 @@ namespace CommonActivities
     }
 
 
-    public class JumpForward : StraightMoveBySpeed
+    public class JumpForward : StraightMove
     {
         private Vector3 _initialPosition;
         private Vector3 _initialVelocity;
@@ -101,7 +102,8 @@ namespace CommonActivities
         private readonly float _height;
         private readonly IEasing _jumpEase;
 
-        public JumpForward(Transform transform, Vector3 target, float duration, IEasing moveEase, float height, IEasing jumpEase) : base(transform, target, duration, moveEase)
+        public JumpForward(Transform transform, Vector3 target, float duration, IEasing moveEase, float height,
+            IEasing jumpEase) : base(transform, target, duration, moveEase)
         {
             _height = height;
             _jumpEase = jumpEase;
@@ -110,7 +112,8 @@ namespace CommonActivities
         public override void Begin()
         {
             base.Begin();
-            var h = _height;
+            var distance = Vector3.Distance(Target, Transform.position);
+            var h = Mathf.Clamp(distance, _height / 2f, _height);
             var t = Duration;
             var pos = Transform.position;
             var a = (-8f * h) / (t * t);
@@ -126,7 +129,7 @@ namespace CommonActivities
             var y = SNM.Math.MotionEquation(
                 _initialPosition, _initialVelocity,
                 _initialAcceleration, _jumpEase.GetEase(t) * Duration);
-            Transform.position = new Vector3(xz.x, y.y, xz.z);            
+            Transform.position = new Vector3(xz.x, y.y, xz.z);
             base.UpdatePosition(t);
         }
     }

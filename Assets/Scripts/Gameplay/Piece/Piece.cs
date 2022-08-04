@@ -70,19 +70,7 @@ public class Piece : MonoBehaviour
         }
     }
 
-    public void JumpingMoveTo(Vector3 target)
-    {
-        // var flocking = new JumpingFlocking(
-        //     config.flockingConfigData,
-        //     new Flocking.InputData()
-        //     {
-        //         target = target,
-        //         transform = transform
-        //     }, null);
-        var flocking = new Flocking(config.flockingConfigData,
-            new Flocking.InputData {target = target, transform = transform}, null);
-        PieceActivityQueue.Add(flocking);
-    }
+
 
 #if UNITY_EDITOR
 

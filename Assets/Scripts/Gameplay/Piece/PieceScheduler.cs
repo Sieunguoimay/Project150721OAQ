@@ -1,6 +1,7 @@
 ﻿using System;
 using Common;
 using CommonActivities;
+using Gameplay;
 using SNM;
 using SNM.Easings;
 using UnityEngine;
@@ -27,8 +28,10 @@ namespace InGame
             //         duration = duration
             //     },
             //     BezierEasing.CreateBezierEasing(0.35f, 0.75f)));
-            var jumpForward = new JumpForward(_piece.transform, pos, _piece.Config.flockingConfigData.maxSpeed,
+            
+            var jumpForward = new JumpForward(_piece.transform, pos, .4f,
                 new LinearEasing(), 1f, BezierEasing.CreateBezierEasing(0.35f, 0.75f));
+
             // parallelAnimation.Add();
 
             // var sA = new ActivityQueue();
@@ -49,6 +52,20 @@ namespace InGame
         {
             // _piece.PieceActor.Add(new PieceActor.BounceAnim(_piece.FootTransform, 0.15f));
             _piece.PieceActivityQueue.Add(new PieceActivityQueue.TurnAway(_piece.transform));
+        }
+        public void JumpingMoveTo(Vector3 target)
+        {
+            // var flocking = new JumpingFlocking(
+            //     config.flockingConfigData,
+            //     new Flocking.InputData()
+            //     {
+            //         target = target,
+            //         transform = transform
+            //     }, null);
+            var flocking = new Flocking(_piece.Config.flockingConfigData,
+                new Flocking.InputData {target = target, transform = _piece.transform}, null);
+            
+            _piece.PieceActivityQueue.Add(flocking);
         }
     }
 }

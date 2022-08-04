@@ -8,8 +8,8 @@ namespace Gameplay
 {
     public class Board : MonoBehaviour
     {
-        [SerializeField] private GameObject mandarinPrefab;
-        [SerializeField] private GameObject citizenPrefab;
+        [SerializeField] private Piece mandarinPrefab;
+        [SerializeField] private Piece citizenPrefab;
         
         private Tile[] _tiles;
         public Tile[] Tiles => _tiles ??= GetComponentsInChildren<Tile>();
@@ -17,10 +17,6 @@ namespace Gameplay
 
         public void Setup()
         {
-            var container = new GameObject("Container");
-            container.transform.SetParent(transform);
-            container.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
-
             foreach (var t in Tiles)
             {
                 if (!t.IsConnected)
@@ -29,33 +25,10 @@ namespace Gameplay
                 }
 
                 t.Setup();
-
-                if (t is MandarinTile)
-                {
-                    var tg = new TileGroup {MandarinTile = t, Tiles = new List<Tile>()};
-                    InitializeTileGroup(ref tg);
-                    TileGroups.Add(tg);
-
-                    var m = Instantiate(mandarinPrefab).GetComponent<Mandarin>();
-                    m.Setup();
-                    t.Grasp(m);
-                    t.Reposition(m.transform);
-                }
-                else
-                {
-                    for (int i = 0; i < 5; i++)
-                    {
-                        var b = Instantiate(citizenPrefab).GetComponent<Citizen>();
-                        b.transform.SetParent(container.transform);
-                        b.Setup();
-                        t.Grasp(b);
-                        t.Reposition(b.transform);
-                    }
-                }
             }
         }
 
-        private void InitializeTileGroup(ref TileGroup tg)
+        public static void InitializeTileGroup(ref TileGroup tg)
         {
             var t = tg.MandarinTile.Next;
             while (t is not MandarinTile)

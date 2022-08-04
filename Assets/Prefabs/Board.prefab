@@ -155,8 +155,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 845ac4bdd124799418444c97f5a52897, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mandarinPrefab: {fileID: 822649934157487132, guid: d7513236ad9972b4dbfaa615a28dce11, type: 3}
-  citizenPrefab: {fileID: 4393973210023763556, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
+  mandarinPrefab: {fileID: 7237692838130529961, guid: d7513236ad9972b4dbfaa615a28dce11, type: 3}
+  citizenPrefab: {fileID: -2858626238098160244, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
 --- !u!1001 &44268275853391047
 PrefabInstance:
   m_ObjectHideFlags: 0

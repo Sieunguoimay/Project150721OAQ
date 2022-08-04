@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using CommonActivities;
 using Gameplay;
+using InGame;
 using SNM;
 using UnityEngine;
 
@@ -23,8 +25,8 @@ namespace System
         private Board _board;
         private TileSelector _tileSelector;
 
-        private PlayersManager _playerManager = new ();
-        private PieceDropper _pieceDropper = new ();
+        private PlayersManager _playerManager = new();
+        private PieceDropper _pieceDropper = new();
 
         private PerMatchData _perMatchData;
         private Player CurrentPlayer => _playerManager.CurrentPlayer;
@@ -40,6 +42,8 @@ namespace System
         {
             _board = UnityEngine.Object.Instantiate(_config.BoardPrefab).GetComponent<Board>();
             _board.Setup();
+
+            new PieceManager(null, null).SpawnPieces(_board);
 
             _pieceDropper = new PieceDropper();
             _pieceDropper.Setup(_board);
@@ -131,10 +135,11 @@ namespace System
                 var db = Vector3.SqrMagnitude(centerPoint - b.transform.position);
                 return da < db ? -1 : 1;
             });
-            
+            var delay = 0f;
             for (var i = 0; i < pieces.Length; i++)
             {
-                pieces[i].JumpingMoveTo(positions[i]);
+                pieces[i].PieceActivityQueue.Add(new Delay(delay += 0.2f));
+                pieces[i].PieceScheduler.JumpingMoveTo(positions[i]);
             }
         }
 

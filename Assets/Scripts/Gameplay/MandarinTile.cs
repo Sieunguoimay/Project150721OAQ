@@ -2,7 +2,7 @@
 {
     public class MandarinTile : Tile
     {
-        [field: System.NonSerialized] public bool HasMandarin { get; private set; } = false;
+        [field: System.NonSerialized] public bool HasMandarin { get; private set; }
 
         public override void Setup()
         {
