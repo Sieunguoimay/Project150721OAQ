@@ -27,5 +27,16 @@ namespace SNM
             yield return null;
             onDone?.Invoke();
         }
+
+        public static Coroutine WaitUntil(this MonoBehaviour context, Func<bool> condition, Action callback)
+        {
+            return context.StartCoroutine(WaitUntil(condition, callback));
+        }
+
+        private static IEnumerator WaitUntil(Func<bool> condition, Action callback)
+        {
+            yield return new WaitUntil(condition);
+            callback?.Invoke();
+        }
     }
 }

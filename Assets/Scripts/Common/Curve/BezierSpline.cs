@@ -26,24 +26,22 @@ namespace Curve
 
         public void AddSegment()
         {
-            var point = points[points.Length - 1];
+            var point = points[^1];
             Array.Resize(ref points, points.Length + 3);
             point.x += 1f;
-            points[points.Length - 3] = point;
+            points[^3] = point;
             point.x += 1f;
-            points[points.Length - 2] = point;
+            points[^2] = point;
             point.x += 1f;
-            points[points.Length - 1] = point;
+            points[^1] = point;
 
             Array.Resize(ref modes, modes.Length + 1);
-            modes[modes.Length - 1] = modes[modes.Length - 2];
+            modes[^1] = modes[^2];
             EnforceMode(points.Length - 4);
-            if (closed)
-            {
-                points[points.Length - 1] = points[0];
-                modes[modes.Length - 1] = modes[0];
-                EnforceMode(0);
-            }
+            if (!closed) return;
+            points[^1] = points[0];
+            modes[^1] = modes[0];
+            EnforceMode(0);
         }
 
 #endif

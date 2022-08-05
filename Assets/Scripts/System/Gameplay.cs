@@ -68,7 +68,11 @@ namespace System
         public void StartNewMatch()
         {
             _perMatchData = new PerMatchData(_playerManager.Players.Length);
-            CurrentPlayer.MakeDecision(_board);
+            _gameplaySerializable.PieceManager.ReleasePieces(() =>
+            {
+                CurrentPlayer.MakeDecision(_board);
+            });
+
         }
 
         private void OnDecisionResult(Tile tile, bool forward)
