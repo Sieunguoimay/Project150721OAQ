@@ -8,39 +8,52 @@ namespace Gameplay
 {
     public class Board : MonoBehaviour
     {
-        [SerializeField] private Piece mandarinPrefab;
-        [SerializeField] private Piece citizenPrefab;
-        
-        private Tile[] _tiles;
-        public Tile[] Tiles => _tiles ??= GetComponentsInChildren<Tile>();
-        [field: System.NonSerialized] public List<TileGroup> TileGroups { get; } = new();
+        [field: System.NonSerialized] public Tile[] Tiles { get; private set; }
+        [field: System.NonSerialized] public TileGroup[] TileGroups { get; private set; }
 
         public void Setup()
         {
+            Tiles = GetComponentsInChildren<Tile>();
             foreach (var t in Tiles)
             {
                 if (!t.IsConnected)
                 {
-                    return;
+                    Debug.LogError($"Tile not connected {t.gameObject.name}");
+                    continue;
                 }
 
                 t.Setup();
             }
+
+            var mts = GetComponentsInChildren<MandarinTile>();
+            TileGroups = new TileGroup[mts.Length];
+            for (var i = 0; i < mts.Length; i++)
+            {
+                var mt = mts[i];
+                TileGroups[i] = InitializeTileGroup(mt);
+            }
         }
 
-        public static void InitializeTileGroup(ref TileGroup tg)
+        private static TileGroup InitializeTileGroup(Tile mt)
         {
-            var t = tg.MandarinTile.Next;
+            var tg = new TileGroup
+            {
+                MandarinTile = mt,
+                Tiles = new List<Tile>()
+            };
+            var t = mt.Next;
             while (t is not MandarinTile)
             {
                 tg.Tiles.Add(t);
                 t = t.Next;
             }
+
+            return tg;
         }
 
         public bool IsTileGroupEmpty(int index)
         {
-            return index < TileGroups.Count && IsTileGroupEmpty(TileGroups[index]);
+            return index < TileGroups.Length && IsTileGroupEmpty(TileGroups[index]);
         }
 
         public static bool IsTileGroupEmpty(TileGroup tileGroup)
@@ -68,12 +81,11 @@ namespace Gameplay
             public bool TakeBackTiles(List<Piece> pieces, PieceDropper dropper)
             {
                 if (pieces.Count <= 0) return false;
-                
+
                 dropper.GetReadyForTakingBackCitizens(this, pieces);
                 dropper.DropAll(true);
-                
-                return true;
 
+                return true;
             }
         }
 #if UNITY_EDITOR
@@ -100,10 +112,10 @@ namespace Gameplay
         public void SelfConnect()
         {
             Debug.Log(Tiles.Length);
-            for (int i = 0; i < Tiles.Length; i++)
+            for (var i = 0; i < Tiles.Length; i++)
             {
-                int prev = i == 0 ? Tiles.Length - 1 : i - 1;
-                int next = i < Tiles.Length - 1 ? i + 1 : 0;
+                var prev = i == 0 ? Tiles.Length - 1 : i - 1;
+                var next = i < Tiles.Length - 1 ? i + 1 : 0;
                 Tiles[i].Connect(Tiles[prev], Tiles[next]);
             }
         }

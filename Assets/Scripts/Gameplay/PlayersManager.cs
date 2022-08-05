@@ -10,9 +10,9 @@ namespace Gameplay
         public Player CurrentPlayer => Players[_turn];
         private int _turn = 0;
 
-        public void Setup(List<Board.TileGroup> tileGroups, TileSelector tileSelector)
+        public void Setup(Board.TileGroup[] tileGroups, TileSelector tileSelector)
         {
-            var n = tileGroups.Count;
+            var n = tileGroups.Length;
             Players = new Player[n];
 
             for (var i = 0; i < n; i++)

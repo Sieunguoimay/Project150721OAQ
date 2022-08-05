@@ -32,7 +32,7 @@ public class PieceActivityQueue : ActivityQueue
             _inputData = inputData;
         }
 
-        public override void Begin()
+        public override void OnBegin()
         {
             var h = _inputData.height;
             var t = _inputData.duration;
@@ -67,7 +67,7 @@ public class PieceActivityQueue : ActivityQueue
             }
         }
 
-        public override void End()
+        public override void OnEnd()
         {
             _inputData.callback?.Invoke(null, _inputData.flag);
         }
@@ -92,9 +92,9 @@ public class PieceActivityQueue : ActivityQueue
             _transform = transform;
         }
 
-        public override void Begin()
+        public override void OnBegin()
         {
-            base.Begin();
+            base.OnBegin();
 
             var lr = _transform.localEulerAngles;
             lr.y += UnityEngine.Random.Range(-60f, 60f);
@@ -106,9 +106,9 @@ public class PieceActivityQueue : ActivityQueue
         {
         }
 
-        public override void End()
+        public override void OnEnd()
         {
-            base.End();
+            base.OnEnd();
             DOTween.Kill(this);
         }
     }

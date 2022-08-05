@@ -24,7 +24,7 @@ namespace Gameplay
 
         public override bool IsDone => !Motion.moving;
 
-        public override void Begin()
+        public override void OnBegin()
         {
             Motion.position = inputData.transform.position;
             Motion.moving = true;
@@ -54,7 +54,7 @@ namespace Gameplay
             }
         }
 
-        public override void End()
+        public override void OnEnd()
         {
         }
 
@@ -210,10 +210,10 @@ namespace Gameplay
             inputData.transform.position = new Vector3(_flockingPosition.x, p.y, _flockingPosition.z);
         }
 
-        public override void Begin()
+        public override void OnBegin()
         {
-            base.Begin();
-            _jump.Begin();
+            base.OnBegin();
+            _jump.OnBegin();
             _noJumping = false;
         }
 
@@ -242,7 +242,7 @@ namespace Gameplay
             if (Vector3.SqrMagnitude(inputData.target - Motion.position) > jumpDistance * jumpDistance)
             {
                 _delay = false;
-                _jump.Begin();
+                _jump.OnBegin();
             }
             else
             {

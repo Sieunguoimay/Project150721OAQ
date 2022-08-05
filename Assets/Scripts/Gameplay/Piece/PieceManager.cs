@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Common;
+using CommonActivities;
 using Gameplay;
 using UnityEngine;
 
@@ -10,37 +12,42 @@ namespace InGame
         [SerializeField] private Piece mandarinPrefab;
         [SerializeField] private Piece citizenPrefab;
 
+        private readonly WaitForEnd _waitForEnd = new();
+
         public void SpawnPieces(Board board)
         {
-            for (var i = 0; i < board.Tiles.Length; i++)
+            foreach (var tg in board.TileGroups)
             {
-                var t = board.Tiles[i];
-                if (t is MandarinTile)
+                Spawn(mandarinPrefab, tg.MandarinTile);
+                foreach (var t in tg.Tiles)
                 {
-                    var tg = new Board.TileGroup {MandarinTile = t, Tiles = new List<Tile>()};
-                    Board.InitializeTileGroup(ref tg);
-                    board.TileGroups.Add(tg);
-
-                    var m = Instantiate(mandarinPrefab) as Mandarin;
-                    m.Setup();
-                    t.Grasp(m);
-                    var position = t.GetPositionInFilledCircle(Mathf.Max(0, t.Pieces.Count - 1), false);
-                    m.PieceActivityQueue.Add(new Flocking(m.Config.flockingConfigData, new Flocking.InputData() {target = position, transform = m.transform}, null));
-                    // t.Reposition(m.transform);
-                }
-                else
-                {
-                    for (var j = 0; j < 5; j++)
+                    for (var i = 0; i < 5; i++)
                     {
-                        var b = Instantiate(citizenPrefab, transform, true) as Citizen;
-                        b.Setup();
-                        t.Grasp(b);
-                        // t.Reposition(b.transform);
-                        var position = t.GetPositionInFilledCircle(Mathf.Max(0, t.Pieces.Count - 1), false);
-                        b.PieceActivityQueue.Add(new Flocking(b.Config.flockingConfigData, new Flocking.InputData() {target = position, transform = b.transform}, null));
+                        var p = Spawn(citizenPrefab, t);
+                        var tf = tg.MandarinTile.transform;
+                        p.transform.position = tf.position + tf.right * 2f;
                     }
                 }
             }
+        }
+
+        private Piece Spawn(Piece prefab, PieceContainer t)
+        {
+            var p = Instantiate(prefab, transform, true);
+            p.Setup();
+
+            t.Grasp(p);
+            var position = t.GetPositionInFilledCircle(Mathf.Max(0, t.Pieces.Count - 1));
+            p.PieceActivityQueue.Add(_waitForEnd);
+            p.PieceActivityQueue.Add(new Flocking(p.Config.flockingConfigData,
+                new Flocking.InputData {target = position, transform = p.transform}, null));
+            return p;
+        }
+
+        [ContextMenu("ReleasePieces")]
+        public void ReleasePieces()
+        {
+            _waitForEnd.End();
         }
     }
 }

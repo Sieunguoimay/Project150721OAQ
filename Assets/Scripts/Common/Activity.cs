@@ -7,7 +7,7 @@ namespace Common
     {
         public virtual bool IsDone { get; protected set; }
         public event Action Done;
-        public virtual void Begin()
+        public virtual void OnBegin()
         {
             IsDone = false;
         }
@@ -16,7 +16,7 @@ namespace Common
         {
         }
 
-        public virtual void End()
+        public virtual void OnEnd()
         {
         }
 
@@ -36,12 +36,12 @@ namespace Common
             _activities.Add(activity);
         }
 
-        public override void Begin()
+        public override void OnBegin()
         {
-            base.Begin();
+            base.OnBegin();
             foreach (var activity in _activities)
             {
-                activity.Begin();
+                activity.OnBegin();
             }
         }
 
@@ -53,7 +53,7 @@ namespace Common
 
                 if (!_activities[i].IsDone) continue;
 
-                _activities[i].End();
+                _activities[i].OnEnd();
 
                 RemoveAt(i--);
             }
@@ -73,14 +73,14 @@ namespace Common
             _activities.RemoveAt(lastIndex);
         }
 
-        public override void End()
+        public override void OnEnd()
         {
             foreach (var activity in _activities)
             {
-                activity.End();
+                activity.OnEnd();
             }
 
-            base.End();
+            base.OnEnd();
         }
     }
 
@@ -102,7 +102,7 @@ namespace Common
                 if (Activities.Count > 0)
                 {
                     _currentActivity = Activities.Dequeue();
-                    _currentActivity.Begin();
+                    _currentActivity.OnBegin();
                 }
                 else
                 {
@@ -111,11 +111,11 @@ namespace Common
             }
             else if (_currentActivity.IsDone)
             {
-                _currentActivity.End();
+                _currentActivity.OnEnd();
                 if (Activities.Count > 0)
                 {
                     _currentActivity = Activities.Dequeue();
-                    _currentActivity.Begin();
+                    _currentActivity.OnBegin();
                 }
                 else
                 {
@@ -129,12 +129,12 @@ namespace Common
             }
         }
 
-        public override void End()
+        public override void OnEnd()
         {
-            base.End();
+            base.OnEnd();
             foreach (var a in Activities)
             {
-                a.End();
+                a.OnEnd();
             }
 
             Activities.Clear();

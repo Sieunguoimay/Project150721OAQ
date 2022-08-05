@@ -43,7 +43,7 @@ namespace Gameplay
                 if (p is not Citizen) continue;
             
                 Grasp(p);
-                p.PieceActivityQueue.End();
+                p.PieceActivityQueue.OnEnd();
                 citizens.RemoveAt(i);
             }
 
