@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CommonActivities;
 using SNM;
 using UnityEngine;
 using Action = System.Action;
@@ -41,7 +42,7 @@ namespace Gameplay
                 var p = citizens[i];
 
                 if (p is not Citizen) continue;
-            
+
                 Grasp(p);
                 p.PieceActivityQueue.OnEnd();
                 citizens.RemoveAt(i);
@@ -67,16 +68,22 @@ namespace Gameplay
 
                     if (i == 0)
                     {
-                        p.PieceActivityQueue.Add(new CommonActivities.Delay(delay));
+                        p.PieceActivityQueue.Add(new Delay(delay));
                         delay += 0.2f;
                     }
 
                     var skipSlot = p is Citizen && _boardTraveller.CurrentTile is MandarinTile {HasMandarin: true};
                     var citizenPos = _boardTraveller.CurrentTile.GetPositionInFilledCircle(
                         _boardTraveller.CurrentTile.Pieces.Count + j + (skipSlot ? 5 : 0), false);
-                    var flag = (i == n - 1) ? 2 : (j == 0 ? 1 : 0);
+                    var flag = i == n - 1 ? 2 : j == 0 ? 1 : 0;
 
-                    p.PieceScheduler.CreateNewJump(citizenPos, flag, OnJumpDone);
+                    var jumpForward = new JumpForward(p.transform, citizenPos, .4f,
+                        new LinearEasing(), 1f, BezierEasing.CreateBezierEasing(0.35f, 0.75f));
+                    
+                    p.PieceActivityQueue.Add(new Delay(0.1f));
+                    p.PieceActivityQueue.Add(jumpForward);
+
+                    jumpForward.Done += () => OnJumpDone(p, flag);
                 }
 
                 _boardTraveller.CurrentTile.Grasp(Pieces[i]);
@@ -84,7 +91,8 @@ namespace Gameplay
 
             foreach (var p in Pieces)
             {
-                p.PieceScheduler.CreateNewLandAnim();
+                p.PieceActivityQueue.Add(new PieceActivityQueue.TurnAway(p.transform));
+                p.PieceActivityQueue.Begin();
             }
 
             Pieces.Clear();

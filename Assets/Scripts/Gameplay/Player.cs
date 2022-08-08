@@ -32,7 +32,7 @@ namespace Gameplay
                 }
             }
 
-            board.Delay(1f, () => { InvokeOnDecisionResult(selectedTile, selectedDirection); });
+            board.Delay(.4f, () => { InvokeOnDecisionResult(selectedTile, selectedDirection); });
         }
 
         protected virtual void InvokeOnDecisionResult(Tile arg1, bool arg2) => OnDecisionResult?.Invoke(arg1, arg2);

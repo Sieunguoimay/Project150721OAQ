@@ -28,12 +28,20 @@ public class Main : MonoBehaviour
     {
         Debug.Log("Start");
         _gameplay.Setup();
+    }
 
-        this.Delay(1f, _gameplay.StartNewMatch);
+    private void OnDestroy()
+    {
+        _gameplay.TearDown();
     }
 
     private void Update()
     {
+        if (!_gameplay.IsPlaying && Input.GetMouseButton(0))
+        {
+            _gameplay.StartNewMatch();
+        }
+
         RayPointer.Update(Time.deltaTime);
 
         if (!_gameplay.IsGameOver) return;

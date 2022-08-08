@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Gameplay
 {
-    public class PlayersManager
+    public class PlayersManager : MonoBehaviour
     {
         public Player[] Players { get; private set; }
         public Player CurrentPlayer => Players[_turn];
@@ -53,6 +53,5 @@ namespace Gameplay
             _turn = (_turn + 1) % Players.Length;
             CurrentPlayer.AcquireTurn();
         }
-
     }
 }

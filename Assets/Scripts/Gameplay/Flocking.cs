@@ -22,9 +22,9 @@ namespace Gameplay
             Motion = new MotionMetrics();
         }
 
-        public override bool IsDone => !Motion.moving;
+        public override bool Inactive => !Motion.moving;
 
-        public override void OnBegin()
+        public override void Begin()
         {
             Motion.position = inputData.transform.position;
             Motion.moving = true;
@@ -189,7 +189,7 @@ namespace Gameplay
         private float _intervalTime;
         private bool _noJumping;
 
-        public override bool IsDone => base.IsDone && _jump.IsDone;
+        public override bool Inactive => base.Inactive && _jump.Inactive;
 
         public JumpingFlocking(ConfigData configData, InputData inputData, Flocking[] others)
             : base(configData, inputData, others)
@@ -210,10 +210,10 @@ namespace Gameplay
             inputData.transform.position = new Vector3(_flockingPosition.x, p.y, _flockingPosition.z);
         }
 
-        public override void OnBegin()
+        public override void Begin()
         {
-            base.OnBegin();
-            _jump.OnBegin();
+            base.Begin();
+            _jump.Begin();
             _noJumping = false;
         }
 
@@ -222,7 +222,7 @@ namespace Gameplay
             _jump.Update(deltaTime);
             if (Motion.moving)
             {
-                if (!_noJumping && _jump.IsDone)
+                if (!_noJumping && _jump.Inactive)
                 {
                     _delay = true;
                 }
@@ -242,7 +242,7 @@ namespace Gameplay
             if (Vector3.SqrMagnitude(inputData.target - Motion.position) > jumpDistance * jumpDistance)
             {
                 _delay = false;
-                _jump.OnBegin();
+                _jump.Begin();
             }
             else
             {

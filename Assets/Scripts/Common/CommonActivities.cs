@@ -44,9 +44,9 @@ namespace CommonActivities
         }
 
 
-        public override void OnBegin()
+        public override void Begin()
         {
-            base.OnBegin();
+            base.Begin();
             _time = 0;
             _origin = Transform.position;
             Transform.rotation = Quaternion.LookRotation(SNM.Math.Projection(Target - _origin, Vector3.up));
@@ -54,7 +54,7 @@ namespace CommonActivities
 
         public override void Update(float deltaTime)
         {
-            if (IsDone) return;
+            if (Inactive) return;
 
             _time += deltaTime;
             var t = Mathf.Min(_time / Duration, 1f);
@@ -85,10 +85,10 @@ namespace CommonActivities
             _speed = speed;
         }
 
-        public override void OnBegin()
+        public override void Begin()
         {
             Duration = Vector3.Distance(Target, Transform.position) / _speed;
-            base.OnBegin();
+            base.Begin();
             Debug.Log(Duration);
         }
     }
@@ -109,9 +109,9 @@ namespace CommonActivities
             _jumpEase = jumpEase;
         }
 
-        public override void OnBegin()
+        public override void Begin()
         {
-            base.OnBegin();
+            base.Begin();
             var distance = Vector3.Distance(Target, Transform.position);
             var h = Mathf.Clamp(distance, _height / 2f, _height);
             var t = Duration;

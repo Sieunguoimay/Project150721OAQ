@@ -15,7 +15,6 @@ public class PieceActivityQueue : ActivityQueue
 
     public ConfigData Config { get; } = new() {angularSpeed = 270f};
 
-
     public class Jump : EasingActivity
     {
         private readonly InputData _inputData;
@@ -32,7 +31,7 @@ public class PieceActivityQueue : ActivityQueue
             _inputData = inputData;
         }
 
-        public override void OnBegin()
+        public override void Begin()
         {
             var h = _inputData.height;
             var t = _inputData.duration;
@@ -40,7 +39,7 @@ public class PieceActivityQueue : ActivityQueue
             var a = (-8f * h) / (t * t);
 
             _time = 0;
-            IsDone = false;
+            Inactive = false;
             _duration = t;
             _initialPosition = pos;
             _initialAcceleration = Vector3.up * a;
@@ -49,8 +48,8 @@ public class PieceActivityQueue : ActivityQueue
 
         public override void Update(float deltaTime)
         {
-            if (IsDone) return;
-            
+            if (Inactive) return;
+
             _time += deltaTime;
 
             var t = Mathf.Min(_time / _duration, 1f);
@@ -63,7 +62,7 @@ public class PieceActivityQueue : ActivityQueue
 
             if (_time >= _duration)
             {
-                IsDone = true;
+                Inactive = true;
             }
         }
 
@@ -92,14 +91,14 @@ public class PieceActivityQueue : ActivityQueue
             _transform = transform;
         }
 
-        public override void OnBegin()
+        public override void Begin()
         {
-            base.OnBegin();
+            base.Begin();
 
             var lr = _transform.localEulerAngles;
             lr.y += UnityEngine.Random.Range(-60f, 60f);
             _transform.DOLocalRotate(lr, 1f).SetId(this)
-                .OnComplete(() => { IsDone = true; });
+                .OnComplete(() => { Inactive = true; });
         }
 
         public override void Update(float deltaTime)
@@ -131,8 +130,8 @@ public class PieceActivityQueue : ActivityQueue
 
         public override void Update(float deltaTime)
         {
-            if (IsDone) return;
-            
+            if (Inactive) return;
+
             _time += deltaTime;
             var t = Mathf.Min(_time / _duration, 1f);
 
@@ -156,7 +155,7 @@ public class PieceActivityQueue : ActivityQueue
 
             if (_time >= _duration)
             {
-                IsDone = true;
+                Inactive = true;
             }
         }
     }

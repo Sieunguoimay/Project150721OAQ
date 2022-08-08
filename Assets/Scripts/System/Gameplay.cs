@@ -12,26 +12,28 @@ namespace System
         [Serializable]
         public class GameplaySerializable
         {
-            [SerializeField] private GameObject boardPrefab;
-            [SerializeField] private GameObject tileSelector;
-            [SerializeField] private PieceManager pieceManager;
-            public GameObject BoardPrefab => boardPrefab;
-            public GameObject TileSelector => tileSelector;
-            public PieceManager PieceManager => pieceManager;
+            public Board boardPrefab;
+            public TileSelector tileSelectorPrefab;
+            public PieceManager pieceManager;
+            public PlayersManager playersManager;
         }
 
         private readonly Gameplay.GameplaySerializable _gameplaySerializable;
-
+        private PlayersManager PlayerManager => _gameplaySerializable.playersManager;
+        public Board BoardPrefab => _gameplaySerializable.boardPrefab;
+        public TileSelector TileSelectorPrefabPrefab => _gameplaySerializable.tileSelectorPrefab;
+        public PieceManager PieceManager => _gameplaySerializable.pieceManager;
+        
         private Board _board;
         private TileSelector _tileSelector;
 
-        private PlayersManager _playerManager = new ();
-        private PieceDropper _pieceDropper = new ();
+        private PieceDropper _pieceDropper = new();
 
         private PerMatchData _perMatchData;
-        private Player CurrentPlayer => _playerManager.CurrentPlayer;
+        private Player CurrentPlayer => PlayerManager.CurrentPlayer;
 
         public bool IsGameOver { get; private set; }
+        public bool IsPlaying { get; private set; }
 
         public Gameplay(Gameplay.GameplaySerializable gameplaySerializable)
         {
@@ -40,39 +42,53 @@ namespace System
 
         public void Setup()
         {
-            _board = UnityEngine.Object.Instantiate(_gameplaySerializable.BoardPrefab).GetComponent<Board>();
+            _tileSelector = UnityEngine.Object.Instantiate(TileSelectorPrefabPrefab);
+            _tileSelector.Setup();
+
+            _board = UnityEngine.Object.Instantiate(BoardPrefab);
             _board.Setup();
 
-            _gameplaySerializable.PieceManager.SpawnPieces(_board);
+            PlayerManager.Setup(_board.TileGroups, _tileSelector);
+
+            PieceManager.SpawnPieces(PlayerManager.Players);
 
             _pieceDropper = new PieceDropper();
             _pieceDropper.Setup(_board);
-            _pieceDropper.OnDone -= OnDropperDone;
+
+
+            ConnectEvents();
+        }
+
+        public void TearDown()
+        {
+            DisconnectEvents();
+        }
+
+        private void ConnectEvents()
+        {
             _pieceDropper.OnDone += OnDropperDone;
-            _pieceDropper.OnEat -= OnEatPieces;
             _pieceDropper.OnEat += OnEatPieces;
-
-            _tileSelector = UnityEngine.Object.Instantiate(_gameplaySerializable.TileSelector).GetComponent<TileSelector>();
-            _tileSelector.Setup();
-
-            _playerManager = new PlayersManager();
-            _playerManager.Setup(_board.TileGroups, _tileSelector);
-
-            foreach (var player in _playerManager.Players)
+            foreach (var player in PlayerManager.Players)
             {
                 player.OnDecisionResult += OnDecisionResult;
             }
         }
 
+        private void DisconnectEvents()
+        {
+            _pieceDropper.OnDone -= OnDropperDone;
+            _pieceDropper.OnEat -= OnEatPieces;
+            foreach (var player in PlayerManager.Players)
+            {
+                player.OnDecisionResult -= OnDecisionResult;
+            }
+        }
 
         public void StartNewMatch()
         {
-            _perMatchData = new PerMatchData(_playerManager.Players.Length);
-            _gameplaySerializable.PieceManager.ReleasePieces(() =>
-            {
-                CurrentPlayer.MakeDecision(_board);
-            });
-
+            IsPlaying = true;
+            _perMatchData = new PerMatchData(PlayerManager.Players.Length);
+            PieceManager.ReleasePieces(() => { CurrentPlayer.MakeDecision(_board); });
         }
 
         private void OnDecisionResult(Tile tile, bool forward)
@@ -93,7 +109,7 @@ namespace System
             {
                 if (changePlayer)
                 {
-                    _playerManager.ChangePlayer();
+                    PlayerManager.ChangePlayer();
                 }
 
                 if (Board.IsTileGroupEmpty(CurrentPlayer.TileGroup))
@@ -126,48 +142,41 @@ namespace System
             var pieces = new Piece[pieceContainerMb.Pieces.Count];
             var count = 0;
             var centerPoint = Vector3.zero;
+
             bench.Grasp(pieceContainerMb, p =>
             {
                 positions[count] = bench.GetPosAndRot(bench.Pieces.Count - 1).Position;
                 pieces[count] = p;
                 centerPoint += positions[count++];
             });
+
             centerPoint /= count;
-            Array.Sort(pieces, (a, b) =>
-            {
-                var da = Vector3.SqrMagnitude(centerPoint - a.transform.position);
-                var db = Vector3.SqrMagnitude(centerPoint - b.transform.position);
-                return da < db ? -1 : 1;
-            });
-            var delay = 0f;
-            for (var i = 0; i < pieces.Length; i++)
-            {
-                pieces[i].PieceActivityQueue.Add(new Delay(delay += 0.2f));
-                pieces[i].PieceScheduler.JumpingMoveTo(positions[i]);
-            }
+
+            PieceScheduler.MovePiecesOutOfTheBoard(pieces, positions, centerPoint);
         }
 
         private void GameOver()
         {
-            CheckForWinner();
-            if (!IsGameOver)
-            {
-                IsGameOver = true;
-            }
+            EvaluateWinner();
+
+            if (IsGameOver) return;
+
+            IsGameOver = true;
+            IsPlaying = false;
         }
 
-        private void CheckForWinner()
+        private void EvaluateWinner()
         {
-            for (var i = 0; i < _playerManager.Players.Length; i++)
+            for (var i = 0; i < PlayerManager.Players.Length; i++)
             {
                 foreach (var tile in _board.TileGroups[i].Tiles)
                 {
-                    _playerManager.Players[i].PieceBench.Grasp(tile);
+                    PlayerManager.Players[i].PieceBench.Grasp(tile);
                 }
 
                 var sum = 0;
 
-                foreach (var p in _playerManager.Players[i].PieceBench.Pieces)
+                foreach (var p in PlayerManager.Players[i].PieceBench.Pieces)
                 {
                     switch (p)
                     {
@@ -203,7 +212,7 @@ namespace System
         public void ResetGame(MonoBehaviour context)
         {
             IsGameOver = false;
-            new GameReset(_board, _playerManager).Reset();
+            new GameReset(_board, PlayerManager).Reset();
             context.Delay(1f, () => { CurrentPlayer.MakeDecision(_board); });
         }
     }

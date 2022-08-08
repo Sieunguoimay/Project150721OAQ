@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Common;
+using Common.ResolveSystem;
 using DG.Tweening;
 using Gameplay;
 using InGame;
@@ -29,20 +31,17 @@ public class Piece : MonoBehaviour
     }
 
     [field: NonSerialized] public PieceActivityQueue PieceActivityQueue { get; } = new();
-    [field: NonSerialized] public PieceScheduler PieceScheduler { get; private set; }
     public ConfigData Config => config;
     private Transform _cameraTransform;
 
     private void Start()
     {
-        if (Camera.main is not null) _cameraTransform = Camera.main.transform;
+        _cameraTransform = Resolver.Instance.Resolve<CameraManager>().transform;
     }
 
     public void Setup()
     {
         FaceCamera(true, new Vector3(0, UnityEngine.Random.Range(-45f, 45f), 0));
-
-        PieceScheduler = new PieceScheduler(this);
     }
 
     private void Update()

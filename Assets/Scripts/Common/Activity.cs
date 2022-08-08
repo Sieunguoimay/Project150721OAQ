@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Common
 {
     public abstract class Activity
     {
-        public virtual bool IsDone { get; protected set; }
+        public virtual bool Inactive { get; protected set; } = true;
         public event Action Done;
-        public virtual void OnBegin()
+
+        public virtual void Begin()
         {
-            IsDone = false;
+            Inactive = false;
         }
 
         public virtual void Update(float deltaTime)
@@ -20,9 +22,9 @@ namespace Common
         {
         }
 
-        protected void NotifyDone()
+        public void NotifyDone()
         {
-            IsDone = true;
+            Inactive = true;
             Done?.Invoke();
         }
     }
@@ -36,12 +38,12 @@ namespace Common
             _activities.Add(activity);
         }
 
-        public override void OnBegin()
+        public override void Begin()
         {
-            base.OnBegin();
+            base.Begin();
             foreach (var activity in _activities)
             {
-                activity.OnBegin();
+                activity.Begin();
             }
         }
 
@@ -51,7 +53,7 @@ namespace Common
             {
                 _activities[i].Update(deltaTime);
 
-                if (!_activities[i].IsDone) continue;
+                if (!_activities[i].Inactive) continue;
 
                 _activities[i].OnEnd();
 
@@ -97,25 +99,27 @@ namespace Common
 
         public override void Update(float deltaTime)
         {
+            if (Inactive) return;
+            
             if (_currentActivity == null)
             {
                 if (Activities.Count > 0)
                 {
                     _currentActivity = Activities.Dequeue();
-                    _currentActivity.OnBegin();
+                    _currentActivity.Begin();
                 }
                 else
                 {
                     _currentActivity = null;
                 }
             }
-            else if (_currentActivity.IsDone)
+            else if (_currentActivity.Inactive)
             {
                 _currentActivity.OnEnd();
                 if (Activities.Count > 0)
                 {
                     _currentActivity = Activities.Dequeue();
-                    _currentActivity.OnBegin();
+                    _currentActivity.Begin();
                 }
                 else
                 {
@@ -132,8 +136,10 @@ namespace Common
         public override void OnEnd()
         {
             base.OnEnd();
-            foreach (var a in Activities)
+
+            foreach (var a in Activities.Where(a => !a.Inactive))
             {
+                a.NotifyDone();
                 a.OnEnd();
             }
 
