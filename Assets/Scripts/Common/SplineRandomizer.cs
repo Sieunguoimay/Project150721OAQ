@@ -5,7 +5,7 @@ using Random = UnityEngine.Random;
 
 namespace Common
 {
-    public class SplineRandomizer : ISplineModifier
+    public class SplineRandomizer 
     {
         private readonly Config _config;
 

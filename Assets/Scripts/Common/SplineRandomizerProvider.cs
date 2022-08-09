@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Common
 {
-    public class SplineRandomizerProvider : MonoBehaviour, ISplineModifier
+    public class SplineRandomizerProvider : MonoBehaviour
     {
         [SerializeField] private SplineRandomizer.Config config;
         [SerializeField] private BezierSpline spline;
