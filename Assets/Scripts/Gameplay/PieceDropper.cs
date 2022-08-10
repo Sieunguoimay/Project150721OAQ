@@ -68,7 +68,7 @@ namespace Gameplay
 
                     if (i == 0)
                     {
-                        p.PieceActivityQueue.Add(new Delay(delay));// + 0.1f));
+                        p.PieceActivityQueue.Add(new Delay(delay)); // + 0.1f));
                         PieceScheduler.CreateAAnimActivity(p, LegHashes.stand_up, null);
                         delay += 0.2f;
                     }
@@ -96,7 +96,7 @@ namespace Gameplay
 
             foreach (var p in Pieces)
             {
-                PieceScheduler.CreateAAnimActivity(p, LegHashes.idle, null);
+                p.PieceActivityQueue.Add(new Lambda(() => p.Animator.Play(LegHashes.idle), () => true));
                 p.PieceActivityQueue.Add(new PieceActivityQueue.TurnAway(p.transform));
                 PieceScheduler.CreateAAnimActivity(p, LegHashes.sit_down, null);
                 p.PieceActivityQueue.Begin();
