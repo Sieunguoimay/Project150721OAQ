@@ -51,7 +51,14 @@ namespace Gameplay
                 if (p.Animator == null) return true;
 
                 var info = p.Animator.GetCurrentAnimatorStateInfo(0);
-                return info.shortNameHash == animHash && info.normalizedTime >= 1f;
+                if (info.shortNameHash == animHash)
+                {
+                    if (info.loop)
+                        Debug.LogError("Loop... :(");
+                    return info.normalizedTime >= 1f;
+                }
+
+                return false;
             });
             if (onDone != null)
             {
