@@ -68,7 +68,8 @@ namespace Gameplay
 
                     if (i == 0)
                     {
-                        p.PieceActivityQueue.Add(new Delay(delay));
+                        p.PieceActivityQueue.Add(new Delay(delay));// + 0.1f));
+                        PieceScheduler.CreateAAnimActivity(p, LegHashes.stand_up, null);
                         delay += 0.2f;
                     }
 
@@ -79,9 +80,13 @@ namespace Gameplay
 
                     var jumpForward = new JumpForward(p.transform, citizenPos, .4f,
                         new LinearEasing(), 1f, BezierEasing.CreateBezierEasing(0.35f, 0.75f));
-                    
-                    p.PieceActivityQueue.Add(new Delay(0.1f));
+                    if (i != 0)
+                    {
+                        // p.PieceActivityQueue.Add(new Delay(0.1f));
+                    }
+
                     p.PieceActivityQueue.Add(jumpForward);
+                    PieceScheduler.CreateAAnimActivity(p, LegHashes.jump_interval, null);
 
                     jumpForward.Done += () => OnJumpDone(p, flag);
                 }
@@ -91,7 +96,9 @@ namespace Gameplay
 
             foreach (var p in Pieces)
             {
+                PieceScheduler.CreateAAnimActivity(p, LegHashes.idle, null);
                 p.PieceActivityQueue.Add(new PieceActivityQueue.TurnAway(p.transform));
+                PieceScheduler.CreateAAnimActivity(p, LegHashes.sit_down, null);
                 p.PieceActivityQueue.Begin();
             }
 

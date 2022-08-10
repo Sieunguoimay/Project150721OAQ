@@ -30,7 +30,7 @@ namespace Gameplay
                 }
                 else
                 {
-                    Players[i] = new Player(tileGroups[i], pieceBench);
+                    Players[i] = new FakePlayer(tileGroups[i], pieceBench, tileSelector);
                 }
             }
 

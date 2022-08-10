@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Common;
+using Common.Animation;
 using Common.ResolveSystem;
 using DG.Tweening;
 using Gameplay;
@@ -14,6 +15,7 @@ using Random = System.Random;
 public class Piece : MonoBehaviour
 {
     [SerializeField] private ConfigData config;
+    [SerializeField] private AnimatorListener animatorListener;
 
     [Serializable]
     public class ConfigData
@@ -32,6 +34,9 @@ public class Piece : MonoBehaviour
 
     [field: NonSerialized] public PieceActivityQueue PieceActivityQueue { get; } = new();
     public ConfigData Config => config;
+    public AnimatorListener AnimatorListener => animatorListener;
+    public Animator Animator => animatorListener.Animator;
+
     private Transform _cameraTransform;
 
     private void Start()

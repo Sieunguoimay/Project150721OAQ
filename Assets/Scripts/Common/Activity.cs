@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Common
 {
-    public abstract class Activity
+    public class Activity
     {
         public virtual bool Inactive { get; protected set; } = true;
         public event Action Done;
@@ -31,7 +31,7 @@ namespace Common
 
     public class ParallelActivity : Activity
     {
-        private readonly List<Activity> _activities = new();
+        private readonly List<Activity> _activities = new ();
 
         public void Add(Activity activity)
         {
@@ -90,7 +90,7 @@ namespace Common
     {
         private Activity _currentActivity;
 
-        public Queue<Activity> Activities { get; } = new();
+        public Queue<Activity> Activities { get; } = new ();
 
         public void Add(Activity anim)
         {
@@ -100,7 +100,7 @@ namespace Common
         public override void Update(float deltaTime)
         {
             if (Inactive) return;
-            
+
             if (_currentActivity == null)
             {
                 if (Activities.Count > 0)

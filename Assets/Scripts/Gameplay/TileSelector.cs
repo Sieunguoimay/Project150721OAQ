@@ -2,22 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common;
+using SNM;
 using UnityEngine;
 
 namespace Gameplay
 {
     public class TileSelector : MonoBehaviour
     {
+        [SerializeField] private MeshBoundsClicker left;
+        [SerializeField] private MeshBoundsClicker right;
+
         private Board.TileGroup _tileGroup;
         private Tile _selectedTile;
         private Color _prevColor = Color.black;
         private readonly List<ISelectionAdaptor> _selectionAdaptors = new List<ISelectionAdaptor>();
 
         public Action<Tile, bool> OnDone = delegate { };
+        public event Action<bool> OnTouched;
 
         public void Setup()
         {
             gameObject.SetActive(false);
+            left.OnClick += InvokeOnTouchedLeft;
+            right.OnClick += InvokeOnTouchedRight;
+        }
+
+        public void TearDown()
+        {
+            left.OnClick -= InvokeOnTouchedLeft;
+            right.OnClick -= InvokeOnTouchedRight;
         }
 
         public void Display(Board.TileGroup tileGroup)
@@ -26,9 +39,6 @@ namespace Gameplay
             _tileGroup = tileGroup;
             foreach (var t in tileGroup.Tiles)
             {
-                t.OnSelect -= OnTileSelect;
-                t.OnSelect += OnTileSelect;
-
                 var p = t.GetComponent<PerObjectMaterial>();
                 _prevColor = p.Color;
 
@@ -39,7 +49,7 @@ namespace Gameplay
             }
         }
 
-        private void OnTileSelect(Tile tile)
+        public void SelectTile(Tile tile)
         {
             if (tile.Pieces.Count <= 0) return;
 
@@ -48,7 +58,7 @@ namespace Gameplay
             InvokeDeselect();
 
             Debug.Log("Selected tile " + tile.Pieces.Count);
-            
+
             foreach (var sa in _selectedTile.Pieces.Select(p => new PieceToTileSelectorAdaptor(p)))
             {
                 ((ISelectionAdaptor) sa).OnTileSelected();
@@ -86,7 +96,6 @@ namespace Gameplay
             {
                 foreach (var t in _tileGroup.Tiles)
                 {
-                    t.OnSelect -= OnTileSelect;
                     t.GetComponent<PerObjectMaterial>().Color = _prevColor;
                 }
             }
@@ -97,6 +106,16 @@ namespace Gameplay
 
             OnDone?.Invoke(_selectedTile, forward);
             gameObject.SetActive(false);
+        }
+
+        private void InvokeOnTouchedRight()
+        {
+            OnTouched?.Invoke(true);
+        }
+
+        private void InvokeOnTouchedLeft()
+        {
+            OnTouched?.Invoke(false);
         }
 
         public interface ISelectionAdaptor

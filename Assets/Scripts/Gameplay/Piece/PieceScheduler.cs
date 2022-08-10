@@ -5,6 +5,7 @@ using Gameplay;
 using SNM;
 using SNM.Easings;
 using UnityEngine;
+using Math = System.Math;
 
 namespace Gameplay
 {
@@ -30,16 +31,34 @@ namespace Gameplay
             }
         }
 
-        public static void MovePieceToTheBoardOnGameStart(Piece p, Vector3 initialPos, Tile t, WaitForEnd triggerActivity,
+        public static void MovePieceToTheBoardOnGameStart(Piece p, Vector3 initialPos, Tile t, Activity triggerActivity,
             float delay)
         {
             p.transform.position = initialPos;
             var position = t.GetPositionInFilledCircle(Mathf.Max(0, t.Pieces.Count - 1));
             p.PieceActivityQueue.Add(triggerActivity);
+            CreateAAnimActivity(p, LegHashes.sit_down, null);
             p.PieceActivityQueue.Add(new Delay(delay));
             p.PieceActivityQueue.Add(new Flocking(p.Config.flockingConfigData,
                 new Flocking.InputData {target = position, transform = p.transform}, null));
             p.PieceActivityQueue.Begin();
+        }
+
+        public static void CreateAAnimActivity(Piece p, int animHash, Action onDone)
+        {
+            Activity animActivity = new Lambda(() => { p.Animator?.Play(animHash, -1, 0f); }, () =>
+            {
+                if (p.Animator == null) return true;
+
+                var info = p.Animator.GetCurrentAnimatorStateInfo(0);
+                return info.shortNameHash == animHash && info.normalizedTime >= 1f;
+            });
+            if (onDone != null)
+            {
+                animActivity.Done += onDone;
+            }
+
+            p.PieceActivityQueue.Add(animActivity);
         }
     }
 }

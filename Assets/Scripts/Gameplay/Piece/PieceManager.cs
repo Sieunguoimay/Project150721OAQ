@@ -14,7 +14,7 @@ namespace InGame
         [SerializeField] private Piece mandarinPrefab;
         [SerializeField] private Piece citizenPrefab;
 
-        private readonly WaitForEnd _waitForEnd = new();
+        private readonly Activity _waitForEnd = new();
 
         public Piece[] Pieces { get; private set; }
 
@@ -51,7 +51,7 @@ namespace InGame
 
         public void ReleasePieces(Action onAllInPlace)
         {
-            _waitForEnd.End();
+            _waitForEnd.NotifyDone();
             this.WaitUntil(() => Pieces.All(p => p.PieceActivityQueue.Inactive), onAllInPlace);
         }
     }

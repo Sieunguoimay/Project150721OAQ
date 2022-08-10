@@ -17,7 +17,7 @@ public class Tile : PieceContainer, RayPointer.IListener
 
     public bool IsConnected => Prev != null && Next != null;
 
-    public event Action<Tile> OnSelect = delegate { };
+    public event Action<Tile> OnTouched = delegate { };
 
     private void Awake()
     {
@@ -47,6 +47,6 @@ public class Tile : PieceContainer, RayPointer.IListener
 
     public void OnHit(Ray ray, float distance)
     {
-        OnSelect?.Invoke(this);
+        OnTouched?.Invoke(this);
     }
 }

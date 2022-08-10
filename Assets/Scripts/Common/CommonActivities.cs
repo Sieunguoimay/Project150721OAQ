@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using System;
+using Common;
 using SNM;
 using UnityEngine;
 
@@ -136,12 +137,24 @@ namespace CommonActivities
 
     public class Delay : Activity
     {
-        private readonly float _duration;
+        private float _duration;
         private float _time = 0;
+        private readonly Func<float> _onBegin;
 
         public Delay(float duration)
         {
             _duration = duration;
+        }
+
+        public Delay(Func<float> onBegin = null)
+        {
+            _onBegin = onBegin;
+        }
+
+        public override void Begin()
+        {
+            base.Begin();
+            _duration = _onBegin?.Invoke() ?? _duration;
         }
 
         public override void Update(float deltaTime)
@@ -154,8 +167,35 @@ namespace CommonActivities
         }
     }
 
-    public class WaitForEnd : Activity
+    public class Lambda : Activity
     {
-        public void End() => NotifyDone();
+        private readonly Action _onBegin;
+        private readonly Func<bool> _onUpdate;
+
+        public Lambda(Action onBegin)
+        {
+            _onBegin = onBegin;
+        }
+
+        public Lambda(Action onBegin, Func<bool> onUpdate)
+        {
+            _onBegin = onBegin;
+            _onUpdate = onUpdate;
+        }
+
+        public override void Begin()
+        {
+            base.Begin();
+            _onBegin?.Invoke();
+        }
+
+        public override void Update(float deltaTime)
+        {
+            base.Update(deltaTime);
+            if (_onUpdate?.Invoke() ?? false)
+            {
+                NotifyDone();
+            }
+        }
     }
 }
