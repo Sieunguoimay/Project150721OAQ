@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Common;
+using Gameplay.Piece;
 using SNM;
 using UnityEngine;
 
-namespace Gameplay
+namespace Gameplay.Board
 {
     public class TileSelector : MonoBehaviour
     {
         [SerializeField] private MeshBoundsClicker left;
         [SerializeField] private MeshBoundsClicker right;
 
-        private Board.TileGroup _tileGroup;
+        private Gameplay.Board.Board.TileGroup _tileGroup;
         private Tile _selectedTile;
-        private Color _prevColor = Color.black;
         private readonly List<ISelectionAdaptor> _selectionAdaptors = new List<ISelectionAdaptor>();
 
         public Action<Tile, bool> OnDone = delegate { };
@@ -33,20 +32,10 @@ namespace Gameplay
             right.OnClick -= InvokeOnTouchedRight;
         }
 
-        public void Display(Board.TileGroup tileGroup)
+        public void Display(Gameplay.Board.Board.TileGroup tileGroup)
         {
             _selectedTile = null;
             _tileGroup = tileGroup;
-            foreach (var t in tileGroup.Tiles)
-            {
-                var p = t.GetComponent<PerObjectMaterial>();
-                _prevColor = p.Color;
-
-                if (t.Pieces.Count > 0)
-                {
-                    p.Color = Color.black;
-                }
-            }
         }
 
         public void SelectTile(Tile tile)
@@ -57,9 +46,7 @@ namespace Gameplay
 
             InvokeDeselect(false);
 
-            Debug.Log("Selected tile " + tile.Pieces.Count);
-
-            foreach (var sa in _selectedTile.Pieces.Select(p => new PieceToTileSelectorAdaptor(p)))
+            foreach (var sa in _selectedTile.Pieces.Where(p => p is Citizen).Select(p => new CitizenToTileSelectorAdaptor(p as Citizen)))
             {
                 ((ISelectionAdaptor) sa).OnTileSelected();
                 _selectionAdaptors.Add(sa);
@@ -73,11 +60,6 @@ namespace Gameplay
             transform.rotation = Quaternion.LookRotation(dir, transform.up);
 
             gameObject.SetActive(true);
-
-            foreach (var t in tiles)
-            {
-                t.GetComponent<PerObjectMaterial>().Color = t == _selectedTile ? Color.black : _prevColor;
-            }
         }
 
         private void InvokeDeselect(bool success)
@@ -92,14 +74,6 @@ namespace Gameplay
 
         public void ChooseDirection(bool forward)
         {
-            if (_tileGroup?.Tiles != null)
-            {
-                foreach (var t in _tileGroup.Tiles)
-                {
-                    t.GetComponent<PerObjectMaterial>().Color = _prevColor;
-                }
-            }
-
             InvokeDeselect(true);
 
             _tileGroup = null;

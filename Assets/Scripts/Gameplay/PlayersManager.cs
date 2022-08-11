@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Gameplay.Board;
 using SNM;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace Gameplay
         public Player CurrentPlayer => Players[_turn];
         private int _turn = 0;
 
-        public void Setup(Board.TileGroup[] tileGroups, TileSelector tileSelector)
+        public void Setup(Board.Board.TileGroup[] tileGroups, TileSelector tileSelector)
         {
             var n = tileGroups.Length;
             Players = new Player[n];
@@ -37,7 +38,7 @@ namespace Gameplay
             CurrentPlayer.AcquireTurn();
         }
 
-        private static PosAndRot CalculatePlayerPosition(Board.TileGroup tg)
+        private static PosAndRot CalculatePlayerPosition(Board.Board.TileGroup tg)
         {
             var pos1 = tg.Tiles[0].transform.position;
             var pos2 = tg.Tiles[^1].transform.position;

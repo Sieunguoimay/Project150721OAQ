@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gameplay;
+using Gameplay.Board;
+using Gameplay.Piece;
 using SNM;
 using UnityEngine;
 

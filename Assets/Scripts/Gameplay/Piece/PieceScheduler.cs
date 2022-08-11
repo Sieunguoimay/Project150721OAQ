@@ -1,17 +1,14 @@
 ﻿using System;
 using Common;
 using CommonActivities;
-using Gameplay;
-using SNM;
-using SNM.Easings;
+using Gameplay.Board;
 using UnityEngine;
-using Math = System.Math;
 
-namespace Gameplay
+namespace Gameplay.Piece
 {
     public class PieceScheduler
     {
-        public static void MovePiecesOutOfTheBoard(Piece[] pieces, Vector3[] positions, Vector3 centerPoint)
+        public static void MovePiecesOutOfTheBoard(Gameplay.Piece.Piece[] pieces, Vector3[] positions, Vector3 centerPoint)
         {
             Array.Sort(pieces, (a, b) =>
             {
@@ -31,7 +28,7 @@ namespace Gameplay
             }
         }
 
-        public static void MovePieceToTheBoardOnGameStart(Piece p, Vector3 initialPos, Tile t, Activity triggerActivity,
+        public static void MovePieceToTheBoardOnGameStart(Citizen p, Vector3 initialPos, Tile t, Activity triggerActivity,
             float delay)
         {
             p.transform.position = initialPos;
@@ -44,10 +41,10 @@ namespace Gameplay
             p.PieceActivityQueue.Begin();
         }
 
-        public static void CreateAAnimActivity(Piece p, int animHash, Action onDone)
+        public static void CreateAAnimActivity(Citizen p, int animHash, Action onDone)
             => CreateAAnimActivity(p, () => animHash, onDone);
 
-        public static void CreateAAnimActivity(Piece p, Func<int> animHash, Action onDone)
+        public static void CreateAAnimActivity(Citizen p, Func<int> animHash, Action onDone)
         {
             var anim = -1;
             Activity animActivity = new Lambda(() =>

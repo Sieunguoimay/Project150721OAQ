@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Common;
-using CommonActivities;
-using Gameplay;
 using SNM;
 using UnityEngine;
 
-namespace InGame
+namespace Gameplay.Piece
 {
     public class PieceManager : MonoBehaviour
     {
@@ -36,12 +33,10 @@ namespace InGame
                 {
                     for (var i = 0; i < 5; i++)
                     {
-                        var p = Instantiate(citizenPrefab, transform, true);
+                        var p = Instantiate(citizenPrefab, transform, true) as Citizen;
                         p.Setup();
                         t.Grasp(p);
                         
-                        p.GetComponentInChildren<SkinnedMeshRenderer>().enabled = false;
-
                         PieceScheduler.MovePieceToTheBoardOnGameStart(p, player.PieceBench.Config.PosAndRot.Position, t,
                             _waitForEnd,
                             delay += 0.1f);

@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Animations;
 
@@ -19,13 +20,13 @@ namespace Common.Animation
             base.OnStateExit(animator, stateInfo, layerIndex, controller);
             GetListener(animator).OnStateExit(stateInfo, layerIndex);
         }
+
         private AnimatorListener GetListener(Animator animator)
         {
-            if (_listener == null)
-            {
-                _listener = animator.GetComponentInChildren<AnimatorListener>();
-                _listener.Setup(animator);
-            }
+            if (_listener != null) return _listener;
+            
+            _listener = animator.GetComponentInChildren<AnimatorListener>();
+            _listener.Setup(animator);
 
             return _listener;
         }

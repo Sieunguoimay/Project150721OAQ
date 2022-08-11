@@ -5,7 +5,7 @@ namespace SNM
 {
     public class RayPointer
     {
-        private readonly List<IListener> _listeners = new();
+        private readonly List<ITarget> _listeners = new();
         private readonly Camera _camera;
 
         public RayPointer()
@@ -18,14 +18,14 @@ namespace SNM
             _listeners.Clear();
         }
 
-        public void Register(IListener listener)
+        public void Register(ITarget target)
         {
-            _listeners.Add(listener);
+            _listeners.Add(target);
         }
 
-        public void Unregister(IListener listener)
+        public void Unregister(ITarget target)
         {
-            _listeners.Remove(listener);
+            _listeners.Remove(target);
         }
 
         public void Update(float deltaTime)
@@ -41,7 +41,7 @@ namespace SNM
             var ray = _camera.ScreenPointToRay(position);
 
             var minDistance = float.MaxValue;
-            IListener selectedListener = null;
+            ITarget selectedTarget = null;
 
             foreach (var l in _listeners)
             {
@@ -49,16 +49,16 @@ namespace SNM
                 if (minDistance > distance)
                 {
                     minDistance = distance;
-                    selectedListener = l;
+                    selectedTarget = l;
                 }
 
                 Debug.Log((l as MonoBehaviour)?.name + " " + distance);
             }
 
-            selectedListener?.OnHit(ray, minDistance);
+            selectedTarget?.OnHit(ray, minDistance);
         }
 
-        public interface IListener
+        public interface ITarget
         {
             Bounds Bounds { get; }
 

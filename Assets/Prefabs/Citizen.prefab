@@ -522,6 +522,11 @@ MonoBehaviour:
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
     m_Visible: 1
+--- !u!137 &3502860742004899307 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7713616114818142537, guid: 0b03e5543007ae24eb9df56f55be096e, type: 3}
+  m_PrefabInstance: {fileID: 6598034819394448546}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4334814763249407024 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7473924494473803922, guid: 0b03e5543007ae24eb9df56f55be096e, type: 3}
@@ -537,6 +542,55 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 650495705902687601, guid: 0b03e5543007ae24eb9df56f55be096e, type: 3}
   m_PrefabInstance: {fileID: 6598034819394448546}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &6291955720479248883 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 0b03e5543007ae24eb9df56f55be096e, type: 3}
+  m_PrefabInstance: {fileID: 6598034819394448546}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3319264407726642100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6291955720479248883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b06169d5c5e477c84171cec8557cda4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animatorListener: {fileID: 695480551792940659}
+  stateName: sitting
+  onStateEnter:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3502860742004899307}
+        m_TargetAssemblyTypeName: UnityEngine.Renderer, UnityEngine
+        m_MethodName: set_enabled
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onStateExit:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3502860742004899307}
+        m_TargetAssemblyTypeName: UnityEngine.Renderer, UnityEngine
+        m_MethodName: set_enabled
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!4 &6483957758856308457 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 174312792603396683, guid: 0b03e5543007ae24eb9df56f55be096e, type: 3}

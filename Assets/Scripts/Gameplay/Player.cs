@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Gameplay.Board;
 using SNM;
 
 namespace Gameplay
@@ -10,17 +11,17 @@ namespace Gameplay
         protected TileSelector TileSelector { get; private set; }
         public event Action<Tile, bool> OnDecisionResult = delegate { };
 
-        public Board.TileGroup TileGroup { get; }
+        public Board.Board.TileGroup TileGroup { get; }
         public PieceBench PieceBench { get; }
 
-        protected Player(Board.TileGroup tileGroup, PieceBench pieceBench, TileSelector tileSelector)
+        protected Player(Board.Board.TileGroup tileGroup, PieceBench pieceBench, TileSelector tileSelector)
         {
             TileGroup = tileGroup;
             PieceBench = pieceBench;
             TileSelector = tileSelector;
         }
 
-        public virtual void MakeDecision(Board board)
+        public virtual void MakeDecision(Board.Board board)
         {
             TileSelector.Display(TileGroup);
         }
@@ -39,11 +40,11 @@ namespace Gameplay
 
     public class RealPlayer : Player
     {
-        public RealPlayer(Board.TileGroup tileGroup, PieceBench pieceBench, TileSelector tileSelector) : base(tileGroup, pieceBench, tileSelector)
+        public RealPlayer(Board.Board.TileGroup tileGroup, PieceBench pieceBench, TileSelector tileSelector) : base(tileGroup, pieceBench, tileSelector)
         {
         }
 
-        public override void MakeDecision(Board board)
+        public override void MakeDecision(Board.Board board)
         {
             base.MakeDecision(board);
             foreach (var t in TileGroup.Tiles)
@@ -65,11 +66,11 @@ namespace Gameplay
 
     public class FakePlayer : Player
     {
-        public FakePlayer(Board.TileGroup tileGroup, PieceBench pieceBench, TileSelector tileSelector) : base(tileGroup, pieceBench, tileSelector)
+        public FakePlayer(Board.Board.TileGroup tileGroup, PieceBench pieceBench, TileSelector tileSelector) : base(tileGroup, pieceBench, tileSelector)
         {
         }
 
-        public override void MakeDecision(Board board)
+        public override void MakeDecision(Board.Board board)
         {
             base.MakeDecision(board);
 

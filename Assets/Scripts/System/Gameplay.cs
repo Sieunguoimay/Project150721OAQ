@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using CommonActivities;
 using Gameplay;
+using Gameplay.Board;
+using Gameplay.Piece;
 using InGame;
 using SNM;
 using UnityEngine;
@@ -23,11 +25,11 @@ namespace System
         public Board BoardPrefab => _gameplaySerializable.boardPrefab;
         public TileSelector TileSelectorPrefabPrefab => _gameplaySerializable.tileSelectorPrefab;
         public PieceManager PieceManager => _gameplaySerializable.pieceManager;
-        
+
         private Board _board;
         private TileSelector _tileSelector;
 
-        private PieceDropper _pieceDropper = new();
+        private readonly PieceDropper _pieceDropper = new PieceDropper();
 
         private PerMatchData _perMatchData;
         private Player CurrentPlayer => PlayerManager.CurrentPlayer;
@@ -52,9 +54,7 @@ namespace System
 
             PieceManager.SpawnPieces(PlayerManager.Players);
 
-            _pieceDropper = new PieceDropper();
             _pieceDropper.Setup(_board);
-
 
             ConnectEvents();
         }
@@ -62,6 +62,8 @@ namespace System
         public void TearDown()
         {
             DisconnectEvents();
+            _board.TearDown();
+            _tileSelector.TearDown();
         }
 
         private void ConnectEvents()
@@ -116,7 +118,7 @@ namespace System
                 {
                     if (CurrentPlayer.PieceBench.Pieces.Count > 0)
                     {
-                        if (!CurrentPlayer.TileGroup.TakeBackTiles(CurrentPlayer.PieceBench.Pieces, _pieceDropper))
+                        if (!Board.TakeBackCitizens(CurrentPlayer.PieceBench.Pieces, _pieceDropper, CurrentPlayer.TileGroup))
                         {
                             gameOver = false;
                         }

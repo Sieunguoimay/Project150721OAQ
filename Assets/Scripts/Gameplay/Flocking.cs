@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Common;
 using CommonActivities;
+using Gameplay.Piece;
 using UnityEngine;
 
 namespace Gameplay

@@ -1,0 +1,149 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using Random = UnityEngine.Random;
+
+
+namespace Gameplay.Board
+{
+    public class Board : MonoBehaviour
+    {
+        [field: System.NonSerialized] public Tile[] Tiles { get; private set; }
+        [field: System.NonSerialized] public TileGroup[] TileGroups { get; private set; }
+        
+        private readonly BoardTraveller _traveller = new BoardTraveller();
+
+        public void Setup()
+        {
+            Tiles = GetComponentsInChildren<Tile>();
+            foreach (var t in Tiles)
+            {
+                t.Setup();
+            }
+
+            var mts = GetComponentsInChildren<MandarinTile>();
+            TileGroups = new TileGroup[mts.Length];
+            for (var i = 0; i < mts.Length; i++)
+            {
+                TileGroups[i] = CreateTileGroup(mts[i]);
+            }
+        }
+
+        public void TearDown()
+        {
+            foreach (var t in Tiles)
+            {
+                t.TearDown();
+            }
+        }
+
+        public Tile Success(Tile tile, bool forward)
+        {
+            _traveller.Start(Array.IndexOf(Tiles, tile), Tiles.Length, Tiles.Length);
+            _traveller.Next(forward);
+            return Tiles[_traveller.CurrentIndex];
+        }
+
+        public bool AreMandarinTilesAllEmpty()
+        {
+            return TileGroups.All(tg => tg.MandarinTile.Pieces.Count <= 0);
+        }
+
+        private  TileGroup CreateTileGroup(Tile mt)
+        {
+            var tg = new TileGroup
+            {
+                MandarinTile = mt,
+                Tiles = new List<Tile>()
+            };
+
+            _traveller.Start(Array.IndexOf(Tiles, mt), Tiles.Length, Tiles.Length);
+            _traveller.Next(true);
+            while (Tiles[_traveller.CurrentIndex] is not MandarinTile)
+            {
+                tg.Tiles.Add(Tiles[_traveller.CurrentIndex]);
+                _traveller.Next(true);
+            }
+
+            return tg;
+        }
+
+        public static bool IsTileGroupEmpty(TileGroup tileGroup)
+        {
+            return tileGroup.Tiles.All(t => t.Pieces.Count <= 0);
+        }
+
+        public static bool TakeBackCitizens(List<Piece.Piece> pieces, PieceDropper dropper, TileGroup tg)
+        {
+            if (pieces.Count <= 0) return false;
+
+            dropper.GetReadyForTakingBackCitizens(tg, pieces);
+            dropper.DropAll(true);
+
+            return true;
+        }
+
+        public class TileGroup
+        {
+            public Tile MandarinTile;
+            public List<Tile> Tiles;
+        }
+
+#if UNITY_EDITOR
+        private static void TravelBoard(Tile[] items, Tile tile, int steps, bool forward)
+        {
+            Debug.Log("Traveling " + tile.gameObject.name + " " + steps + " " + forward);
+            var boardTraveller = new BoardTraveller();
+            boardTraveller.Start(Array.IndexOf(items, tile), steps, items.Length);
+
+            while (boardTraveller.IsTravelling)
+            {
+                if (!boardTraveller.Next(forward))
+                {
+                    Debug.Log("Ended");
+                }
+            }
+        }
+
+        // [ContextMenu("Connect Tiles")]
+        // public void SelfConnect()
+        // {
+        //     Debug.Log(Tiles.Length);
+        //     for (var i = 0; i < Tiles.Length; i++)
+        //     {
+        //         var prev = i == 0 ? Tiles.Length - 1 : i - 1;
+        //         var next = i < Tiles.Length - 1 ? i + 1 : 0;
+        //         Tiles[i].Connect(Tiles[prev], Tiles[next]);
+        //     }
+        // }
+
+        [ContextMenu("Test Travel X")]
+        private void TestTravel()
+        {
+            TravelBoard(Tiles, Tiles[UnityEngine.Random.Range(0, Tiles.Length)], Random.Range(5, 10),
+                Random.Range(0, 100) > 50);
+        }
+        //
+        // [ContextMenu("Popularize")]
+        // private void Popularize()
+        // {
+        //     var mrs = GetComponentsInChildren<MeshRenderer>();
+        //     foreach (var mr in mrs)
+        //     {
+        //         if (mr.sharedMaterial == null)
+        //         {
+        //             mr.sharedMaterial = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.FindAssets(mr.gameObject.name).Select(AssetDatabase.GUIDToAssetPath).FirstOrDefault(p => Path.GetFileName(p).Equals(mr.gameObject.name + ".mat")));
+        //         }
+        //         else
+        //         {
+        //             var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.FindAssets(mr.gameObject.name).Select(AssetDatabase.GUIDToAssetPath).FirstOrDefault(p => Path.GetFileName(p).EndsWith(mr.gameObject.name + ".psd")));
+        //             mr.sharedMaterial.SetTexture("_BaseMap", tex);
+        //         }
+        //     }
+        //
+        //     AssetDatabase.SaveAssets();
+        // }
+#endif
+    }
+}

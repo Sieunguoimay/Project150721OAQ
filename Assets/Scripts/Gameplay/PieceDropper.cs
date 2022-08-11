@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CommonActivities;
+using Gameplay.Board;
+using Gameplay.Piece;
 using SNM;
 using UnityEngine;
 using Action = System.Action;
@@ -9,30 +12,28 @@ namespace Gameplay
 {
     public class PieceDropper : PieceHolder
     {
-        private BoardTraveller _boardTraveller;
-        public bool IsTravelling => _boardTraveller?.IsTravelling ?? false;
+        private readonly BoardTraveller _boardTraveller = new BoardTraveller();
         public event Action<IPieceHolder> OnEat = delegate { };
         public event Action<ActionID> OnDone = delegate { };
 
         private ActionID _actionID;
         private bool _forward;
+        private Board.Board _board;
+        private Tile CurrentTile => _board.Tiles[_boardTraveller.CurrentIndex];
 
-        public void Setup(Board board)
+        public void Setup(Board.Board board)
         {
-            if (_boardTraveller == null || _boardTraveller.Board != board)
-            {
-                _boardTraveller = new BoardTraveller(board, new BoardTraveller.Config {activeColor = Color.black});
-            }
+            _board = board;
         }
 
         public void GetReady(Tile tile)
         {
             Grasp(tile);
-            _boardTraveller.Start(tile, Pieces.Count);
+            _boardTraveller.Start(Array.IndexOf(_board.Tiles, tile), Pieces.Count, _board.Tiles.Length);
             _actionID = ActionID.DroppingInTurn;
         }
 
-        public void GetReadyForTakingBackCitizens(Board.TileGroup tileGroup, List<Piece> citizens)
+        public void GetReadyForTakingBackCitizens(Board.Board.TileGroup tileGroup, List<Piece.Piece> citizens)
         {
             var n = citizens.Count;
             for (var i = n - 1; i >= 0; i--)
@@ -48,7 +49,7 @@ namespace Gameplay
                 citizens.RemoveAt(i);
             }
 
-            _boardTraveller.Start(tileGroup.MandarinTile, Pieces.Count);
+            _boardTraveller.Start(Array.IndexOf(_board.Tiles, tileGroup.MandarinTile), Pieces.Count, _board.Tiles.Length);
             _actionID = ActionID.TakingBack;
         }
 
@@ -64,7 +65,7 @@ namespace Gameplay
 
                 for (var j = 0; j < n - i; j++)
                 {
-                    var p = Pieces[i + j];
+                    if (!(Pieces[i + j] is Citizen p)) continue;
 
                     if (i == 0)
                     {
@@ -79,9 +80,9 @@ namespace Gameplay
                         delay += 0.2f;
                     }
 
-                    var skipSlot = p is Citizen && _boardTraveller.CurrentTile is MandarinTile {HasMandarin: true};
-                    var citizenPos = _boardTraveller.CurrentTile.GetPositionInFilledCircle(
-                        _boardTraveller.CurrentTile.Pieces.Count + j + (skipSlot ? 5 : 0), false);
+                    var skipSlot = CurrentTile is MandarinTile {HasMandarin: true};
+                    var citizenPos = CurrentTile.GetPositionInFilledCircle(
+                        CurrentTile.Pieces.Count + j + (skipSlot ? 5 : 0), false);
                     var flag = i == n - 1 ? 2 : j == 0 ? 1 : 0;
 
                     var jumpForward = new JumpForward(p.transform, citizenPos, .4f,
@@ -97,23 +98,21 @@ namespace Gameplay
                     jumpForward.Done += () => OnJumpDone(p, flag);
                 }
 
-                _boardTraveller.CurrentTile.Grasp(Pieces[i]);
+                CurrentTile.Grasp(Pieces[i]);
             }
 
-            foreach (var p in Pieces)
+            foreach (var p in Pieces.Cast<Citizen>())
             {
-                p.GetComponentInChildren<SkinnedMeshRenderer>().enabled = true;
                 PieceScheduler.CreateAAnimActivity(p, LegHashes.land, () => p.Animator.Play(LegHashes.idle));
                 p.PieceActivityQueue.Add(new PieceActivityQueue.TurnAway(p.transform));
-                PieceScheduler.CreateAAnimActivity(p, LegHashes.sit_down,
-                    () => { p.GetComponentInChildren<SkinnedMeshRenderer>().enabled = false; });
+                PieceScheduler.CreateAAnimActivity(p, LegHashes.sit_down, null);
                 p.PieceActivityQueue.Begin();
             }
 
             Pieces.Clear();
         }
 
-        private void OnJumpDone(Piece last, int flag)
+        private void OnJumpDone(Piece.Piece last, int flag)
         {
             if (flag == 2)
             {
@@ -123,45 +122,51 @@ namespace Gameplay
 
         private void OnDropAllDone()
         {
-            if (_actionID == ActionID.DroppingInTurn)
+            switch (_actionID)
             {
-                var t = _boardTraveller.CurrentTile.Success(_forward);
-                _boardTraveller.Reset();
+                case ActionID.DroppingInTurn:
+                {
+                    var t = _board.Success(CurrentTile, _forward);
+                    _boardTraveller.Reset();
 
-                if (t.Pieces.Count > 0 && !(t is MandarinTile))
-                {
-                    GetReady(t);
-                    Main.Instance.Delay(.3f, () => { DropAll(_forward); });
-                }
-                else
-                {
-                    if (CheckSuccessEatable(t, _forward))
+                    if (t.Pieces.Count > 0 && !(t is MandarinTile))
                     {
-                        Eat(t, _forward, () => { OnDone?.Invoke(_actionID); });
+                        GetReady(t);
+                        Main.Instance.Delay(.3f, () => { DropAll(_forward); });
                     }
                     else
                     {
-                        OnDone?.Invoke(_actionID);
+                        if (CheckSuccessEatable(t, _forward))
+                        {
+                            Eat(t, _forward, () => { OnDone?.Invoke(_actionID); });
+                        }
+                        else
+                        {
+                            OnDone?.Invoke(_actionID);
+                        }
                     }
-                }
-            }
-            else if (_actionID == ActionID.TakingBack)
-            {
-                _boardTraveller.Reset();
 
-                OnDone?.Invoke(_actionID);
+                    break;
+                }
+                case ActionID.TakingBack:
+                    _boardTraveller.Reset();
+
+                    OnDone?.Invoke(_actionID);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
         private void Eat(Tile tile, bool forward, Action done)
         {
-            var success = tile.Success(forward);
+            var success = _board.Success(tile, forward);
 
             OnEat?.Invoke(success);
 
-            if (CheckSuccessEatable(success.Success(forward), forward))
+            if (CheckSuccessEatable(_board.Success(success, forward), forward))
             {
-                Main.Instance.Delay(0.2f, () => { Eat(success.Success(forward), forward, done); });
+                Main.Instance.Delay(0.2f, () => { Eat(_board.Success(success, forward), forward, done); });
             }
             else
             {
@@ -169,9 +174,9 @@ namespace Gameplay
             }
         }
 
-        private static bool CheckSuccessEatable(Tile tile, bool forward)
+        private bool CheckSuccessEatable(Tile tile, bool forward)
         {
-            var success = tile.Success(forward);
+            var success = _board.Success(tile, forward);
 
             return (tile.Pieces.Count == 0 && (!(tile is MandarinTile)) && (success.Pieces.Count > 0));
         }

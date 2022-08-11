@@ -1,31 +1,29 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-namespace Gameplay
+namespace Gameplay.Board
 {
     public interface IPieceHolder
     {
-        List<Piece> Pieces { get; }
-        void Grasp(Piece piece, Action<Piece> onGrasp = null);
-        void Grasp(IPieceHolder other, Action<Piece> onGrasp = null);
-        void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null);
+        List<Piece.Piece> Pieces { get; }
+        void Grasp(Piece.Piece piece, Action<Piece.Piece> onGrasp = null);
+        void Grasp(IPieceHolder other, Action<Piece.Piece> onGrasp = null);
+        void Grasp(List<Piece.Piece> otherPieces, int count = -1, Action<Piece.Piece> onGrasp = null);
         void OnGrasp(IPieceHolder other);
     }
 
     public class PieceHolder : IPieceHolder
     {
-        [field: System.NonSerialized] public List<Piece> Pieces { get; } = new();
+        [field: NonSerialized] public List<Piece.Piece> Pieces { get; } = new();
 
-        public virtual void Grasp(Piece piece, Action<Piece> onGrasp = null)
+        public virtual void Grasp(Piece.Piece piece, Action<Piece.Piece> onGrasp = null)
         {
             Pieces.Add(piece);
             onGrasp?.Invoke(piece);
         }
 
-        public void Grasp(IPieceHolder other, Action<Piece> onGrasp = null)
+        public void Grasp(IPieceHolder other, Action<Piece.Piece> onGrasp = null)
         {
             foreach (var b in other.Pieces)
             {
@@ -36,7 +34,7 @@ namespace Gameplay
             other.Pieces.Clear();
         }
 
-        public void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null)
+        public void Grasp(List<Piece.Piece> otherPieces, int count = -1, Action<Piece.Piece> onGrasp = null)
         {
             if (count == otherPieces.Count || count == -1)
             {
@@ -71,11 +69,11 @@ namespace Gameplay
         #region IPieceHolder
 
         private readonly PieceHolder _pieceHolder = new PieceDropper();
-        public List<Piece> Pieces => _pieceHolder.Pieces;
-        public virtual void Grasp(Piece piece, Action<Piece> onGrasp = null) => _pieceHolder.Grasp(piece, onGrasp);
-        public void Grasp(IPieceHolder other, Action<Piece> onGrasp = null) => _pieceHolder.Grasp(other, onGrasp);
+        public List<Piece.Piece> Pieces => _pieceHolder.Pieces;
+        public virtual void Grasp(Piece.Piece piece, Action<Piece.Piece> onGrasp = null) => _pieceHolder.Grasp(piece, onGrasp);
+        public void Grasp(IPieceHolder other, Action<Piece.Piece> onGrasp = null) => _pieceHolder.Grasp(other, onGrasp);
 
-        public void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null) =>
+        public void Grasp(List<Piece.Piece> otherPieces, int count = -1, Action<Piece.Piece> onGrasp = null) =>
             _pieceHolder.Grasp(otherPieces, count, onGrasp);
 
         public virtual void OnGrasp(IPieceHolder whom)
@@ -88,6 +86,11 @@ namespace Gameplay
         public virtual void Setup()
         {
             ReservePositionsInFilledCircle();
+        }
+
+        public virtual void TearDown()
+        {
+            
         }
 
         public void Reposition(Transform t)
@@ -245,13 +248,13 @@ namespace Gameplay
 
             return false;
         }
-#if UNITY_EDITOR
-        [SerializeField] private int input = 1;
-        [ContextMenu("Test Get Position")]
-        private void TestGetPosition()
-        {
-            SpawnPositionInUnityUnit(input);
-        }
-#endif
+// #if UNITY_EDITOR
+//         [SerializeField] private int input = 1;
+//         [ContextMenu("Test Get Position")]
+//         private void TestGetPosition()
+//         {
+//             SpawnPositionInUnityUnit(input);
+//         }
+// #endif
     }
 }

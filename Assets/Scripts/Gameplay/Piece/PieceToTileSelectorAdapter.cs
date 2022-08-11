@@ -1,36 +1,32 @@
-﻿using Gameplay;
-using SNM;
+﻿using Gameplay.Board;
 using UnityEngine;
 
-public class PieceToTileSelectorAdaptor : TileSelector.ISelectionAdaptor
+namespace Gameplay.Piece
 {
-    private readonly Piece _piece;
-
-    private bool _isDeselected;
-
-    public PieceToTileSelectorAdaptor(Piece piece)
+    public class CitizenToTileSelectorAdaptor : TileSelector.ISelectionAdaptor
     {
-        _piece = piece;
-        _isDeselected = false;
-    }
+        private readonly Citizen _piece;
 
-    public void OnTileSelected()
-    {
-        _piece.FaceCamera(false, new Vector3(0, UnityEngine.Random.Range(-25f, 25f), 0));
-
-        _piece.GetComponentInChildren<SkinnedMeshRenderer>().enabled = true;
-        PieceScheduler.CreateAAnimActivity(_piece,LegHashes.stand_up,()=>{_piece.Animator.Play(LegHashes.idle);});
-        _piece.PieceActivityQueue.Begin();
-        
-    }
-
-    public void OnTileDeselected(bool success)
-    {
-        if (!success)
+        public CitizenToTileSelectorAdaptor(Citizen piece)
         {
-            _piece.Animator.Play(LegHashes.sit_down);
+            _piece = piece;
         }
+
+        public void OnTileSelected()
+        {
+            _piece.FaceCamera(false, new Vector3(0, UnityEngine.Random.Range(-25f, 25f), 0));
+
+            PieceScheduler.CreateAAnimActivity(_piece,LegHashes.stand_up,()=>{_piece.Animator.Play(LegHashes.idle);});
+            _piece.PieceActivityQueue.Begin();
         
-        _isDeselected = true;
+        }
+
+        public void OnTileDeselected(bool success)
+        {
+            if (!success)
+            {
+                _piece.Animator.Play(LegHashes.sit_down);
+            }
+        }
     }
 }

@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 3450064545638725467}
   - component: {fileID: 6862092800135097433}
   - component: {fileID: 7446358690606994154}
-  - component: {fileID: 4263785736746510327}
   - component: {fileID: 6506848365546645831}
   m_Layer: 0
   m_Name: MandarinTile
@@ -31,6 +30,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 3, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 0.1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -54,6 +54,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -97,19 +98,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4263785736746510327
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4708701738288824118}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a0e5b14cc211ef4c9ded4e96b6b6be6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  color: {r: 0, g: 0.7329502, b: 1, a: 1}
 --- !u!114 &6506848365546645831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -122,7 +110,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25317d4af5ba4c6dbe124616c41838ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  destroyOnStart: 1
   input: 1
-  prev: {fileID: 0}
-  next: {fileID: 0}
