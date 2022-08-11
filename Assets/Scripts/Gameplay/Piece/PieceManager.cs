@@ -16,7 +16,7 @@ namespace InGame
 
         private readonly Activity _waitForEnd = new();
 
-        public Piece[] Pieces { get; private set; }
+        private Piece[] Pieces { get; set; }
 
         public void SpawnPieces(Player[] players)
         {
@@ -39,6 +39,8 @@ namespace InGame
                         var p = Instantiate(citizenPrefab, transform, true);
                         p.Setup();
                         t.Grasp(p);
+                        
+                        p.GetComponentInChildren<SkinnedMeshRenderer>().enabled = false;
 
                         PieceScheduler.MovePieceToTheBoardOnGameStart(p, player.PieceBench.Config.PosAndRot.Position, t,
                             _waitForEnd,

@@ -17,19 +17,20 @@ public class PieceToTileSelectorAdaptor : TileSelector.ISelectionAdaptor
     public void OnTileSelected()
     {
         _piece.FaceCamera(false, new Vector3(0, UnityEngine.Random.Range(-25f, 25f), 0));
-        _piece.Delay(UnityEngine.Random.Range(0, 0.5f), () =>
-            {
-                if (!_isDeselected)
-                {
-                    // _piece.Animator.CrossFade("jump", 0.1f);
-                }
-            }
-        );
+
+        _piece.GetComponentInChildren<SkinnedMeshRenderer>().enabled = true;
+        PieceScheduler.CreateAAnimActivity(_piece,LegHashes.stand_up,()=>{_piece.Animator.Play(LegHashes.idle);});
+        _piece.PieceActivityQueue.Begin();
+        
     }
 
-    public void OnTileDeselected()
+    public void OnTileDeselected(bool success)
     {
-        // _piece.Animator.CrossFade("idle", 0.1f);
+        if (!success)
+        {
+            _piece.Animator.Play(LegHashes.sit_down);
+        }
+        
         _isDeselected = true;
     }
 }

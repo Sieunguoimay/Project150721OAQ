@@ -69,7 +69,13 @@ namespace Gameplay
                     if (i == 0)
                     {
                         p.PieceActivityQueue.Add(new Delay(delay)); // + 0.1f));
-                        PieceScheduler.CreateAAnimActivity(p, LegHashes.stand_up, null);
+                        PieceScheduler.CreateAAnimActivity(p, () =>
+                        {
+                            var info = p.Animator.GetCurrentAnimatorStateInfo(0);
+                            return info.shortNameHash == LegHashes.idle
+                                ? LegHashes.jump_interval
+                                : LegHashes.stand_up;
+                        }, null);
                         delay += 0.2f;
                     }
 
@@ -80,13 +86,13 @@ namespace Gameplay
 
                     var jumpForward = new JumpForward(p.transform, citizenPos, .4f,
                         new LinearEasing(), 1f, BezierEasing.CreateBezierEasing(0.35f, 0.75f));
-                    if (i != 0)
-                    {
-                        // p.PieceActivityQueue.Add(new Delay(0.1f));
-                    }
 
                     p.PieceActivityQueue.Add(jumpForward);
-                    PieceScheduler.CreateAAnimActivity(p, LegHashes.jump_interval, null);
+
+                    if (j > 0)
+                    {
+                        PieceScheduler.CreateAAnimActivity(p, LegHashes.jump_interval, null);
+                    }
 
                     jumpForward.Done += () => OnJumpDone(p, flag);
                 }
@@ -96,9 +102,11 @@ namespace Gameplay
 
             foreach (var p in Pieces)
             {
-                p.PieceActivityQueue.Add(new Lambda(() => p.Animator.Play(LegHashes.idle), () => true));
+                p.GetComponentInChildren<SkinnedMeshRenderer>().enabled = true;
+                PieceScheduler.CreateAAnimActivity(p, LegHashes.land, () => p.Animator.Play(LegHashes.idle));
                 p.PieceActivityQueue.Add(new PieceActivityQueue.TurnAway(p.transform));
-                PieceScheduler.CreateAAnimActivity(p, LegHashes.sit_down, null);
+                PieceScheduler.CreateAAnimActivity(p, LegHashes.sit_down,
+                    () => { p.GetComponentInChildren<SkinnedMeshRenderer>().enabled = false; });
                 p.PieceActivityQueue.Begin();
             }
 

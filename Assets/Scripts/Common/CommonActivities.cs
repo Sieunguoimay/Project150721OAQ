@@ -113,10 +113,10 @@ namespace CommonActivities
         public override void Begin()
         {
             base.Begin();
-            var distance = Vector3.Distance(Target, Transform.position);
+            var pos = Transform.position;
+            var distance = Vector3.Distance(Target, pos);
             var h = Mathf.Clamp(distance, _height / 2f, _height);
             var t = Duration;
-            var pos = Transform.position;
             var a = (-8f * h) / (t * t);
 
             _initialPosition = pos;
@@ -192,7 +192,7 @@ namespace CommonActivities
         public override void Update(float deltaTime)
         {
             base.Update(deltaTime);
-            if (_onUpdate?.Invoke() ?? false)
+            if (!Inactive && (_onUpdate?.Invoke() ?? false))
             {
                 NotifyDone();
             }

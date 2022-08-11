@@ -72,6 +72,7 @@ public class Piece : MonoBehaviour
             var duration = (target - transform.eulerAngles).magnitude / PieceActivityQueue.Config.angularSpeed;
             transform.DORotate(target, duration);
         }
+
     }
 
 

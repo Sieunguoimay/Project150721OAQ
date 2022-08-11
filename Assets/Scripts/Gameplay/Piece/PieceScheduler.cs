@@ -45,20 +45,26 @@ namespace Gameplay
         }
 
         public static void CreateAAnimActivity(Piece p, int animHash, Action onDone)
+            => CreateAAnimActivity(p, () => animHash, onDone);
+
+        public static void CreateAAnimActivity(Piece p, Func<int> animHash, Action onDone)
         {
-            Activity animActivity = new Lambda(() => { p.Animator?.Play(animHash, -1, 0f); }, () =>
+            var anim = -1;
+            Activity animActivity = new Lambda(() =>
+            {
+                anim = animHash.Invoke();
+                p.Animator?.Play(anim, -1, 0f);
+            }, () =>
             {
                 if (p.Animator == null) return true;
 
                 var info = p.Animator.GetCurrentAnimatorStateInfo(0);
-                if (info.shortNameHash == animHash)
-                {
-                    if (info.loop)
-                        Debug.LogError("Loop... :(");
-                    return info.normalizedTime >= 1f;
-                }
+                if (info.shortNameHash != anim) return false;
 
-                return false;
+                if (info.loop)
+                    Debug.LogError("Loop... :(");
+
+                return info.normalizedTime >= 1f;
             });
             if (onDone != null)
             {

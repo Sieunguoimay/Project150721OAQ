@@ -55,7 +55,7 @@ namespace Gameplay
 
             _selectedTile = tile;
 
-            InvokeDeselect();
+            InvokeDeselect(false);
 
             Debug.Log("Selected tile " + tile.Pieces.Count);
 
@@ -80,11 +80,11 @@ namespace Gameplay
             }
         }
 
-        private void InvokeDeselect()
+        private void InvokeDeselect(bool success)
         {
             foreach (var sa in _selectionAdaptors)
             {
-                sa.OnTileDeselected();
+                sa.OnTileDeselected(success);
             }
 
             _selectionAdaptors.Clear();
@@ -100,7 +100,7 @@ namespace Gameplay
                 }
             }
 
-            InvokeDeselect();
+            InvokeDeselect(true);
 
             _tileGroup = null;
 
@@ -121,7 +121,7 @@ namespace Gameplay
         public interface ISelectionAdaptor
         {
             void OnTileSelected();
-            void OnTileDeselected();
+            void OnTileDeselected(bool success);
         }
     }
 }
