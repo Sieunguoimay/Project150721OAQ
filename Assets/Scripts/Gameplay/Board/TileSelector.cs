@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Common.ResolveSystem;
 using Gameplay.Piece;
 using SNM;
 using UnityEngine;
@@ -19,15 +20,18 @@ namespace Gameplay.Board
         public Action<Tile, bool> OnDone = delegate { };
         public event Action<bool> OnTouched;
 
-        public void Setup()
+        private void Awake()
         {
+            Resolver.Instance.Bind(this);
             gameObject.SetActive(false);
             left.OnClick += InvokeOnTouchedLeft;
             right.OnClick += InvokeOnTouchedRight;
         }
 
-        public void TearDown()
+        private void OnDestroy()
         {
+            Resolver.Instance.Unbind(this);
+
             left.OnClick -= InvokeOnTouchedLeft;
             right.OnClick -= InvokeOnTouchedRight;
         }
@@ -55,7 +59,7 @@ namespace Gameplay.Board
             transform.position = tile.transform.position + Vector3.up * 0.3f;
             var tiles = _tileGroup?.Tiles;
             if (tiles == null) return;
-            var dir = tiles[^1].transform.position - tiles[0].transform.position;
+            var dir = ((Tile) tiles[^1]).transform.position - ((Tile) tiles[0]).transform.position;
             dir = SNM.Math.Projection(dir, Vector3.up);
             transform.rotation = Quaternion.LookRotation(dir, transform.up);
 

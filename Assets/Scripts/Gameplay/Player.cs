@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using Common.ResolveSystem;
 using Gameplay.Board;
+using Gameplay.Piece;
 using SNM;
 
 namespace Gameplay
@@ -11,19 +13,18 @@ namespace Gameplay
         protected TileSelector TileSelector { get; private set; }
         public event Action<Tile, bool> OnDecisionResult = delegate { };
 
-        public Board.Board.TileGroup TileGroup { get; }
-        public PieceBench PieceBench { get; }
+        public PieceBench PieceBench { get; set; }
+        public int Index { get; private set; }
 
-        protected Player(Board.Board.TileGroup tileGroup, PieceBench pieceBench, TileSelector tileSelector)
+        protected Player(int index)
         {
-            TileGroup = tileGroup;
-            PieceBench = pieceBench;
-            TileSelector = tileSelector;
+            Index = index;
+            TileSelector = Resolver.Instance.Resolve<TileSelector>();
         }
 
         public virtual void MakeDecision(Board.Board board)
         {
-            TileSelector.Display(TileGroup);
+            TileSelector.Display(board.TileGroups[Index]);
         }
 
         protected virtual void InvokeOnDecisionResult(Tile arg1, bool arg2) => OnDecisionResult?.Invoke(arg1, arg2);
@@ -40,21 +41,21 @@ namespace Gameplay
 
     public class RealPlayer : Player
     {
-        public RealPlayer(Board.Board.TileGroup tileGroup, PieceBench pieceBench, TileSelector tileSelector) : base(tileGroup, pieceBench, tileSelector)
+        public RealPlayer(int index) : base(index)
         {
         }
 
         public override void MakeDecision(Board.Board board)
         {
             base.MakeDecision(board);
-            foreach (var t in TileGroup.Tiles)
+            foreach (var t in board.TileGroups[Index].Tiles)
             {
-                t.OnTouched -= TileSelector.SelectTile;
-                t.OnTouched += TileSelector.SelectTile;
+                ((Tile) t).OnTouched -= TileSelector.SelectTile;
+                ((Tile) t).OnTouched += TileSelector.SelectTile;
             }
 
             TileSelector.OnTouched += OnTileSelectorTouched;
-            TileSelector.Display(TileGroup);
+            TileSelector.Display(board.TileGroups[Index]);
         }
 
         private void OnTileSelectorTouched(bool direction)
@@ -66,7 +67,7 @@ namespace Gameplay
 
     public class FakePlayer : Player
     {
-        public FakePlayer(Board.Board.TileGroup tileGroup, PieceBench pieceBench, TileSelector tileSelector) : base(tileGroup, pieceBench, tileSelector)
+        public FakePlayer(int index) : base(index)
         {
         }
 
@@ -74,10 +75,10 @@ namespace Gameplay
         {
             base.MakeDecision(board);
 
-            Tile selectedTile = null;
+            IPieceHolder selectedTile = null;
             var selectedDirection = UnityEngine.Random.Range(0, 100f) > 50f;
 
-            foreach (var t in TileGroup.Tiles.Where(t => t.Pieces.Count > 0))
+            foreach (var t in board.TileGroups[Index].Tiles.Where(t => t.Pieces.Count > 0))
             {
                 selectedTile = t;
                 if (UnityEngine.Random.Range(0, 100f) > 50f)
@@ -86,9 +87,9 @@ namespace Gameplay
                 }
             }
 
-            TileSelector.SelectTile(selectedTile);
+            TileSelector.SelectTile(selectedTile as Tile);
 
-            board.Delay(.4f, () => { TileSelector.ChooseDirection(selectedDirection); });
+            TileSelector.Delay(.4f, () => { TileSelector.ChooseDirection(selectedDirection); });
         }
     }
 }

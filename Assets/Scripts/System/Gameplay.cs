@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Common.ResolveSystem;
 using CommonActivities;
 using Gameplay;
 using Gameplay.Board;
@@ -14,25 +16,23 @@ namespace System
         [Serializable]
         public class GameplaySerializable
         {
-            public Board boardPrefab;
-            public TileSelector tileSelectorPrefab;
             public PieceManager pieceManager;
             public PlayersManager playersManager;
+            public BoardManager boardManager;
         }
 
         private readonly Gameplay.GameplaySerializable _gameplaySerializable;
         private PlayersManager PlayerManager => _gameplaySerializable.playersManager;
-        public Board BoardPrefab => _gameplaySerializable.boardPrefab;
-        public TileSelector TileSelectorPrefabPrefab => _gameplaySerializable.tileSelectorPrefab;
-        public PieceManager PieceManager => _gameplaySerializable.pieceManager;
+        private PieceManager PieceManager => _gameplaySerializable.pieceManager;
+        private BoardManager BoardManager => _gameplaySerializable.boardManager;
 
         private Board _board;
         private TileSelector _tileSelector;
 
-        private readonly PieceDropper _pieceDropper = new PieceDropper();
+        private readonly PieceDropper _pieceDropper = new();
 
         private PerMatchData _perMatchData;
-        private Player CurrentPlayer => PlayerManager.CurrentPlayer;
+        private Player CurrentPlayer { get; set; }
 
         public bool IsGameOver { get; private set; }
         public bool IsPlaying { get; private set; }
@@ -44,26 +44,60 @@ namespace System
 
         public void Setup()
         {
-            _tileSelector = UnityEngine.Object.Instantiate(TileSelectorPrefabPrefab);
-            _tileSelector.Setup();
+            BoardManager.ChangeBoard(0);
+            _board = BoardManager.Board;
 
-            _board = UnityEngine.Object.Instantiate(BoardPrefab);
-            _board.Setup();
+            PlayerManager.FillWithFakePlayers(_board.TileGroups.Length);
+            PlayerManager.AssignPieceBench(_board);
 
-            PlayerManager.Setup(_board.TileGroups, _tileSelector);
-
-            PieceManager.SpawnPieces(PlayerManager.Players);
+            PieceManager.SpawnPieces(_board);
+            PieceManager.MoveToBoard(_board, true);
 
             _pieceDropper.Setup(_board);
 
             ConnectEvents();
+
+            IsPlaying = false;
+            IsGameOver = false;
         }
 
         public void TearDown()
         {
             DisconnectEvents();
-            _board.TearDown();
-            _tileSelector.TearDown();
+        }
+
+        public void StartNewMatch()
+        {
+            IsPlaying = true;
+            ChangePlayer();
+            _perMatchData = new PerMatchData(PlayerManager.Players.Length);
+            PieceManager.ReleasePieces(() =>
+            {
+                CurrentPlayer.AcquireTurn();
+                CurrentPlayer.MakeDecision(_board);
+            });
+        }
+
+        public void ResetGame(MonoBehaviour context)
+        {
+            IsGameOver = false;
+            IsPlaying = false;
+        }
+
+        #region PRIVATE_METHODS
+
+        private void ChangePlayer()
+        {
+            if (CurrentPlayer == null)
+            {
+                CurrentPlayer = PlayerManager.Players[0];
+            }
+            else
+            {
+                CurrentPlayer.ReleaseTurn();
+                CurrentPlayer = PlayerManager.Players[(CurrentPlayer.Index + 1) % PlayerManager.Players.Length];
+            }
+            CurrentPlayer.AcquireTurn();
         }
 
         private void ConnectEvents()
@@ -86,13 +120,6 @@ namespace System
             }
         }
 
-        public void StartNewMatch()
-        {
-            IsPlaying = true;
-            _perMatchData = new PerMatchData(PlayerManager.Players.Length);
-            PieceManager.ReleasePieces(() => { CurrentPlayer.MakeDecision(_board); });
-        }
-
         private void OnDecisionResult(Tile tile, bool forward)
         {
             _pieceDropper.GetReady(tile);
@@ -107,18 +134,19 @@ namespace System
         private void MakeDecision(bool changePlayer)
         {
             var gameOver = true;
-            if (!_board.AreMandarinTilesAllEmpty())
+            var allMandarinTilesEmpty = _board.TileGroups.All(tg => tg.MandarinTile.Pieces.Count <= 0);
+            if (!allMandarinTilesEmpty)
             {
                 if (changePlayer)
                 {
-                    PlayerManager.ChangePlayer();
+                    ChangePlayer();
                 }
 
-                if (Board.IsTileGroupEmpty(CurrentPlayer.TileGroup))
+                if (_board.TileGroups[CurrentPlayer.Index].IsTileGroupEmpty())
                 {
                     if (CurrentPlayer.PieceBench.Pieces.Count > 0)
                     {
-                        if (!Board.TakeBackCitizens(CurrentPlayer.PieceBench.Pieces, _pieceDropper, CurrentPlayer.TileGroup))
+                        if (!TakeBackCitizens(CurrentPlayer.PieceBench.Pieces, _pieceDropper, _board.TileGroups[CurrentPlayer.Index]))
                         {
                             gameOver = false;
                         }
@@ -135,6 +163,16 @@ namespace System
             {
                 GameOver();
             }
+        }
+
+        private static bool TakeBackCitizens(List<Piece> pieces, PieceDropper dropper, Board.TileGroup tg)
+        {
+            if (pieces.Count <= 0) return false;
+
+            dropper.GetReadyForTakingBackCitizens(tg, pieces);
+            dropper.DropAll(true);
+
+            return true;
         }
 
         private void OnEatPieces(IPieceHolder pieceContainerMb)
@@ -211,11 +249,6 @@ namespace System
             }
         }
 
-        public void ResetGame(MonoBehaviour context)
-        {
-            IsGameOver = false;
-            new GameReset(_board, PlayerManager).Reset();
-            context.Delay(1f, () => { CurrentPlayer.MakeDecision(_board); });
-        }
+        #endregion
     }
 }

@@ -28,23 +28,25 @@ namespace Gameplay.Piece
             }
         }
 
-        public static void MovePieceToTheBoardOnGameStart(Citizen p, Vector3 initialPos, Tile t, Activity triggerActivity,
+        public static void MovePieceToTheBoardOnGameStart(Citizen p, Tile t, Activity triggerActivity,
             float delay)
         {
-            p.transform.position = initialPos;
             var position = t.GetPositionInFilledCircle(Mathf.Max(0, t.Pieces.Count - 1));
-            p.PieceActivityQueue.Add(triggerActivity);
-            CreateAAnimActivity(p, LegHashes.sit_down, null);
+            if (triggerActivity != null)
+            {
+                p.PieceActivityQueue.Add(triggerActivity);
+            }
+            CreateAnimActivity(p, LegHashes.sit_down, null);
             p.PieceActivityQueue.Add(new Delay(delay));
             p.PieceActivityQueue.Add(new Flocking(p.Config.flockingConfigData,
                 new Flocking.InputData {target = position, transform = p.transform}, null));
             p.PieceActivityQueue.Begin();
         }
 
-        public static void CreateAAnimActivity(Citizen p, int animHash, Action onDone)
-            => CreateAAnimActivity(p, () => animHash, onDone);
+        public static void CreateAnimActivity(Citizen p, int animHash, Action onDone)
+            => CreateAnimActivity(p, () => animHash, onDone);
 
-        public static void CreateAAnimActivity(Citizen p, Func<int> animHash, Action onDone)
+        public static void CreateAnimActivity(Citizen p, Func<int> animHash, Action onDone)
         {
             var anim = -1;
             Activity animActivity = new Lambda(() =>

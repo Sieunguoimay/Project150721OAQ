@@ -5,28 +5,27 @@ using CommonActivities;
 using Gameplay.Board;
 using Gameplay.Piece;
 using SNM;
-using UnityEngine;
 using Action = System.Action;
 
 namespace Gameplay
 {
     public class PieceDropper : PieceHolder
     {
-        private readonly BoardTraveller _boardTraveller = new BoardTraveller();
+        private readonly BoardTraveller _boardTraveller = new();
         public event Action<IPieceHolder> OnEat = delegate { };
         public event Action<ActionID> OnDone = delegate { };
 
         private ActionID _actionID;
         private bool _forward;
         private Board.Board _board;
-        private Tile CurrentTile => _board.Tiles[_boardTraveller.CurrentIndex];
+        private IPieceHolder CurrentTile => _board.Tiles[_boardTraveller.CurrentIndex];
 
         public void Setup(Board.Board board)
         {
             _board = board;
         }
 
-        public void GetReady(Tile tile)
+        public void GetReady(IPieceHolder tile)
         {
             Grasp(tile);
             _boardTraveller.Start(Array.IndexOf(_board.Tiles, tile), Pieces.Count, _board.Tiles.Length);
@@ -70,7 +69,7 @@ namespace Gameplay
                     if (i == 0)
                     {
                         p.PieceActivityQueue.Add(new Delay(delay)); // + 0.1f));
-                        PieceScheduler.CreateAAnimActivity(p, () =>
+                        PieceScheduler.CreateAnimActivity(p, () =>
                         {
                             var info = p.Animator.GetCurrentAnimatorStateInfo(0);
                             return info.shortNameHash == LegHashes.idle
@@ -81,7 +80,7 @@ namespace Gameplay
                     }
 
                     var skipSlot = CurrentTile is MandarinTile {HasMandarin: true};
-                    var citizenPos = CurrentTile.GetPositionInFilledCircle(
+                    var citizenPos = ((Tile) CurrentTile).GetPositionInFilledCircle(
                         CurrentTile.Pieces.Count + j + (skipSlot ? 5 : 0), false);
                     var flag = i == n - 1 ? 2 : j == 0 ? 1 : 0;
 
@@ -92,7 +91,7 @@ namespace Gameplay
 
                     if (j > 0)
                     {
-                        PieceScheduler.CreateAAnimActivity(p, LegHashes.jump_interval, null);
+                        PieceScheduler.CreateAnimActivity(p, LegHashes.jump_interval, null);
                     }
 
                     jumpForward.Done += () => OnJumpDone(p, flag);
@@ -103,9 +102,9 @@ namespace Gameplay
 
             foreach (var p in Pieces.Cast<Citizen>())
             {
-                PieceScheduler.CreateAAnimActivity(p, LegHashes.land, () => p.Animator.Play(LegHashes.idle));
+                PieceScheduler.CreateAnimActivity(p, LegHashes.land, () => p.Animator.Play(LegHashes.idle));
                 p.PieceActivityQueue.Add(new PieceActivityQueue.TurnAway(p.transform));
-                PieceScheduler.CreateAAnimActivity(p, LegHashes.sit_down, null);
+                PieceScheduler.CreateAnimActivity(p, LegHashes.sit_down, null);
                 p.PieceActivityQueue.Begin();
             }
 
@@ -126,10 +125,10 @@ namespace Gameplay
             {
                 case ActionID.DroppingInTurn:
                 {
-                    var t = _board.Success(CurrentTile, _forward);
+                    var t = _board.GetSuccessTile(CurrentTile, _forward);
                     _boardTraveller.Reset();
 
-                    if (t.Pieces.Count > 0 && !(t is MandarinTile))
+                    if (t.Pieces.Count > 0 && t is not MandarinTile)
                     {
                         GetReady(t);
                         Main.Instance.Delay(.3f, () => { DropAll(_forward); });
@@ -158,15 +157,15 @@ namespace Gameplay
             }
         }
 
-        private void Eat(Tile tile, bool forward, Action done)
+        private void Eat(IPieceHolder tile, bool forward, Action done)
         {
-            var success = _board.Success(tile, forward);
+            var success = _board.GetSuccessTile(tile, forward);
 
             OnEat?.Invoke(success);
 
-            if (CheckSuccessEatable(_board.Success(success, forward), forward))
+            if (CheckSuccessEatable(_board.GetSuccessTile(success, forward), forward))
             {
-                Main.Instance.Delay(0.2f, () => { Eat(_board.Success(success, forward), forward, done); });
+                Main.Instance.Delay(0.2f, () => { Eat(_board.GetSuccessTile(success, forward), forward, done); });
             }
             else
             {
@@ -174,11 +173,11 @@ namespace Gameplay
             }
         }
 
-        private bool CheckSuccessEatable(Tile tile, bool forward)
+        private bool CheckSuccessEatable(IPieceHolder tile, bool forward)
         {
-            var success = _board.Success(tile, forward);
+            var success = _board.GetSuccessTile(tile, forward);
 
-            return (tile.Pieces.Count == 0 && (!(tile is MandarinTile)) && (success.Pieces.Count > 0));
+            return tile.Pieces.Count == 0 && !(tile is MandarinTile) && success.Pieces.Count > 0;
         }
 
         public enum ActionID

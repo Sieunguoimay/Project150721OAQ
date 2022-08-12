@@ -40,13 +40,14 @@ namespace System
 
             foreach (var tile in _board.Tiles)
             {
-                if (tile is MandarinTile)
+                switch (tile)
                 {
-                    tile.Grasp(mandarins, Math.Max(0, 1 - tile.Pieces.Count), p => tile.Reposition(p.transform));
-                }
-                else
-                {
-                    tile.Grasp(citizens, 5, p => tile.Reposition(p.transform));
+                    case MandarinTile mt:
+                        tile.Grasp(mandarins, Math.Max(0, 1 - tile.Pieces.Count), p => mt.Reposition(p.transform));
+                        break;
+                    case Tile tt:
+                        tile.Grasp(citizens, 5, p => tt.Reposition(p.transform));
+                        break;
                 }
             }
         }

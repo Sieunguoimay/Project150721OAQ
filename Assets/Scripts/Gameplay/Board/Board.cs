@@ -1,61 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gameplay.Piece;
+using SNM;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 
 namespace Gameplay.Board
 {
-    public class Board : MonoBehaviour
+    public class Board
     {
-        [field: System.NonSerialized] public Tile[] Tiles { get; private set; }
+        [field: System.NonSerialized] public IPieceHolder[] Tiles { get; private set; }
         [field: System.NonSerialized] public TileGroup[] TileGroups { get; private set; }
-        
-        private readonly BoardTraveller _traveller = new BoardTraveller();
 
-        public void Setup()
+        private readonly BoardTraveller _traveller = new();
+
+        public event Action TilesChanged;
+
+        public void SetTiles(IPieceHolder[] tiles)
         {
-            Tiles = GetComponentsInChildren<Tile>();
-            foreach (var t in Tiles)
-            {
-                t.Setup();
-            }
+            Tiles = tiles;
 
-            var mts = GetComponentsInChildren<MandarinTile>();
+            var mts = Tiles.Where(t => t is MandarinTile).ToArray();
+
             TileGroups = new TileGroup[mts.Length];
+
             for (var i = 0; i < mts.Length; i++)
             {
                 TileGroups[i] = CreateTileGroup(mts[i]);
             }
+
+            TilesChanged?.Invoke();
         }
 
         public void TearDown()
         {
-            foreach (var t in Tiles)
-            {
-                t.TearDown();
-            }
         }
 
-        public Tile Success(Tile tile, bool forward)
+        public IPieceHolder GetSuccessTile(IPieceHolder tile, bool forward)
         {
             _traveller.Start(Array.IndexOf(Tiles, tile), Tiles.Length, Tiles.Length);
             _traveller.Next(forward);
             return Tiles[_traveller.CurrentIndex];
         }
 
-        public bool AreMandarinTilesAllEmpty()
-        {
-            return TileGroups.All(tg => tg.MandarinTile.Pieces.Count <= 0);
-        }
-
-        private  TileGroup CreateTileGroup(Tile mt)
+        private TileGroup CreateTileGroup(IPieceHolder mt)
         {
             var tg = new TileGroup
             {
                 MandarinTile = mt,
-                Tiles = new List<Tile>()
+                Tiles = new List<IPieceHolder>()
             };
 
             _traveller.Start(Array.IndexOf(Tiles, mt), Tiles.Length, Tiles.Length);
@@ -69,42 +64,52 @@ namespace Gameplay.Board
             return tg;
         }
 
-        public static bool IsTileGroupEmpty(TileGroup tileGroup)
+        public PieceBench GetPieceBench(int index)
         {
-            return tileGroup.Tiles.All(t => t.Pieces.Count <= 0);
-        }
+            return new PieceBench(new PieceBench.ConfigData
+            {
+                PosAndRot = CalculatePieceBenchPosition(TileGroups[index]),
+                spacing = 0.25f,
+                perRow = 15
+            });
 
-        public static bool TakeBackCitizens(List<Piece.Piece> pieces, PieceDropper dropper, TileGroup tg)
-        {
-            if (pieces.Count <= 0) return false;
-
-            dropper.GetReadyForTakingBackCitizens(tg, pieces);
-            dropper.DropAll(true);
-
-            return true;
+            static PosAndRot CalculatePieceBenchPosition(TileGroup tg)
+            {
+                var pos1 = ((Tile) tg.Tiles[0]).transform.position;
+                var pos2 = ((Tile) tg.Tiles[^1]).transform.position;
+                var diff = pos2 - pos1;
+                var pos = pos1 + new Vector3(diff.z, diff.y, -diff.x) * 0.5f;
+                var qua = Quaternion.LookRotation(pos1 - pos, Vector3.up);
+                return new PosAndRot(pos, qua);
+            }
         }
 
         public class TileGroup
         {
-            public Tile MandarinTile;
-            public List<Tile> Tiles;
+            public IPieceHolder MandarinTile;
+            public List<IPieceHolder> Tiles;
+
+            public bool IsTileGroupEmpty()
+            {
+                return Tiles.All(t => t.Pieces.Count <= 0);
+            }
         }
 
 #if UNITY_EDITOR
-        private static void TravelBoard(Tile[] items, Tile tile, int steps, bool forward)
-        {
-            Debug.Log("Traveling " + tile.gameObject.name + " " + steps + " " + forward);
-            var boardTraveller = new BoardTraveller();
-            boardTraveller.Start(Array.IndexOf(items, tile), steps, items.Length);
-
-            while (boardTraveller.IsTravelling)
-            {
-                if (!boardTraveller.Next(forward))
-                {
-                    Debug.Log("Ended");
-                }
-            }
-        }
+        // private static void TravelBoard(Tile[] items, Tile tile, int steps, bool forward)
+        // {
+        //     Debug.Log("Traveling " + tile.gameObject.name + " " + steps + " " + forward);
+        //     var boardTraveller = new BoardTraveller();
+        //     boardTraveller.Start(Array.IndexOf(items, tile), steps, items.Length);
+        //
+        //     while (boardTraveller.IsTravelling)
+        //     {
+        //         if (!boardTraveller.Next(forward))
+        //         {
+        //             Debug.Log("Ended");
+        //         }
+        //     }
+        // }
 
         // [ContextMenu("Connect Tiles")]
         // public void SelfConnect()
@@ -118,12 +123,12 @@ namespace Gameplay.Board
         //     }
         // }
 
-        [ContextMenu("Test Travel X")]
-        private void TestTravel()
-        {
-            TravelBoard(Tiles, Tiles[UnityEngine.Random.Range(0, Tiles.Length)], Random.Range(5, 10),
-                Random.Range(0, 100) > 50);
-        }
+        // [ContextMenu("Test Travel X")]
+        // private void TestTravel()
+        // {
+        //     TravelBoard(Tiles, Tiles[UnityEngine.Random.Range(0, Tiles.Length)], Random.Range(5, 10),
+        //         Random.Range(0, 100) > 50);
+        // }
         //
         // [ContextMenu("Popularize")]
         // private void Popularize()

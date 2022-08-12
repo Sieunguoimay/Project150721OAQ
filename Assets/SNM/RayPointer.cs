@@ -52,7 +52,7 @@ namespace SNM
                     selectedTarget = l;
                 }
 
-                Debug.Log((l as MonoBehaviour)?.name + " " + distance);
+                // Debug.Log((l as MonoBehaviour)?.name + " " + distance);
             }
 
             selectedTarget?.OnHit(ray, minDistance);

@@ -24,12 +24,12 @@ public class Main : MonoBehaviour
         _gameplay = new System.Gameplay(gameplaySerializable);
     }
 
-    private void Start()
+    [ContextMenu("Setup")]
+    private void Setup()
     {
         Debug.Log("Start");
         _gameplay.Setup();
     }
-
     private void OnDestroy()
     {
         _gameplay.TearDown();
@@ -44,7 +44,7 @@ public class Main : MonoBehaviour
 
         RayPointer.Update(Time.deltaTime);
 
-        if (!_gameplay.IsGameOver) return;
+        // if (!_gameplay.IsGameOver) return;
 
         if (Input.GetKeyUp(KeyCode.Return))
         {

@@ -1,4 +1,6 @@
-﻿namespace Gameplay.Board
+﻿using Gameplay.Piece;
+
+namespace Gameplay.Board
 {
     public class MandarinTile : Tile
     {

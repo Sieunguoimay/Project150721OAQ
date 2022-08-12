@@ -1,66 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Gameplay.Piece;
 using UnityEngine;
 
 namespace Gameplay.Board
 {
-    public interface IPieceHolder
-    {
-        List<Piece.Piece> Pieces { get; }
-        void Grasp(Piece.Piece piece, Action<Piece.Piece> onGrasp = null);
-        void Grasp(IPieceHolder other, Action<Piece.Piece> onGrasp = null);
-        void Grasp(List<Piece.Piece> otherPieces, int count = -1, Action<Piece.Piece> onGrasp = null);
-        void OnGrasp(IPieceHolder other);
-    }
-
-    public class PieceHolder : IPieceHolder
-    {
-        [field: NonSerialized] public List<Piece.Piece> Pieces { get; } = new();
-
-        public virtual void Grasp(Piece.Piece piece, Action<Piece.Piece> onGrasp = null)
-        {
-            Pieces.Add(piece);
-            onGrasp?.Invoke(piece);
-        }
-
-        public void Grasp(IPieceHolder other, Action<Piece.Piece> onGrasp = null)
-        {
-            foreach (var b in other.Pieces)
-            {
-                Grasp(b, onGrasp);
-            }
-
-            other.OnGrasp(this);
-            other.Pieces.Clear();
-        }
-
-        public void Grasp(List<Piece.Piece> otherPieces, int count = -1, Action<Piece.Piece> onGrasp = null)
-        {
-            if (count == otherPieces.Count || count == -1)
-            {
-                foreach (var b in otherPieces)
-                {
-                    Grasp(b, onGrasp);
-                }
-
-                otherPieces.Clear();
-            }
-            else
-            {
-                var n = Mathf.Min(count, otherPieces.Count);
-                for (var i = n - 1; i >= 0; i--)
-                {
-                    Grasp(otherPieces[i], onGrasp);
-                    otherPieces.RemoveAt(i);
-                }
-            }
-        }
-
-        public virtual void OnGrasp(IPieceHolder whom)
-        {
-        }
-    }
-
     public class PieceContainer : MonoBehaviour, IPieceHolder
     {
         private const int MaxPiecesSupported = 50;
