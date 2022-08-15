@@ -12,7 +12,9 @@ namespace Gameplay
         [SerializeField] private AnimatorListener animatorListener;
 
         private Transform _cameraTransform;
-        public Animator Animator => animatorListener.Animator;
+        private Animator _animator;
+        public Animator Animator => _animator ??= animatorListener.GetComponent<Animator>();
+
         public override void Setup()
         {
             base.Setup();
@@ -38,8 +40,6 @@ namespace Gameplay
                 var duration = (target - transform.eulerAngles).magnitude / PieceActivityQueue.Config.angularSpeed;
                 transform.DORotate(target, duration);
             }
-
         }
-
     }
 }

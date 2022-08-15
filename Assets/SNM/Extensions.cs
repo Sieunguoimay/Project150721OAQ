@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections;
+#if UNITY_EDITOR
+using UnityEditor.Animations;
+#endif
 using UnityEngine;
 
 namespace SNM
@@ -38,5 +41,22 @@ namespace SNM
             yield return new WaitUntil(condition);
             callback?.Invoke();
         }
+#if UNITY_EDITOR
+
+        public static AnimatorController GetAnimatorController(this Animator animator)
+        {
+            if (animator.runtimeAnimatorController is AnimatorController ac)
+            {
+                return ac;
+            }
+
+            if (animator.runtimeAnimatorController is AnimatorOverrideController aoc)
+            {
+                return aoc.runtimeAnimatorController as AnimatorController;
+            }
+
+            return null;
+        }
+#endif
     }
 }

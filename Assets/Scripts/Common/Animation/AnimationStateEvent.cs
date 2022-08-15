@@ -26,7 +26,6 @@ namespace Common.Animation
             if (_listener != null) return _listener;
             
             _listener = animator.GetComponentInChildren<AnimatorListener>();
-            _listener.Setup(animator);
 
             return _listener;
         }

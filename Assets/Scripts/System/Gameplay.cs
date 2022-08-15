@@ -44,10 +44,12 @@ namespace System
 
         public void Setup()
         {
-            BoardManager.ChangeBoard(0);
+            const int playerNum = 2;
+            
+            BoardManager.SetBoardByTileGroupNum(playerNum,5);
             _board = BoardManager.Board;
 
-            PlayerManager.FillWithFakePlayers(_board.TileGroups.Length);
+            PlayerManager.FillWithFakePlayers(playerNum);
             PlayerManager.AssignPieceBench(_board);
 
             PieceManager.SpawnPieces(_board);
@@ -97,6 +99,7 @@ namespace System
                 CurrentPlayer.ReleaseTurn();
                 CurrentPlayer = PlayerManager.Players[(CurrentPlayer.Index + 1) % PlayerManager.Players.Length];
             }
+
             CurrentPlayer.AcquireTurn();
         }
 

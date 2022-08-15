@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Gameplay.Board;
-using SNM;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Gameplay
 {

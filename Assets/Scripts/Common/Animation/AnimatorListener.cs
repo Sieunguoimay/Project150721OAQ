@@ -9,13 +9,6 @@ namespace Common.Animation
     {
         public event Action<AnimatorStateInfo, int> StateEnter;
         public event Action<AnimatorStateInfo, int> StateExit;
-        
-        public Animator Animator { get; private set; }
-
-        public void Setup(Animator animator)
-        {
-            Animator = animator;
-        }
 
         public void OnStateEnter(AnimatorStateInfo arg1, int arg2)
         {

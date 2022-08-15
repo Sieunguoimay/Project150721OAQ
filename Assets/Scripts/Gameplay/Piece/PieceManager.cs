@@ -29,18 +29,12 @@ namespace Gameplay.Piece
                 tg.MandarinTile.Grasp(Pieces[count]);
 
                 count++;
-                // var delay = 0f;
                 foreach (var t in tg.Tiles)
                 {
                     for (var i = 0; i < 5; i++)
                     {
                         var p = Instantiate(citizenPrefab, transform, true);
-                        // p.transform.position = player.PieceBench.Config.PosAndRot.Position;
                         p.Setup();
-                        // t.Grasp(p);
-                        //
-                        //
-                        // PieceScheduler.MovePieceToTheBoardOnGameStart(p, t as Tile, _waitForEnd, delay += 0.1f);
                         Pieces[count++] = p;
                     }
                 }

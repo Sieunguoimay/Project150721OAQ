@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Linq;
+using Common.Attribute;
 using Common.ResolveSystem;
+using SNM;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -8,12 +12,20 @@ namespace Common.Animation
     public class AnimatorEventFilter : MonoBehaviour
     {
         [SerializeField] private AnimatorListener animatorListener;
-        [SerializeField] private string stateName;
+#if UNITY_EDITOR
+        [StringSelector(nameof(StateNames))]
+#endif
+        [SerializeField]
+        private string stateName;
+
         [SerializeField] private UnityEvent onStateEnter;
         [SerializeField] private UnityEvent onStateExit;
 
         private int _stateHash;
 
+#if UNITY_EDITOR
+        private string[] StateNames => animatorListener.GetComponent<Animator>().GetAnimatorController().layers[0].stateMachine.states.Select(s => s.state.name).ToArray();
+#endif
         private void OnEnable()
         {
             animatorListener.StateEnter += OnStateEnter;

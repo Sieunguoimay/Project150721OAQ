@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Common.ResolveSystem;
 using Gameplay.Piece;
@@ -8,46 +9,37 @@ namespace Gameplay.Board
 {
     public class BoardManager : MonoBehaviour
     {
-        [SerializeField] private GameObject[] boardGOs;
-
+        [SerializeField] private BoardMetaData[] boardGOs;
         public Board Board { get; } = new();
 
-        private void OnDestroy()
+        public void SetBoardByTileGroupNum(int tileGroupNum, int tilesPerGroup)
         {
-            foreach (var bgo in boardGOs)
+            Board.SetTiles(CreateBoard(tileGroupNum, tilesPerGroup).Select(t => t as IPieceHolder).ToArray());
+        }
+
+        private IEnumerable<Tile> CreateBoard(int groupNum, int tilesPerGroup)
+        {
+            var prefab = MapToBoardPrefab();
+            var tiles = Instantiate(prefab, transform).GetComponentsInChildren<Tile>();
+            foreach (var tile in tiles)
             {
-                foreach (var t in bgo.GetComponentsInChildren<Tile>())
-                {
-                    t.TearDown();
-                }
+                tile.Setup();
+            }
+
+            return tiles;
+
+            GameObject MapToBoardPrefab()
+            {
+                return boardGOs.FirstOrDefault(m => m.groupNum == groupNum && m.tilesPerGroup == tilesPerGroup)?.prefab;
             }
         }
 
-        public void ChangeBoard(int index)
+        [Serializable]
+        private class BoardMetaData
         {
-            if (Board.Tiles != null)
-            {
-                foreach (var t in Board.Tiles)
-                {
-                    (t as Tile)?.TearDown();
-                }
-            }
-
-            var boardGO = boardGOs[index % boardGOs.Length];
-            var tiles = boardGO.GetComponentsInChildren<Tile>();
-            foreach (var t in tiles)
-            {
-                t.Setup();
-            }
-
-            Board.SetTiles(tiles.Select(t => t as IPieceHolder).ToArray());
+            public int groupNum;
+            public int tilesPerGroup;
+            public GameObject prefab;
         }
-
-#if UNITY_EDITOR
-        [ContextMenu("ChangeBoard")]
-        private void ChangeBoard() => ChangeBoard(_testIndex += 1);
-
-        private int _testIndex = 0;
-#endif
     }
 }
