@@ -7,6 +7,7 @@ namespace Gameplay.Board
     [SelectionBase]
     public class Tile : PieceContainer, RayPointer.ITarget
     {
+        [SerializeField] private float size;
         private BoxCollider _collider;
         private BoxCollider Collider => _collider ??= GetComponent<BoxCollider>();
         public event Action<Tile> OnTouched = delegate { };
@@ -27,6 +28,8 @@ namespace Gameplay.Board
 
         public Bounds Bounds => Collider.bounds;
 
+        public float Size => size;
+
         public void OnHit(Ray ray, float distance)
         {
             OnTouched?.Invoke(this);
@@ -38,7 +41,8 @@ namespace Gameplay.Board
 
         private void OnDrawGizmos()
         {
-            Gizmos.DrawWireCube(Bounds.center, Bounds.size);
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawWireCube(Collider.center, Collider.size);
         }
 #endif
     }

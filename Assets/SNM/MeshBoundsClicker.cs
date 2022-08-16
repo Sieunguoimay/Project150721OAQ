@@ -26,7 +26,8 @@ namespace SNM
 
         private void OnDrawGizmos()
         {
-            Gizmos.DrawWireCube(Bounds.center, Bounds.size);
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawWireCube(Vector3.zero, Bounds.size);
         }
 
         public void OnHit(Ray ray, float distance)
