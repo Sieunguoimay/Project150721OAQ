@@ -25,27 +25,34 @@ namespace Gameplay.Board
             var polygon = CreatePolygon(groupNum, length);
             for (var i = 0; i < polygon.Length; i++)
             {
+                var cornerPos = polygon[i];
                 var mandarinTile = Instantiate(mandarinTilePrefab, transform);
-                mandarinTile.transform.SetPositionAndRotation(ToVector3(polygon[i]), Quaternion.identity);
-                tiles[i * tilesPerGroup] = mandarinTile;
-                Debug.Log(i * tilesPerGroup);
+                mandarinTile.Setup();
+                mandarinTile.transform.SetPositionAndRotation(ToVector3(cornerPos + cornerPos.normalized * mandarinTilePrefab.Size / 2f), Quaternion.LookRotation(ToVector3(cornerPos)));
+                tiles[i * (tilesPerGroup + 1)] = mandarinTile;
+
                 var p0 = polygon[i];
                 var p1 = polygon[(i + 1) % polygon.Length];
                 var dir = (p1 - p0).normalized;
+                var normal = ((p0 + p1) / 2f).normalized;
+
                 for (var j = 0; j < tilesPerGroup; j++)
                 {
                     var pj = p0 + (j + 0.5f) * citizenTilePrefab.Size * dir;
                     var citizenTile = Instantiate(citizenTilePrefab, transform);
-                    citizenTile.transform.SetPositionAndRotation(ToVector3(pj), Quaternion.identity);
-                    tiles[i * tilesPerGroup + j+1] = citizenTile;
-                    Debug.Log(i * tilesPerGroup + j+1);
+                    citizenTile.Setup();
+                    citizenTile.transform.SetPositionAndRotation(ToVector3(pj + normal * citizenTilePrefab.Size / 2f), Quaternion.LookRotation(ToVector3(normal)));
+                    tiles[i * (tilesPerGroup + 1) + j + 1] = citizenTile;
                 }
             }
 
             return tiles;
         }
 
-        private static Vector3 ToVector3(Vector2 v) => new Vector3(v.x, 0, v.y);
+        private static Vector3 ToVector3(Vector2 v) => new(v.x, 0, v.y);
+
+        [ContextMenu("Test")]
+        private void Test() => SetBoardByTileGroupNum(5, 5);
 
         [Serializable]
         private class BoardMetaData

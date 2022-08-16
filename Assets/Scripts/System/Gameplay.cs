@@ -44,7 +44,7 @@ namespace System
 
         public void Setup()
         {
-            const int playerNum = 2;
+            const int playerNum = 3;
             
             BoardManager.SetBoardByTileGroupNum(playerNum,5);
             _board = BoardManager.Board;
