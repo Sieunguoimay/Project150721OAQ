@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using Common;
+using Common.ResolveSystem;
+using TMPro.Examples;
 using UnityEngine;
 
 namespace SNM
@@ -6,12 +9,7 @@ namespace SNM
     public class RayPointer
     {
         private readonly List<ITarget> _listeners = new();
-        private readonly Camera _camera;
-
-        public RayPointer()
-        {
-            _camera = Camera.main;
-        }
+        private Camera _camera;
 
         public void Reset()
         {
@@ -38,6 +36,11 @@ namespace SNM
 
         private void ProcessMouse(Vector3 position)
         {
+            if (_camera == null)
+            {
+                _camera = Resolver.Instance.Resolve<CameraManager>().Camera;
+            }
+
             var ray = _camera.ScreenPointToRay(position);
 
             var minDistance = float.MaxValue;

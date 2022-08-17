@@ -15,12 +15,12 @@ namespace Gameplay.Board
 
         public void SetBoardByTileGroupNum(int tileGroupNum, int tilesPerGroup)
         {
-            Board.SetTiles(CreateBoard(tileGroupNum, tilesPerGroup).Select(t => t as IPieceHolder).ToArray());
+            Board.SetGroups(CreateBoard(tileGroupNum, tilesPerGroup));
         }
 
-        private IEnumerable<Tile> CreateBoard(int groupNum, int tilesPerGroup)
+        private Board.TileGroup[] CreateBoard(int groupNum, int tilesPerGroup)
         {
-            var tiles = new Tile[groupNum * tilesPerGroup + groupNum];
+            var tileGroups = new Board.TileGroup[groupNum];
             var length = tilesPerGroup * citizenTilePrefab.Size;
             var polygon = CreatePolygon(groupNum, length);
             for (var i = 0; i < polygon.Length; i++)
@@ -29,7 +29,8 @@ namespace Gameplay.Board
                 var mandarinTile = Instantiate(mandarinTilePrefab, transform);
                 mandarinTile.Setup();
                 mandarinTile.transform.SetPositionAndRotation(ToVector3(cornerPos + cornerPos.normalized * mandarinTilePrefab.Size / 2f), Quaternion.LookRotation(ToVector3(cornerPos)));
-                tiles[i * (tilesPerGroup + 1)] = mandarinTile;
+
+                tileGroups[i] = new Board.TileGroup {MandarinTile = mandarinTile, Tiles = new IPieceHolder[tilesPerGroup]};
 
                 var p0 = polygon[i];
                 var p1 = polygon[(i + 1) % polygon.Length];
@@ -42,25 +43,15 @@ namespace Gameplay.Board
                     var citizenTile = Instantiate(citizenTilePrefab, transform);
                     citizenTile.Setup();
                     citizenTile.transform.SetPositionAndRotation(ToVector3(pj + normal * citizenTilePrefab.Size / 2f), Quaternion.LookRotation(ToVector3(normal)));
-                    tiles[i * (tilesPerGroup + 1) + j + 1] = citizenTile;
+
+                    tileGroups[i].Tiles[j] = citizenTile;
                 }
             }
 
-            return tiles;
+            return tileGroups;
         }
 
         private static Vector3 ToVector3(Vector2 v) => new(v.x, 0, v.y);
-
-        [ContextMenu("Test")]
-        private void Test() => SetBoardByTileGroupNum(5, 5);
-
-        [Serializable]
-        private class BoardMetaData
-        {
-            public int groupNum;
-            public int tilesPerGroup;
-            public GameObject prefab;
-        }
 
         private static Vector2[] CreatePolygon(int vertexNum, float edgeLength = 1f)
         {
@@ -89,34 +80,9 @@ namespace Gameplay.Board
 
             return vertices;
         }
-
-        // private Vector3[] _testArray;
-        //
-        // [ContextMenu("Test")]
-        // public void Test()
-        // {
-        //     var arr = CreatePolygon(5, 1);
-        //     _testArray = new Vector3[arr.Length];
-        //     for (var i = 0; i < arr.Length; i++)
-        //     {
-        //         _testArray[i] = Vector3.zero;
-        //         _testArray[i].x = arr[i].x;
-        //         _testArray[i].z = arr[i].y;
-        //     }
-        // }
-
-        // private void OnDrawGizmos()
-        // {
-        //     if (_testArray == null) return;
-        //
-        //     var point = _testArray[0];
-        //     for (var i = 1; i < _testArray.Length; i++)
-        //     {
-        //         Gizmos.DrawLine(point, _testArray[i]);
-        //         point = _testArray[i];
-        //     }
-        //
-        //     Gizmos.DrawLine(point, _testArray[0]);
-        // }
+#if UNITY_EDITOR
+        [ContextMenu("Test")]
+        private void Test() => SetBoardByTileGroupNum(5, 5);
+#endif
     }
 }

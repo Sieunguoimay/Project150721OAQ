@@ -6,6 +6,8 @@ namespace Common
 {
     public class CameraManager : MonoBehaviour
     {
+        public Camera Camera => GetComponent<Camera>();
+
         private void Awake()
         {
             Resolver.Instance.Bind(this);

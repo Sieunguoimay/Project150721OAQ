@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Gameplay.Piece
 {
-    public class PieceScheduler
+    public static class PieceScheduler
     {
         public static void MovePiecesOutOfTheBoard(Gameplay.Piece.Piece[] pieces, Vector3[] positions, Vector3 centerPoint)
         {
@@ -19,11 +19,12 @@ namespace Gameplay.Piece
             var delay = 0f;
             for (var i = 0; i < pieces.Length; i++)
             {
-                var flocking = new Flocking(pieces[i].Config.flockingConfigData,
-                    new Flocking.InputData {target = positions[i], transform = pieces[i].transform}, null);
+                var flocking = new Flocking(pieces[i].Config.flockingConfigData, positions[i], pieces[i].transform, null);
 
                 pieces[i].PieceActivityQueue.Add(new Delay(delay += 0.2f));
+                CreateAnimActivity(pieces[i], LegHashes.stand_up, null);
                 pieces[i].PieceActivityQueue.Add(flocking);
+                CreateAnimActivity(pieces[i], LegHashes.sit_down, null);
                 pieces[i].PieceActivityQueue.Begin();
             }
         }
@@ -36,27 +37,27 @@ namespace Gameplay.Piece
             {
                 p.PieceActivityQueue.Add(triggerActivity);
             }
+
             CreateAnimActivity(p, LegHashes.sit_down, null);
             p.PieceActivityQueue.Add(new Delay(delay));
-            p.PieceActivityQueue.Add(new Flocking(p.Config.flockingConfigData,
-                new Flocking.InputData {target = position, transform = p.transform}, null));
+            p.PieceActivityQueue.Add(new Flocking(p.Config.flockingConfigData, position, p.transform, null));
             p.PieceActivityQueue.Begin();
         }
 
-        public static void CreateAnimActivity(Citizen p, int animHash, Action onDone)
+        public static void CreateAnimActivity(Piece p, int animHash, Action onDone)
             => CreateAnimActivity(p, () => animHash, onDone);
 
-        public static void CreateAnimActivity(Citizen p, Func<int> animHash, Action onDone)
+        public static void CreateAnimActivity(Piece p, Func<int> animHash, Action onDone)
         {
+            if (p.Animator == null) return;
+
             var anim = -1;
             Activity animActivity = new Lambda(() =>
             {
                 anim = animHash.Invoke();
-                p.Animator?.Play(anim, -1, 0f);
+                p.Animator.Play(anim, -1, 0f);
             }, () =>
             {
-                if (p.Animator == null) return true;
-
                 var info = p.Animator.GetCurrentAnimatorStateInfo(0);
                 if (info.shortNameHash != anim) return false;
 

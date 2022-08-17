@@ -7,7 +7,7 @@ public class Main : MonoBehaviour
     [SerializeField] private System.Gameplay.GameplaySerializable gameplaySerializable;
 
     public static Main Instance { get; private set; }
-    public RayPointer RayPointer { get; private set; }
+    public RayPointer RayPointer { get; }= new();
 
     private System.Gameplay _gameplay;
 
@@ -19,8 +19,6 @@ public class Main : MonoBehaviour
             Debug.LogError("Main: Error - not instantiatable");
         }
 
-        RayPointer = new RayPointer();
-        RayPointer.Reset();
         _gameplay = new System.Gameplay(gameplaySerializable);
     }
 
@@ -43,8 +41,6 @@ public class Main : MonoBehaviour
         }
 
         RayPointer.Update(Time.deltaTime);
-
-        // if (!_gameplay.IsGameOver) return;
 
         if (Input.GetKeyUp(KeyCode.Return))
         {

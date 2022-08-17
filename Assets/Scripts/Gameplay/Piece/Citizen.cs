@@ -13,7 +13,7 @@ namespace Gameplay
 
         private Transform _cameraTransform;
         private Animator _animator;
-        public Animator Animator => _animator ??= animatorListener.GetComponent<Animator>();
+        public override Animator Animator => _animator ??= animatorListener.GetComponent<Animator>();
 
         public override void Setup()
         {

@@ -12,14 +12,16 @@ namespace Gameplay
         protected MotionMetrics Motion;
 
         private readonly ConfigData _configData;
-        protected InputData inputData;
+        protected Vector3 Target;
+        protected readonly Transform Transform;
         private Flocking[] _others;
 
-        public Flocking(ConfigData configData, InputData inputData, Flocking[] others)
+        public Flocking(ConfigData configData, Vector3 target, Transform transform, Flocking[] others)
         {
             _others = others ?? new Flocking[0];
             _configData = configData;
-            this.inputData = inputData;
+            Target = target;
+            Transform = transform;
             Motion = new MotionMetrics();
         }
 
@@ -27,7 +29,7 @@ namespace Gameplay
 
         public override void Begin()
         {
-            Motion.position = inputData.transform.position;
+            Motion.position = Transform.position;
             Motion.moving = true;
         }
 
@@ -35,13 +37,13 @@ namespace Gameplay
         {
             if (!Motion.moving) return;
 
-            if (CheckDistance(Motion, inputData, _configData.arriveDistance))
+            if (CheckDistance(Motion, _configData.arriveDistance))
             {
-                Motion.acceleration += Arrive(Motion, inputData.target, deltaTime);
+                Motion.acceleration += Arrive(Motion, Target, deltaTime);
             }
             else
             {
-                Motion.acceleration += Seek(Motion, inputData.target);
+                Motion.acceleration += Seek(Motion, Target);
                 Motion.acceleration += Separate(_others);
             }
 
@@ -49,7 +51,7 @@ namespace Gameplay
 
             Motion.acceleration = Vector3.zero;
 
-            if (CheckDistance(Motion, inputData, 0.001f))
+            if (CheckDistance(Motion, 0.001f))
             {
                 CancelMove();
             }
@@ -71,19 +73,19 @@ namespace Gameplay
 
         protected virtual void SetPosAndForward(Vector3 pos, Vector3 forward)
         {
-            inputData.transform.position = pos;
-            inputData.transform.forward = forward;
+            Transform.position = pos;
+            Transform.forward = forward;
         }
 
-        private static bool CheckDistance(MotionMetrics motionMetrics, InputData inputData, float distance)
+        private bool CheckDistance(MotionMetrics motionMetrics, float distance)
         {
-            return (motionMetrics.position - inputData.target).sqrMagnitude < distance * distance;
+            return (motionMetrics.position - Target).sqrMagnitude < distance * distance;
         }
 
         private void CancelMove()
         {
             Motion.velocity = Vector3.zero;
-            Motion.position = inputData.target;
+            Motion.position = Target;
             Motion.moving = false;
         }
 
@@ -166,11 +168,6 @@ namespace Gameplay
             }
         }
 
-        public struct InputData
-        {
-            public Vector3 target;
-            public Transform transform;
-        }
 
         [Serializable]
         public struct ConfigData
@@ -192,10 +189,10 @@ namespace Gameplay
 
         public override bool Inactive => base.Inactive && _jump.Inactive;
 
-        public JumpingFlocking(ConfigData configData, InputData inputData, Flocking[] others)
-            : base(configData, inputData, others)
+        public JumpingFlocking(ConfigData configData, Vector3 target, Transform transform, Flocking[] others)
+            : base(configData, target, transform, others)
         {
-            _jump = new PieceActivityQueue.Jump(inputData.transform, new PieceActivityQueue.Jump.InputData
+            _jump = new PieceActivityQueue.Jump(Transform, new PieceActivityQueue.Jump.InputData
             {
                 height = 0.3f,
                 duration = 0.25f
@@ -205,10 +202,10 @@ namespace Gameplay
         protected override void SetPosAndForward(Vector3 pos, Vector3 forward)
         {
             _flockingPosition = pos;
-            inputData.transform.forward = forward;
+            Transform.forward = forward;
 
-            var p = inputData.transform.position;
-            inputData.transform.position = new Vector3(_flockingPosition.x, p.y, _flockingPosition.z);
+            var p = Transform.position;
+            Transform.position = new Vector3(_flockingPosition.x, p.y, _flockingPosition.z);
         }
 
         public override void Begin()
@@ -240,7 +237,7 @@ namespace Gameplay
             _intervalTime = 0f;
 
             var jumpDistance = _jump.GetJumpDistance(Speed);
-            if (Vector3.SqrMagnitude(inputData.target - Motion.position) > jumpDistance * jumpDistance)
+            if (Vector3.SqrMagnitude(Target - Motion.position) > jumpDistance * jumpDistance)
             {
                 _delay = false;
                 _jump.Begin();

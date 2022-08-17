@@ -24,6 +24,7 @@ namespace Gameplay.Piece
 
         [field: NonSerialized] public PieceActivityQueue PieceActivityQueue { get; } = new();
         public ConfigData Config => config;
+        public virtual Animator Animator => null;
 
         public virtual void Setup()
         {

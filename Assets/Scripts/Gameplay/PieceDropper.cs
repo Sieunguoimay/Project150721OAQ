@@ -37,7 +37,7 @@ namespace Gameplay
             var n = citizens.Count;
             for (var i = n - 1; i >= 0; i--)
             {
-                if (n - i > tileGroup.Tiles.Count) break;
+                if (n - i > tileGroup.Tiles.Length) break;
 
                 var p = citizens[i];
 
@@ -64,7 +64,7 @@ namespace Gameplay
 
                 for (var j = 0; j < n - i; j++)
                 {
-                    if (!(Pieces[i + j] is Citizen p)) continue;
+                    if (Pieces[i + j] is not Citizen p) continue;
 
                     if (i == 0)
                     {
@@ -177,7 +177,7 @@ namespace Gameplay
         {
             var success = _board.GetSuccessTile(tile, forward);
 
-            return tile.Pieces.Count == 0 && !(tile is MandarinTile) && success.Pieces.Count > 0;
+            return tile.Pieces.Count == 0 && tile is not MandarinTile && success.Pieces.Count > 0;
         }
 
         public enum ActionID

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Gameplay.Piece;
 using SNM;
 using UnityEngine;
@@ -16,27 +17,35 @@ namespace Gameplay.Board
 
         private readonly BoardTraveller _traveller = new();
 
-        public event Action TilesChanged;
-
-        public void SetTiles(IPieceHolder[] tiles)
+        public void SetGroups(TileGroup[] groups)
         {
-            Tiles = tiles;
+            TileGroups = groups;
+            Tiles = new IPieceHolder[TileGroups.Length * TileGroups[0].Tiles.Length + TileGroups.Length];
 
-            var mts = Tiles.Where(t => t is MandarinTile).ToArray();
-
-            TileGroups = new TileGroup[mts.Length];
-
-            for (var i = 0; i < mts.Length; i++)
+            var index = 0;
+            foreach (var tg in TileGroups)
             {
-                TileGroups[i] = CreateTileGroup(mts[i]);
+                Tiles[index++] = tg.MandarinTile;
+                foreach (var t in tg.Tiles)
+                {
+                    Tiles[index++] = t;
+                }
             }
-
-            TilesChanged?.Invoke();
         }
 
-        public void TearDown()
-        {
-        }
+        // public void SetTiles(IPieceHolder[] tiles)
+        // {
+            // Tiles = tiles;
+            //
+            // var mts = Tiles.Where(t => t is MandarinTile).ToArray();
+            //
+            // TileGroups = new TileGroup[mts.Length];
+            //
+            // for (var i = 0; i < mts.Length; i++)
+            // {
+            //     TileGroups[i] = CreateTileGroup(mts[i]);
+            // }
+        // }
 
         public IPieceHolder GetSuccessTile(IPieceHolder tile, bool forward)
         {
@@ -45,54 +54,29 @@ namespace Gameplay.Board
             return Tiles[_traveller.CurrentIndex];
         }
 
-        private TileGroup CreateTileGroup(IPieceHolder mt)
-        {
-            var tg = new TileGroup
-            {
-                MandarinTile = mt,
-                Tiles = new List<IPieceHolder>()
-            };
-
-            _traveller.Start(Array.IndexOf(Tiles, mt), Tiles.Length, Tiles.Length);
-            _traveller.Next(true);
-            while (Tiles[_traveller.CurrentIndex] is not MandarinTile)
-            {
-                tg.Tiles.Add(Tiles[_traveller.CurrentIndex]);
-                _traveller.Next(true);
-            }
-
-            return tg;
-        }
-
-        public PieceBench GetPieceBench(int index)
-        {
-            return new PieceBench(new PieceBench.ConfigData
-            {
-                PosAndRot = CalculatePieceBenchPosition(TileGroups[index]),
-                spacing = 0.25f,
-                perRow = 15
-            });
-
-            static PosAndRot CalculatePieceBenchPosition(TileGroup tg)
-            {
-                var pos1 = ((Tile) tg.Tiles[0]).transform.position;
-                var pos2 = ((Tile) tg.Tiles[^1]).transform.position;
-                var diff = pos2 - pos1;
-                var pos = pos1 + new Vector3(diff.z, diff.y, -diff.x) * 0.5f;
-                var qua = Quaternion.LookRotation(pos1 - pos, Vector3.up);
-                return new PosAndRot(pos, qua);
-            }
-        }
+        // private TileGroup CreateTileGroup(IPieceHolder mt)
+        // {
+        //     var tg = new TileGroup
+        //     {
+        //         MandarinTile = mt,
+        //         Tiles = new List<IPieceHolder>()
+        //     };
+        //
+        //     _traveller.Start(Array.IndexOf(Tiles, mt), Tiles.Length, Tiles.Length);
+        //     _traveller.Next(true);
+        //     while (Tiles[_traveller.CurrentIndex] is not MandarinTile)
+        //     {
+        //         tg.Tiles.Add(Tiles[_traveller.CurrentIndex]);
+        //         _traveller.Next(true);
+        //     }
+        //
+        //     return tg;
+        // }
 
         public class TileGroup
         {
             public IPieceHolder MandarinTile;
-            public List<IPieceHolder> Tiles;
-
-            public bool IsTileGroupEmpty()
-            {
-                return Tiles.All(t => t.Pieces.Count <= 0);
-            }
+            public IPieceHolder[] Tiles;
         }
 
 #if UNITY_EDITOR

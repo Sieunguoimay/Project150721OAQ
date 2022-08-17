@@ -1,12 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Common.ResolveSystem;
-using CommonActivities;
 using Gameplay;
 using Gameplay.Board;
 using Gameplay.Piece;
-using InGame;
-using SNM;
 using UnityEngine;
 
 namespace System
@@ -34,7 +30,7 @@ namespace System
         private PerMatchData _perMatchData;
         private Player CurrentPlayer { get; set; }
 
-        public bool IsGameOver { get; private set; }
+        private bool IsGameOver { get; set; }
         public bool IsPlaying { get; private set; }
 
         public Gameplay(Gameplay.GameplaySerializable gameplaySerializable)
@@ -45,15 +41,14 @@ namespace System
         public void Setup()
         {
             const int playerNum = 3;
-            
-            BoardManager.SetBoardByTileGroupNum(playerNum,5);
+
+            BoardManager.SetBoardByTileGroupNum(playerNum, 5);
             _board = BoardManager.Board;
 
             PlayerManager.FillWithFakePlayers(playerNum);
             PlayerManager.AssignPieceBench(_board);
 
             PieceManager.SpawnPieces(_board);
-            PieceManager.MoveToBoard(_board, true);
 
             _pieceDropper.Setup(_board);
 
@@ -77,7 +72,7 @@ namespace System
             {
                 CurrentPlayer.AcquireTurn();
                 CurrentPlayer.MakeDecision(_board);
-            });
+            }, _board);
         }
 
         public void ResetGame(MonoBehaviour context)
@@ -145,7 +140,7 @@ namespace System
                     ChangePlayer();
                 }
 
-                if (_board.TileGroups[CurrentPlayer.Index].IsTileGroupEmpty())
+                if (_board.TileGroups[CurrentPlayer.Index].Tiles.All(t => t.Pieces.Count <= 0))
                 {
                     if (CurrentPlayer.PieceBench.Pieces.Count > 0)
                     {
