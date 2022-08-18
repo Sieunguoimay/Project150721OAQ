@@ -141,10 +141,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c281d5d6ca172a1479371ae18c781f5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameplaySerializable:
-    pieceManager: {fileID: 8936260033893630409}
-    playersManager: {fileID: 3785447823534863185}
-    boardManager: {fileID: 6766520109190610884}
+  pieceManager: {fileID: 8936260033893630409}
+  playersManager: {fileID: 3785447823534863185}
+  boardManager: {fileID: 6766520109190610884}
 --- !u!1 &7909916913109183023
 GameObject:
   m_ObjectHideFlags: 0

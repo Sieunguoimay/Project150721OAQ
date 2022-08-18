@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.ResolveSystem;
 using SNM;
 using UnityEngine;
 
@@ -15,13 +16,13 @@ namespace Gameplay.Board
         public override void Setup()
         {
             base.Setup();
-            Main.Instance.RayPointer.Register(this);
+            RayPointer.Instance.Register(this);
         }
 
         public override void TearDown()
         {
             base.TearDown();
-            Main.Instance.RayPointer.Unregister(this);
+            RayPointer.Instance.Unregister(this);
         }
 
         #region RayPointer.ITarget

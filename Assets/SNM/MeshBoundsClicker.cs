@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.ResolveSystem;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -14,14 +15,12 @@ namespace SNM
 
         private void OnEnable()
         {
-            Main.Instance?.RayPointer.Register(this);
-            Debug.Log("MeshBoundsClicker Enable");
+            RayPointer.Instance.Register(this);
         }
 
         private void OnDisable()
         {
-            Main.Instance?.RayPointer.Unregister(this);
-            Debug.Log("MeshBoundsClicker Disable");
+            RayPointer.Instance.Unregister(this);
         }
 
         private void OnDrawGizmos()

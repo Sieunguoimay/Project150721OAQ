@@ -15,19 +15,19 @@ namespace Gameplay.Piece
 
         private Piece[] Pieces { get; set; }
 
-        public void SpawnPieces(Board.Board board)
+        public void SpawnPieces(int groups, int tilesPerGroup)
         {
-            Pieces = new Piece[board.TileGroups.Sum(p => p.Tiles.Length * 5 + 1)];
+            Pieces = new Piece[groups * tilesPerGroup * 5 + groups];
             var count = 0;
-            foreach (var tg in board.TileGroups)
+            for (var i = 0; i < groups; i++)
             {
                 Pieces[count] = Instantiate(mandarinPrefab, transform, true);
                 Pieces[count].Setup();
 
                 count++;
-                foreach (var t in tg.Tiles)
+                for (var j = 0; j < tilesPerGroup; j++)
                 {
-                    for (var i = 0; i < 5; i++)
+                    for (var k = 0; k < 5; k++)
                     {
                         var p = Instantiate(citizenPrefab, transform, true);
                         p.Setup();
@@ -54,7 +54,8 @@ namespace Gameplay.Piece
                         }
                         else
                         {
-                            Pieces[index].transform.position = ((MandarinTile) tg.MandarinTile).GetPositionInFilledCircle(0);
+                            Pieces[index].transform.position =
+                                ((MandarinTile) tg.MandarinTile).GetPositionInFilledCircle(0);
                             tg.MandarinTile.Grasp(Pieces[index]);
                             i--;
                         }
@@ -63,6 +64,7 @@ namespace Gameplay.Piece
                     }
                 }
             }
+
             this.WaitUntil(() => Pieces.All(p => p.PieceActivityQueue.Inactive), onAllInPlace);
         }
     }

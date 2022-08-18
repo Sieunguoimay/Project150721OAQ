@@ -9,22 +9,11 @@ namespace System
 {
     public class Gameplay
     {
-        [Serializable]
-        public class GameplaySerializable
-        {
-            public PieceManager pieceManager;
-            public PlayersManager playersManager;
-            public BoardManager boardManager;
-        }
-
-        private readonly Gameplay.GameplaySerializable _gameplaySerializable;
-        private PlayersManager PlayerManager => _gameplaySerializable.playersManager;
-        private PieceManager PieceManager => _gameplaySerializable.pieceManager;
-        private BoardManager BoardManager => _gameplaySerializable.boardManager;
-
+        private Player[] _players;
         private Board _board;
         private TileSelector _tileSelector;
-
+        private PieceManager _pieceManager;
+        
         private readonly PieceDropper _pieceDropper = new();
 
         private PerMatchData _perMatchData;
@@ -33,23 +22,12 @@ namespace System
         private bool IsGameOver { get; set; }
         public bool IsPlaying { get; private set; }
 
-        public Gameplay(Gameplay.GameplaySerializable gameplaySerializable)
+        public void Setup(Player[] players, Board board, PieceManager pieceManager)
         {
-            _gameplaySerializable = gameplaySerializable;
-        }
-
-        public void Setup()
-        {
-            const int playerNum = 3;
-
-            BoardManager.SetBoardByTileGroupNum(playerNum, 5);
-            _board = BoardManager.Board;
-
-            PlayerManager.FillWithFakePlayers(playerNum);
-            PlayerManager.AssignPieceBench(_board);
-
-            PieceManager.SpawnPieces(_board);
-
+            _board = board;
+            _players = players;
+            _pieceManager = pieceManager;
+            
             _pieceDropper.Setup(_board);
 
             ConnectEvents();
@@ -67,15 +45,15 @@ namespace System
         {
             IsPlaying = true;
             ChangePlayer();
-            _perMatchData = new PerMatchData(PlayerManager.Players.Length);
-            PieceManager.ReleasePieces(() =>
+            _perMatchData = new PerMatchData(_players.Length);
+            _pieceManager.ReleasePieces(() =>
             {
                 CurrentPlayer.AcquireTurn();
                 CurrentPlayer.MakeDecision(_board);
             }, _board);
         }
 
-        public void ResetGame(MonoBehaviour context)
+        public void ResetGame()
         {
             IsGameOver = false;
             IsPlaying = false;
@@ -87,12 +65,12 @@ namespace System
         {
             if (CurrentPlayer == null)
             {
-                CurrentPlayer = PlayerManager.Players[0];
+                CurrentPlayer = _players[0];
             }
             else
             {
                 CurrentPlayer.ReleaseTurn();
-                CurrentPlayer = PlayerManager.Players[(CurrentPlayer.Index + 1) % PlayerManager.Players.Length];
+                CurrentPlayer = _players[(CurrentPlayer.Index + 1) % _players.Length];
             }
 
             CurrentPlayer.AcquireTurn();
@@ -102,7 +80,7 @@ namespace System
         {
             _pieceDropper.OnDone += OnDropperDone;
             _pieceDropper.OnEat += OnEatPieces;
-            foreach (var player in PlayerManager.Players)
+            foreach (var player in _players)
             {
                 player.OnDecisionResult += OnDecisionResult;
             }
@@ -112,7 +90,7 @@ namespace System
         {
             _pieceDropper.OnDone -= OnDropperDone;
             _pieceDropper.OnEat -= OnEatPieces;
-            foreach (var player in PlayerManager.Players)
+            foreach (var player in _players)
             {
                 player.OnDecisionResult -= OnDecisionResult;
             }
@@ -120,7 +98,7 @@ namespace System
 
         private void OnDecisionResult(Tile tile, bool forward)
         {
-            _pieceDropper.GetReady(tile);
+            _pieceDropper.Pickup(tile);
             _pieceDropper.DropAll(forward);
         }
 
@@ -144,7 +122,8 @@ namespace System
                 {
                     if (CurrentPlayer.PieceBench.Pieces.Count > 0)
                     {
-                        if (!TakeBackCitizens(CurrentPlayer.PieceBench.Pieces, _pieceDropper, _board.TileGroups[CurrentPlayer.Index]))
+                        if (!TakeBackCitizens(CurrentPlayer.PieceBench.Pieces, _pieceDropper,
+                            _board.TileGroups[CurrentPlayer.Index]))
                         {
                             gameOver = false;
                         }
@@ -205,16 +184,16 @@ namespace System
 
         private void EvaluateWinner()
         {
-            for (var i = 0; i < PlayerManager.Players.Length; i++)
+            for (var i = 0; i < _players.Length; i++)
             {
                 foreach (var tile in _board.TileGroups[i].Tiles)
                 {
-                    PlayerManager.Players[i].PieceBench.Grasp(tile);
+                    _players[i].PieceBench.Grasp(tile);
                 }
 
                 var sum = 0;
 
-                foreach (var p in PlayerManager.Players[i].PieceBench.Pieces)
+                foreach (var p in _players[i].PieceBench.Pieces)
                 {
                     switch (p)
                     {

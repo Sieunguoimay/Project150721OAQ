@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace SNM
 {
-    public class RayPointer
+    public class RayPointer : Singleton<RayPointer>
     {
         private readonly List<ITarget> _listeners = new();
         private Camera _camera;
@@ -26,7 +26,7 @@ namespace SNM
             _listeners.Remove(target);
         }
 
-        public void Update(float deltaTime)
+        public void Update()
         {
             if (Input.GetMouseButtonUp(0))
             {

@@ -24,7 +24,7 @@ namespace Gameplay
             }
         }
 
-        public void AssignPieceBench(Board.Board board)
+        public void CreatePieceBench(Board.Board board)
         {
             foreach (var p in Players)
             {
