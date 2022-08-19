@@ -38,7 +38,7 @@ namespace SNM
         {
             if (_camera == null)
             {
-                _camera = Resolver.Instance.Resolve<CameraManager>().Camera;
+                // _camera = Resolver.Instance.Resolve<CameraManager>().Camera;
             }
 
             var ray = _camera.ScreenPointToRay(position);

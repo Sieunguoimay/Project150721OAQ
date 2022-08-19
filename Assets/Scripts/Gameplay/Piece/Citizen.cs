@@ -18,16 +18,14 @@ namespace Gameplay
         public override void Setup()
         {
             base.Setup();
-            FaceCamera(true, new Vector3(0, UnityEngine.Random.Range(-45f, 45f), 0));
-            _cameraTransform = Resolver.Instance.Resolve<CameraManager>().transform;
+            // FaceCamera(_cameraTransform.position,true, new Vector3(0, UnityEngine.Random.Range(-45f, 45f), 0));
+            // _cameraTransform = Resolver.Instance.Resolve<CameraManager>().transform;
         }
 
-        public void FaceCamera(bool immediate, Vector3 offset = new())
+        public void FaceCamera(Vector3 pos, bool immediate, Vector3 offset = new())
         {
-            if (_cameraTransform == null) return;
-
             var t = transform;
-            var dir = _cameraTransform.position - t.position;
+            var dir = pos - t.position;
             var up = t.up;
             dir = SNM.Math.Projection(dir, up);
             if (immediate)

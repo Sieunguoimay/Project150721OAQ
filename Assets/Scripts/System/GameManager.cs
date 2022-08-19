@@ -43,23 +43,9 @@ namespace System
 
         public void OnInitialize()
         {
-            _matchOption.OnInitialize();
         }
 
         public void OnSetup()
-        {
-            _matchOption.OnChanged += OnMatchOptionChanged;
-            _matchOption.OnSetup();
-        }
-
-        public void OnCleanup()
-        {
-            _matchOption.OnChanged -= OnMatchOptionChanged;
-            _gameplay.TearDown();
-            _matchOption.OnCleanup();
-        }
-
-        private void OnMatchOptionChanged()
         {
             boardManager.SetBoardByTileGroupNum(_matchOption.PlayerNum, _matchOption.TilesPerGroup);
 
@@ -71,21 +57,23 @@ namespace System
             _gameplay.Setup(playersManager.Players, boardManager.Board, pieceManager);
         }
 
+        public void OnCleanup()
+        {
+            _gameplay.TearDown();
+        }
+
         public void OnGameStart()
         {
             _gameplay.StartNewMatch();
-            _matchOption.OnGameStart();
         }
 
         public void OnGameEnd()
         {
-            _matchOption.OnGameEnd();
         }
 
         public void OnGameReset()
         {
             _gameplay.ResetGame();
-            _matchOption.OnGameReset();
         }
 
         #endregion

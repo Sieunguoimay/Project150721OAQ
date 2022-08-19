@@ -19,7 +19,7 @@ namespace Gameplay
         protected Player(int index)
         {
             Index = index;
-            TileSelector = Resolver.Instance.Resolve<TileSelector>();
+            // TileSelector = Resolver.Instance.Resolve<TileSelector>();
         }
 
         public virtual void MakeDecision(Board.Board board)

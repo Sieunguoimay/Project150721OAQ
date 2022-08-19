@@ -22,7 +22,7 @@ namespace Gameplay.Board
 
         private void Awake()
         {
-            Resolver.Instance.Bind(this);
+            // Resolver.Instance.Bind(this);
             gameObject.SetActive(false);
             left.OnClick += InvokeOnTouchedLeft;
             right.OnClick += InvokeOnTouchedRight;
@@ -30,7 +30,7 @@ namespace Gameplay.Board
 
         private void OnDestroy()
         {
-            Resolver.Instance.Unbind(this);
+            // Resolver.Instance.Unbind(this);
 
             left.OnClick -= InvokeOnTouchedLeft;
             right.OnClick -= InvokeOnTouchedRight;
