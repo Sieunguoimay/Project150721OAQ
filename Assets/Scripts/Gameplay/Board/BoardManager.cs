@@ -28,21 +28,25 @@ namespace Gameplay.Board
                 var cornerPos = polygon[i];
                 var mandarinTile = Instantiate(mandarinTilePrefab, transform);
                 mandarinTile.Setup();
-                mandarinTile.transform.SetPositionAndRotation(ToVector3(cornerPos + cornerPos.normalized * mandarinTilePrefab.Size / 2f), Quaternion.LookRotation(ToVector3(cornerPos)));
+                mandarinTile.transform.SetPositionAndRotation(
+                    ToVector3(cornerPos + cornerPos.normalized * mandarinTilePrefab.Size / 2f),
+                    Quaternion.LookRotation(ToVector3(cornerPos)));
 
-                tileGroups[i] = new Board.TileGroup {MandarinTile = mandarinTile, Tiles = new IPieceHolder[tilesPerGroup]};
+                tileGroups[i] = new Board.TileGroup
+                    {MandarinTile = mandarinTile, Tiles = new IPieceHolder[tilesPerGroup]};
 
                 var p0 = polygon[i];
                 var p1 = polygon[(i + 1) % polygon.Length];
                 var dir = (p1 - p0).normalized;
-                var normal = ((p0 + p1) / 2f).normalized;
+                var normal = new Vector2(dir.y, -dir.x);//clockwise 90
 
                 for (var j = 0; j < tilesPerGroup; j++)
                 {
                     var pj = p0 + (j + 0.5f) * citizenTilePrefab.Size * dir;
                     var citizenTile = Instantiate(citizenTilePrefab, transform);
                     citizenTile.Setup();
-                    citizenTile.transform.SetPositionAndRotation(ToVector3(pj + normal * citizenTilePrefab.Size / 2f), Quaternion.LookRotation(ToVector3(normal)));
+                    citizenTile.transform.SetPositionAndRotation(ToVector3(pj + normal * citizenTilePrefab.Size / 2f),
+                        Quaternion.LookRotation(ToVector3(normal)));
 
                     tileGroups[i].Tiles[j] = citizenTile;
                 }

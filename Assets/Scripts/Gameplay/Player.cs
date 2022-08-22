@@ -16,10 +16,10 @@ namespace Gameplay
         public PieceBench PieceBench { get; set; }
         public int Index { get; private set; }
 
-        protected Player(int index)
+        protected Player(int index, TileSelector tileSelector)
         {
             Index = index;
-            // TileSelector = Resolver.Instance.Resolve<TileSelector>();
+            TileSelector = tileSelector;
         }
 
         public virtual void MakeDecision(Board.Board board)
@@ -41,7 +41,7 @@ namespace Gameplay
 
     public class RealPlayer : Player
     {
-        public RealPlayer(int index) : base(index)
+        public RealPlayer(int index, TileSelector tileSelector) : base(index, tileSelector)
         {
         }
 
@@ -67,7 +67,7 @@ namespace Gameplay
 
     public class FakePlayer : Player
     {
-        public FakePlayer(int index) : base(index)
+        public FakePlayer(int index, TileSelector tileSelector) : base(index, tileSelector)
         {
         }
 

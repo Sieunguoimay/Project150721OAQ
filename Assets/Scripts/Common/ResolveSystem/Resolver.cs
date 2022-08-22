@@ -6,18 +6,6 @@ namespace Common.ResolveSystem
 {
     public class Resolver : IResolver
     {
-        // #region Singleton
-        //
-        // private static Resolver _instance;
-        // public static Resolver Instance => _instance ??= new Resolver();
-        //
-        // private Resolver()
-        // {
-        //     Debug.Log("Resolver created");
-        // }
-        //
-        // #endregion
-
         private readonly Dictionary<Type, object> _boundObjects = new();
         private readonly Dictionary<(Type, string), object> _boundObjectsWithId = new();
 
@@ -29,7 +17,6 @@ namespace Common.ResolveSystem
                 Debug.LogError($"Type {type.FullName} has already been bound to {_boundObjects[type]}");
             }
         }
-
         public void Bind<TType>(TType target, string id)
         {
             var type = typeof(TType);

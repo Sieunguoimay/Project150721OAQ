@@ -1,8 +1,7 @@
 ﻿namespace Gameplay
 {
-    public interface IManager
+    public interface IManager : IInjectable
     {
-        void OnInitialize();
         void OnSetup();
         void OnCleanup();
         void OnGameStart();

@@ -6,6 +6,7 @@ using CommonActivities;
 using Gameplay.Board;
 using Gameplay.Piece;
 using SNM;
+using UnityEngine;
 using Action = System.Action;
 
 namespace Gameplay
@@ -20,10 +21,26 @@ namespace Gameplay
         private ActionID _actionID;
         private Board.Board _board;
         private IPieceHolder CurrentTile => _board.Tiles[_boardTraveller.CurrentIndex];
+        private Activity _lastPieceJumpActivity;
+        private Coroutine _coroutine;
 
         public void Setup(Board.Board board)
         {
             _board = board;
+        }
+
+        public void Reset()
+        {
+            if (_lastPieceJumpActivity != null)
+            {
+                _lastPieceJumpActivity.Done -= OnDropAllDone;
+                _lastPieceJumpActivity = null;
+            }
+
+            if (_coroutine != null)
+            {
+                PublicExecutor.Instance.StopCoroutine(_coroutine);
+            }
         }
 
         public void Pickup(IPieceHolder tile)
@@ -49,7 +66,8 @@ namespace Gameplay
                 citizens.RemoveAt(i);
             }
 
-            _boardTraveller.Start(Array.IndexOf(_board.Tiles, tileGroup.MandarinTile), Pieces.Count, _board.Tiles.Length);
+            _boardTraveller.Start(Array.IndexOf(_board.Tiles, tileGroup.MandarinTile), Pieces.Count,
+                _board.Tiles.Length);
             _actionID = ActionID.TakingBack;
         }
 
@@ -69,15 +87,21 @@ namespace Gameplay
 
                     if (i == 0)
                     {
-                        p.PieceActivityQueue.Add(new Delay(delay)); 
-                        PieceScheduler.CreateAnimActivity(p, () => p.Animator.GetCurrentAnimatorStateInfo(0).shortNameHash == LegHashes.idle ? LegHashes.jump_interval : LegHashes.stand_up, null);
+                        p.PieceActivityQueue.Add(new Delay(delay));
+                        PieceScheduler.CreateAnimActivity(p,
+                            () => p.Animator.GetCurrentAnimatorStateInfo(0).shortNameHash == LegHashes.idle
+                                ? LegHashes.jump_interval
+                                : LegHashes.stand_up, null);
                         delay += 0.2f;
                     }
 
                     var skipSlot = CurrentTile is MandarinTile {HasMandarin: true};
-                    var citizenPos = ((Tile) CurrentTile).GetPositionInFilledCircle(CurrentTile.Pieces.Count + j + (skipSlot ? 5 : 0), false);
+                    var citizenPos =
+                        ((Tile) CurrentTile).GetPositionInFilledCircle(
+                            CurrentTile.Pieces.Count + j + (skipSlot ? 5 : 0), false);
 
-                    var jumpForward = new JumpForward(p.transform, citizenPos, .4f, new LinearEasing(), 1f, BezierEasing.CreateBezierEasing(0.35f, 0.75f));
+                    var jumpForward = new JumpForward(p.transform, citizenPos, .4f, new LinearEasing(), 1f,
+                        BezierEasing.CreateBezierEasing(0.35f, 0.75f));
 
                     p.PieceActivityQueue.Add(jumpForward);
 
@@ -88,7 +112,8 @@ namespace Gameplay
 
                     if (i == n - 1)
                     {
-                        jumpForward.Done += OnDropAllDone;
+                        _lastPieceJumpActivity = jumpForward;
+                        _lastPieceJumpActivity.Done += OnDropAllDone;
                     }
                 }
 
@@ -108,19 +133,21 @@ namespace Gameplay
 
         private void OnDropAllDone()
         {
+            _lastPieceJumpActivity = null;
             switch (_actionID)
             {
                 case ActionID.DroppingInTurn:
                 {
                     var t = _board.GetSuccessTile(CurrentTile, _forward);
-                    
+
                     _boardTraveller.Reset();
 
                     if (t.Pieces.Count > 0 && t is not MandarinTile)
                     {
                         Pickup(t);
-                        PublicExecutor.Instance.Delay(.3f, () =>
+                        _coroutine = PublicExecutor.Instance.Delay(.3f, () =>
                         {
+                            _coroutine = null;
                             DropAll(_forward);
                         });
                     }
@@ -128,10 +155,7 @@ namespace Gameplay
                     {
                         if (CheckSuccessEatable(t, _forward))
                         {
-                            Eat(t, _forward, () =>
-                            {
-                                OnDone?.Invoke(_actionID);
-                            });
+                            Eat(t, _forward, () => { OnDone?.Invoke(_actionID); });
                         }
                         else
                         {
@@ -159,8 +183,12 @@ namespace Gameplay
 
             if (CheckSuccessEatable(_board.GetSuccessTile(success, forward), forward))
             {
-                PublicExecutor.Instance.Delay(0.2f,
-                    () => { Eat(_board.GetSuccessTile(success, forward), forward, done); });
+                _coroutine = PublicExecutor.Instance.Delay(0.2f,
+                    () =>
+                    {
+                        _coroutine = null;
+                        Eat(_board.GetSuccessTile(success, forward), forward, done);
+                    });
             }
             else
             {
@@ -170,7 +198,8 @@ namespace Gameplay
 
         private bool CheckSuccessEatable(IPieceHolder tile, bool forward)
         {
-            return tile.Pieces.Count == 0 && tile is not MandarinTile && _board.GetSuccessTile(tile, forward).Pieces.Count > 0;
+            return tile.Pieces.Count == 0 && tile is not MandarinTile &&
+                   _board.GetSuccessTile(tile, forward).Pieces.Count > 0;
         }
 
         public enum ActionID

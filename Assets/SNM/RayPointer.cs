@@ -1,15 +1,21 @@
 ﻿using System.Collections.Generic;
 using Common;
 using Common.ResolveSystem;
+using Gameplay;
 using TMPro.Examples;
 using UnityEngine;
 
 namespace SNM
 {
-    public class RayPointer : Singleton<RayPointer>
+    public class RayPointer : Singleton<RayPointer>, IInjectable
     {
         private readonly List<ITarget> _listeners = new();
         private Camera _camera;
+
+        public void Inject(IResolver resolver)
+        {
+            _camera = resolver.Resolve<CameraManager>().Camera;
+        }
 
         public void Reset()
         {
@@ -36,11 +42,6 @@ namespace SNM
 
         private void ProcessMouse(Vector3 position)
         {
-            if (_camera == null)
-            {
-                // _camera = Resolver.Instance.Resolve<CameraManager>().Camera;
-            }
-
             var ray = _camera.ScreenPointToRay(position);
 
             var minDistance = float.MaxValue;
@@ -54,8 +55,6 @@ namespace SNM
                     minDistance = distance;
                     selectedTarget = l;
                 }
-
-                // Debug.Log((l as MonoBehaviour)?.name + " " + distance);
             }
 
             selectedTarget?.OnHit(ray, minDistance);

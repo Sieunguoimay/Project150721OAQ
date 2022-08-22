@@ -9,9 +9,9 @@ namespace SNM
 {
     public static class Extensions
     {
-        public static void Delay(this MonoBehaviour mb, float duration, Action onDone)
+        public static Coroutine Delay(this MonoBehaviour mb, float duration, Action onDone)
         {
-            mb.StartCoroutine(Delay(duration, onDone));
+            return mb.StartCoroutine(Delay(duration, onDone));
         }
 
         private static IEnumerator Delay(float duration, Action onDone)

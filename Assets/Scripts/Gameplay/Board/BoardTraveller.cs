@@ -16,12 +16,11 @@
             _stepCount = 0;
         }
 
-        public bool Next(bool forward)
+        public void Next(bool forward)
         {
-            if (!IsTravelling) return false;
+            if (!IsTravelling) return;
             _stepCount++;
             CurrentIndex = Mod(forward ? CurrentIndex + 1 : CurrentIndex - 1, _number);
-            return true;
         }
 
         public void Reset()

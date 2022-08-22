@@ -15,14 +15,13 @@ namespace Gameplay.Board
 
         private Gameplay.Board.Board.TileGroup _tileGroup;
         private Tile _selectedTile;
-        private readonly List<ISelectionAdaptor> _selectionAdaptors = new List<ISelectionAdaptor>();
+        private readonly List<ISelectionAdaptor> _selectionAdaptors = new();
 
         public Action<Tile, bool> OnDone = delegate { };
         public event Action<bool> OnTouched;
 
         private void Awake()
         {
-            // Resolver.Instance.Bind(this);
             gameObject.SetActive(false);
             left.OnClick += InvokeOnTouchedLeft;
             right.OnClick += InvokeOnTouchedRight;
@@ -30,8 +29,6 @@ namespace Gameplay.Board
 
         private void OnDestroy()
         {
-            // Resolver.Instance.Unbind(this);
-
             left.OnClick -= InvokeOnTouchedLeft;
             right.OnClick -= InvokeOnTouchedRight;
         }

@@ -1,17 +1,24 @@
-﻿using Gameplay.Board;
+﻿using Common.ResolveSystem;
+using Gameplay.Board;
 using SNM;
 using UnityEngine;
 
 namespace Gameplay
 {
-    public class PlayersManager : MonoBehaviour
+    public class PlayersManager : MonoBehaviour, IInjectable
     {
         public Player[] Players { get; private set; }
         private Player _mainPlayer;
+        private TileSelector _tileSelector;
 
+        public void Inject(IResolver resolver)
+        {
+            _tileSelector = resolver.Resolve<TileSelector>();
+        }
+        
         private void Start()
         {
-            _mainPlayer = new RealPlayer(0);
+            _mainPlayer = new RealPlayer(0, _tileSelector);
         }
 
         public void FillWithFakePlayers(int n)
@@ -20,7 +27,7 @@ namespace Gameplay
             Players[0] = _mainPlayer;
             for (var i = 1; i < n; i++)
             {
-                Players[i] = new FakePlayer(i);
+                Players[i] = new FakePlayer(i, _tileSelector);
             }
         }
 
@@ -46,5 +53,6 @@ namespace Gameplay
                 return new PosAndRot(pos, qua);
             }
         }
+
     }
 }

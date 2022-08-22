@@ -33,45 +33,12 @@ namespace Gameplay.Board
             }
         }
 
-        // public void SetTiles(IPieceHolder[] tiles)
-        // {
-            // Tiles = tiles;
-            //
-            // var mts = Tiles.Where(t => t is MandarinTile).ToArray();
-            //
-            // TileGroups = new TileGroup[mts.Length];
-            //
-            // for (var i = 0; i < mts.Length; i++)
-            // {
-            //     TileGroups[i] = CreateTileGroup(mts[i]);
-            // }
-        // }
-
         public IPieceHolder GetSuccessTile(IPieceHolder tile, bool forward)
         {
             _traveller.Start(Array.IndexOf(Tiles, tile), Tiles.Length, Tiles.Length);
             _traveller.Next(forward);
             return Tiles[_traveller.CurrentIndex];
         }
-
-        // private TileGroup CreateTileGroup(IPieceHolder mt)
-        // {
-        //     var tg = new TileGroup
-        //     {
-        //         MandarinTile = mt,
-        //         Tiles = new List<IPieceHolder>()
-        //     };
-        //
-        //     _traveller.Start(Array.IndexOf(Tiles, mt), Tiles.Length, Tiles.Length);
-        //     _traveller.Next(true);
-        //     while (Tiles[_traveller.CurrentIndex] is not MandarinTile)
-        //     {
-        //         tg.Tiles.Add(Tiles[_traveller.CurrentIndex]);
-        //         _traveller.Next(true);
-        //     }
-        //
-        //     return tg;
-        // }
 
         public class TileGroup
         {

@@ -144,6 +144,9 @@ MonoBehaviour:
   pieceManager: {fileID: 8936260033893630409}
   playersManager: {fileID: 3785447823534863185}
   boardManager: {fileID: 6766520109190610884}
+  tileSelector: {fileID: 1240430428396146383}
+  uiManager: {fileID: 0}
+  cameraManager: {fileID: 0}
 --- !u!1 &7909916913109183023
 GameObject:
   m_ObjectHideFlags: 0
@@ -250,6 +253,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8659019025283783881, guid: ed42140ac79d9d7468323f1ef4b78add, type: 3}
   m_PrefabInstance: {fileID: 7574464178916741639}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1240430428396146383 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8659019025283783880, guid: ed42140ac79d9d7468323f1ef4b78add, type: 3}
+  m_PrefabInstance: {fileID: 7574464178916741639}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8627b98f7f04dbfba03aa1fbc2438e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &7971242592869018355
 PrefabInstance:
   m_ObjectHideFlags: 0

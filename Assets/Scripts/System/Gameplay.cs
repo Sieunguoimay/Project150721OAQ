@@ -57,6 +57,7 @@ namespace System
         {
             IsGameOver = false;
             IsPlaying = false;
+            _pieceDropper.Reset();
         }
 
         #region PRIVATE_METHODS
