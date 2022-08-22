@@ -4,6 +4,7 @@ using Common.ResolveSystem;
 using Gameplay.Board;
 using Gameplay.Piece;
 using SNM;
+using UnityEngine;
 
 namespace Gameplay
 {
@@ -20,6 +21,12 @@ namespace Gameplay
         {
             Index = index;
             TileSelector = tileSelector;
+        }
+
+        public virtual void ResetAll()
+        {
+            TileSelector.OnDone = null;
+            PieceBench.Pieces.Clear();
         }
 
         public virtual void MakeDecision(Board.Board board)
@@ -67,8 +74,20 @@ namespace Gameplay
 
     public class FakePlayer : Player
     {
+        private Coroutine _coroutine;
+
         public FakePlayer(int index, TileSelector tileSelector) : base(index, tileSelector)
         {
+        }
+
+        public override void ResetAll()
+        {
+            base.ResetAll();
+            if (_coroutine != null)
+            {
+                TileSelector.StopCoroutine(_coroutine);
+                _coroutine = null;
+            }
         }
 
         public override void MakeDecision(Board.Board board)
@@ -89,7 +108,11 @@ namespace Gameplay
 
             TileSelector.SelectTile(selectedTile as Tile);
 
-            TileSelector.Delay(.4f, () => { TileSelector.ChooseDirection(selectedDirection); });
+            _coroutine = TileSelector.Delay(.4f, () =>
+            {
+                TileSelector.ChooseDirection(selectedDirection);
+                _coroutine = null;
+            });
         }
     }
 }

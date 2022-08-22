@@ -21,6 +21,13 @@ namespace Gameplay
             _mainPlayer = new RealPlayer(0, _tileSelector);
         }
 
+        public void ResetAll()
+        {
+            foreach (var player in Players)
+            {
+                player.ResetAll();
+            }
+        }
         public void FillWithFakePlayers(int n)
         {
             Players = new Player[n];

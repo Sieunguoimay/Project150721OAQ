@@ -33,14 +33,14 @@ namespace Gameplay
             return new PosAndRot(_config.PosAndRot.Position + dirX * offsetX + dirY * offsetY, _config.PosAndRot.Rotation);
         }
 
-        public PosAndRot GetMandarinPosAndRot(int index)
-        {
-            var dirX = _config.PosAndRot.Rotation * Vector3.left;
-            var dirY = _config.PosAndRot.Rotation * Vector3.forward;
-            var y = index;
-            var offsetX = _config.spacing;
-            var offsetY = _config.spacing * y;
-            return new PosAndRot(_config.PosAndRot.Position + dirX * offsetX + dirY * offsetY, _config.PosAndRot.Rotation);
-        }
+        // public PosAndRot GetMandarinPosAndRot(int index)
+        // {
+        //     var dirX = _config.PosAndRot.Rotation * Vector3.left;
+        //     var dirY = _config.PosAndRot.Rotation * Vector3.forward;
+        //     var y = index;
+        //     var offsetX = _config.spacing;
+        //     var offsetY = _config.spacing * y;
+        //     return new PosAndRot(_config.PosAndRot.Position + dirX * offsetX + dirY * offsetY, _config.PosAndRot.Rotation);
+        // }
     }
 }

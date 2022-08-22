@@ -13,6 +13,13 @@ namespace Gameplay.Board
         [SerializeField] private Tile citizenTilePrefab;
         public Board Board { get; } = new();
 
+        public void ResetAll()
+        {
+            foreach (var t in Board.Tiles)
+            {
+                t.Pieces.Clear();
+            }
+        }
         public void SetBoardByTileGroupNum(int tileGroupNum, int tilesPerGroup)
         {
             Board.SetGroups(CreateBoard(tileGroupNum, tilesPerGroup));

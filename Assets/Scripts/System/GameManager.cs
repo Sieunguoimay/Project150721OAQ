@@ -112,6 +112,9 @@ namespace System
         private void OnGameReset()
         {
             _gameplay.ResetGame();
+            playersManager.ResetAll();
+            pieceManager.ResetAll();
+            boardManager.ResetAll();
         }
     }
 }

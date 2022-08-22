@@ -15,6 +15,15 @@ namespace Gameplay.Piece
 
         private Piece[] Pieces { get; set; }
 
+        public void ResetAll()
+        {
+            foreach (var p in Pieces)
+            {
+                p.PieceActivityQueue.NotifyDone();
+                p.PieceActivityQueue.Activities.Clear();
+            }
+        }
+        
         public void SpawnPieces(int groups, int tilesPerGroup)
         {
             Pieces = new Piece[groups * tilesPerGroup * 5 + groups];
