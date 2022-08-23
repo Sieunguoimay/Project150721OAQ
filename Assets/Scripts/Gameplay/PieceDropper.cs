@@ -41,6 +41,7 @@ namespace Gameplay
             {
                 PublicExecutor.Instance.StopCoroutine(_coroutine);
             }
+            Pieces.Clear();
         }
 
         public void Pickup(IPieceHolder tile)

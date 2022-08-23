@@ -28,15 +28,17 @@ namespace Gameplay.UI
         [SerializeField] private MatchOptionItem[] optionItems;
         [SerializeField] private MatchOptionItemUI itemPrefab;
         private IMatchOption _matchOption;
+        private GameManager.IGameEvents _gameEvents;
 
         private MatchOptionItemUI[] _itemUIs;
 
         public void Inject(IResolver resolver)
         {
             _matchOption = resolver.Resolve<IMatchOption>();
+            _gameEvents = resolver.Resolve<GameManager.IGameEvents>();
         }
 
-        private void Start()
+        private void Awake()
         {
             _itemUIs = new MatchOptionItemUI[optionItems.Length];
             for (var i = 0; i < optionItems.Length; i++)
@@ -46,12 +48,7 @@ namespace Gameplay.UI
                 _itemUIs[i].Setup(optionItems[i]);
                 optionItems[i].Selected += OnSelected;
             }
-        }
-
-        private void OnSelected(int index)
-        {
-            SetMatchOption(optionItems[index].PlayerNum, optionItems[index].TilesPerGroup);
-            gameObject.SetActive(false);
+            _gameEvents.Reset += OnGameReset;
         }
 
         private void OnDestroy()
@@ -61,6 +58,18 @@ namespace Gameplay.UI
                 _itemUIs[i].TearDown();
                 optionItems[i].Selected -= OnSelected;
             }
+            _gameEvents.Reset -= OnGameReset;
+        }
+
+        private void OnSelected(int index)
+        {
+            SetMatchOption(optionItems[index].PlayerNum, optionItems[index].TilesPerGroup);
+            gameObject.SetActive(false);
+        }
+
+        private void OnGameReset()
+        {
+            gameObject.SetActive(true);
         }
 
         private void SetMatchOption(int playerNum, int tilesPerGroup)

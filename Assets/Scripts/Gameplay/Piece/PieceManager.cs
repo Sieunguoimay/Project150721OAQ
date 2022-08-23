@@ -13,7 +13,7 @@ namespace Gameplay.Piece
         [SerializeField] private Piece mandarinPrefab;
         [SerializeField] private Piece citizenPrefab;
 
-        private Piece[] Pieces { get; set; }
+        public Piece[] Pieces { get; set; }
 
         public void ResetAll()
         {

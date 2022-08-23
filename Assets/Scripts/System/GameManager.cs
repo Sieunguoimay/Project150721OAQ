@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Common;
 using Common.ResolveSystem;
+using DG.Tweening;
 using Gameplay;
 using Gameplay.Board;
 using Gameplay.Piece;
@@ -20,6 +21,7 @@ namespace System
 
         private readonly Gameplay _gameplay = new();
         private readonly MatchOption _matchOption = new();
+        private readonly GameEvents _events = new();
 
         private IInjectable[] _injectables;
         private readonly Resolver _resolver = new();
@@ -59,7 +61,11 @@ namespace System
 
             if (Input.GetKeyUp(KeyCode.Return))
             {
-                OnGameReset();
+                ReplayMatch();
+            }
+            if (Input.GetKeyUp(KeyCode.Escape))
+            {
+                ResetGame();
             }
         }
 
@@ -68,6 +74,7 @@ namespace System
             _resolver.Bind<IMatchOption>(_matchOption);
             _resolver.Bind(cameraManager);
             _resolver.Bind(tileSelector);
+            _resolver.Bind<IGameEvents>(_events);
         }
 
         private void Unbind()
@@ -75,6 +82,7 @@ namespace System
             _resolver.Unbind<IMatchOption>(_matchOption);
             _resolver.Unbind(cameraManager);
             _resolver.Unbind(tileSelector);
+            _resolver.Unbind<IGameEvents>(_events);
         }
 
         private void OnSetup()
@@ -107,14 +115,63 @@ namespace System
         private void OnGameStart()
         {
             _gameplay.StartNewMatch();
+            _events.OnStart();
         }
 
-        private void OnGameReset()
+        private void ReplayMatch()
         {
             _gameplay.ResetGame();
             playersManager.ResetAll();
             pieceManager.ResetAll();
             boardManager.ResetAll();
+            _events.OnReplayMatch();
+        }
+
+        private void ResetGame()
+        {
+            _gameplay.ResetGame();
+            playersManager.ResetAll();
+            pieceManager.ResetAll();
+            boardManager.ResetAll();
+            
+            foreach (var p in pieceManager.Pieces)
+            {
+                DOTween.Kill(p);
+                p.StopAllCoroutines();
+                Destroy(p.gameObject);
+            }
+
+            pieceManager.Pieces = null;
+            _matchOptionChosen = false;
+            _events.OnReset();
+        }
+        public interface IGameEvents
+        {
+            event Action Start;
+            event Action Reset;
+            event Action ReplayMatch;
+        }
+
+        private sealed class GameEvents : IGameEvents
+        {
+            public event Action Start;
+            public event Action Reset;
+            public event Action ReplayMatch;
+
+            public void OnStart()
+            {
+                Start?.Invoke();
+            }
+
+            public void OnReset()
+            {
+                Reset?.Invoke();
+            }
+
+            public void OnReplayMatch()
+            {
+                ReplayMatch?.Invoke();
+            }
         }
     }
 }
