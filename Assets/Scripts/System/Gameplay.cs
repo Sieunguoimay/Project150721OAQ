@@ -11,7 +11,6 @@ namespace System
     {
         private Player[] _players;
         private Board _board;
-        private TileSelector _tileSelector;
         private PieceManager _pieceManager;
         
         private readonly PieceDropper _pieceDropper = new();

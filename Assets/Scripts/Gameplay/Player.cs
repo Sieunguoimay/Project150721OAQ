@@ -61,6 +61,7 @@ namespace Gameplay
                 ((Tile) t).OnTouched += TileSelector.SelectTile;
             }
 
+            TileSelector.OnTouched -= OnTileSelectorTouched;
             TileSelector.OnTouched += OnTileSelectorTouched;
             TileSelector.Display(board.TileGroups[Index]);
         }

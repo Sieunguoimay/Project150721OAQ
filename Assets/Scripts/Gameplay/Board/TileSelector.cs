@@ -33,6 +33,13 @@ namespace Gameplay.Board
             right.OnClick -= InvokeOnTouchedRight;
         }
 
+        public void ResetAll()
+        {
+            _selectedTile = null;
+            _selectionAdaptors.Clear();
+            gameObject.SetActive(false);
+        }
+
         public void Display(Gameplay.Board.Board.TileGroup tileGroup)
         {
             _selectedTile = null;

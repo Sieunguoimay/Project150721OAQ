@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace System
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : MonoBehaviour, IGameFlowHandler
     {
         [SerializeField] public PieceManager pieceManager;
         [SerializeField] public PlayersManager playersManager;
@@ -22,14 +22,15 @@ namespace System
         private readonly Gameplay _gameplay = new();
         private readonly MatchOption _matchOption = new();
         private readonly GameEvents _events = new();
+        private GameFlowManager _gameFlowManager;
 
         private IInjectable[] _injectables;
         private readonly Resolver _resolver = new();
 
-        private bool _matchOptionChosen;
-
         private void Awake()
         {
+            _gameFlowManager = new GameFlowManager(this);
+
             Bind();
             _injectables = GetComponentsInChildren<IInjectable>()
                 .Concat(uiManager.GetComponentsInChildren<IInjectable>())
@@ -51,30 +52,13 @@ namespace System
             Unbind();
         }
 
-        private void Update()
-        {
-            if (!_matchOptionChosen) return;
-            if (!_gameplay.IsPlaying && Input.GetMouseButton(0))
-            {
-                OnGameStart();
-            }
-
-            if (Input.GetKeyUp(KeyCode.Return))
-            {
-                ReplayMatch();
-            }
-            if (Input.GetKeyUp(KeyCode.Escape))
-            {
-                ResetGame();
-            }
-        }
-
         private void Bind()
         {
             _resolver.Bind<IMatchOption>(_matchOption);
             _resolver.Bind(cameraManager);
             _resolver.Bind(tileSelector);
             _resolver.Bind<IGameEvents>(_events);
+            _resolver.Bind(_gameFlowManager);
         }
 
         private void Unbind()
@@ -83,11 +67,11 @@ namespace System
             _resolver.Unbind(cameraManager);
             _resolver.Unbind(tileSelector);
             _resolver.Unbind<IGameEvents>(_events);
+            _resolver.Unbind(_gameFlowManager);
         }
 
         private void OnSetup()
         {
-            _matchOptionChosen = false;
             _matchOption.OnMatchOptionChanged += OnMatchOptionChanged;
         }
 
@@ -109,31 +93,34 @@ namespace System
 
             _gameplay.Setup(playersManager.Players, boardManager.Board, pieceManager);
 
-            _matchOptionChosen = true;
+            _gameFlowManager.ChangeState(GameFlowManager.GameState.BeforeGameplay);
         }
 
-        private void OnGameStart()
+        public void StartGame()
         {
             _gameplay.StartNewMatch();
             _events.OnStart();
         }
 
-        private void ReplayMatch()
+        public void ReplayMatch()
         {
             _gameplay.ResetGame();
             playersManager.ResetAll();
             pieceManager.ResetAll();
             boardManager.ResetAll();
+            tileSelector.ResetAll();
             _events.OnReplayMatch();
         }
 
-        private void ResetGame()
+        public void ResetGame()
         {
             _gameplay.ResetGame();
+            _gameplay.TearDown();
             playersManager.ResetAll();
             pieceManager.ResetAll();
             boardManager.ResetAll();
-            
+            tileSelector.ResetAll();
+
             foreach (var p in pieceManager.Pieces)
             {
                 DOTween.Kill(p);
@@ -141,10 +128,16 @@ namespace System
                 Destroy(p.gameObject);
             }
 
+            foreach (var t in boardManager.Board.Tiles)
+            {
+                (t as Tile)?.TearDown();
+                Destroy((t as MonoBehaviour)?.gameObject);
+            }
+
             pieceManager.Pieces = null;
-            _matchOptionChosen = false;
             _events.OnReset();
         }
+
         public interface IGameEvents
         {
             event Action Start;
