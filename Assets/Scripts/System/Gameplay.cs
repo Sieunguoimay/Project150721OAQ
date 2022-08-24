@@ -47,7 +47,6 @@ namespace System
             _perMatchData = new PerMatchData(_players.Length);
             _pieceManager.ReleasePieces(() =>
             {
-                CurrentPlayer.AcquireTurn();
                 CurrentPlayer.MakeDecision(_board);
             }, _board);
         }

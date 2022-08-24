@@ -1,4 +1,6 @@
-﻿namespace Gameplay.Board
+﻿using UnityEngine;
+
+namespace Gameplay.Board
 {
     public class BoardTraveller
     {
@@ -18,7 +20,12 @@
 
         public void Next(bool forward)
         {
-            if (!IsTravelling) return;
+            if (!IsTravelling)
+            {
+                Debug.Log("Bug... " + _stepCount + " " + _steps);
+                return;
+            }
+
             _stepCount++;
             CurrentIndex = Mod(forward ? CurrentIndex + 1 : CurrentIndex - 1, _number);
         }

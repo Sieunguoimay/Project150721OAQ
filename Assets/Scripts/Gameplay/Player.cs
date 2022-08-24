@@ -25,25 +25,26 @@ namespace Gameplay
 
         public virtual void ResetAll()
         {
-            TileSelector.OnDone = null;
+            TileSelector.ChooseDirectionResult -= InvokeOnDecisionResult;
             PieceBench.Pieces.Clear();
         }
 
         public virtual void MakeDecision(Board.Board board)
         {
-            TileSelector.Display(board.TileGroups[Index]);
+            TileSelector.Display(board.TileGroups[Index].Tiles.Select(t => t as ISelectorTarget).ToArray());
         }
 
-        protected virtual void InvokeOnDecisionResult(ISelectorTarget selectorTarget, bool arg2) =>
-            OnDecisionResult?.Invoke(selectorTarget as Tile, arg2);
+        protected virtual void InvokeOnDecisionResult(ISelectorTarget selectorTarget, bool forward) =>
+            OnDecisionResult?.Invoke(selectorTarget as Tile, forward);
 
         public virtual void ReleaseTurn()
         {
+            TileSelector.ChooseDirectionResult -= InvokeOnDecisionResult;
         }
 
         public virtual void AcquireTurn()
         {
-            TileSelector.OnDone = InvokeOnDecisionResult;
+            TileSelector.ChooseDirectionResult += InvokeOnDecisionResult;
         }
     }
 
@@ -62,15 +63,15 @@ namespace Gameplay
                 ((Tile) t).OnTouched += TileSelector.SelectTile;
             }
 
-            TileSelector.OnTouched -= OnTileSelectorTouched;
-            TileSelector.OnTouched += OnTileSelectorTouched;
-            TileSelector.Display(board.TileGroups[Index]);
+            TileSelector.DirectionTouched -= DirectionTileSelectorTouched;
+            TileSelector.DirectionTouched += DirectionTileSelectorTouched;
+            TileSelector.Display(board.TileGroups[Index].Tiles.Select(t => t as ISelectorTarget).ToArray());
         }
 
-        private void OnTileSelectorTouched(bool direction)
+        private void DirectionTileSelectorTouched(bool direction)
         {
             TileSelector.ChooseDirection(direction);
-            TileSelector.OnTouched -= OnTileSelectorTouched;
+            TileSelector.DirectionTouched -= DirectionTileSelectorTouched;
         }
     }
 

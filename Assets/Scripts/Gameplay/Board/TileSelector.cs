@@ -10,7 +10,7 @@ namespace Gameplay.Board
 {
     public interface ISelectorTarget
     {
-        IEnumerable<CitizenToTileSelectorAdaptor> SelectionAdaptors { get; }
+        IEnumerable<CitizenToTileSelectorAdaptor> GetSelectionAdaptors();
         Vector3 DisplayPos { get; }
     }
 
@@ -19,12 +19,12 @@ namespace Gameplay.Board
         [SerializeField] private MeshBoundsClicker left;
         [SerializeField] private MeshBoundsClicker right;
 
-        private Gameplay.Board.Board.TileGroup _tileGroup;
+        private ISelectorTarget[] _options;
         private ISelectorTarget _selected;
-        private readonly List<ISelectionAdaptor> _selectionAdaptors = new();
+        private IEnumerable<ISelectionAdaptor> _selectionAdaptors;
 
-        public Action<ISelectorTarget, bool> OnDone = delegate { };
-        public event Action<bool> OnTouched;
+        public event Action<ISelectorTarget, bool> ChooseDirectionResult;
+        public event Action<bool> DirectionTouched;
 
         public void Inject(IResolver resolver)
         {
@@ -45,39 +45,41 @@ namespace Gameplay.Board
 
         public void ResetAll()
         {
+            _options = null;
             _selected = null;
-            _selectionAdaptors.Clear();
+            _selectionAdaptors = null;
             gameObject.SetActive(false);
         }
 
-        public void Display(Gameplay.Board.Board.TileGroup tileGroup)
+        public void Display(ISelectorTarget[] options)
         {
             _selected = null;
-            _tileGroup = tileGroup;
+            _options = options;
         }
 
-        public void SelectTile(ISelectorTarget tile)
+        public void SelectTile(ISelectorTarget selected)
         {
-            var adapters = _selected.SelectionAdaptors;
+            _selected = selected;
             
-            if (!adapters?.Any()??false) return;
-
-            _selected = tile;
-
-            InvokeDeselect(false);
-
-            foreach (var sa in adapters)
+            if (_selectionAdaptors != null)
             {
-                ((ISelectionAdaptor) sa).OnTileSelected();
-                _selectionAdaptors.Add(sa);
+                InvokeDeselect(false);
             }
-
-            transform.position = tile.DisplayPos + Vector3.up * 0.3f;
             
-            var tiles = _tileGroup.Tiles;
-            var dir = ((Tile) tiles[^1]).transform.position - ((Tile) tiles[0]).transform.position;
+            _selectionAdaptors = _selected.GetSelectionAdaptors();
+            
+            if (!_selectionAdaptors?.Any()??false) return;
+
+            foreach (var sa in _selectionAdaptors)
+            {
+                sa.OnTileSelected();
+            }
+            
+            var dir = _options[^1].DisplayPos - _options[0].DisplayPos;
             dir = SNM.Math.Projection(dir, Vector3.up);
-            transform.rotation = Quaternion.LookRotation(dir, transform.up);
+            
+            transform.position = _selected.DisplayPos + Vector3.up * 0.3f;
+            transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
 
             gameObject.SetActive(true);
         }
@@ -88,28 +90,26 @@ namespace Gameplay.Board
             {
                 sa.OnTileDeselected(success);
             }
-
-            _selectionAdaptors.Clear();
+            _selectionAdaptors = null;
         }
 
         public void ChooseDirection(bool forward)
         {
             InvokeDeselect(true);
+            _options = null;
 
-            _tileGroup = null;
-
-            OnDone?.Invoke(_selected, forward);
+            ChooseDirectionResult?.Invoke(_selected, forward);
             gameObject.SetActive(false);
         }
 
         private void InvokeOnTouchedRight()
         {
-            OnTouched?.Invoke(true);
+            DirectionTouched?.Invoke(true);
         }
 
         private void InvokeOnTouchedLeft()
         {
-            OnTouched?.Invoke(false);
+            DirectionTouched?.Invoke(false);
         }
 
         public interface ISelectionAdaptor

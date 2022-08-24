@@ -30,8 +30,9 @@ namespace Gameplay.Board
 
         #region ISelectorTarget
 
-        public IEnumerable<CitizenToTileSelectorAdaptor> SelectionAdaptors => Pieces.Where(p => p is Citizen)
-            .Select(p => new CitizenToTileSelectorAdaptor(p as Citizen));
+        public IEnumerable<CitizenToTileSelectorAdaptor> GetSelectionAdaptors() =>
+            Pieces.Where(p => p is Citizen)
+                .Select(p => new CitizenToTileSelectorAdaptor(p as Citizen));
 
         public Vector3 DisplayPos => transform.position;
 
