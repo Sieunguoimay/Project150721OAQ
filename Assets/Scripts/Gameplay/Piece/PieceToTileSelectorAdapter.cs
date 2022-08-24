@@ -16,7 +16,10 @@ namespace Gameplay.Piece
         {
             _piece.FaceCamera(Vector3.zero,false, new Vector3(0, UnityEngine.Random.Range(-25f, 25f), 0));
 
-            PieceScheduler.CreateAnimActivity(_piece,LegHashes.stand_up,()=>{_piece.Animator.Play(LegHashes.idle);});
+            PieceScheduler.CreateAnimActivity(_piece,LegHashes.stand_up, () =>
+            {
+                _piece.Animator.Play(LegHashes.idle);
+            });
             _piece.PieceActivityQueue.Begin();
         
         }

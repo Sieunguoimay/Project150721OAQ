@@ -1,26 +1,17 @@
-﻿using Common;
-using Common.Animation;
-using Common.ResolveSystem;
+﻿using Common.Animation;
 using DG.Tweening;
 using UnityEngine;
 
-namespace Gameplay
+namespace Gameplay.Piece
 {
     [SelectionBase]
-    public class Citizen : Piece.Piece
+    public class Citizen : Piece
     {
         [SerializeField] private AnimatorListener animatorListener;
 
         private Transform _cameraTransform;
         private Animator _animator;
         public override Animator Animator => _animator ??= animatorListener.GetComponent<Animator>();
-
-        public override void Setup()
-        {
-            base.Setup();
-            // FaceCamera(_cameraTransform.position,true, new Vector3(0, UnityEngine.Random.Range(-45f, 45f), 0));
-            // _cameraTransform = Resolver.Instance.Resolve<CameraManager>().transform;
-        }
 
         public void FaceCamera(Vector3 pos, bool immediate, Vector3 offset = new())
         {
@@ -36,7 +27,7 @@ namespace Gameplay
             {
                 var target = Quaternion.LookRotation(dir, up).eulerAngles + offset;
                 var duration = (target - transform.eulerAngles).magnitude / PieceActivityQueue.Config.angularSpeed;
-                transform.DORotate(target, duration);
+                transform.DORotate(target, duration).SetLink(gameObject);
             }
         }
     }

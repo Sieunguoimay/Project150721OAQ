@@ -31,6 +31,7 @@ namespace Gameplay
         {
             Motion.position = Transform.position;
             Motion.moving = true;
+            Motion.direction = Transform.forward;
         }
 
         public override void Update(float deltaTime)

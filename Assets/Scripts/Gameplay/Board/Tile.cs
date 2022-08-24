@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Common.ResolveSystem;
+using Gameplay.Piece;
 using SNM;
 using UnityEngine;
 
 namespace Gameplay.Board
 {
     [SelectionBase]
-    public class Tile : PieceContainer, RayPointer.ITarget
+    public class Tile : PieceContainer, RayPointer.ITarget, ISelectorTarget
     {
         [SerializeField] private float size;
         private BoxCollider _collider;
@@ -25,6 +28,15 @@ namespace Gameplay.Board
             RayPointer.Instance.Unregister(this);
         }
 
+        #region ISelectorTarget
+
+        public IEnumerable<CitizenToTileSelectorAdaptor> SelectionAdaptors => Pieces.Where(p => p is Citizen)
+            .Select(p => new CitizenToTileSelectorAdaptor(p as Citizen));
+
+        public Vector3 DisplayPos => transform.position;
+
+        #endregion ISelectorTarget
+
         #region RayPointer.ITarget
 
         public Bounds Bounds => Collider.bounds;
@@ -36,7 +48,7 @@ namespace Gameplay.Board
             OnTouched?.Invoke(this);
         }
 
-        #endregion
+        #endregion RayPointer.ITarget
 
 #if UNITY_EDITOR
 

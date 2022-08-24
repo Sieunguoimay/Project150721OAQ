@@ -70,7 +70,6 @@ namespace Gameplay.Piece
 
             public override void OnEnd()
             {
-                _inputData.callback?.Invoke(null, _inputData.flag);
             }
 
             public float GetJumpDistance(float movingSpeed) => _duration * movingSpeed;
@@ -79,8 +78,6 @@ namespace Gameplay.Piece
             {
                 public float height = 1f;
                 public float duration = 0.4f;
-                public int flag;
-                public Action<PieceActivityQueue, int> callback;
             }
         }
 
@@ -99,7 +96,7 @@ namespace Gameplay.Piece
 
                 var lr = _transform.localEulerAngles;
                 lr.y += UnityEngine.Random.Range(-60f, 60f);
-                _transform.DOLocalRotate(lr, 1f).SetId(this)
+                _transform.DOLocalRotate(lr, 1f).SetLink(_transform.gameObject)
                     .OnComplete(() => { Inactive = true; });
             }
 

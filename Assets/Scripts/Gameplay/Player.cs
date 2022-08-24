@@ -34,7 +34,8 @@ namespace Gameplay
             TileSelector.Display(board.TileGroups[Index]);
         }
 
-        protected virtual void InvokeOnDecisionResult(Tile arg1, bool arg2) => OnDecisionResult?.Invoke(arg1, arg2);
+        protected virtual void InvokeOnDecisionResult(ISelectorTarget selectorTarget, bool arg2) =>
+            OnDecisionResult?.Invoke(selectorTarget as Tile, arg2);
 
         public virtual void ReleaseTurn()
         {
