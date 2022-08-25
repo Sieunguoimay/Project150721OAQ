@@ -5,35 +5,48 @@ namespace Common.DrawLine
 {
     public class DrawingSurface : MonoBehaviour
     {
-        [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private MeshFilter meshFilter;
 
         private readonly DrawMesh _drawMesh = new();
+
+        public void DrawBegin(Vector2 point)
+        {
+            meshFilter.mesh = _drawMesh.CreateNew(point, .1f);
+        }
+
+        public void Draw(Vector2 point)
+        {
+            _drawMesh.Draw(point, .1f, .2f);
+        }
+
+#if UNITY_EDITOR
         private Camera _camera;
 
         private void Start()
         {
             _camera = Camera.main;
-            var mesh = _drawMesh.CreateNew();
-            meshFilter.mesh = mesh;
         }
 
         private void Update()
         {
-            var drawPoint = GetWorldDrawPoint();
+            if (Input.GetMouseButtonDown(0))
+            {
+                var point = GetWorldDrawPoint();
+                DrawBegin(new Vector2(point.x, point.z));
+            }
 
-            var pos = meshFilter.transform.position;
-            pos.x = drawPoint.x;
-            pos.y = 0f;
-            pos.z = drawPoint.z;
-            meshFilter.transform.position = pos;
-
-            Debug.Log(drawPoint + " " + Input.mousePosition);
+            if (Input.GetMouseButton(0))
+            {
+                var point = GetWorldDrawPoint();
+                Draw(new Vector2(point.x, point.z));
+            }
         }
 
         private Vector3 GetWorldDrawPoint()
         {
-            return GetMouseWorldSpace(transform, _camera, Input.mousePosition);
+            var point = GetMouseWorldSpace(transform, _camera, Input.mousePosition);
+            point.y = 0;
+            return point;
         }
 
         private static Vector3 GetMouseWorldSpace(Transform space, Camera worldCamera, Vector3 screenPosition)
@@ -43,5 +56,10 @@ namespace Common.DrawLine
 
             return new Plane(space.up, space.position).Raycast(ray, out var hit) ? ray.GetPoint(hit) : Vector3.zero;
         }
+#endif
     }
 }
+
+/*
+
+*/
