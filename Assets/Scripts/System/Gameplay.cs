@@ -90,6 +90,9 @@ namespace System
         {
             _pieceDropper.OnDone -= OnDropperDone;
             _pieceDropper.OnEat -= OnEatPieces;
+
+            if (_players == null) return;
+            
             foreach (var player in _players)
             {
                 player.OnDecisionResult -= OnDecisionResult;
