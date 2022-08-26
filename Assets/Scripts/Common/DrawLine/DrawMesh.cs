@@ -7,7 +7,7 @@ namespace Common.DrawLine
         private Mesh _mesh;
         private Vector3 _lastDrawPoint;
 
-        public Mesh CreateNew(Vector2 point, float lineThickness)
+        public Mesh CreateNew(Vector2 point)
         {
             var drawPoint = new Vector3(point.x, 0f, point.y);
             _lastDrawPoint = drawPoint;

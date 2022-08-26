@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -12,37 +11,18 @@ namespace Common.Algorithm
 
         private class Node
         {
-            public List<(int, int, int)> Path;
+            public List<(int, int)> Path;
             public int[][] MatrixReduced;
             public int Cost;
             public int Vertex;
             public int Level;
         }
 
-        private int[] ExtractPath(Node node)
-        {
-            return null;//continue from here...
-        }
-
-        private void Traverse(List<(int, int, int)> path, (int, int, int) node)
-        {
-            var children = GetChildren(node, path);
-            foreach (var c in children)
-            {
-                Traverse(path, c);
-            }
-        }
-
-        private (int, int, int)[] GetChildren((int, int, int) nodeValue, List<(int, int, int)> path)
-        {
-            return path.Where(i => i.Item1 == nodeValue.Item1 && nodeValue.Item3 + 1 == i.Item3).ToArray();
-        }
-
-        public int[] Solve(int[][] adjacentMatrix, int n)
+        public List<(int, int)> Solve(int[][] adjacentMatrix, int n)
         {
             _n = n;
             var priorityQueue = new List<Node>();
-            var path = new List<(int, int, int)>();
+            var path = new List<(int, int)>();
             var root = NewNode(adjacentMatrix, path, 0, -1, 0);
             root.Cost = CostCalculation(root.MatrixReduced);
             Enqueue(priorityQueue, root);
@@ -56,15 +36,8 @@ namespace Common.Algorithm
 
                 if (min.Level == _n - 1)
                 {
-                    min.Path.Add((i, 0, min.Level + 1));
-
-
-                    foreach (var p in min.Path)
-                    {
-                        Debug.Log($"{p.Item1}->{p.Item2} ({p.Item3})");
-                    }
-
-                    return ExtractPath(min);
+                    min.Path.Add((i, 0));
+                    return min.Path;
                 }
 
                 for (var j = 0; j < _n; j++)
@@ -151,13 +124,13 @@ namespace Common.Algorithm
             }
         }
 
-        private Node NewNode(IReadOnlyList<int[]> matrixParent, List<(int, int, int)> path, int level, int i, int j)
+        private Node NewNode(IReadOnlyList<int[]> matrixParent, IEnumerable<(int, int)> path, int level, int i, int j)
         {
-            var node = new Node {Path = path};
+            var node = new Node {Path = new List<(int, int)>(path)};
 
             if (level != 0)
             {
-                node.Path.Add((i, j, level));
+                node.Path.Add((i, j));
             }
 
             node.MatrixReduced = new int[_n][];

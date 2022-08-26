@@ -8,27 +8,37 @@ namespace Common.DrawLine
     public class DrawingPen : MonoBehaviour
     {
         [SerializeField] private DrawingSurface drawingSurface;
+        [SerializeField, Min(0.05f)] private float lineThickness = 0.1f;
+        [SerializeField, Min(0.05f)] private float minDistance = 0.1f;
+        [SerializeField, Min(0.1f)] private float speed = 1f;
 
-        private readonly ActivityQueue _activityQueue = new();
+        public ActivityQueue ActivityQueue { get; } = new();
 
         public void Draw(Vector2[] points, (int, int)[] contour)
         {
-            _activityQueue.Add(new Lambda(() => { drawingSurface.DrawBegin(points[contour[0].Item1]); }, () => true));
+            ActivityQueue.Add(new Lambda(() => { drawingSurface.DrawBegin(points[contour[0].Item1]); }, () => true));
+
             for (var i = 0; i < contour.Length; i++)
             {
                 var point1 = points[contour[i].Item1];
                 var point2 = points[contour[i].Item2];
-                _activityQueue.Add(new Timer(1, t => { drawingSurface.Draw(Vector2.Lerp(point1, point2, t)); }));
+                var duration = Vector3.Distance(point1, point2) / speed;
+                ActivityQueue.Add(new Timer(duration, t =>
+                {
+                    drawingSurface.Draw(Vector2.Lerp(point1, point2, Mathf.Min(1f, t / duration)), lineThickness,
+                        minDistance);
+                }));
             }
 
-            _activityQueue.Begin();
+            ActivityQueue.Begin();
         }
 
         private void Update()
         {
-            _activityQueue.Update(Time.deltaTime);
+            ActivityQueue.Update(Time.deltaTime);
         }
 
+#if UNITY_EDITOR
         [ContextMenu("Test")]
         private void Test()
         {
@@ -45,7 +55,7 @@ namespace Common.DrawLine
 
             foreach (var item1 in solution)
             {
-                Debug.Log((item1));
+                Debug.Log(item1);
             }
         }
 
@@ -70,5 +80,6 @@ namespace Common.DrawLine
 
             Draw(points, contour);
         }
+#endif
     }
 }

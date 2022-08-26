@@ -11,12 +11,12 @@ namespace Common.DrawLine
 
         public void DrawBegin(Vector2 point)
         {
-            meshFilter.mesh = _drawMesh.CreateNew(point, .1f);
+            meshFilter.mesh = _drawMesh.CreateNew(point);
         }
 
-        public void Draw(Vector2 point)
+        public void Draw(Vector2 point, float lineThickness, float minDistance)
         {
-            _drawMesh.Draw(point, .1f, .2f);
+            _drawMesh.Draw(point, lineThickness, minDistance);
         }
 
 #if UNITY_EDITOR
@@ -38,7 +38,7 @@ namespace Common.DrawLine
             if (Input.GetMouseButton(0))
             {
                 var point = GetWorldDrawPoint();
-                Draw(new Vector2(point.x, point.z));
+                Draw(new Vector2(point.x, point.z), 0.1f, 0.2f);
             }
         }
 
