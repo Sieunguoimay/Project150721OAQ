@@ -20,6 +20,7 @@ namespace Gameplay.Board
         {
             base.Setup();
             RayPointer.Instance.Register(this);
+            Collider.size = new Vector3(size, 0.1f, size);
         }
 
         public override void TearDown()
@@ -55,6 +56,7 @@ namespace Gameplay.Board
 
         private void OnDrawGizmos()
         {
+            if (Collider == null) return;
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawWireCube(Collider.center, Collider.size);
         }

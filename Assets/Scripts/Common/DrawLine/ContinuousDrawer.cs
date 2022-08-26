@@ -9,9 +9,52 @@ namespace Common.DrawLine
     {
         [SerializeField] private DrawingPen pen;
 
-        public void Draw(Vector2[] points, (int, int)[] edges)
+        public void Draw(Vector2[] points, (int, int)[] edges, bool shouldConnect = false)
         {
-            var contour = GenerateContour(edges);
+            // var contour = SwapEdges(GenerateContour(points, (edges)));
+            // if (shouldConnect)
+            // {
+            //     contour = ConnectContour(contour);
+            // }
+
+            if (Application.isPlaying)
+            {
+                pen.Draw(points, edges);
+            }
+        }
+
+        public void DrawAll(IList<((int, int)[], Vector2[])> sentence, int index = 0)
+        {
+            if (index >= sentence.Count) return;
+
+            Draw(sentence[index].Item2, sentence[index].Item1);
+
+            void Done()
+            {
+                DrawAll(sentence, index + 1);
+                pen.ActivityQueue.Done -= Done;
+            }
+
+            pen.ActivityQueue.Done += Done;
+        }
+
+        public static (int, int)[] GenerateContour(Vector2[] points, (int, int)[] edges)
+        {
+            var n = edges.Length;
+            var matrix = GenerateWeightMatrix(points, edges);
+            // var solution = new TravelingSalesmanBranchAndBound().Solve(matrix, n);
+            var solution = AntColonyOptimization.Solve(matrix, n, 6);
+            var contour = new (int, int)[solution.Length];
+            for (var i = 0; i < solution.Length; i++)
+            {
+                contour[i] = edges[solution[i]];
+            }
+
+            return contour;
+        }
+
+        private static (int, int)[] ConnectContour((int, int)[] contour)
+        {
             var connectedContour = new List<(int, int)>();
             var str = "";
 
@@ -21,30 +64,43 @@ namespace Common.DrawLine
             }
 
             Debug.Log(str);
-
             for (var i = 0; i < contour.Length; i++)
             {
                 connectedContour.Add(contour[i]);
 
+                if (i == contour.Length - 1) break;
+
                 var item2 = contour[i].Item2;
 
-                var nextItem1 = contour[(i + 1) % contour.Length].Item1;
+                var nextItem1 = contour[i + 1].Item1;
                 if (item2 == nextItem1)
                 {
                 }
                 else
                 {
-                    var nextItem2 = contour[(i + 1) % contour.Length].Item2;
+                    var nextItem2 = contour[i + 1].Item2;
                     if (item2 == nextItem2)
                     {
-                        contour[(i + 1) % contour.Length].Item1 = nextItem2;
-                        contour[(i + 1) % contour.Length].Item2 = nextItem1;
+                        contour[i + 1].Item1 = nextItem2;
+                        contour[i + 1].Item2 = nextItem1;
                     }
                     else
                     {
-                        contour[i].Item2 = contour[i].Item1;
-                        contour[i].Item1 = item2;
-                        i--;
+                        var shouldSwap = true;
+                        for (var j = 0; j < connectedContour.Count; j++)
+                        {
+                            if (connectedContour[j].Item1 == contour[i].Item2 && connectedContour[j].Item2 == contour[i].Item1)
+                            {
+                                shouldSwap = false;
+                            }
+                        }
+
+                        if (shouldSwap)
+                        {
+                            contour[i].Item2 = contour[i].Item1;
+                            contour[i].Item1 = item2;
+                            i--;
+                        }
                     }
                 }
             }
@@ -57,11 +113,78 @@ namespace Common.DrawLine
 
             Debug.Log(str);
 
-            if (Application.isPlaying)
+            return connectedContour.ToArray();
+        }
+
+        private static (int, int)[] SwapEdges((int, int)[] contour)
+        {
+            for (var i = 0; i < contour.Length; i++)
             {
-                pen.Draw(points, connectedContour.ToArray());
+                var item1 = contour[i].Item1;
+                var item2 = contour[i].Item2;
+
+                var nextIndex = Mod(i + 1, contour.Length);
+                var nextItem1 = contour[nextIndex].Item1;
+                var nextItem2 = contour[nextIndex].Item2;
+
+                var prevIndex = Mod(i - 1, contour.Length);
+                var prevItem1 = contour[prevIndex].Item1;
+                var prevItem2 = contour[prevIndex].Item2;
+
+                if (item1 == prevItem2 || item1 == prevItem1 || item2 == nextItem1 || item2 == nextItem2) continue;
+                if (item1 == nextItem1 || item1 == nextItem2 || item2 == prevItem1 || item2 == prevItem2)
+                {
+                    contour[i].Item1 = item2;
+                    contour[i].Item2 = item1;
+                }
+            }
+
+            return contour;
+
+            static int Mod(int x, int m)
+            {
+                var r = x % m;
+                return r < 0 ? r + m : r;
             }
         }
+
+        private static int[][] GenerateWeightMatrix(Vector2[] points, IList<(int, int)> edges)
+        {
+            var n = edges.Count;
+            var matrix = new int[n][];
+            var str = "";
+            for (var i = 0; i < n; i++)
+            {
+                matrix[i] = new int[n];
+                str += i + "\t";
+                for (var j = 0; j < n; j++)
+                {
+                    if (i == j)
+                    {
+                        matrix[i][j] = int.MaxValue;
+                    }
+                    else
+                    {
+                        var connected =
+                            edges[i].Item1 == edges[j].Item1 ||
+                            edges[i].Item1 == edges[j].Item2 ||
+                            edges[i].Item2 == edges[j].Item1 ||
+                            edges[i].Item2 == edges[j].Item2;
+                        matrix[i][j] = connected ? (int) Mathf.Max(1f, (Vector2.Distance(points[edges[i].Item2], points[edges[j].Item1]) * 10f)) : int.MaxValue;
+                    }
+
+                    str += (matrix[i][j] == int.MaxValue ? "-" : $"{matrix[i][j]}") + " ";
+                }
+
+                str += "\n";
+            }
+
+            Debug.Log(str);
+
+            return matrix;
+        }
+
+#if UNITY_EDITOR
 
         [ContextMenu("Test")]
         private void Test()
@@ -100,7 +223,7 @@ namespace Common.DrawLine
             {
                 (new[]
                 {
-                    (1, 2), (0, 1), (2, 3), (3, 4), (4, 0), (2, 4),
+                    (2, 4), (2, 3), (4, 0), (1, 2), (3, 4), (0, 1),
                 }, new[]
                 {
                     new Vector2(0, 0),
@@ -112,74 +235,6 @@ namespace Common.DrawLine
             };
             DrawAll(sentence, 0);
         }
-
-        private void DrawAll(IList<((int, int)[], Vector2[])> sentence, int index)
-        {
-            if (index >= sentence.Count) return;
-
-            Draw(sentence[index].Item2, sentence[index].Item1);
-
-            void Done()
-            {
-                DrawAll(sentence, index + 1);
-                pen.ActivityQueue.Done -= Done;
-            }
-
-            pen.ActivityQueue.Done += Done;
-        }
-
-        public static (int, int)[] GenerateContour((int, int)[] edges)
-        {
-            var n = edges.Length;
-            var matrix = GenerateWeightMatrix(edges);
-            var solution = new TravelingSalesman().Solve(matrix, n);
-            var contour = new (int, int)[solution.Count];
-            for (var i = 0; i < solution.Count; i++)
-            {
-                contour[i] = edges[solution[i].Item1];
-            }
-
-            return contour;
-        }
-
-        private static int[][] GenerateWeightMatrix(IList<(int, int)> edges)
-        {
-            var n = edges.Count;
-            var matrix = new int[n][];
-            var str = "   0 1 2 3 4 5 6 7\n";
-            for (var i = 0; i < n; i++)
-            {
-                matrix[i] = new int[n];
-                str += i + ": ";
-                for (var j = 0; j < n; j++)
-                {
-                    if (i == j)
-                    {
-                        matrix[i][j] = int.MaxValue;
-                    }
-                    else
-                    {
-                        var connected = 0;
-                        if (edges[i].Item1 == edges[j].Item1) connected++;
-                        if (edges[i].Item1 == edges[j].Item2) connected++;
-                        if (edges[i].Item2 == edges[j].Item1) connected++;
-                        if (edges[i].Item2 == edges[j].Item2) connected++;
-                        matrix[i][j] = connected > 0
-                            ? edges.Count(e =>
-                                e != edges[i] && e.Item1 == edges[i].Item1 || e.Item1 == edges[i].Item2 ||
-                                e.Item2 == edges[i].Item1 || e.Item2 == edges[i].Item2)
-                            : int.MaxValue;
-                    }
-
-                    str += (matrix[i][j] == int.MaxValue ? "X" : $"{matrix[i][j]}") + " ";
-                }
-
-                str += "\n";
-            }
-
-            // Debug.Log(str);
-
-            return matrix;
-        }
+#endif
     }
 }

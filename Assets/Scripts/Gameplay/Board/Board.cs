@@ -1,14 +1,15 @@
 ﻿using System;
 using Gameplay.Piece;
+using UnityEngine;
 
 namespace Gameplay.Board
 {
     public class Board
     {
-        [field: System.NonSerialized] public IPieceHolder[] Tiles { get; private set; }
-        [field: System.NonSerialized] public TileGroup[] TileGroups { get; private set; }
-
         private readonly BoardTraveller _traveller = new();
+        public IPieceHolder[] Tiles { get; private set; }
+        public TileGroup[] TileGroups { get; private set; }
+        public BoardMetadata Metadata { get; private set; }
 
         public void SetGroups(TileGroup[] groups)
         {
@@ -26,6 +27,8 @@ namespace Gameplay.Board
             }
         }
 
+        public void SetMetadata(BoardMetadata metadata) => Metadata = metadata;
+
         public IPieceHolder GetSuccessTile(IPieceHolder tile, bool forward)
         {
             _traveller.Start(Array.IndexOf(Tiles, tile), Tiles.Length, Tiles.Length);
@@ -37,6 +40,13 @@ namespace Gameplay.Board
         {
             public IPieceHolder MandarinTile;
             public IPieceHolder[] Tiles;
+        }
+
+        public class BoardMetadata
+        {
+            public float TileSize;
+            public int TilesPerGroup;
+            public Vector2[] Polygon;
         }
 
 #if UNITY_EDITOR

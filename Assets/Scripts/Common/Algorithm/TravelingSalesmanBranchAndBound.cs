@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Common.Algorithm
 {
-    public class TravelingSalesman
+    public class TravelingSalesmanBranchAndBound
     {
         private int _n;
 
@@ -22,18 +22,19 @@ namespace Common.Algorithm
         {
             _n = n;
             var priorityQueue = new List<Node>();
-            var path = new List<(int, int)>();
-            var root = NewNode(adjacentMatrix, path, 0, -1, 0);
+            var root = NewNode(adjacentMatrix, new List<(int, int)>(), 0, -1, 0);
             root.Cost = CostCalculation(root.MatrixReduced);
-            Enqueue(priorityQueue, root);
+            priorityQueue.Add(root);
 
             while (priorityQueue.Count > 0)
             {
-                var min = priorityQueue.First();
+                // Sort(priorityQueue);
+
+                var min = priorityQueue.OrderBy(item => item?.Cost ?? int.MaxValue).FirstOrDefault();
                 priorityQueue.RemoveAt(0);
 
                 var i = min.Vertex;
-
+                Debug.Log(i);
                 if (min.Level == _n - 1)
                 {
                     min.Path.Add((i, 0));
@@ -46,7 +47,7 @@ namespace Common.Algorithm
                     {
                         var child = NewNode(min.MatrixReduced, min.Path, min.Level + 1, i, j);
                         child.Cost = min.Cost + min.MatrixReduced[i][j] + CostCalculation(child.MatrixReduced);
-                        Enqueue(priorityQueue, child);
+                        priorityQueue.Add(child);
                     }
                 }
             }
@@ -156,10 +157,19 @@ namespace Common.Algorithm
             return node;
         }
 
-        private static void Enqueue(List<Node> queue, Node node)
+        private static bool Sort(List<Node> queue)
         {
-            queue.Add(node);
-            queue.Sort((a, b) => a.Cost > b.Cost ? 1 : -1);
+            try
+            {
+                queue.Sort((a, b) => a.Cost > b.Cost ? 1 : -1);
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Ok " + e.Message);
+                return false;
+            }
+
+            return true;
         }
     }
 }

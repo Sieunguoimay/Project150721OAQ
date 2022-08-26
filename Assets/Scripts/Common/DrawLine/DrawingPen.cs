@@ -50,7 +50,7 @@ namespace Common.DrawLine
                 new[] {19, 6, 18, int.MaxValue, 3},
                 new[] {16, 4, 7, 16, int.MaxValue}
             };
-            var tsp = new TravelingSalesman();
+            var tsp = new TravelingSalesmanBranchAndBound();
             var solution = tsp.Solve(adjacencyMatrix, 5);
 
             foreach (var item1 in solution)
