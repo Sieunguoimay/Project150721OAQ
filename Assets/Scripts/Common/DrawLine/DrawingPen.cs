@@ -14,8 +14,14 @@ namespace Common.DrawLine
 
         public ActivityQueue ActivityQueue { get; } = new();
 
+        private void Awake()
+        {
+            enabled = false;
+        }
+
         public void Draw(Vector2[] points, (int, int)[] contour)
         {
+            enabled = true;
             ActivityQueue.Add(new Lambda(() => { drawingSurface.DrawBegin(points[contour[0].Item1]); }, () => true));
 
             for (var i = 0; i < contour.Length; i++)
@@ -30,6 +36,11 @@ namespace Common.DrawLine
                 }));
             }
 
+            ActivityQueue.Add(new Lambda(() =>
+            {
+                drawingSurface.DryInk("Board");
+                enabled = false;
+            }, () => true));
             ActivityQueue.Begin();
         }
 

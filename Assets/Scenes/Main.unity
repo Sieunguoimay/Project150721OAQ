@@ -388,7 +388,6 @@ GameObject:
   - component: {fileID: 722066326}
   - component: {fileID: 722066325}
   - component: {fileID: 722066327}
-  - component: {fileID: 722066328}
   - component: {fileID: 722066330}
   - component: {fileID: 722066329}
   m_Layer: 0
@@ -492,19 +491,6 @@ MonoBehaviour:
   lineThickness: 0.1
   minDistance: 0.1
   speed: 3
---- !u!114 &722066328
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 722066320}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f432ebaee8b543edac931f1f43f2333b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pen: {fileID: 722066327}
 --- !u!114 &722066329
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -517,7 +503,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed94b57dfba54503a193ffcbb8f6816e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  drawer: {fileID: 722066328}
+  pen: {fileID: 722066327}
 --- !u!114 &722066330
 MonoBehaviour:
   m_ObjectHideFlags: 0

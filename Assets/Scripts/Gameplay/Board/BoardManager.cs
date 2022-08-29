@@ -109,7 +109,6 @@ namespace Gameplay.Board
             {
                 vertices[i].x = cosA * vertices[i - 1].x - sinA * vertices[i - 1].y;
                 vertices[i].y = sinA * vertices[i - 1].x + cosA * vertices[i - 1].y;
-                Debug.Log(vertices[i]);
             }
 
             return vertices;
@@ -118,9 +117,9 @@ namespace Gameplay.Board
         [ContextMenu("Test")]
         private void Test()
         {
-            var groupNum = 3;
+            var groupNum = 5;
             var tilesPerGroup = 5;
-            
+
             var length = tilesPerGroup * citizenTilePrefab.Size;
             var polygon = CreatePolygon(groupNum, length);
 
@@ -130,7 +129,8 @@ namespace Gameplay.Board
                 TilesPerGroup = tilesPerGroup,
                 TileSize = citizenTilePrefab.Size
             });
-            boardSketcher.Sketch(Board);        } 
+            boardSketcher.Sketch(Board);
+        }
 #endif
     }
 }

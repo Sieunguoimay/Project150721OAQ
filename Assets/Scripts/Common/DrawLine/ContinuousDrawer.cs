@@ -11,15 +11,15 @@ namespace Common.DrawLine
 
         public void Draw(Vector2[] points, (int, int)[] edges, bool shouldConnect = false)
         {
-            // var contour = SwapEdges(GenerateContour(points, (edges)));
-            // if (shouldConnect)
-            // {
-            //     contour = ConnectContour(contour);
-            // }
+            var contour = SwapEdges(GenerateContour(points, (edges)));
+            if (shouldConnect)
+            {
+                contour = ConnectContour(contour);
+            }
 
             if (Application.isPlaying)
             {
-                pen.Draw(points, edges);
+                pen.Draw(points, contour);
             }
         }
 

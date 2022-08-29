@@ -137,13 +137,13 @@ namespace CommonActivities
 
     public class Delay : Activity
     {
-        private float _duration;
         private readonly Func<float> _onBegin;
-        protected float Time { get; private set; } = 0;
+        protected float Time { get; set; } = 0;
+        protected float Duration { get; private set; }
 
         public Delay(float duration)
         {
-            _duration = duration;
+            Duration = duration;
         }
 
         public Delay(Func<float> onBegin)
@@ -154,13 +154,13 @@ namespace CommonActivities
         public override void Begin()
         {
             base.Begin();
-            _duration = _onBegin?.Invoke() ?? _duration;
+            Duration = _onBegin?.Invoke() ?? Duration;
         }
 
         public override void Update(float deltaTime)
         {
             Time += deltaTime;
-            if (Time >= _duration)
+            if (Time >= Duration)
             {
                 NotifyDone();
             }
@@ -176,10 +176,22 @@ namespace CommonActivities
             _onTick = onTick;
         }
 
+        public override void Begin()
+        {
+            base.Begin();
+            _onTick?.Invoke(0f);
+        }
+
         public override void Update(float deltaTime)
         {
-            _onTick?.Invoke(Time);
-            base.Update(deltaTime);
+            Time += deltaTime;
+
+            _onTick?.Invoke(Mathf.Min(Time, Duration));
+
+            if (Time >= Duration)
+            {
+                NotifyDone();
+            }
         }
     }
 

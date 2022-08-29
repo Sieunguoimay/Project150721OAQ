@@ -7,24 +7,13 @@ namespace Gameplay.Board
 {
     public class BoardSketcher : MonoBehaviour
     {
-        [SerializeField] private ContinuousDrawer drawer;
-
-        [ContextMenu("Test")]
-        private void Test()
-        {
-            AntColonyOptimization.Test();
-        }
+        [SerializeField] private DrawingPen pen;
 
         public void Sketch(Board board)
         {
             GenerateSketch(board.Metadata, out var points, out var edges);
 
-            var str = points.Aggregate("", (current, p) => current + (p + ", "));
-            Debug.Log(str);
-
-            str = edges.Aggregate("", (current, p) => current + (p + ", "));
-            Debug.Log(str);
-            drawer.Draw(points, edges);
+            pen.Draw(points, edges);
         }
 
         private static void GenerateSketch(Board.BoardMetadata boardMetadata, out Vector2[] points,
@@ -82,14 +71,15 @@ namespace Gameplay.Board
                     {
                         if (count % 2 == 1)
                         {
-                            edges[eCount + 2 * tilesPerGroup+ j] =
+                            edges[eCount + 2 * tilesPerGroup + j] =
                                 (pCount + 2 * (tilesPerGroup + 1) - j - 1, pCount + j);
                         }
                         else
                         {
-                            edges[eCount + 2 * tilesPerGroup+ j] =
-                                (pCount + j,pCount + 2 * (tilesPerGroup + 1) - j - 1);
+                            edges[eCount + 2 * tilesPerGroup + j] =
+                                (pCount + j, pCount + 2 * (tilesPerGroup + 1) - j - 1);
                         }
+
                         count++;
                     }
                 }
@@ -98,6 +88,21 @@ namespace Gameplay.Board
                 eCount += tilesPerGroup * 3;
                 edges[eCount++] = (pCount - tilesPerGroup - 1, (pCount) % pointNum);
             }
+
+            // var str = points.Aggregate("", (current, p) => current + (p + ", "));
+            // Debug.Log(str);
+            //
+            // str = edges.Aggregate("", (current, p) => current + (p + ", "));
+            // Debug.Log(str);
         }
+
+#if UNITY_EDITOR
+
+        [ContextMenu("Test AntColonyOptimization")]
+        private void Test()
+        {
+            AntColonyOptimization.Test();
+        }
+#endif
     }
 }
