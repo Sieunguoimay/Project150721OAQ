@@ -27,7 +27,8 @@ namespace Gameplay.Board
             drawer.Draw(points, edges);
         }
 
-        private static void GenerateSketch(Board.BoardMetadata boardMetadata, out Vector2[] points, out (int, int)[] edges)
+        private static void GenerateSketch(Board.BoardMetadata boardMetadata, out Vector2[] points,
+            out (int, int)[] edges)
         {
             var polygon = boardMetadata.Polygon;
             var tilesPerGroup = boardMetadata.TilesPerGroup;
@@ -56,29 +57,46 @@ namespace Gameplay.Board
                 points[pCount + 1] = mandarinPoint2;
 
                 edges[eCount++] = (pCount, pCount + 1);
-                edges[eCount++] = (pCount + 1, pCount + 3);
+                edges[eCount++] = (pCount + 1, pCount + 2 * tilesPerGroup + 2 + 1);
+                edges[eCount++] = (pCount + 2 * tilesPerGroup + 2 + 1, pCount + 2);
 
                 pCount += 2;
 
+                edges[eCount + tilesPerGroup] = (pCount + tilesPerGroup, pCount + tilesPerGroup + 1);
+                var count = 0;
                 for (var j = 0; j < tilesPerGroup + 1; j++)
                 {
                     var onEdgePoint = point1 + dir * tileSize * j;
                     var offEdgePoint = point1 + dir * tileSize * j + normal * tileSize;
-                    points[pCount] = onEdgePoint;
-                    points[pCount + 1] = offEdgePoint;
+                    points[pCount + j] = onEdgePoint;
+                    points[pCount + 2 * (tilesPerGroup + 1) - j - 1] = offEdgePoint;
 
-                    edges[eCount++] = (pCount, pCount + 1);
-                    
                     if (j < tilesPerGroup)
                     {
-                        edges[eCount++] = (pCount + 1, pCount + 3);
-                        edges[eCount++] = (pCount, pCount + 2);
+                        edges[eCount + j] = (pCount + j, pCount + j + 1);
+                        edges[eCount + tilesPerGroup + 1 + j] = (pCount + tilesPerGroup + 1 + j,
+                            pCount + tilesPerGroup + 1 + j + 1);
                     }
 
-                    pCount += 2;
+                    if (j < tilesPerGroup)
+                    {
+                        if (count % 2 == 1)
+                        {
+                            edges[eCount + 2 * tilesPerGroup+ j] =
+                                (pCount + 2 * (tilesPerGroup + 1) - j - 1, pCount + j);
+                        }
+                        else
+                        {
+                            edges[eCount + 2 * tilesPerGroup+ j] =
+                                (pCount + j,pCount + 2 * (tilesPerGroup + 1) - j - 1);
+                        }
+                        count++;
+                    }
                 }
 
-                edges[eCount++] = (pCount - 1, (pCount) % pointNum);
+                pCount += (tilesPerGroup + 1) * 2;
+                eCount += tilesPerGroup * 3;
+                edges[eCount++] = (pCount - tilesPerGroup - 1, (pCount) % pointNum);
             }
         }
     }

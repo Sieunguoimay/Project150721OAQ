@@ -118,7 +118,7 @@ namespace Gameplay.Board
         [ContextMenu("Test")]
         private void Test()
         {
-            var groupNum = 2;
+            var groupNum = 3;
             var tilesPerGroup = 5;
             
             var length = tilesPerGroup * citizenTilePrefab.Size;
