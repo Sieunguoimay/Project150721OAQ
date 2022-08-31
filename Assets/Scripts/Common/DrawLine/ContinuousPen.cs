@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Common.DrawLine
 {
-    public class ContinuousDrawer : MonoBehaviour
+    public class ContinuousPen : MonoBehaviour
     {
         [SerializeField] private DrawingPen pen;
 
@@ -53,7 +53,7 @@ namespace Common.DrawLine
             return contour;
         }
 
-        private static (int, int)[] ConnectContour((int, int)[] contour)
+        public static (int, int)[] ConnectContour((int, int)[] contour)
         {
             var connectedContour = new List<(int, int)>();
             var str = "";

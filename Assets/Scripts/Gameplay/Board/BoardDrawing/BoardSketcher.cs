@@ -1,19 +1,30 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Common;
 using Common.Algorithm;
 using Common.DrawLine;
+using CommonActivities;
+using Gameplay.Board.BoardDrawing;
 using UnityEngine;
 
 namespace Gameplay.Board
 {
     public class BoardSketcher : MonoBehaviour
     {
-        [SerializeField] private DrawingPen pen;
+        [SerializeField] private VisualPen pen;
+
+        private readonly ActivityQueue _activityQueue = new();
 
         public void Sketch(Board board)
         {
             GenerateSketch(board.Metadata, out var points, out var edges);
+            pen.Draw(points, ConnectContour(edges), board.Metadata.Polygon);
+        }
 
-            pen.Draw(points, edges);
+        private void Update()
+        {
+            _activityQueue.Update(Time.deltaTime);
         }
 
         private static void GenerateSketch(Board.BoardMetadata boardMetadata, out Vector2[] points,
@@ -96,6 +107,45 @@ namespace Gameplay.Board
             // Debug.Log(str);
         }
 
+        private static (int, int)[] ConnectContour((int, int)[] contour)
+        {
+            var connectedContour = new List<(int, int)>();
+            var str = "";
+
+            for (var i = 0; i < contour.Length; i++)
+            {
+                str += $"({contour[i].Item1} {contour[i].Item2}), ";
+            }
+
+            Debug.Log(str);
+            for (var i = 0; i < contour.Length; i++)
+            {
+                connectedContour.Add(contour[i]);
+
+                if (i == contour.Length - 1) break;
+
+                var item2 = contour[i].Item2;
+
+                var nextItem1 = contour[i + 1].Item1;
+                if (item2 == nextItem1)
+                {
+                }
+                else
+                {
+                    connectedContour.Add((item2, nextItem1));
+                }
+            }
+
+            str = "";
+            for (var i = 0; i < connectedContour.Count; i++)
+            {
+                str += $"({connectedContour[i].Item1} {connectedContour[i].Item2}), ";
+            }
+
+            Debug.Log(str);
+
+            return connectedContour.ToArray();
+        }
 #if UNITY_EDITOR
 
         [ContextMenu("Test AntColonyOptimization")]

@@ -155,6 +155,7 @@ namespace CommonActivities
         {
             base.Begin();
             Duration = _onBegin?.Invoke() ?? Duration;
+            Time = 0f;
         }
 
         public override void Update(float deltaTime)
@@ -170,10 +171,12 @@ namespace CommonActivities
     public class Timer : Delay
     {
         private readonly Action<float> _onTick;
+        private readonly bool _progress;
 
-        public Timer(float duration, Action<float> onTick) : base(duration)
+        public Timer(float duration, Action<float> onTick, bool progress = false) : base(duration)
         {
             _onTick = onTick;
+            _progress = progress;
         }
 
         public override void Begin()
@@ -186,7 +189,7 @@ namespace CommonActivities
         {
             Time += deltaTime;
 
-            _onTick?.Invoke(Mathf.Min(Time, Duration));
+            _onTick?.Invoke(_progress ? Mathf.Min(1f, Time / Duration) : Mathf.Min(Time, Duration));
 
             if (Time >= Duration)
             {

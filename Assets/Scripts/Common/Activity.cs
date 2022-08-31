@@ -31,7 +31,7 @@ namespace Common
 
     public class ParallelActivity : Activity
     {
-        private readonly List<Activity> _activities = new ();
+        private readonly List<Activity> _activities = new();
 
         public void Add(Activity activity)
         {
@@ -90,7 +90,7 @@ namespace Common
     {
         private Activity _currentActivity;
 
-        public Queue<Activity> Activities { get; } = new ();
+        public Queue<Activity> Activities { get; } = new();
 
         public void Add(Activity anim)
         {
@@ -101,21 +101,9 @@ namespace Common
         {
             if (Inactive) return;
 
-            if (_currentActivity == null)
+            if (_currentActivity == null || _currentActivity.Inactive)
             {
-                if (Activities.Count > 0)
-                {
-                    _currentActivity = Activities.Dequeue();
-                    _currentActivity.Begin();
-                }
-                else
-                {
-                    _currentActivity = null;
-                }
-            }
-            else if (_currentActivity.Inactive)
-            {
-                _currentActivity.OnEnd();
+                _currentActivity?.OnEnd();
                 if (Activities.Count > 0)
                 {
                     _currentActivity = Activities.Dequeue();
@@ -127,10 +115,9 @@ namespace Common
                     NotifyDone();
                 }
             }
-            else
-            {
+
+            if (_currentActivity is {Inactive: false})
                 _currentActivity.Update(deltaTime);
-            }
         }
 
         public override void OnEnd()

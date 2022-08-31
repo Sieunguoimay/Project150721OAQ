@@ -13,40 +13,43 @@ namespace Common.DrawLine
         [SerializeField, Min(0.1f)] private float speed = 1f;
 
         public ActivityQueue ActivityQueue { get; } = new();
-
-        private void Awake()
-        {
-            enabled = false;
-        }
+        public event Action<Vector3> OnDraw;
 
         public void Draw(Vector2[] points, (int, int)[] contour)
         {
-            enabled = true;
-            ActivityQueue.Add(new Lambda(() => { drawingSurface.DrawBegin(points[contour[0].Item1]); }, () => true));
+            ActivityQueue.Add(new Lambda(() =>
+            {
+                var point = points[contour[0].Item1];
+                drawingSurface.DrawBegin(point);
+                InvokeOnDraw(point);
+            }, () => true));
 
             for (var i = 0; i < contour.Length; i++)
             {
                 var point1 = points[contour[i].Item1];
                 var point2 = points[contour[i].Item2];
                 var duration = Vector3.Distance(point1, point2) / speed;
-                ActivityQueue.Add(new Timer(duration, t =>
+                var activity = new Timer(duration, t =>
                 {
-                    drawingSurface.Draw(Vector2.Lerp(point1, point2, Mathf.Min(1f, t / duration)), lineThickness,
-                        minDistance);
-                }));
+                    var point = Vector2.Lerp(point1, point2, Mathf.Min(1f, t / duration));
+                    drawingSurface.Draw(point, lineThickness, minDistance);
+                    InvokeOnDraw(point);
+                });
+                ActivityQueue.Add(activity);
             }
 
-            ActivityQueue.Add(new Lambda(() =>
-            {
-                drawingSurface.DryInk("Board");
-                enabled = false;
-            }, () => true));
+            ActivityQueue.Add(new Lambda(() => { drawingSurface.DryInk("Board"); }, () => true));
             ActivityQueue.Begin();
         }
 
         private void Update()
         {
             ActivityQueue.Update(Time.deltaTime);
+        }
+
+        protected virtual void InvokeOnDraw(Vector2 point)
+        {
+            OnDraw?.Invoke(drawingSurface.transform.TransformPoint(new Vector3(point.x, 0, point.y)));
         }
 
 #if UNITY_EDITOR
