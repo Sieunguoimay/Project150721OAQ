@@ -445,7 +445,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: cd8e947ad726c434a804697704ebe5c7, type: 2}
+  - {fileID: 2100000, guid: 30b5ced6df4a244478e23fd2da948f4c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -490,7 +490,7 @@ MonoBehaviour:
   drawingSurface: {fileID: 722066323}
   lineThickness: 0.1
   minDistance: 0.1
-  speed: 3
+  speed: 10
 --- !u!114 &722066329
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -503,7 +503,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed94b57dfba54503a193ffcbb8f6816e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pen: {fileID: 722066327}
+  pen: {fileID: 0}
 --- !u!114 &722066330
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -552,7 +552,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5592389154637034425, guid: 37681356262e09a4b84806d9f1b755e0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5592389154637034431, guid: 37681356262e09a4b84806d9f1b755e0, type: 3}
       propertyPath: m_RootOrder
@@ -740,7 +740,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1244125709
 MonoBehaviour:
   m_ObjectHideFlags: 0
