@@ -19,7 +19,16 @@ namespace Gameplay.Board
         public void Sketch(Board board)
         {
             GenerateSketch(board.Metadata, out var points, out var edges);
-            pen.Draw(points, ConnectContour(edges), board.Metadata.Polygon);
+            if (board.Metadata.Polygon.Length > 2)
+            {
+                var edgeLength = board.Metadata.TileSize * board.Metadata.TilesPerGroup;
+                var innerRadius = edgeLength / (2f * Mathf.Tan(Mathf.PI / board.Metadata.Polygon.Length));
+                pen.Draw(points, ConnectContour(edges), innerRadius, "Board");
+            }
+            else
+            {
+                pen.Draw(points, ConnectContour(edges), board.Metadata.Polygon, "Board");
+            }
         }
 
         private void Update()

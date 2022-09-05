@@ -1,11 +1,14 @@
 ﻿using System;
 using Common.Algorithm;
 using CommonActivities;
+using DG.Tweening;
+using DG.Tweening.Core.Easing;
+using SNM.Easings;
 using UnityEngine;
 
 namespace Common.DrawLine
 {
-    public class DrawingPen : MonoBehaviour
+    public sealed class DrawingPen : MonoBehaviour
     {
         [SerializeField] private DrawingSurface drawingSurface;
         [SerializeField, Min(0.05f)] private float lineThickness = 0.1f;
@@ -15,7 +18,7 @@ namespace Common.DrawLine
         public ActivityQueue ActivityQueue { get; } = new();
         public event Action<Vector3> OnDraw;
 
-        public void Draw(Vector2[] points, (int, int)[] contour)
+        public void Draw(Vector2[] points, (int, int)[] contour, string inkName)
         {
             ActivityQueue.Add(new Lambda(() =>
             {
@@ -23,7 +26,7 @@ namespace Common.DrawLine
                 drawingSurface.DrawBegin(point);
                 InvokeOnDraw(point);
             }, () => true));
-
+            var easing = new InOutCubic();
             for (var i = 0; i < contour.Length; i++)
             {
                 var point1 = points[contour[i].Item1];
@@ -38,7 +41,7 @@ namespace Common.DrawLine
                 ActivityQueue.Add(activity);
             }
 
-            ActivityQueue.Add(new Lambda(() => { drawingSurface.DryInk("Board"); }, () => true));
+            ActivityQueue.Add(new Lambda(() => { drawingSurface.DryInk(inkName); }, () => true));
             ActivityQueue.Begin();
         }
 
@@ -47,7 +50,7 @@ namespace Common.DrawLine
             ActivityQueue.Update(Time.deltaTime);
         }
 
-        protected virtual void InvokeOnDraw(Vector2 point)
+        private void InvokeOnDraw(Vector2 point)
         {
             OnDraw?.Invoke(drawingSurface.transform.TransformPoint(new Vector3(point.x, 0, point.y)));
         }
@@ -92,7 +95,7 @@ namespace Common.DrawLine
                 (0, 2),
             };
 
-            Draw(points, contour);
+            Draw(points, contour,"Test");
         }
 #endif
     }

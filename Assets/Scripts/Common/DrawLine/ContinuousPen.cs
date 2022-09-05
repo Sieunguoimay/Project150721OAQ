@@ -19,7 +19,7 @@ namespace Common.DrawLine
 
             if (Application.isPlaying)
             {
-                pen.Draw(points, contour);
+                pen.Draw(points, contour,"static_mesh");
             }
         }
 

@@ -335,6 +335,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8575047153541869545}
   - component: {fileID: 2852823136438041629}
+  - component: {fileID: 8317566379749380432}
   m_Layer: 0
   m_Name: Pen
   m_TagString: Untagged
@@ -371,13 +372,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c886696efb874b41a30e43db2f285dd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  drawingSurface: {fileID: 3184342358834151833}
-  lineThickness: 0.05
-  minDistance: 0.1
-  speed: 10
+  pen: {fileID: 8317566379749380432}
   penBall: {fileID: 868963826247234358}
-  height: 5
-  radius: 2
+  scale: 1.2
+--- !u!114 &8317566379749380432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6200830626897574594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc2051ae306f45d7b055743b6d9b6ebe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drawingSurface: {fileID: 3184342358834151833}
+  lineThickness: 0.06
+  minDistance: 0.1
+  speed: 7
 --- !u!1 &7909916913109183023
 GameObject:
   m_ObjectHideFlags: 0
