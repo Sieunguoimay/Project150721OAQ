@@ -220,6 +220,42 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!95 &248649509 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 2209858066835283012, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
+  m_PrefabInstance: {fileID: 667550759}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &448871885
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 448871886}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &448871886
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 448871885}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.12585974, y: -0.3260721, z: 0.11953366}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &667550759
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -230,10 +266,6 @@ PrefabInstance:
     - target: {fileID: 4393973210023763556, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
       propertyPath: m_Name
       value: Citizen
-      objectReference: {fileID: 0}
-    - target: {fileID: 4393973210023763556, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7982060487576672187, guid: 53cd335eb26b9314d8445da70506f3b5, type: 3}
       propertyPath: m_RootOrder
@@ -388,8 +420,8 @@ GameObject:
   - component: {fileID: 722066326}
   - component: {fileID: 722066325}
   - component: {fileID: 722066327}
-  - component: {fileID: 722066330}
   - component: {fileID: 722066329}
+  - component: {fileID: 722066330}
   m_Layer: 0
   m_Name: DrawingSurface
   m_TagString: Untagged
@@ -504,21 +536,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pen: {fileID: 0}
---- !u!114 &722066330
-MonoBehaviour:
+--- !u!320 &722066330
+PlayableDirector:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 722066320}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9f6ba7afe0f49b4b02002e3fec0e8e5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mandarinTilePrefab: {fileID: 0}
-  citizenTilePrefab: {fileID: 2106036659000400842, guid: 039c12b9678732843a8cd5fd08787dab, type: 3}
-  boardSketcher: {fileID: 722066329}
+  serializedVersion: 3
+  m_PlayableAsset: {fileID: 11400000, guid: 9c0699194cc378a4eb061016dbb8d39c, type: 2}
+  m_InitialState: 1
+  m_WrapMode: 2
+  m_DirectorUpdateMode: 1
+  m_InitialTime: 0
+  m_SceneBindings:
+  - key: {fileID: 4654440392631037466, guid: 9c0699194cc378a4eb061016dbb8d39c, type: 2}
+    value: {fileID: 248649509}
+  m_ExposedReferences:
+    m_References:
+    - d920b9421d14ad844aed96ae9d8335fc: {fileID: 722066320}
+    - fea259be42b0e0d4ab5dc393d27505a1: {fileID: 448871885}
 --- !u!1001 &928802892
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -596,10 +634,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5592389154637034431, guid: 37681356262e09a4b84806d9f1b755e0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9061352661525359979, guid: 37681356262e09a4b84806d9f1b755e0, type: 3}
-      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
