@@ -1,6 +1,7 @@
 ﻿using System;
 using Common.ResolveSystem;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Gameplay.UI
 {
@@ -27,6 +28,8 @@ namespace Gameplay.UI
     {
         [SerializeField] private MatchOptionItem[] optionItems;
         [SerializeField] private MatchOptionItemUI itemPrefab;
+        [SerializeField] private UnityEvent onSelected;
+        [SerializeField] private UnityEvent onReset;
         private IMatchOption _matchOption;
         private GameManager.IGameEvents _gameEvents;
 
@@ -64,12 +67,14 @@ namespace Gameplay.UI
         private void OnSelected(int index)
         {
             SetMatchOption(optionItems[index].PlayerNum, optionItems[index].TilesPerGroup);
-            gameObject.SetActive(false);
+            // gameObject.SetActive(false);
+            onSelected?.Invoke();
         }
 
         private void OnGameReset()
         {
-            gameObject.SetActive(true);
+            // gameObject.SetActive(true);
+            onReset?.Invoke();
         }
 
         private void SetMatchOption(int playerNum, int tilesPerGroup)

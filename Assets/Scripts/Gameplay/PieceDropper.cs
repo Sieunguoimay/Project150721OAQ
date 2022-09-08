@@ -101,7 +101,7 @@ namespace Gameplay
                         ((Tile) CurrentTile).GetPositionInFilledCircle(
                             CurrentTile.Pieces.Count + j + (skipSlot ? 5 : 0), false);
 
-                    var jumpForward = new JumpForward(p.transform, citizenPos, .4f, new LinearEasing(), 1f,
+                    var jumpForward = new JumpForward(p.transform, citizenPos, .4f, new LinearEasing(), 1f, 
                         BezierEasing.CreateBezierEasing(0.35f, 0.75f));
 
                     p.PieceActivityQueue.Add(jumpForward);
