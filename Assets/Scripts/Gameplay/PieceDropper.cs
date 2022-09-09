@@ -77,7 +77,12 @@ namespace Gameplay
             _forward = forward;
             var delay = 0f;
             var n = Pieces.Count;
-
+            var positions = Pieces.Select(t =>
+            {
+                _boardTraveller.Next(forward);
+                return _board.Tiles[_boardTraveller.CurrentIndex];
+            });
+            
             for (var i = 0; i < n; i++)
             {
                 _boardTraveller.Next(forward);

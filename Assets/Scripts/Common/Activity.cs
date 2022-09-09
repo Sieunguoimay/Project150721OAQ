@@ -101,9 +101,21 @@ namespace Common
         {
             if (Inactive) return;
 
-            if (_currentActivity == null || _currentActivity.Inactive)
+            if (_currentActivity == null)
             {
-                _currentActivity?.OnEnd();
+                if (Activities.Count > 0)
+                {
+                    _currentActivity = Activities.Dequeue();
+                    _currentActivity.Begin();
+                }
+                else
+                {
+                    _currentActivity = null;
+                }
+            }
+            else if (_currentActivity.Inactive)
+            {
+                _currentActivity.OnEnd();
                 if (Activities.Count > 0)
                 {
                     _currentActivity = Activities.Dequeue();
@@ -115,9 +127,10 @@ namespace Common
                     NotifyDone();
                 }
             }
-
-            if (_currentActivity is {Inactive: false})
+            else
+            {
                 _currentActivity.Update(deltaTime);
+            }
         }
 
         public override void OnEnd()

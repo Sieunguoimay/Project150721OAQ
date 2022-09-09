@@ -10,10 +10,12 @@ namespace Gameplay.Piece
     public class Citizen : Piece
     {
         [SerializeField] private AnimatorListener animatorListener;
+        [SerializeField] private PlayableDirector jumpTimeline;
 
         private Transform _cameraTransform;
         private Animator _animator;
         public override Animator Animator => _animator ??= animatorListener.GetComponent<Animator>();
+        public PlayableDirector JumpTimeline => jumpTimeline;
 
         public void FaceCamera(Vector3 pos, bool immediate, Vector3 offset = new())
         {
