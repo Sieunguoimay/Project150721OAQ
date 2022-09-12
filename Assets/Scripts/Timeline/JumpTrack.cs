@@ -59,6 +59,7 @@ namespace Timeline
             }
 
             binding.position = finalPosition;
+            Debug.Log(initialWeight);
         }
     }
 }
