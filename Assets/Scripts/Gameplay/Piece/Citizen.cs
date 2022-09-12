@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using Common.Animation;
 using DG.Tweening;
+using Timeline;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -15,7 +17,7 @@ namespace Gameplay.Piece
         private Transform _cameraTransform;
         private Animator _animator;
         public override Animator Animator => _animator ??= animatorListener.GetComponent<Animator>();
-        public PlayableDirector JumpTimeline => jumpTimeline;
+        public override PlayableDirector JumpTimeline => jumpTimeline;
 
         public void FaceCamera(Vector3 pos, bool immediate, Vector3 offset = new())
         {

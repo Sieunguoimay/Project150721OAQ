@@ -2,14 +2,14 @@
 
 namespace Gameplay
 {
-    public interface IMatchOption
+    public interface IMatchChooser
     {
         int PlayerNum { get; }
         int TilesPerGroup { get; }
         event Action OnMatchOptionChanged;
     }
 
-    public class MatchOption : IMatchOption
+    public class MatchChooser : IMatchChooser
     {
         public int PlayerNum { get; private set; } = 3;
         public int TilesPerGroup { get; private set; } = 5;

@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Playables;
 
 namespace Gameplay.Piece
 {
@@ -25,6 +26,7 @@ namespace Gameplay.Piece
         [field: NonSerialized] public PieceActivityQueue PieceActivityQueue { get; } = new();
         public ConfigData Config => config;
         public virtual Animator Animator => null;
+        public virtual PlayableDirector JumpTimeline => null;
 
         public virtual void Setup()
         {

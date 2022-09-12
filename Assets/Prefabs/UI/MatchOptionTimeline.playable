@@ -299,7 +299,7 @@ MonoBehaviour:
   m_Name: CanvasGroupControlAsset
   m_EditorClassIdentifier: 
   template:
-    alpha: 1
+    alpha: 0
     interactable: 1
 --- !u!114 &11400000
 MonoBehaviour:

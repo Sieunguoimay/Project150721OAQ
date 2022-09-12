@@ -30,14 +30,14 @@ namespace Gameplay.UI
         [SerializeField] private MatchOptionItemUI itemPrefab;
         [SerializeField] private UnityEvent onSelected;
         [SerializeField] private UnityEvent onReset;
-        private IMatchOption _matchOption;
+        private IMatchChooser _matchChooser;
         private GameManager.IGameEvents _gameEvents;
 
         private MatchOptionItemUI[] _itemUIs;
 
         public void Inject(IResolver resolver)
         {
-            _matchOption = resolver.Resolve<IMatchOption>();
+            _matchChooser = resolver.Resolve<IMatchChooser>();
             _gameEvents = resolver.Resolve<GameManager.IGameEvents>();
         }
 
@@ -78,6 +78,6 @@ namespace Gameplay.UI
         }
 
         private void SetMatchOption(int playerNum, int tilesPerGroup)
-            => (_matchOption as MatchOption)?.SetMatchOption(playerNum, tilesPerGroup);
+            => (_matchChooser as MatchChooser)?.SetMatchOption(playerNum, tilesPerGroup);
     }
 }

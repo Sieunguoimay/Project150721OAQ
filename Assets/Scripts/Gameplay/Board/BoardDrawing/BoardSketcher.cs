@@ -7,14 +7,29 @@ using Common.DrawLine;
 using CommonActivities;
 using Gameplay.Board.BoardDrawing;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Gameplay.Board
 {
     public class BoardSketcher : MonoBehaviour
     {
         [SerializeField] private VisualPen pen;
+        [SerializeField] private UnityEvent onDone;
 
-        private readonly ActivityQueue _activityQueue = new();
+        private void OnEnable()
+        {
+            pen.PenEvents.OnDone += OnPenDone;
+        }
+
+        private void OnDisable()
+        {
+            pen.PenEvents.OnDone -= OnPenDone;
+        }
+
+        private void OnPenDone()
+        {
+            onDone?.Invoke();
+        }
 
         public void Sketch(Board board)
         {
@@ -29,11 +44,6 @@ namespace Gameplay.Board
             {
                 pen.Draw(points, ConnectContour(edges), board.Metadata.Polygon, "Board");
             }
-        }
-
-        private void Update()
-        {
-            _activityQueue.Update(Time.deltaTime);
         }
 
         private static void GenerateSketch(Board.BoardMetadata boardMetadata, out Vector2[] points,

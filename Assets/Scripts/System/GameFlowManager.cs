@@ -18,7 +18,7 @@
             StateChanged?.Invoke();
         }
 
-        public void OnStartGame()
+        public void StartGame()
         {
             _handler.StartGame();
             ChangeState(GameState.DuringGameplay);

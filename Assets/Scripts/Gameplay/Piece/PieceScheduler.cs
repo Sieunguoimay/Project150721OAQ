@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Linq;
 using Common;
 using CommonActivities;
 using Gameplay.Board;
+using SNM;
+using Timeline;
 using UnityEngine;
 
 namespace Gameplay.Piece
@@ -42,6 +45,54 @@ namespace Gameplay.Piece
             p.PieceActivityQueue.Add(new Delay(delay));
             p.PieceActivityQueue.Add(new Flocking(p.Config.flockingConfigData, position, p.transform, null));
             p.PieceActivityQueue.Begin();
+        }
+
+        public static Activity CreateJumpTimelineActivity(Piece p, Vector3 target)
+        {
+            if (p.JumpTimeline == null) return null;
+            Activity activity = null;
+            activity = new Lambda(() =>
+            {
+                p.JumpTimeline.Stop();
+                var euler = Quaternion.LookRotation(target - p.transform.position).eulerAngles;
+
+                var track = p.JumpTimeline.playableAsset.outputs.FirstOrDefault(tr => tr.sourceObject is TransformControlTrack).sourceObject as TransformControlTrack;
+                if (track != null)
+                {
+                    var clips = track.GetClips();
+                    foreach (var c in clips)
+                    {
+                        ((TransformControlClip) c.asset).Template.position.x = target.x;
+                        ((TransformControlClip) c.asset).Template.position.z = target.z;
+                        ((TransformControlClip) c.asset).Template.eulerAngles.y = euler.y;
+                    }
+                }
+
+                var transform = p.transform;
+                var pos = transform.position;
+                pos.y = 0f;
+                transform.position = pos;
+
+                p.JumpTimeline.Play();
+                p.Delay((float) p.JumpTimeline.duration, () =>
+                {
+                    activity?.NotifyDone();
+
+                    if (track != null)
+                    {
+                        var clips = track.GetClips();
+                        foreach (var c in clips)
+                        {
+                            var clip = ((TransformControlClip) c.asset);
+                            clip.Template.position = Vector3.zero;
+                            clip.Template.eulerAngles = Vector3.zero;
+                        }
+                    }
+                });
+            }, null);
+
+            p.PieceActivityQueue.Add(activity);
+            return activity;
         }
 
         public static void CreateAnimActivity(Piece p, int animHash, Action onDone)

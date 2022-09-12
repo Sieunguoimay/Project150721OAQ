@@ -18,9 +18,10 @@ namespace System
         [SerializeField] public TileSelector tileSelector;
         [SerializeField] public UIManager uiManager;
         [SerializeField] public CameraManager cameraManager;
+        [SerializeField] public BoardSketcher boardSketcher;
 
         private readonly Gameplay _gameplay = new();
-        private readonly MatchOption _matchOption = new();
+        private readonly MatchChooser _matchChooser = new();
         private readonly GameEvents _events = new();
         private GameFlowManager _gameFlowManager;
 
@@ -54,7 +55,7 @@ namespace System
 
         private void Bind()
         {
-            _resolver.Bind<IMatchOption>(_matchOption);
+            _resolver.Bind<IMatchChooser>(_matchChooser);
             _resolver.Bind(cameraManager);
             _resolver.Bind(tileSelector);
             _resolver.Bind<IGameEvents>(_events);
@@ -63,7 +64,7 @@ namespace System
 
         private void Unbind()
         {
-            _resolver.Unbind<IMatchOption>(_matchOption);
+            _resolver.Unbind<IMatchChooser>(_matchChooser);
             _resolver.Unbind(cameraManager);
             _resolver.Unbind(tileSelector);
             _resolver.Unbind<IGameEvents>(_events);
@@ -72,28 +73,30 @@ namespace System
 
         private void OnSetup()
         {
-            _matchOption.OnMatchOptionChanged += OnMatchOptionChanged;
+            // _matchChooser.OnMatchOptionChanged += GenerateMatch;
         }
 
 
         private void OnCleanup()
         {
-            _matchOption.OnMatchOptionChanged -= OnMatchOptionChanged;
+            // _matchChooser.OnMatchOptionChanged -= GenerateMatch;
             _gameplay.TearDown();
         }
 
-        private void OnMatchOptionChanged()
+        public void GenerateMatch()
         {
-            boardManager.SetBoardByTileGroupNum(_matchOption.PlayerNum, _matchOption.TilesPerGroup);
+            boardManager.SetBoardByTileGroupNum(_matchChooser.PlayerNum, _matchChooser.TilesPerGroup);
 
-            playersManager.FillWithFakePlayers(_matchOption.PlayerNum);
+            playersManager.FillWithFakePlayers(_matchChooser.PlayerNum);
             playersManager.CreatePieceBench(boardManager.Board);
 
-            pieceManager.SpawnPieces(_matchOption.PlayerNum, _matchOption.TilesPerGroup);
+            pieceManager.SpawnPieces(_matchChooser.PlayerNum, _matchChooser.TilesPerGroup);
 
             _gameplay.Setup(playersManager.Players, boardManager.Board, pieceManager);
 
             _gameFlowManager.ChangeState(GameFlowManager.GameState.BeforeGameplay);
+
+            boardSketcher.Sketch(boardManager.Board);
         }
 
         public void StartGame()

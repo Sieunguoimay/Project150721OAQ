@@ -539,7 +539,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4393973210023763556}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.000000013014062, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -570,7 +570,7 @@ MonoBehaviour:
       arriveDistance: 1
       spacing: 0.3
   animatorListener: {fileID: 695480551792940659}
-  jumpTimeline: {fileID: 0}
+  jumpTimeline: {fileID: 5262788228897660633}
 --- !u!1 &4691225833022002017
 GameObject:
   m_ObjectHideFlags: 0
@@ -622,6 +622,8 @@ PlayableDirector:
     value: {fileID: 2209858066835283012}
   - key: {fileID: 4263986770302904092, guid: 85691388737a86d4c84e25514f8534db, type: 2}
     value: {fileID: 7982060487576672187}
+  - key: {fileID: 7291690692330216475, guid: 85691388737a86d4c84e25514f8534db, type: 2}
+    value: {fileID: 6636710221657361225}
   m_ExposedReferences:
     m_References:
     - 5641720eaf27dd54ba0f91f11338fd58: {fileID: 0}
@@ -673,7 +675,7 @@ GameObject:
   - component: {fileID: 6636710221657361225}
   - component: {fileID: 3319264407726642100}
   m_Layer: 0
-  m_Name: leg
+  m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Gameplay.Board.BoardDrawing
 {
+
     public class VisualPen : MonoBehaviour
     {
         [SerializeField] private DrawingPen pen;
@@ -15,7 +16,8 @@ namespace Gameplay.Board.BoardDrawing
         private float _radius;
         private Vector2[] _clampPolygon;
         private Func<Vector2, Vector2> _projection;
-
+        public IPenEvents PenEvents => pen;
+        
         private void OnEnable()
         {
             pen.OnDraw += OnDraw;

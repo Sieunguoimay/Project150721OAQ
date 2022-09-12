@@ -24,16 +24,16 @@ namespace Gameplay.UI
             _flowManager.StateChanged -= OnStateChanged;
         }
 
-        private void Update()
-        {
-            if (_flowManager.CurrentState == GameFlowManager.GameState.BeforeGameplay)
-            {
-                if (Input.GetMouseButtonDown(0))
-                {
-                    OnFirstTap();
-                }
-            }
-        }
+        // private void Update()
+        // {
+        //     if (_flowManager.CurrentState == GameFlowManager.GameState.BeforeGameplay)
+        //     {
+        //         if (Input.GetMouseButtonDown(0))
+        //         {
+        //             OnFirstTap();
+        //         }
+        //     }
+        // }
 
         private void OnStateChanged()
         {
@@ -44,7 +44,7 @@ namespace Gameplay.UI
             }
         }
 
-        public void OnFirstTap() => _flowManager.OnStartGame();
+        public void OnFirstTap() => _flowManager.StartGame();
         public void OnReplayButtonClicked() => _flowManager.OnReplayMatch();
         public void OnHomeButtonClicked() => _flowManager.OnResetGame();
     }

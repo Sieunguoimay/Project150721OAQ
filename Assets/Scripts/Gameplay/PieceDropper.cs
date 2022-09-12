@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Common;
 using CommonActivities;
+using DG.Tweening;
 using Gameplay.Board;
 using Gameplay.Piece;
 using SNM;
@@ -41,6 +42,7 @@ namespace Gameplay
             {
                 PublicExecutor.Instance.StopCoroutine(_coroutine);
             }
+
             Pieces.Clear();
         }
 
@@ -82,7 +84,7 @@ namespace Gameplay
                 _boardTraveller.Next(forward);
                 return _board.Tiles[_boardTraveller.CurrentIndex];
             });
-            
+
             for (var i = 0; i < n; i++)
             {
                 _boardTraveller.Next(forward);
@@ -91,30 +93,45 @@ namespace Gameplay
                 {
                     if (Pieces[i + j] is not Citizen p) continue;
 
-                    if (i == 0)
-                    {
-                        p.PieceActivityQueue.Add(new Delay(delay));
-                        PieceScheduler.CreateAnimActivity(p,
-                            () => p.Animator.GetCurrentAnimatorStateInfo(0).shortNameHash == LegHashes.idle
-                                ? LegHashes.jump_interval
-                                : LegHashes.stand_up, null);
-                        delay += 0.2f;
-                    }
 
                     var skipSlot = CurrentTile is MandarinTile {HasMandarin: true};
                     var citizenPos =
                         ((Tile) CurrentTile).GetPositionInFilledCircle(
                             CurrentTile.Pieces.Count + j + (skipSlot ? 5 : 0), false);
 
-                    var jumpForward = new JumpForward(p.transform, citizenPos, .4f, new LinearEasing(), 1f, 
-                        BezierEasing.CreateBezierEasing(0.35f, 0.75f));
-
-                    p.PieceActivityQueue.Add(jumpForward);
-
-                    if (j > 0)
+                    if (i == 0)
                     {
-                        PieceScheduler.CreateAnimActivity(p, LegHashes.jump_interval, null);
+                        Activity activity = null;
+                        var duration = delay;
+                        activity = new Lambda(() =>
+                        {
+                            var euler = Quaternion.LookRotation(citizenPos - p.transform.position).eulerAngles;
+                            var targetEuler = p.transform.eulerAngles;
+                            targetEuler.y = euler.y;
+                            p.transform.DORotate(targetEuler, duration).SetLink(p.gameObject)
+                                .OnComplete(() => { activity.NotifyDone(); });
+                        });
+                        p.PieceActivityQueue.Add(activity);
+
+                        PieceScheduler.CreateAnimActivity(p,
+                            () => p.Animator.GetCurrentAnimatorStateInfo(0).shortNameHash == LegHashes.idle
+                                ? LegHashes.jump_interval
+                                : LegHashes.stand_up, null);
+
+                        delay += 0.2f;
                     }
+
+                    // var jumpForward = new JumpForward(p.transform, citizenPos, .4f, new LinearEasing(), 1f, 
+                    //     BezierEasing.CreateBezierEasing(0.35f, 0.75f));
+                    //
+                    // p.PieceActivityQueue.Add(jumpForward);
+
+                    var jumpForward = PieceScheduler.CreateJumpTimelineActivity(p, citizenPos);
+
+                    // if (j > 0)
+                    // {
+                    //     PieceScheduler.CreateAnimActivity(p, LegHashes.jump_interval, null);
+                    // }
 
                     if (i == n - 1)
                     {
@@ -128,7 +145,7 @@ namespace Gameplay
 
             foreach (var p in Pieces)
             {
-                PieceScheduler.CreateAnimActivity(p, LegHashes.land, () => p.Animator.Play(LegHashes.idle));
+                // PieceScheduler.CreateAnimActivity(p, LegHashes.land, () => p.Animator.Play(LegHashes.idle));
                 p.PieceActivityQueue.Add(new PieceActivityQueue.TurnAway(p.transform));
                 PieceScheduler.CreateAnimActivity(p, LegHashes.sit_down, null);
                 p.PieceActivityQueue.Begin();

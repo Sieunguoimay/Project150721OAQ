@@ -3,12 +3,19 @@ using Common.Algorithm;
 using CommonActivities;
 using DG.Tweening;
 using DG.Tweening.Core.Easing;
+using Gameplay.Board.BoardDrawing;
 using SNM.Easings;
 using UnityEngine;
 
 namespace Common.DrawLine
 {
-    public sealed class DrawingPen : MonoBehaviour
+    public interface IPenEvents
+    {
+        public event Action<Vector3> OnDraw;
+        public event Action OnDone;
+    }
+
+    public sealed class DrawingPen : MonoBehaviour, IPenEvents
     {
         [SerializeField] private DrawingSurface drawingSurface;
         [SerializeField, Min(0.05f)] private float lineThickness = 0.1f;
@@ -17,6 +24,7 @@ namespace Common.DrawLine
 
         public ActivityQueue ActivityQueue { get; } = new();
         public event Action<Vector3> OnDraw;
+        public event Action OnDone;
 
         public void Draw(Vector2[] points, (int, int)[] contour, string inkName)
         {
@@ -41,7 +49,11 @@ namespace Common.DrawLine
                 ActivityQueue.Add(activity);
             }
 
-            ActivityQueue.Add(new Lambda(() => { drawingSurface.DryInk(inkName); }, () => true));
+            ActivityQueue.Add(new Lambda(() =>
+            {
+                drawingSurface.DryInk(inkName);
+                OnDone?.Invoke();
+            }, () => true));
             ActivityQueue.Begin();
         }
 
@@ -95,7 +107,7 @@ namespace Common.DrawLine
                 (0, 2),
             };
 
-            Draw(points, contour,"Test");
+            Draw(points, contour, "Test");
         }
 #endif
     }
