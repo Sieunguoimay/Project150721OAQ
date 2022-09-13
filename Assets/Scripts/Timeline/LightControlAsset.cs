@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Playables;
 
 namespace Timeline
@@ -9,5 +10,12 @@ namespace Timeline
 
         public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
             => ScriptPlayable<LightControlBehaviour>.Create(graph, template);
+    }
+
+    [Serializable]
+    public class LightControlBehaviour : PlayableBehaviour
+    {
+        public Color color = Color.white;
+        public float intensity = 1f;
     }
 }

@@ -24,7 +24,7 @@ namespace Gameplay.UI
         }
     }
 
-    public class MatchOptionUI : MonoBehaviour, IInjectable
+    public class MatchChooserUI : MonoBehaviour, IInjectable
     {
         [SerializeField] private MatchOptionItem[] optionItems;
         [SerializeField] private MatchOptionItemUI itemPrefab;
@@ -41,7 +41,7 @@ namespace Gameplay.UI
             _gameEvents = resolver.Resolve<GameManager.IGameEvents>();
         }
 
-        private void Awake()
+        private void Start()
         {
             _itemUIs = new MatchOptionItemUI[optionItems.Length];
             for (var i = 0; i < optionItems.Length; i++)
@@ -67,13 +67,11 @@ namespace Gameplay.UI
         private void OnSelected(int index)
         {
             SetMatchOption(optionItems[index].PlayerNum, optionItems[index].TilesPerGroup);
-            // gameObject.SetActive(false);
             onSelected?.Invoke();
         }
 
         private void OnGameReset()
         {
-            // gameObject.SetActive(true);
             onReset?.Invoke();
         }
 
