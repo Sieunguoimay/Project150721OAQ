@@ -684,7 +684,7 @@ MonoBehaviour:
       relativeY: 0
       relativeZ: 0
       ignoreWeightX: 0
-      ignoreWeightY: 0
+      ignoreWeightY: 1
       ignoreWeightZ: 0
     local: 0
 --- !u!114 &5778410356161579340
