@@ -14,7 +14,7 @@ namespace Gameplay.Piece
 
         public void OnTileSelected()
         {
-            _piece.FaceCamera(Vector3.zero,false, new Vector3(0, UnityEngine.Random.Range(-25f, 25f), 0));
+            // _piece.FaceCamera(Vector3.zero,false, new Vector3(0, UnityEngine.Random.Range(-25f, 25f), 0));
 
             PieceScheduler.CreateAnimActivity(_piece,LegHashes.stand_up, () =>
             {

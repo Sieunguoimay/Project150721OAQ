@@ -79,11 +79,6 @@ namespace Gameplay
             _forward = forward;
             var delay = 0f;
             var n = Pieces.Count;
-            var positions = Pieces.Select(t =>
-            {
-                _boardTraveller.Next(forward);
-                return _board.Tiles[_boardTraveller.CurrentIndex];
-            });
 
             for (var i = 0; i < n; i++)
             {
@@ -92,7 +87,6 @@ namespace Gameplay
                 for (var j = 0; j < n - i; j++)
                 {
                     if (Pieces[i + j] is not Citizen p) continue;
-
 
                     var skipSlot = CurrentTile is MandarinTile {HasMandarin: true};
                     var citizenPos =
@@ -113,25 +107,10 @@ namespace Gameplay
                         });
                         p.PieceActivityQueue.Add(activity);
 
-                        PieceScheduler.CreateAnimActivity(p,
-                            () => p.Animator.GetCurrentAnimatorStateInfo(0).shortNameHash == LegHashes.idle
-                                ? LegHashes.jump_interval
-                                : LegHashes.stand_up, null);
-
                         delay += 0.2f;
                     }
 
-                    // var jumpForward = new JumpForward(p.transform, citizenPos, .4f, new LinearEasing(), 1f, 
-                    //     BezierEasing.CreateBezierEasing(0.35f, 0.75f));
-                    //
-                    // p.PieceActivityQueue.Add(jumpForward);
-
                     var jumpForward = PieceScheduler.CreateJumpTimelineActivity(p, citizenPos);
-
-                    // if (j > 0)
-                    // {
-                    //     PieceScheduler.CreateAnimActivity(p, LegHashes.jump_interval, null);
-                    // }
 
                     if (i == n - 1)
                     {
@@ -145,7 +124,6 @@ namespace Gameplay
 
             foreach (var p in Pieces)
             {
-                // PieceScheduler.CreateAnimActivity(p, LegHashes.land, () => p.Animator.Play(LegHashes.idle));
                 p.PieceActivityQueue.Add(new PieceActivityQueue.TurnAway(p.transform));
                 PieceScheduler.CreateAnimActivity(p, LegHashes.sit_down, null);
                 p.PieceActivityQueue.Begin();
@@ -168,11 +146,11 @@ namespace Gameplay
                     if (t.Pieces.Count > 0 && t is not MandarinTile)
                     {
                         Pickup(t);
-                        _coroutine = PublicExecutor.Instance.Delay(.3f, () =>
+                        foreach (var p in Pieces)
                         {
-                            _coroutine = null;
-                            DropAll(_forward);
-                        });
+                            PieceScheduler.CreateAnimActivity(p, () => LegHashes.stand_up, null);
+                        }
+                        DropAll(_forward);
                     }
                     else
                     {

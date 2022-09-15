@@ -1,5 +1,114 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6935353698166393892
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b616d69123d14b5599536484fd76303d, type: 3}
+  m_Name: Transform Control Track (1)
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 0
+    m_ClipIn: 0
+    m_Asset: {fileID: 5868870499496501993}
+    m_Duration: 0.7666666666666666
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: -6935353698166393892}
+    m_EaseInDuration: 0.35
+    m_EaseOutDuration: 0
+    m_BlendInDuration: -1
+    m_BlendOutDuration: -1
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: TransformControlClip
+  m_Markers:
+    m_Objects: []
+  label: facing
+  template:
+    positionOptions:
+      relativeX: 0
+      relativeY: 0
+      relativeZ: 0
+      ignoreWeightX: 0
+      ignoreWeightY: 0
+      ignoreWeightZ: 0
+    eulerAnglesOptions:
+      relativeX: 0
+      relativeY: 0
+      relativeZ: 0
+      ignoreWeightX: 0
+      ignoreWeightY: 0
+      ignoreWeightZ: 0
+    local: 1
 --- !u!114 &-6368733884440428014
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -170,6 +279,7 @@ MonoBehaviour:
   - {fileID: 5778410356161579340}
   - {fileID: 4263986770302904092}
   - {fileID: 7291690692330216475}
+  - {fileID: -6935353698166393892}
   m_FixedDuration: 0
   m_EditorSettings:
     m_Framerate: 60
@@ -508,13 +618,13 @@ MonoBehaviour:
   m_Children: []
   m_Clips:
   - m_Version: 1
-    m_Start: 0
+    m_Start: 0.35
     m_ClipIn: 0
     m_Asset: {fileID: 6621717517479053471}
-    m_Duration: 0.7666666666666666
+    m_Duration: 0.41666666666666663
     m_TimeScale: 1
     m_ParentTrack: {fileID: 4263986770302904092}
-    m_EaseInDuration: 0.4166666666666667
+    m_EaseInDuration: 0.41666666666666663
     m_EaseOutDuration: 0
     m_BlendInDuration: -1
     m_BlendOutDuration: -1
@@ -544,25 +654,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     m_MixOutCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -578,7 +670,7 @@ MonoBehaviour:
     m_DisplayName: TransformWithTargetClip
   m_Markers:
     m_Objects: []
-  nothing: 
+  label: jumping
   template:
     positionOptions:
       relativeX: 0
@@ -588,9 +680,9 @@ MonoBehaviour:
       ignoreWeightY: 1
       ignoreWeightZ: 0
     eulerAnglesOptions:
-      relativeX: 1
+      relativeX: 0
       relativeY: 0
-      relativeZ: 1
+      relativeZ: 0
       ignoreWeightX: 0
       ignoreWeightY: 0
       ignoreWeightZ: 0
@@ -617,58 +709,7 @@ MonoBehaviour:
   m_Children: []
   m_Clips:
   - m_Version: 1
-    m_Start: 0.4166666666666667
-    m_ClipIn: 0
-    m_Asset: {fileID: 2720612560078780605}
-    m_Duration: 0.35
-    m_TimeScale: 1
-    m_ParentTrack: {fileID: 5778410356161579340}
-    m_EaseInDuration: 0
-    m_EaseOutDuration: 0
-    m_BlendInDuration: -1
-    m_BlendOutDuration: -1
-    m_MixInCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_MixOutCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_BlendInCurveMode: 0
-    m_BlendOutCurveMode: 0
-    m_ExposedParameterNames: []
-    m_AnimationCurves: {fileID: 0}
-    m_Recordable: 0
-    m_PostExtrapolationMode: 1
-    m_PreExtrapolationMode: 1
-    m_PostExtrapolationTime: Infinity
-    m_PreExtrapolationTime: 0
-    m_DisplayName: jump_interval
-  - m_Version: 1
-    m_Start: 0
+    m_Start: 0.35
     m_ClipIn: 0
     m_Asset: {fileID: -6368733884440428014}
     m_Duration: 0.4166666666666667
@@ -733,9 +774,42 @@ MonoBehaviour:
     m_Recordable: 1
     m_PostExtrapolationMode: 1
     m_PreExtrapolationMode: 1
-    m_PostExtrapolationTime: 0
+    m_PostExtrapolationTime: Infinity
     m_PreExtrapolationTime: 0
     m_DisplayName: Recorded
+  - m_Version: 1
+    m_Start: 0
+    m_ClipIn: 0
+    m_Asset: {fileID: 2720612560078780605}
+    m_Duration: 0.35
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 5778410356161579340}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: -1
+    m_BlendOutDuration: -1
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 1
+    m_PreExtrapolationMode: 1
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: jump_interval
   m_Markers:
     m_Objects: []
   m_InfiniteClipPreExtrapolation: 0
@@ -756,6 +830,21 @@ MonoBehaviour:
   m_OpenClipOffsetRotation: {x: 0, y: 0, z: 0, w: 1}
   m_Rotation: {x: 0, y: 0, z: 0, w: 1}
   m_ApplyOffsets: 0
+--- !u!114 &5868870499496501993
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29851a99085643cfa9c9a7a47cf7b2f2, type: 3}
+  m_Name: TransformControlClip
+  m_EditorClassIdentifier: 
+  template:
+    position: {x: 0, y: 0, z: 0}
+    eulerAngles: {x: 0, y: 0, z: 0}
 --- !u!114 &6621717517479053471
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -793,7 +882,7 @@ MonoBehaviour:
   m_Children: []
   m_Clips:
   - m_Version: 1
-    m_Start: 0.03333333333333333
+    m_Start: 0.38333333333333325
     m_ClipIn: 0
     m_Asset: {fileID: 2430188747261327651}
     m_Duration: 0.35000000000000003
@@ -863,7 +952,7 @@ MonoBehaviour:
     m_DisplayName: TransformControlClip
   m_Markers:
     m_Objects: []
-  nothing: 
+  label: flipping
   template:
     positionOptions:
       relativeX: 0

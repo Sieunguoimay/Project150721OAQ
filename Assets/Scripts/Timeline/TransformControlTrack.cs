@@ -10,7 +10,7 @@ namespace Timeline
     [TrackBindingType(typeof(Transform))]
     public class TransformControlTrack : TrackAsset
     {
-        public string nothing;
+        public string label;
         public TransformControlMixerBehaviour template;
 
         public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
@@ -74,9 +74,15 @@ namespace Timeline
                 var clipPlayable = (ScriptPlayable<TransformControlBehaviour>) playable.GetInput(i);
                 var inputBehaviour = clipPlayable.GetBehaviour();
 
-                var posX = positionOptions.relativeX ? inputBehaviour.position.x + _initialPosition.x : inputBehaviour.position.x;
-                var posY = positionOptions.relativeY ? inputBehaviour.position.y + _initialPosition.y : inputBehaviour.position.y;
-                var posZ = positionOptions.relativeZ ? inputBehaviour.position.z + _initialPosition.z : inputBehaviour.position.z;
+                var posX = positionOptions.relativeX
+                    ? inputBehaviour.position.x + _initialPosition.x
+                    : inputBehaviour.position.x;
+                var posY = positionOptions.relativeY
+                    ? inputBehaviour.position.y + _initialPosition.y
+                    : inputBehaviour.position.y;
+                var posZ = positionOptions.relativeZ
+                    ? inputBehaviour.position.z + _initialPosition.z
+                    : inputBehaviour.position.z;
 
                 posX *= positionOptions.ignoreWeightX ? 1f : inputWeight;
                 posY *= positionOptions.ignoreWeightY ? 1f : inputWeight;
@@ -86,9 +92,15 @@ namespace Timeline
                 finalPosition.y += posY;
                 finalPosition.z += posZ;
 
-                var eulerX = eulerAnglesOptions.relativeX ? inputBehaviour.eulerAngles.x + _initialEulerAngles.x : inputBehaviour.eulerAngles.x;
-                var eulerY = eulerAnglesOptions.relativeY ? inputBehaviour.eulerAngles.y + _initialEulerAngles.y : inputBehaviour.eulerAngles.y;
-                var eulerZ = eulerAnglesOptions.relativeZ ? inputBehaviour.eulerAngles.z + _initialEulerAngles.z : inputBehaviour.eulerAngles.z;
+                var eulerX = eulerAnglesOptions.relativeX
+                    ? inputBehaviour.eulerAngles.x + _initialEulerAngles.x
+                    : inputBehaviour.eulerAngles.x;
+                var eulerY = eulerAnglesOptions.relativeY
+                    ? inputBehaviour.eulerAngles.y + _initialEulerAngles.y
+                    : inputBehaviour.eulerAngles.y;
+                var eulerZ = eulerAnglesOptions.relativeZ
+                    ? inputBehaviour.eulerAngles.z + _initialEulerAngles.z
+                    : inputBehaviour.eulerAngles.z;
 
                 eulerX *= eulerAnglesOptions.ignoreWeightX ? 1f : inputWeight;
                 eulerY *= eulerAnglesOptions.ignoreWeightY ? 1f : inputWeight;

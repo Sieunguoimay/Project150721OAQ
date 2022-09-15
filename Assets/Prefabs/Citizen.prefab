@@ -378,7 +378,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3481222136200255158}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -623,6 +623,8 @@ PlayableDirector:
   - key: {fileID: 4263986770302904092, guid: 85691388737a86d4c84e25514f8534db, type: 2}
     value: {fileID: 7982060487576672187}
   - key: {fileID: 7291690692330216475, guid: 85691388737a86d4c84e25514f8534db, type: 2}
+    value: {fileID: 1583766288035761807}
+  - key: {fileID: -6935353698166393892, guid: 85691388737a86d4c84e25514f8534db, type: 2}
     value: {fileID: 6636710221657361225}
   m_ExposedReferences:
     m_References:
@@ -688,7 +690,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6291955720479248883}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0.000000013014062, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 0

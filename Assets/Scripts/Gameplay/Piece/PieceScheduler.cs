@@ -6,12 +6,14 @@ using Gameplay.Board;
 using SNM;
 using Timeline;
 using UnityEngine;
+using UnityEngine.Timeline;
 
 namespace Gameplay.Piece
 {
     public static class PieceScheduler
     {
-        public static void MovePiecesOutOfTheBoard(Gameplay.Piece.Piece[] pieces, Vector3[] positions, Vector3 centerPoint)
+        public static void MovePiecesOutOfTheBoard(Gameplay.Piece.Piece[] pieces, Vector3[] positions,
+            Vector3 centerPoint)
         {
             Array.Sort(pieces, (a, b) =>
             {
@@ -22,7 +24,8 @@ namespace Gameplay.Piece
             var delay = 0f;
             for (var i = 0; i < pieces.Length; i++)
             {
-                var flocking = new Flocking(pieces[i].Config.flockingConfigData, positions[i], pieces[i].transform, null);
+                var flocking = new Flocking(pieces[i].Config.flockingConfigData, positions[i], pieces[i].transform,
+                    null);
 
                 pieces[i].PieceActivityQueue.Add(new Delay(delay += 0.2f));
                 CreateAnimActivity(pieces[i], LegHashes.stand_up, null);
@@ -54,17 +57,42 @@ namespace Gameplay.Piece
             activity = new Lambda(() =>
             {
                 p.JumpTimeline.Stop();
-                var euler = Quaternion.LookRotation(target - p.transform.position).eulerAngles;
+                var euler = Quaternion
+                    .LookRotation(p.transform.InverseTransformDirection(target - p.transform.position))
+                    .eulerAngles;
 
-                var track = p.JumpTimeline.playableAsset.outputs.FirstOrDefault(tr => tr.sourceObject is TransformControlTrack).sourceObject as TransformControlTrack;
-                if (track != null)
+                var tracks =
+                    p.JumpTimeline.playableAsset.outputs.Where(tr => tr.sourceObject is TransformControlTrack)
+                        .Select(tr => tr.sourceObject as TransformControlTrack);
+
+                var jumping = tracks.FirstOrDefault(t => t.label.Equals("jumping"));
+                var facing = tracks.FirstOrDefault(t => t.label.Equals("facing"));
+                SetTrack(jumping, target.x, target.z, 0);
+                SetTrack(facing, 0, 0, ClampEuler(euler.y, ((Transform) p.JumpTimeline.GetGenericBinding(facing)).localEulerAngles.y));
+
+                static float ClampEuler(float newEuler, float oldEuler)
                 {
-                    var clips = track.GetClips();
+                    var offset = newEuler - oldEuler;
+                    if (offset > 180f)
+                    {
+                        return newEuler - 360f;
+                    }
+                    if (offset < -180f)
+                    {
+                        return newEuler + 360f;
+                    }
+                    return newEuler;
+                }
+
+                static void SetTrack(TrackAsset tr, float x, float z, float eulerY)
+                {
+                    if (tr == null) return;
+                    var clips = tr.GetClips();
                     foreach (var c in clips)
                     {
-                        ((TransformControlClip) c.asset).Template.position.x = target.x;
-                        ((TransformControlClip) c.asset).Template.position.z = target.z;
-                        ((TransformControlClip) c.asset).Template.eulerAngles.y = euler.y;
+                        ((TransformControlClip) c.asset).Template.position.x = x;
+                        ((TransformControlClip) c.asset).Template.position.z = z;
+                        ((TransformControlClip) c.asset).Template.eulerAngles.y = eulerY;
                     }
                 }
 
@@ -78,15 +106,12 @@ namespace Gameplay.Piece
                 {
                     activity?.NotifyDone();
 
-                    if (track != null)
+                    var clips = jumping.GetClips().Concat(facing.GetClips());
+                    foreach (var c in clips)
                     {
-                        var clips = track.GetClips();
-                        foreach (var c in clips)
-                        {
-                            var clip = ((TransformControlClip) c.asset);
-                            clip.Template.position = Vector3.zero;
-                            clip.Template.eulerAngles = Vector3.zero;
-                        }
+                        var clip = ((TransformControlClip) c.asset);
+                        clip.Template.position = Vector3.zero;
+                        clip.Template.eulerAngles = Vector3.zero;
                     }
                 });
             }, null);
