@@ -9,13 +9,13 @@ using UnityEngine;
 
 namespace Common.DrawLine
 {
-    public interface IPenEvents
+    public interface IDrawingPenHandler
     {
-        public event Action<Vector3> OnDraw;
-        public event Action OnDone;
+        void OnDraw(Vector3 point, float progress);
+        void OnDone();
     }
 
-    public sealed class DrawingPen : MonoBehaviour, IPenEvents
+    public sealed class DrawingPen : MonoBehaviour
     {
         [SerializeField] private DrawingSurface drawingSurface;
         [SerializeField, Min(0.05f)] private float lineThickness = 0.1f;
@@ -23,48 +23,87 @@ namespace Common.DrawLine
         [SerializeField, Min(0.1f)] private float speed = 1f;
 
         public ActivityQueue ActivityQueue { get; } = new();
-        public event Action<Vector3> OnDraw;
-        public event Action OnDone;
+
+        // public event Action<Vector3> OnDraw;
+        // public event Action OnDone;
+
+        private struct DrawUnit
+        {
+            public float Start;
+            public float Duration;
+            public int Index;
+        }
 
         public void Draw(Vector2[] points, (int, int)[] contour, string inkName)
         {
-            Draw(points, contour, 0, contour.Length, inkName);
+            Draw(points, contour, 0, contour.Length, inkName, null);
         }
 
         public void Draw(Vector2[] points, (int, int)[] contour, int contourStartIndex, int contourLength,
-            string inkName)
+            string inkName, IDrawingPenHandler handler)
         {
             ActivityQueue.Add(new Lambda(() =>
             {
-                var point = points[contour[0].Item1];
+                var point = points[contour[contourStartIndex].Item1];
                 drawingSurface.DrawBegin(point);
-                InvokeOnDraw(point);
+                handler.OnDraw(point, 0f);
             }, () => true));
-            
-            var n = Mathf.Min(contour.Length - contourStartIndex - 1, contourLength);
+
+            var n = Mathf.Min(contour.Length, contourStartIndex + contourLength);
             if (contourLength > n)
             {
-                Debug.LogError("Given length is Out of bound" + contourLength +" > "+n);
+                Debug.LogError("Given length is Out of bound" + contourLength + " > " + n);
             }
+
+            var duration = 0f;
+
+            var times = new DrawUnit[n - contourStartIndex];
 
             for (var i = contourStartIndex; i < n; i++)
             {
                 var point1 = points[contour[i].Item1];
                 var point2 = points[contour[i].Item2];
-                var duration = Vector3.Distance(point1, point2) / speed;
-                var activity = new Timer(duration, t =>
+
+                var drawUnit = new DrawUnit
                 {
-                    var point = Vector2.Lerp(point1, point2, Mathf.Min(1f, t / duration));
-                    drawingSurface.Draw(point, lineThickness, minDistance);
-                    InvokeOnDraw(point);
-                });
-                ActivityQueue.Add(activity);
+                    Duration = Vector3.Distance(point1, point2) / speed,
+                    Start = duration,
+                    Index = i
+                };
+                duration += drawUnit.Duration;
+                times[i - contourStartIndex] = drawUnit;
             }
 
+            var activity = new Timer(duration, t =>
+            {
+                var time = times[0];
+                for (var i = 0; i < times.Length; i++)
+                {
+                    if (t >= times[i].Start && t < times[i].Start + times[i].Duration)
+                    {
+                        time = times[i];
+                        break;
+                    }
+
+                    if (i == times.Length - 1)
+                    {
+                        time = times[i];
+                    }
+                }
+
+                var point1 = points[contour[time.Index].Item1];
+                var point2 = points[contour[time.Index].Item2];
+
+                var point = Vector2.Lerp(point1, point2, Mathf.Min(1f, (t - time.Start) / time.Duration));
+                drawingSurface.Draw(point, lineThickness, minDistance);
+
+                handler.OnDraw(drawingSurface.transform.TransformPoint(new Vector3(point.x, 0, point.y)), t / duration);
+            });
+            ActivityQueue.Add(activity);
             ActivityQueue.Add(new Lambda(() =>
             {
                 drawingSurface.DryInk(inkName);
-                OnDone?.Invoke();
+                handler?.OnDone();
             }, () => true));
             ActivityQueue.Begin();
         }
@@ -72,11 +111,6 @@ namespace Common.DrawLine
         private void Update()
         {
             ActivityQueue.Update(Time.deltaTime);
-        }
-
-        private void InvokeOnDraw(Vector2 point)
-        {
-            OnDraw?.Invoke(drawingSurface.transform.TransformPoint(new Vector3(point.x, 0, point.y)));
         }
 
 #if UNITY_EDITOR

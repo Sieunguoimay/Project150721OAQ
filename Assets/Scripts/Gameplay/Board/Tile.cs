@@ -60,6 +60,13 @@ namespace Gameplay.Board
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawWireCube(Collider.center, Collider.size);
         }
+
+        [SerializeField] private GameObject model;
+        [ContextMenu("Test")]
+        void Test()
+        {
+            Instantiate(model, transform);
+        }
 #endif
     }
 }

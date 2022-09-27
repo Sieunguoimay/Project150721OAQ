@@ -9,11 +9,11 @@ namespace Curve
     {
         private void OnSceneGUI()
         {
-            Line line = target as Line;
-            Transform handleTransform = line.transform;
-            Quaternion handleRotation = Tools.pivotRotation == PivotRotation.Local ? handleTransform.rotation : Quaternion.identity;
-            Vector3 p0 = handleTransform.TransformPoint(line.p0);
-            Vector3 p1 = handleTransform.TransformPoint(line.p1);
+            var line = target as Line;
+            var handleTransform = line.transform;
+            var handleRotation = Tools.pivotRotation == PivotRotation.Local ? handleTransform.rotation : Quaternion.identity;
+            var p0 = handleTransform.TransformPoint(line.p0);
+            var p1 = handleTransform.TransformPoint(line.p1);
             Handles.color = Color.white;
             Handles.DrawLine(p0, p1);
 

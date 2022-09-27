@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace Curve
 {
-    [CustomEditor(typeof(BezierSpline))]
+    [CustomEditor(typeof(BezierSplineMono))]
     public class BezierSplineInspector : Editor
     {
-        private BezierSpline _spline;
+        private BezierSplineMono _spline;
         private Transform _handleTransform;
         private Quaternion _handleRotation;
 
@@ -18,7 +18,7 @@ namespace Curve
         private const float handleSize = 0.04f;
         private const float pickSize = 0.06f;
 
-        private static Color[] modeColors =
+        private static readonly Color[] ModeColors =
         {
             Color.white,
             Color.yellow,
@@ -28,7 +28,7 @@ namespace Curve
         public override void OnInspectorGUI()
         {
             // DrawDefaultInspector();
-            _spline = target as BezierSpline;
+            _spline = target as BezierSplineMono;
             EditorGUI.BeginChangeCheck();
             var closed = EditorGUILayout.Toggle("Loop", _spline.Closed);
             if (EditorGUI.EndChangeCheck())
@@ -76,7 +76,7 @@ namespace Curve
 
         private void OnSceneGUI()
         {
-            _spline = target as BezierSpline;
+            _spline = target as BezierSplineMono;
             _handleTransform = _spline.transform;
             _handleRotation = Tools.pivotRotation == PivotRotation.Local
                 ? _handleTransform.rotation
@@ -122,7 +122,7 @@ namespace Curve
                 size *= 2f;
             }
 
-            Handles.color = modeColors[(int) _spline.GetPointMode(index)];
+            Handles.color = ModeColors[(int) _spline.GetPointMode(index)];
             if (Handles.Button(point, _handleRotation, size * handleSize, size * pickSize, Handles.DotHandleCap))
             {
                 _selectedIndex = index;

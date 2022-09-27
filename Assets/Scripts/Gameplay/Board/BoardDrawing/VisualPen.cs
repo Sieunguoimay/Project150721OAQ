@@ -1,11 +1,13 @@
 ﻿using System;
 using Common.Algorithm;
+using Common.Curve;
 using Common.DrawLine;
+using Curve;
 using UnityEngine;
 
 namespace Gameplay.Board.BoardDrawing
 {
-    public class VisualPen : MonoBehaviour
+    public class VisualPen : MonoBehaviour, IDrawingPenHandler
     {
         [SerializeField] private DrawingPen pen;
         [SerializeField] private Transform penBall;
@@ -15,17 +17,7 @@ namespace Gameplay.Board.BoardDrawing
         private float _radius;
         private Vector2[] _clampPolygon;
         private Func<Vector2, Vector2> _projection;
-        public IPenEvents PenEvents => pen;
-
-        private void OnEnable()
-        {
-            pen.OnDraw += OnDraw;
-        }
-
-        private void OnDisable()
-        {
-            pen.OnDraw -= OnDraw;
-        }
+        private BezierSpline _spline;
 
         public void Draw(Vector2[] points, (int, int)[] contour, float radius, string inkName)
         {
@@ -38,7 +30,6 @@ namespace Gameplay.Board.BoardDrawing
         public void Draw(Vector2[] points, (int, int)[] contour, Vector2[] clampPolygon, string inkName)
         {
             _clampPolygon = clampPolygon;
-            _projection = ProjectOnPolygon;
 
             pen.Draw(points, contour, inkName);
         }
@@ -47,24 +38,34 @@ namespace Gameplay.Board.BoardDrawing
             Vector2[] clampPolygon, string inkName)
         {
             _clampPolygon = clampPolygon;
-            _projection = ProjectOnPolygon;
-
-            pen.Draw(points, contour, contourStartIndex,contourLength,inkName);
-        }
-
-        private void OnDraw(Vector3 point)
-        {
-            if (_projection == null) return;
-
-            var clamped = _projection.Invoke(new Vector2(point.x, point.z));
-            transform.position = new Vector3(clamped.x, transform.position.y, clamped.y);
-            if (!smoothRotation)
+            
+            var points3D = new Vector3[contour.Length];
+            for (var i = 0; i < points.Length; i++)
             {
-                var dir = (transform.position - penBall.position).normalized;
-                penBall.rotation = Quaternion.LookRotation(dir);
+                points3D[i] = new Vector3(points[contour[i].Item1].x, 0, points[contour[i].Item1].y);
             }
 
-            penBall.position = point;
+            _spline = BezierSplineHelper.CreateSplineSmoothPath(points3D);
+            
+            pen.Draw(points, contour, contourStartIndex, contourLength, inkName, this);
+            Test();
+        }
+
+        public void OnDraw(Vector3 point, float progress)
+        {
+            penBall.position = _spline.GetPosition(progress);
+            // transform.position = new Vector3(p.x, transform.position.y, p.z);
+            // if (!smoothRotation)
+            // {
+            //     var dir = (transform.position - penBall.position).normalized;
+            //     penBall.rotation = Quaternion.LookRotation(dir);
+            // }
+            //
+            // penBall.position = point;
+        }
+
+        public void OnDone()
+        {
         }
 
         private void Update()
@@ -129,6 +130,26 @@ namespace Gameplay.Board.BoardDrawing
             }
 
             return Vector2.zero;
+        }
+
+        [SerializeField] private BezierSplineMono display;
+
+        private void Test()
+        {
+            if (display == null) return;
+            display.points = _spline._points;
+            // Array.Resize(ref display.points,_spline._points.Length);
+            // Array.Resize(ref display.modes, _spline.PointCount);
+            display.modes = new BezierPointMode[_spline.PointCount];
+            for (var i = 0; i < display.modes.Length; i++)
+            {
+                display.modes[i] = BezierPointMode.Aligned;
+            }
+
+            // for (var i = 0; i < _spline._points.Length; i++)
+            // {
+            //     display.points[i] = _spline._points[i];
+            // }
         }
     }
 }

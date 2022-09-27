@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Curve;
 using Curve;
 using UnityEngine;
 using UnityEngine.Events;
@@ -13,13 +14,13 @@ namespace Common
         [Serializable]
         public class Config
         {
-            [SerializeField] private BezierSpline initialPath;
+            [SerializeField] private BezierSplineMono initialPath;
             [SerializeField] private bool loop;
-            public BezierSpline InitialPath => initialPath;
+            public BezierSplineMono InitialPath => initialPath;
             public bool Loop => loop;
         }
 
-        private BezierSpline _path;
+        private BezierSpline _spline;
         private bool _moving;
         private float _time;
         private float _duration;
@@ -27,17 +28,12 @@ namespace Common
 
         private void Start()
         {
-            if (_path == null)
+            if (_spline == null)
             {
-                ChangePath(config.InitialPath);
+                _spline = config.InitialPath.CreateSpline();
             }
 
-            _path.UpdateCurveLength();
-        }
-
-        private void ChangePath(BezierSpline path)
-        {
-            _path = path;
+            config.InitialPath.UpdateCurveLength();
         }
 
         [ContextMenu("Move")]
@@ -57,18 +53,18 @@ namespace Common
 
         private void Update()
         {
-            if (!_moving || _path == null) return;
-            
+            if (!_moving || _spline == null) return;
+
             _time += Time.deltaTime;
 
-            var pos3D = _path.GetPosition(_time / _duration);
-            var dir = _path.GetDirection(_time / _duration);
+            var pos3D = _spline.GetPosition(_time / _duration);
+            var dir = _spline.GetDirection(_time / _duration);
 
             transform.position = pos3D;
             transform.rotation = Quaternion.LookRotation(dir);
 
             if (!(_time >= _duration)) return;
-            
+
             if (config.Loop)
             {
                 Move(_duration);
