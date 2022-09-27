@@ -13,37 +13,28 @@ namespace Gameplay.Board
 {
     public class BoardSketcher : MonoBehaviour
     {
-        [SerializeField] private VisualPen pen;
-        [SerializeField] private UnityEvent onDone;
-
-        private void OnEnable()
-        {
-            pen.PenEvents.OnDone += OnPenDone;
-        }
-
-        private void OnDisable()
-        {
-            pen.PenEvents.OnDone -= OnPenDone;
-        }
-
-        private void OnPenDone()
-        {
-            onDone?.Invoke();
-        }
+        [SerializeField] private VisualPen[] pens;
 
         public void Sketch(Board board)
         {
             GenerateSketch(board.Metadata, out var points, out var edges);
-            if (board.Metadata.Polygon.Length > 2)
+            // if (board.Metadata.Polygon.Length > 2)
+            // {
+            //     var edgeLength = board.Metadata.TileSize * board.Metadata.TilesPerGroup;
+            //     var innerRadius = edgeLength / (2f * Mathf.Tan(Mathf.PI / board.Metadata.Polygon.Length));
+            //     pen.Draw(points, ConnectContour(edges), innerRadius, "Board");
+            // }
+            // else
+            // {
+
+
+            var contour = ConnectContour(edges);
+            var n = contour.Length / board.Metadata.Polygon.Length;
+            for (var i = 0; i < board.Metadata.Polygon.Length; i++)
             {
-                var edgeLength = board.Metadata.TileSize * board.Metadata.TilesPerGroup;
-                var innerRadius = edgeLength / (2f * Mathf.Tan(Mathf.PI / board.Metadata.Polygon.Length));
-                pen.Draw(points, ConnectContour(edges), innerRadius, "Board");
+                pens[i].Draw(points, contour, i * n, n, board.Metadata.Polygon, "Board");
             }
-            else
-            {
-                pen.Draw(points, ConnectContour(edges), board.Metadata.Polygon, "Board");
-            }
+            // }
         }
 
         private static void GenerateSketch(Board.BoardMetadata boardMetadata, out Vector2[] points,

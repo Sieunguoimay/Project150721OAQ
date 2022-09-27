@@ -16,6 +16,7 @@ namespace Common.DrawLine
             _mesh = new Mesh();
 
             var vertices = new Vector3[4];
+            var normals = new Vector3[4];
             var uv = new Vector2[4];
             var triangles = new int[6];
 
@@ -23,6 +24,11 @@ namespace Common.DrawLine
             vertices[1] = drawPoint; // + new Vector3(-1f, +0f, -1f) * lineThickness;
             vertices[2] = drawPoint; // + new Vector3(+1f, +0f, -1f) * lineThickness;
             vertices[3] = drawPoint; // + new Vector3(+1f, +0f, +1f) * lineThickness;
+
+            normals[0] = Vector3.up;
+            normals[1] = Vector3.up;
+            normals[2] = Vector3.up;
+            normals[3] = Vector3.up;
 
             uv[0] = Vector2.zero;
             uv[1] = Vector2.zero;
@@ -37,6 +43,7 @@ namespace Common.DrawLine
             triangles[5] = 2;
 
             _mesh.vertices = vertices;
+            _mesh.normals = normals;
             _mesh.uv = uv;
             _mesh.triangles = triangles;
 
@@ -95,10 +102,12 @@ namespace Common.DrawLine
         private void DrawNewPoint(Vector3 drawPoint, Vector3 forwardVector, float lineThickness)
         {
             var vertices = new Vector3[_mesh.vertices.Length + 2];
+            var normals = new Vector3[_mesh.normals.Length + 2];
             var uv = new Vector2[_mesh.uv.Length + 2];
             var triangles = new int[_mesh.triangles.Length + 6];
 
             _mesh.vertices.CopyTo(vertices, 0);
+            _mesh.normals.CopyTo(normals, 0);
             _mesh.uv.CopyTo(uv, 0);
             _mesh.triangles.CopyTo(triangles, 0);
 
@@ -114,6 +123,9 @@ namespace Common.DrawLine
             vertices[vertexIndex2] = newVertexDown;
             vertices[vertexIndex3] = newVertexUp;
 
+            normals[vertexIndex2] = Vector3.up;
+            normals[vertexIndex3] = Vector3.up;
+
             uv[vertexIndex2] = Vector3.zero;
             uv[vertexIndex3] = Vector3.zero;
 
@@ -127,6 +139,7 @@ namespace Common.DrawLine
             triangles[triangleIndex + 5] = vertexIndex3;
 
             _mesh.vertices = vertices;
+            _mesh.normals = normals;
             _mesh.uv = uv;
             _mesh.triangles = triangles;
         }
@@ -135,7 +148,10 @@ namespace Common.DrawLine
         {
             var mesh = _mesh;
             _mesh = null;
-            return new Mesh {vertices = mesh.vertices, uv = mesh.uv, triangles = mesh.triangles, name = name};
+            return new Mesh
+            {
+                vertices = mesh.vertices, uv = mesh.uv, triangles = mesh.triangles, normals = mesh.normals, name = name
+            };
         }
     }
 }

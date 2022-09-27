@@ -8,15 +8,13 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Board
-  m_Shader: {fileID: 10755, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _CLIPPING
-  - _GLOSSYREFLECTIONS_OFF
   - _PREMULTIPLY_ALPHA
   - _RECEIVE_SHADOWS
   - _SHADOWS_OFF
-  - _SPECULARHIGHLIGHTS_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -116,8 +114,8 @@ Material:
     - _DstBlend: 0
     - _Fresnel: 0.879
     - _GlossMapScale: 1
-    - _Glossiness: 0
-    - _GlossyReflections: 0
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
     - _MaskMapToggle: 0
     - _Metallic: 0
     - _Mode: 0
@@ -131,12 +129,12 @@ Material:
     - _Shadows: 3
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
-    - _SpecularHighlights: 0
+    - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.80392164, g: 0.58431375, b: 0.44705886, a: 1}
+    - _Color: {r: 0.7264151, g: 0.5600719, b: 0.35978106, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

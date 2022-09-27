@@ -28,14 +28,26 @@ namespace Common.DrawLine
 
         public void Draw(Vector2[] points, (int, int)[] contour, string inkName)
         {
+            Draw(points, contour, 0, contour.Length, inkName);
+        }
+
+        public void Draw(Vector2[] points, (int, int)[] contour, int contourStartIndex, int contourLength,
+            string inkName)
+        {
             ActivityQueue.Add(new Lambda(() =>
             {
                 var point = points[contour[0].Item1];
                 drawingSurface.DrawBegin(point);
                 InvokeOnDraw(point);
             }, () => true));
-            var easing = new InOutCubic();
-            for (var i = 0; i < contour.Length; i++)
+            
+            var n = Mathf.Min(contour.Length - contourStartIndex - 1, contourLength);
+            if (contourLength > n)
+            {
+                Debug.LogError("Given length is Out of bound" + contourLength +" > "+n);
+            }
+
+            for (var i = contourStartIndex; i < n; i++)
             {
                 var point1 = points[contour[i].Item1];
                 var point2 = points[contour[i].Item2];

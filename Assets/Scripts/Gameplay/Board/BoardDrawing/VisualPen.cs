@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Gameplay.Board.BoardDrawing
 {
-
     public class VisualPen : MonoBehaviour
     {
         [SerializeField] private DrawingPen pen;
@@ -17,7 +16,7 @@ namespace Gameplay.Board.BoardDrawing
         private Vector2[] _clampPolygon;
         private Func<Vector2, Vector2> _projection;
         public IPenEvents PenEvents => pen;
-        
+
         private void OnEnable()
         {
             pen.OnDraw += OnDraw;
@@ -44,6 +43,14 @@ namespace Gameplay.Board.BoardDrawing
             pen.Draw(points, contour, inkName);
         }
 
+        public void Draw(Vector2[] points, (int, int)[] contour, int contourStartIndex, int contourLength,
+            Vector2[] clampPolygon, string inkName)
+        {
+            _clampPolygon = clampPolygon;
+            _projection = ProjectOnPolygon;
+
+            pen.Draw(points, contour, contourStartIndex,contourLength,inkName);
+        }
 
         private void OnDraw(Vector3 point)
         {
@@ -65,7 +72,8 @@ namespace Gameplay.Board.BoardDrawing
             if (smoothRotation)
             {
                 var dir = (transform.position - penBall.position).normalized;
-                penBall.rotation = Quaternion.RotateTowards(penBall.rotation, Quaternion.LookRotation(dir), Time.deltaTime * 180f);
+                penBall.rotation = Quaternion.RotateTowards(penBall.rotation, Quaternion.LookRotation(dir),
+                    Time.deltaTime * 180f);
             }
         }
 
