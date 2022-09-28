@@ -38,30 +38,31 @@ namespace Gameplay.Board.BoardDrawing
             Vector2[] clampPolygon, string inkName)
         {
             _clampPolygon = clampPolygon;
-            
-            var points3D = new Vector3[contour.Length];
-            for (var i = 0; i < points.Length; i++)
+
+            var points3D = new Vector3[contourLength + 1];
+            for (var i = contourStartIndex; i < contourStartIndex + contourLength; i++)
             {
-                points3D[i] = new Vector3(points[contour[i].Item1].x, 0, points[contour[i].Item1].y);
+                points3D[i - contourStartIndex] = new Vector3(points[contour[i].Item1].x, 0, points[contour[i].Item1].y);
             }
 
+            points3D[^1] = new Vector3(points[contour[contourStartIndex + contourLength - 1].Item2].x, 0, points[contour[contourStartIndex + contourLength - 1].Item2].y);
+
             _spline = BezierSplineHelper.CreateSplineSmoothPath(points3D);
-            
+
             pen.Draw(points, contour, contourStartIndex, contourLength, inkName, this);
+
             Test();
         }
 
         public void OnDraw(Vector3 point, float progress)
         {
-            penBall.position = _spline.GetPosition(progress);
-            // transform.position = new Vector3(p.x, transform.position.y, p.z);
-            // if (!smoothRotation)
-            // {
-            //     var dir = (transform.position - penBall.position).normalized;
-            //     penBall.rotation = Quaternion.LookRotation(dir);
-            // }
-            //
-            // penBall.position = point;
+            var p = _spline.GetPosition(_spline.Parameter(progress * _spline.Length));
+            transform.position = new Vector3(p.x, transform.position.y, p.z);
+
+            var dir = (transform.position - penBall.position).normalized;
+            penBall.rotation = Quaternion.LookRotation(dir);
+
+            penBall.position = point;
         }
 
         public void OnDone()
@@ -70,12 +71,12 @@ namespace Gameplay.Board.BoardDrawing
 
         private void Update()
         {
-            if (smoothRotation)
-            {
-                var dir = (transform.position - penBall.position).normalized;
-                penBall.rotation = Quaternion.RotateTowards(penBall.rotation, Quaternion.LookRotation(dir),
-                    Time.deltaTime * 180f);
-            }
+            // if (smoothRotation)
+            // {
+            //     var dir = (transform.position - penBall.position).normalized;
+            //     penBall.rotation = Quaternion.RotateTowards(penBall.rotation, Quaternion.LookRotation(dir),
+            //         Time.deltaTime * 180f);
+            // }
         }
 
         private Vector2 ProjectOnCircle(Vector2 drawPoint)
