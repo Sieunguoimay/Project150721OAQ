@@ -42,10 +42,12 @@ namespace Gameplay.Board.BoardDrawing
             var points3D = new Vector3[contourLength + 1];
             for (var i = contourStartIndex; i < contourStartIndex + contourLength; i++)
             {
-                points3D[i - contourStartIndex] = new Vector3(points[contour[i].Item1].x, 0, points[contour[i].Item1].y);
+                points3D[i - contourStartIndex] =
+                    new Vector3(points[contour[i].Item1].x, 0, points[contour[i].Item1].y);
             }
 
-            points3D[^1] = new Vector3(points[contour[contourStartIndex + contourLength - 1].Item2].x, 0, points[contour[contourStartIndex + contourLength - 1].Item2].y);
+            points3D[^1] = new Vector3(points[contour[contourStartIndex + contourLength - 1].Item2].x, 0,
+                points[contour[contourStartIndex + contourLength - 1].Item2].y);
 
             _spline = BezierSplineHelper.CreateSplineSmoothPath(points3D);
 
@@ -56,7 +58,7 @@ namespace Gameplay.Board.BoardDrawing
 
         public void OnDraw(Vector3 point, float progress)
         {
-            var p = _spline.GetPosition(_spline.Parameter(progress * _spline.Length));
+            var p = _spline.GetPosition(progress);
             transform.position = new Vector3(p.x, transform.position.y, p.z);
 
             var dir = (transform.position - penBall.position).normalized;
@@ -139,18 +141,11 @@ namespace Gameplay.Board.BoardDrawing
         {
             if (display == null) return;
             display.points = _spline._points;
-            // Array.Resize(ref display.points,_spline._points.Length);
-            // Array.Resize(ref display.modes, _spline.PointCount);
             display.modes = new BezierPointMode[_spline.PointCount];
             for (var i = 0; i < display.modes.Length; i++)
             {
                 display.modes[i] = BezierPointMode.Aligned;
             }
-
-            // for (var i = 0; i < _spline._points.Length; i++)
-            // {
-            //     display.points[i] = _spline._points[i];
-            // }
         }
     }
 }
