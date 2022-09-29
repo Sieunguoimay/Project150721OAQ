@@ -1,5 +1,6 @@
 ﻿using System;
 using Common.Algorithm;
+using Common.Curve;
 using CommonActivities;
 using DG.Tweening;
 using DG.Tweening.Core.Easing;
@@ -95,6 +96,76 @@ namespace Common.DrawLine
                 var point2 = points[contour[time.Index].Item2];
 
                 var point = Vector2.Lerp(point1, point2, Mathf.Min(1f, (t - time.Start) / time.Duration));
+                drawingSurface.Draw(point, lineThickness, minDistance);
+
+                handler.OnDraw(drawingSurface.transform.TransformPoint(new Vector3(point.x, 0, point.y)), t / duration);
+            });
+            ActivityQueue.Add(activity);
+            ActivityQueue.Add(new Lambda(() =>
+            {
+                drawingSurface.DryInk(inkName);
+                handler?.OnDone();
+            }, () => true));
+            ActivityQueue.Begin();
+        }
+
+        public void DrawWithConstantSegmentDuration(Vector2[] points, (int, int)[] contour, int contourStartIndex, int contourLength,
+            string inkName, IDrawingPenHandler handler)
+        {
+            ActivityQueue.Add(new Lambda(() =>
+            {
+                var point = points[contour[contourStartIndex].Item1];
+                drawingSurface.DrawBegin(point);
+                handler.OnDraw(point, 0f);
+            }, () => true));
+
+            var n = Mathf.Min(contour.Length, contourStartIndex + contourLength);
+            if (contourLength > n)
+            {
+                Debug.LogError("Given length is Out of bound" + contourLength + " > " + n);
+            }
+
+            var totalLength = (n - contourStartIndex) * 1f;
+            var duration = totalLength / speed;
+
+            var activity = new Timer(duration, t =>
+            {
+                var index = Mathf.FloorToInt(t * speed) + contourStartIndex;
+                if (index >= contour.Length) return;
+
+                var point1 = points[contour[index].Item1];
+                var point2 = points[contour[index].Item2];
+                var d = 1f / speed;
+
+                var point = Vector2.Lerp(point1, point2, Mathf.Min(1f, (t - d * (index - contourStartIndex)) / d));
+                drawingSurface.Draw(point, lineThickness, minDistance);
+
+                handler.OnDraw(drawingSurface.transform.TransformPoint(new Vector3(point.x, 0, point.y)), t / duration);
+            });
+            ActivityQueue.Add(activity);
+            ActivityQueue.Add(new Lambda(() =>
+            {
+                drawingSurface.DryInk(inkName);
+                handler?.OnDone();
+            }, () => true));
+            ActivityQueue.Begin();
+        }
+
+        public void DrawWithSpline(BezierSpline spline, string inkName, IDrawingPenHandler handler)
+        {
+            ActivityQueue.Add(new Lambda(() =>
+            {
+                var p = spline.GetPoint(0);
+                drawingSurface.DrawBegin(p);
+                handler.OnDraw(p, 0f);
+            }, () => true));
+
+            var duration = 5f;
+
+            var activity = new Timer(duration, t =>
+            {
+                var point3D = spline.GetPosition(t / duration);
+                var point = new Vector2(point3D.x, point3D.z);
                 drawingSurface.Draw(point, lineThickness, minDistance);
 
                 handler.OnDraw(drawingSurface.transform.TransformPoint(new Vector3(point.x, 0, point.y)), t / duration);

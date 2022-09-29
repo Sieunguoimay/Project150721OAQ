@@ -28,12 +28,7 @@ namespace Common
 
         private void Start()
         {
-            if (_spline == null)
-            {
-                _spline = config.InitialPath.CreateSpline();
-            }
-
-            config.InitialPath.UpdateCurveLength();
+            _spline = new BezierSpline(config.InitialPath.Points);
         }
 
         [ContextMenu("Move")]

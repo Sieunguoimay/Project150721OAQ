@@ -7,12 +7,10 @@ namespace Curve
 {
     public class BezierSplineMono : MonoBehaviour
     {
-        public Vector3[] points;
-        public BezierPointMode[] modes;
+        [SerializeField] private Vector3[] points;
+        [SerializeField] private BezierPointMode[] modes;
+        [SerializeField] private bool closed;
 
-        public bool closed;
-
-        public float CurveLength { get; private set; }
 #if UNITY_EDITOR
         public void Reset()
         {
@@ -47,11 +45,6 @@ namespace Curve
         }
 
 #endif
-        public void UpdateCurveLength()
-        {
-            CurveLength = CalculateSplineLength();
-        }
-
         public Vector3 GetPosition(float t)
         {
             int i;
@@ -143,7 +136,6 @@ namespace Curve
 
             points[index] = point;
             EnforceMode(index);
-            UpdateCurveLength();
         }
 
         public BezierPointMode GetPointMode(int index)
@@ -168,28 +160,6 @@ namespace Curve
             }
 
             EnforceMode(index);
-            UpdateCurveLength();
-        }
-
-        private float CalculateSplineLength()
-        {
-            var length = 0f;
-            var n = SegmentCount;
-            for (var i = 0; i < n; i++)
-            {
-                var p0 = GetPoint(GetIndexOfPointOnSegment(i, 0));
-                var p1 = GetPoint(GetIndexOfPointOnSegment(i, 1));
-                var p2 = GetPoint(GetIndexOfPointOnSegment(i, 2));
-                var p3 = GetPoint(GetIndexOfPointOnSegment(i, 3));
-                length += Bezier.GetCurveLength(p0, p1, p2, p3);
-            }
-
-            return length;
-
-            static int GetIndexOfPointOnSegment(int segmentIndex, int pointIndex)
-            {
-                return segmentIndex * 3 + pointIndex;
-            }
         }
 
         private void EnforceMode(int index)
@@ -251,28 +221,34 @@ namespace Curve
             set
             {
                 closed = value;
-                if (value)
-                {
-                    modes[^1] = modes[0];
-                    SetPoint(0, points[0]);
-                }
+
+                if (!value) return;
+
+                modes[^1] = modes[0];
+                SetPoint(0, points[0]);
             }
         }
 
-        public BezierSpline CreateSpline()
-        {
-            return new(points);
-        }
+        public Vector3[] Points => points;
 
         [ContextMenu("Test")]
-        void Test()
+        private void Test()
         {
-            var spline = BezierSplineHelper.CreateSplineSmoothPath(new[] {Vector3.zero, Vector3.right , Vector3.up });
+            var spline = BezierSplineHelper.CreateSplineSmoothPath(new[] {Vector3.zero, Vector3.right, Vector3.up});
             for (var i = 0; i < spline.PointCount; i++)
             {
                 Debug.Log(spline.GetPoint(i));
                 points[i] = spline.GetPoint(i);
             }
+        }
+
+        public void SetPoints(Vector3[] ps)
+        {
+            points = ps;
+
+            modes = new BezierPointMode[points.Length];
+            for (var i = 0; i < modes.Length; i++)
+                modes[i] = BezierPointMode.Aligned;
         }
     }
 }

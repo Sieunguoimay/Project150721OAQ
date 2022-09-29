@@ -110,6 +110,9 @@ namespace Curve
             {
                 point = _spline.GetPosition(i / (float) steps);
                 Handles.DrawLine(point, point + _spline.GetDirection(i / (float) steps) * directionScale);
+                Handles.DrawLine(point + Vector3.left * 0.03f, point + Vector3.right * 0.03f);
+                Handles.DrawLine(point + Vector3.up * 0.03f, point + Vector3.down * 0.03f);
+                Handles.DrawLine(point + Vector3.forward * 0.03f, point + Vector3.back * 0.03f);
             }
         }
 

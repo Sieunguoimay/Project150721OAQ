@@ -32,7 +32,7 @@ namespace Gameplay.Board
             var n = contour.Length / board.Metadata.Polygon.Length;
             for (var i = 0; i < board.Metadata.Polygon.Length; i++)
             {
-                pens[i].Draw(points, contour, i * n, n, board.Metadata.Polygon, "Board");
+                pens[i].Draw(points, contour, i * n, n, "Board");
             }
             // }
         }
