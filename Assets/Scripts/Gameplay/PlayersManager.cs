@@ -5,17 +5,21 @@ using UnityEngine;
 
 namespace Gameplay
 {
-    public class PlayersManager : MonoBehaviour, IInjectable
+    public class PlayersManager : InjectableBehaviour<PlayersManager>
     {
         public Player[] Players { get; private set; }
         private Player _mainPlayer;
         private TileSelector _tileSelector;
 
-        public void Inject(IResolver resolver)
+        public override void Setup(IResolver resolver)
         {
             _tileSelector = resolver.Resolve<TileSelector>();
         }
-        
+
+        public override void TearDown()
+        {
+        }
+
         private void Start()
         {
             _mainPlayer = new RealPlayer(0, _tileSelector);
@@ -28,6 +32,7 @@ namespace Gameplay
                 player.ResetAll();
             }
         }
+
         public void FillWithFakePlayers(int n)
         {
             Players = new Player[n];
@@ -60,6 +65,5 @@ namespace Gameplay
                 return new PosAndRot(pos, qua);
             }
         }
-
     }
 }

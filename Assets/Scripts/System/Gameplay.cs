@@ -9,7 +9,7 @@ namespace System
 {
     public class Gameplay
     {
-        private Player[] _players;
+        private PlayersManager _playersManager;
         private Board _board;
         private PieceManager _pieceManager;
         
@@ -21,10 +21,10 @@ namespace System
         private bool IsGameOver { get; set; }
         public bool IsPlaying { get; private set; }
 
-        public void Setup(Player[] players, Board board, PieceManager pieceManager)
+        public void Setup(PlayersManager playersManager, Board board, PieceManager pieceManager)
         {
             _board = board;
-            _players = players;
+            _playersManager = playersManager;
             _pieceManager = pieceManager;
             
             _pieceDropper.Setup(_board);
@@ -44,7 +44,7 @@ namespace System
         {
             IsPlaying = true;
             ChangePlayer();
-            _perMatchData = new PerMatchData(_players.Length);
+            _perMatchData = new PerMatchData(_playersManager.Players.Length);
             _pieceManager.ReleasePieces(() =>
             {
                 CurrentPlayer.MakeDecision(_board);
@@ -65,12 +65,12 @@ namespace System
         {
             if (CurrentPlayer == null)
             {
-                CurrentPlayer = _players[0];
+                CurrentPlayer = _playersManager.Players[0];
             }
             else
             {
                 CurrentPlayer.ReleaseTurn();
-                CurrentPlayer = _players[(CurrentPlayer.Index + 1) % _players.Length];
+                CurrentPlayer = _playersManager.Players[(CurrentPlayer.Index + 1) % _playersManager.Players.Length];
             }
 
             CurrentPlayer.AcquireTurn();
@@ -80,7 +80,7 @@ namespace System
         {
             _pieceDropper.OnDone += OnDropperDone;
             _pieceDropper.OnEat += OnEatPieces;
-            foreach (var player in _players)
+            foreach (var player in _playersManager.Players)
             {
                 player.OnDecisionResult += OnDecisionResult;
             }
@@ -91,9 +91,9 @@ namespace System
             _pieceDropper.OnDone -= OnDropperDone;
             _pieceDropper.OnEat -= OnEatPieces;
 
-            if (_players == null) return;
+            if (_playersManager.Players == null) return;
             
-            foreach (var player in _players)
+            foreach (var player in _playersManager.Players)
             {
                 player.OnDecisionResult -= OnDecisionResult;
             }
@@ -187,16 +187,16 @@ namespace System
 
         private void EvaluateWinner()
         {
-            for (var i = 0; i < _players.Length; i++)
+            for (var i = 0; i < _playersManager.Players.Length; i++)
             {
                 foreach (var tile in _board.TileGroups[i].Tiles)
                 {
-                    _players[i].PieceBench.Grasp(tile);
+                    _playersManager.Players[i].PieceBench.Grasp(tile);
                 }
 
                 var sum = 0;
 
-                foreach (var p in _players[i].PieceBench.Pieces)
+                foreach (var p in _playersManager.Players[i].PieceBench.Pieces)
                 {
                     switch (p)
                     {

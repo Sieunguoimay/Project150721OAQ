@@ -31,14 +31,25 @@ namespace Gameplay.UI
         [SerializeField] private UnityEvent onSelected;
         [SerializeField] private UnityEvent onReset;
         private IMatchChooser _matchChooser;
-        private GameManager.IGameEvents _gameEvents;
 
         private MatchOptionItemUI[] _itemUIs;
 
-        public void Inject(IResolver resolver)
+        public void Bind(IResolver resolver)
+        {
+
+        }
+
+        public void Setup(IResolver resolver)
         {
             _matchChooser = resolver.Resolve<IMatchChooser>();
-            _gameEvents = resolver.Resolve<GameManager.IGameEvents>();
+        }
+
+        public void TearDown()
+        {
+        }
+
+        public void Unbind(IResolver resolver)
+        {
         }
 
         private void Start()
@@ -51,7 +62,6 @@ namespace Gameplay.UI
                 _itemUIs[i].Setup(optionItems[i]);
                 optionItems[i].Selected += OnSelected;
             }
-            _gameEvents.Reset += OnGameReset;
         }
 
         private void OnDestroy()
@@ -61,7 +71,6 @@ namespace Gameplay.UI
                 _itemUIs[i].TearDown();
                 optionItems[i].Selected -= OnSelected;
             }
-            _gameEvents.Reset -= OnGameReset;
         }
 
         private void OnSelected(int index)
@@ -77,5 +86,10 @@ namespace Gameplay.UI
 
         private void SetMatchOption(int playerNum, int tilesPerGroup)
             => (_matchChooser as MatchChooser)?.SetMatchOption(playerNum, tilesPerGroup);
+
+        public void StartGame()
+        {
+            
+        }
     }
 }

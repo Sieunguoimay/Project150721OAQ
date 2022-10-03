@@ -8,32 +8,26 @@ namespace Gameplay.UI
     {
         private GameFlowManager _flowManager;
 
-        public void Inject(IResolver resolver)
+        public void Bind(IResolver resolver)
+        {
+
+        }
+
+        public void Setup(IResolver resolver)
         {
             _flowManager = resolver.Resolve<GameFlowManager>();
             OnStateChanged();
-        }
-
-        private void Awake()
-        {
             _flowManager.StateChanged += OnStateChanged;
         }
 
-        private void OnDestroy()
+        public void TearDown()
         {
             _flowManager.StateChanged -= OnStateChanged;
         }
 
-        // private void Update()
-        // {
-        //     if (_flowManager.CurrentState == GameFlowManager.GameState.BeforeGameplay)
-        //     {
-        //         if (Input.GetMouseButtonDown(0))
-        //         {
-        //             OnFirstTap();
-        //         }
-        //     }
-        // }
+        public void Unbind(IResolver resolver)
+        {
+        }
 
         private void OnStateChanged()
         {

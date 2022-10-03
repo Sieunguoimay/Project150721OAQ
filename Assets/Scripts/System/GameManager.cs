@@ -4,170 +4,101 @@ using Common.ResolveSystem;
 using DG.Tweening;
 using Gameplay;
 using Gameplay.Board;
+using Gameplay.Board.BoardDrawing;
 using Gameplay.Piece;
 using SNM;
 using UnityEngine;
 
 namespace System
 {
-    public class GameManager : MonoBehaviour, IGameFlowHandler
+    public class GameManager : MonoBehaviour, IGameFlowHandler, IInjectable
     {
-        [SerializeField] public PieceManager pieceManager;
-        [SerializeField] public PlayersManager playersManager;
-        [SerializeField] public BoardManager boardManager;
-        [SerializeField] public TileSelector tileSelector;
-        [SerializeField] public UIManager uiManager;
-        [SerializeField] public CameraManager cameraManager;
-        [SerializeField] public BoardSketcher boardSketcher;
-
         private readonly Gameplay _gameplay = new();
         private readonly MatchChooser _matchChooser = new();
-        private readonly GameEvents _events = new();
         private GameFlowManager _gameFlowManager;
+        private PlayersManager _playersManager;
+        private BoardManager _boardManager;
+        private PieceManager _pieceManager;
+        private BoardSketcher _boardSketcher;
 
-        private IInjectable[] _injectables;
-        private readonly Resolver _resolver = new();
-
-        private void Awake()
+        public void Bind(IResolver resolver)
         {
             _gameFlowManager = new GameFlowManager(this);
 
-            Bind();
-            _injectables = GetComponentsInChildren<IInjectable>()
-                .Concat(uiManager.GetComponentsInChildren<IInjectable>())
-                .Concat(new[] {RayPointer.Instance}).ToArray();
-            foreach (var injectable in _injectables)
-            {
-                injectable.Inject(_resolver);
-            }
+            resolver.Bind(_gameFlowManager);
+            resolver.Bind<IMatchChooser>(_matchChooser);
         }
 
-        private void Start()
+        public void Setup(IResolver resolver)
         {
-            OnSetup();
+            _playersManager = resolver.Resolve<PlayersManager>();
+            _boardManager = resolver.Resolve<BoardManager>();
+            _pieceManager = resolver.Resolve<PieceManager>();
+            _boardSketcher = resolver.Resolve<BoardSketcher>();
+
+            var cam = resolver.Resolve<CameraManager>().Camera;
+            RayPointer.Instance.SetCamera(cam);
+
+            _matchChooser.OnMatchOptionChanged += OnMatchChooserResult;
         }
 
-        private void OnDestroy()
+
+        public void TearDown()
         {
             OnCleanup();
-            Unbind();
         }
 
-        private void Bind()
+        public void Unbind(IResolver resolver)
         {
-            _resolver.Bind<IMatchChooser>(_matchChooser);
-            _resolver.Bind(cameraManager);
-            _resolver.Bind(tileSelector);
-            _resolver.Bind<IGameEvents>(_events);
-            _resolver.Bind(_gameFlowManager);
+            resolver.Unbind(_gameFlowManager);
+            resolver.Unbind<IMatchChooser>(_matchChooser);
         }
-
-        private void Unbind()
-        {
-            _resolver.Unbind<IMatchChooser>(_matchChooser);
-            _resolver.Unbind(cameraManager);
-            _resolver.Unbind(tileSelector);
-            _resolver.Unbind<IGameEvents>(_events);
-            _resolver.Unbind(_gameFlowManager);
-        }
-
-        private void OnSetup()
-        {
-            // _matchChooser.OnMatchOptionChanged += GenerateMatch;
-        }
-
 
         private void OnCleanup()
         {
-            // _matchChooser.OnMatchOptionChanged -= GenerateMatch;
             _gameplay.TearDown();
         }
-
+        
+        private void OnMatchChooserResult()
+        {
+            GenerateMatch();
+            StartGame();
+        }
+        
         public void GenerateMatch()
         {
-            boardManager.SetBoardByTileGroupNum(_matchChooser.PlayerNum, _matchChooser.TilesPerGroup);
+            var playerNum = _matchChooser.PlayerNum;
+            var tilesPerGroup = _matchChooser.TilesPerGroup;
+            
+            _boardManager.SetBoardByTileGroupNum(playerNum, _matchChooser.TilesPerGroup);
+            
+            _playersManager.FillWithFakePlayers(playerNum);
+            
+            _playersManager.CreatePieceBench(_boardManager.Board);
+              
+            _gameplay.Setup(_playersManager, _boardManager.Board, _pieceManager);
 
-            playersManager.FillWithFakePlayers(_matchChooser.PlayerNum);
-            playersManager.CreatePieceBench(boardManager.Board);
-
-            pieceManager.SpawnPieces(_matchChooser.PlayerNum, _matchChooser.TilesPerGroup);
-
-            _gameplay.Setup(playersManager.Players, boardManager.Board, pieceManager);
-
+            _pieceManager.SpawnPieces(playerNum, tilesPerGroup);
+            
             _gameFlowManager.ChangeState(GameFlowManager.GameState.BeforeGameplay);
 
-            boardSketcher.Sketch(boardManager.Board);
+            _boardSketcher.Sketch(_boardManager.Board);
         }
 
         public void StartGame()
         {
             _gameplay.StartNewMatch();
-            _events.OnStart();
         }
 
         public void ReplayMatch()
         {
             _gameplay.ResetGame();
-            playersManager.ResetAll();
-            pieceManager.ResetAll();
-            boardManager.ResetAll();
-            tileSelector.ResetAll();
-            _events.OnReplayMatch();
         }
 
         public void ResetGame()
         {
             _gameplay.ResetGame();
             _gameplay.TearDown();
-            playersManager.ResetAll();
-            pieceManager.ResetAll();
-            boardManager.ResetAll();
-            tileSelector.ResetAll();
-
-            foreach (var p in pieceManager.Pieces)
-            {
-                DOTween.Kill(p);
-                p.StopAllCoroutines();
-                Destroy(p.gameObject);
-            }
-
-            foreach (var t in boardManager.Board.Tiles)
-            {
-                (t as Tile)?.TearDown();
-                Destroy((t as MonoBehaviour)?.gameObject);
-            }
-
-            pieceManager.Pieces = null;
-            _events.OnReset();
-        }
-
-        public interface IGameEvents
-        {
-            event Action Start;
-            event Action Reset;
-            event Action ReplayMatch;
-        }
-
-        private sealed class GameEvents : IGameEvents
-        {
-            public event Action Start;
-            public event Action Reset;
-            public event Action ReplayMatch;
-
-            public void OnStart()
-            {
-                Start?.Invoke();
-            }
-
-            public void OnReset()
-            {
-                Reset?.Invoke();
-            }
-
-            public void OnReplayMatch()
-            {
-                ReplayMatch?.Invoke();
-            }
         }
     }
 }

@@ -17,6 +17,16 @@ namespace Common.ResolveSystem
                 Debug.LogError($"Type {type.FullName} has already been bound to {_boundObjects[type]}");
             }
         }
+
+        public void Bind<TType>(object target)
+        {
+            var type = typeof(TType);
+            if (!_boundObjects.TryAdd(type, target))
+            {
+                Debug.LogError($"Type {type.FullName} has already been bound to {_boundObjects[type]}");
+            }
+        }
+
         public void Bind<TType>(TType target, string id)
         {
             var type = typeof(TType);
@@ -29,7 +39,18 @@ namespace Common.ResolveSystem
         public void Unbind<TType>(TType target)
         {
             var type = typeof(TType);
-            if (!_boundObjects.Remove(type))
+            var found = _boundObjects.TryGetValue(type, out var t) && t == (object) target;
+            if (!found || !_boundObjects.Remove(type))
+            {
+                Debug.LogError($"Type {type.FullName} does not exist.");
+            }
+        }
+
+        public void Unbind<TType>(object target)
+        {
+            var type = typeof(TType);
+            var found = _boundObjects.TryGetValue(type, out var t) && t == (object) target;
+            if (!found && !_boundObjects.Remove(type))
             {
                 Debug.LogError($"Type {type.FullName} does not exist.");
             }
@@ -38,7 +59,8 @@ namespace Common.ResolveSystem
         public void Unbind<TType>(TType target, string id)
         {
             var type = typeof(TType);
-            if (!_boundObjectsWithId.Remove((type, id)))
+            var found = _boundObjectsWithId.TryGetValue((type, id), out var t) && t == (object) target;
+            if (!found && !_boundObjectsWithId.Remove((type, id)))
             {
                 Debug.LogError($"Key {type.FullName} - {id} does not exist.");
             }

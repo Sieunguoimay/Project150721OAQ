@@ -1,10 +1,8 @@
-﻿using System;
-using Common.ResolveSystem;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Common
+namespace Gameplay
 {
-    public class CameraManager : MonoBehaviour
+    public class CameraManager : InjectableBehaviour<CameraManager>
     {
         public Camera Camera => GetComponent<Camera>();
     }

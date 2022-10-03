@@ -1,32 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Common;
+﻿using System.Collections.Generic;
 using Common.Algorithm;
-using Common.DrawLine;
-using CommonActivities;
-using Gameplay.Board.BoardDrawing;
 using UnityEngine;
-using UnityEngine.Events;
 
-namespace Gameplay.Board
+namespace Gameplay.Board.BoardDrawing
 {
-    public class BoardSketcher : MonoBehaviour
+    public class BoardSketcher : InjectableBehaviour<BoardSketcher>
     {
         [SerializeField] private VisualPen[] pens;
 
         public void Sketch(Board board)
         {
             GenerateSketch(board.Metadata, out var points, out var edges);
-            // if (board.Metadata.Polygon.Length > 2)
-            // {
-            //     var edgeLength = board.Metadata.TileSize * board.Metadata.TilesPerGroup;
-            //     var innerRadius = edgeLength / (2f * Mathf.Tan(Mathf.PI / board.Metadata.Polygon.Length));
-            //     pen.Draw(points, ConnectContour(edges), innerRadius, "Board");
-            // }
-            // else
-            // {
-
 
             var contour = ConnectContour(edges);
             var n = contour.Length / board.Metadata.Polygon.Length;
@@ -34,7 +18,6 @@ namespace Gameplay.Board
             {
                 pens[i].Draw(points, contour, i * n, n, "Board");
             }
-            // }
         }
 
         private static void GenerateSketch(Board.BoardMetadata boardMetadata, out Vector2[] points,
@@ -117,22 +100,22 @@ namespace Gameplay.Board
             // Debug.Log(str);
         }
 
-        private static (int, int)[] ConnectContour((int, int)[] contour)
+        private static (int, int)[] ConnectContour(IList<(int, int)> contour)
         {
             var connectedContour = new List<(int, int)>();
             var str = "";
 
-            for (var i = 0; i < contour.Length; i++)
+            for (var i = 0; i < contour.Count; i++)
             {
                 str += $"({contour[i].Item1} {contour[i].Item2}), ";
             }
 
             Debug.Log(str);
-            for (var i = 0; i < contour.Length; i++)
+            for (var i = 0; i < contour.Count; i++)
             {
                 connectedContour.Add(contour[i]);
 
-                if (i == contour.Length - 1) break;
+                if (i == contour.Count - 1) break;
 
                 var item2 = contour[i].Item2;
 

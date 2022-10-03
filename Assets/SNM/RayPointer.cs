@@ -7,14 +7,14 @@ using UnityEngine;
 
 namespace SNM
 {
-    public class RayPointer : Singleton<RayPointer>, IInjectable
+    public class RayPointer : Singleton<RayPointer>
     {
         private readonly List<ITarget> _listeners = new();
         private Camera _camera;
 
-        public void Inject(IResolver resolver)
+        public void SetCamera(Camera cam)
         {
-            _camera = resolver.Resolve<CameraManager>().Camera;
+            _camera = cam;
         }
 
         public void Reset()

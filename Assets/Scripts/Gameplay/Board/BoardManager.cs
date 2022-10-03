@@ -7,11 +7,22 @@ using UnityEngine;
 
 namespace Gameplay.Board
 {
-    public class BoardManager : MonoBehaviour
+    public class BoardManager : InjectableBehaviour<BoardManager>
     {
         [SerializeField] private Tile mandarinTilePrefab;
         [SerializeField] private Tile citizenTilePrefab;
         public Board Board { get; } = new();
+
+
+
+        public override void Setup(IResolver resolver)
+        {
+        }
+
+        public override void TearDown()
+        {
+        }
+
 
         public void ResetAll()
         {
@@ -38,7 +49,8 @@ namespace Gameplay.Board
                 {
                     var cornerPos = polygon[i];
 
-                    SpawnMandarinTile(tileGroups, i, tilesPerGroup, ToVector3(cornerPos + cornerPos.normalized * mandarinTilePrefab.Size / 2f),
+                    SpawnMandarinTile(tileGroups, i, tilesPerGroup,
+                        ToVector3(cornerPos + cornerPos.normalized * mandarinTilePrefab.Size / 2f),
                         Quaternion.LookRotation(ToVector3(cornerPos)));
 
                     var p0 = polygon[i];
@@ -65,7 +77,8 @@ namespace Gameplay.Board
             });
         }
 
-        private void SpawnMandarinTile(IList<Board.TileGroup> tileGroups, int i, int tilesPerGroup, Vector3 position, Quaternion rotation)
+        private void SpawnMandarinTile(IList<Board.TileGroup> tileGroups, int i, int tilesPerGroup, Vector3 position,
+            Quaternion rotation)
         {
             var mandarinTile = Instantiate(mandarinTilePrefab, transform);
             mandarinTile.Setup();
@@ -75,7 +88,8 @@ namespace Gameplay.Board
                 {MandarinTile = mandarinTile, Tiles = new IPieceHolder[tilesPerGroup]};
         }
 
-        private void SpawnCitizenTile(IList<Board.TileGroup> tileGroups, int i, int j, Vector3 position, Quaternion rotation)
+        private void SpawnCitizenTile(IList<Board.TileGroup> tileGroups, int i, int j, Vector3 position,
+            Quaternion rotation)
         {
             var citizenTile = Instantiate(citizenTilePrefab, transform);
             citizenTile.Setup();

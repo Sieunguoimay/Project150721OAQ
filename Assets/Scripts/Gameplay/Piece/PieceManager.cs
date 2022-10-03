@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Gameplay.Piece
 {
-    public class PieceManager : MonoBehaviour
+    public class PieceManager : InjectableBehaviour<PieceManager>
     {
         [SerializeField] private Piece mandarinPrefab;
         [SerializeField] private Piece citizenPrefab;
@@ -76,5 +76,6 @@ namespace Gameplay.Piece
 
             this.WaitUntil(() => Pieces.All(p => p.PieceActivityQueue.Inactive), onAllInPlace);
         }
+
     }
 }

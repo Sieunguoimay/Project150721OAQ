@@ -26,23 +26,29 @@ namespace Gameplay.Board
         public event Action<ISelectorTarget, bool> ChooseDirectionResult;
         public event Action<bool> DirectionTouched;
 
-        public void Inject(IResolver resolver)
+        public void Bind(IResolver resolver)
         {
+            resolver.Bind(this);
         }
 
-        private void Awake()
+        public void Setup(IResolver resolver)
         {
             gameObject.SetActive(false);
+
             left.OnClick += InvokeOnTouchedLeft;
             right.OnClick += InvokeOnTouchedRight;
         }
 
-        private void OnDestroy()
+        public void TearDown()
         {
             left.OnClick -= InvokeOnTouchedLeft;
             right.OnClick -= InvokeOnTouchedRight;
         }
 
+        public void Unbind(IResolver resolver)
+        {
+            resolver.Unbind(this);
+        }
         public void ResetAll()
         {
             _options = null;
