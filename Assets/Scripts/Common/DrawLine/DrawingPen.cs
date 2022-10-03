@@ -155,7 +155,7 @@ namespace Common.DrawLine
         {
             ActivityQueue.Add(new Lambda(() =>
             {
-                var p = spline.GetPoint(0);
+                var p = spline.ControlPoints[0];
                 drawingSurface.DrawBegin(p);
                 handler.OnDraw(p, 0f);
             }, () => true));
@@ -164,7 +164,7 @@ namespace Common.DrawLine
 
             var activity = new Timer(duration, t =>
             {
-                var point3D = spline.GetPosition(t / duration);
+                var point3D = spline.GetPoint(t / duration);
                 var point = new Vector2(point3D.x, point3D.z);
                 drawingSurface.Draw(point, lineThickness, minDistance);
 

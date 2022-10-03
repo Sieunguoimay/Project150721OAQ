@@ -14,9 +14,9 @@ namespace Common
         [Serializable]
         public class Config
         {
-            [SerializeField] private BezierSplineMono initialPath;
+            [SerializeField] private BezierSplineCreator initialPath;
             [SerializeField] private bool loop;
-            public BezierSplineMono InitialPath => initialPath;
+            public BezierSplineCreator InitialPath => initialPath;
             public bool Loop => loop;
         }
 
@@ -28,7 +28,7 @@ namespace Common
 
         private void Start()
         {
-            _spline = new BezierSpline(config.InitialPath.Points);
+            _spline = new BezierSpline(config.InitialPath.ControlPoints, null, false);
         }
 
         [ContextMenu("Move")]
@@ -52,8 +52,8 @@ namespace Common
 
             _time += Time.deltaTime;
 
-            var pos3D = _spline.GetPosition(_time / _duration);
-            var dir = _spline.GetDirection(_time / _duration);
+            var pos3D = _spline.GetPoint(_time / _duration);
+            var dir = _spline.GetVelocity(_time / _duration).normalized;
 
             transform.position = pos3D;
             transform.rotation = Quaternion.LookRotation(dir);

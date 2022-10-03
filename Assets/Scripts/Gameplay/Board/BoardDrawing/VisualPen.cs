@@ -48,7 +48,7 @@ namespace Gameplay.Board.BoardDrawing
 
         public void OnDraw(Vector3 point, float progress)
         {
-            var p = _spline.GetPosition(progress);
+            var p = _spline.GetPoint(progress);
             var p3 = new Vector3(p.x, transform.position.y, p.z);
 
             transform.position = p3;
