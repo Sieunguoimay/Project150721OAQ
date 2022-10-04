@@ -6,11 +6,10 @@ namespace Common.Curve
 {
     public class BezierSplineWithDistance
     {
-        private readonly VertexData[] _vertices;
-        public float ArcLength { get; }
+        private VertexData[] _vertices;
         private readonly float _unitLength;
+        public float ArcLength { get; private set; }
         public IReadOnlyList<VertexData> Vertices => _vertices;
-
         public BezierSpline Spline { get; }
 
         public class VertexData
@@ -19,35 +18,43 @@ namespace Common.Curve
             public float T;
         }
 
-        public BezierSplineWithDistance(Vector3[] controlPoints, float unitLength = 0.1f)
-            : this(new BezierSpline(controlPoints), unitLength) { }
-
         public BezierSplineWithDistance(BezierSpline spline, float unitLength = 0.1f)
         {
             Spline = spline;
             _unitLength = unitLength;
-            _vertices = GenerateVerticesEvenly(Spline.ControlPoints, out var totalLength, _unitLength);
-            ArcLength = totalLength;
+            ForceRegenerateVertices();
         }
 
         public Vector3 GetPointAtDistance(float distance)
         {
+            return Spline.GetPoint(GetTAtDistance(distance));
+        }
+        
+        public float GetTAtDistance(float distance)
+        {
             distance = Mathf.Min(distance, ArcLength);
 
             var vertexIndex = Mathf.FloorToInt(distance / _unitLength);
-            if (vertexIndex >= _vertices.Length - 1) return Spline.GetPoint(1f);
+            if (vertexIndex >= _vertices.Length - 1) return 1f;
 
             var redundant = distance - vertexIndex * _unitLength;
             var vertex1 = Vertices[vertexIndex];
             var vertex2 = Vertices[vertexIndex + 1];
 
-            return Spline.GetPoint(Mathf.Lerp(vertex1.T, vertex2.T, redundant / _unitLength));
+            return Mathf.Lerp(vertex1.T, vertex2.T, redundant / _unitLength);
+        }
+
+        public void ForceRegenerateVertices()
+        {
+            _vertices = GenerateVerticesEvenly(Spline.ControlPoints, out var totalLength, _unitLength);
+            ArcLength = totalLength;
         }
 
         private static VertexData[] GenerateVerticesEvenly(IReadOnlyList<Vector3> controlPoints, out float totalLength,
             float unitLength, int iterationsPerUnit = 4)
         {
             totalLength = 0f;
+
             var vertices = new List<VertexData>();
             if (controlPoints.Count < 4) return new VertexData[0];
             var segmentCount = (controlPoints.Count - 1) / 3;

@@ -1,10 +1,12 @@
 ﻿using System;
 using Curve;
+using Timeline;
 using UnityEngine;
+using UnityEngine.Timeline;
 
 namespace Common.Curve
 {
-    public class BezierSplineDisplay : MonoBehaviour
+    public class BezierSplineDisplay : MonoBehaviour, ITimeControlExtended
     {
         [SerializeField, Range(0f, 1f)] private float testSlider;
         private BezierSplineWithDistance _spline;
@@ -59,12 +61,25 @@ namespace Common.Curve
         [ContextMenu("Test")]
         private void Test()
         {
-            Display(new BezierSplineWithDistance(splineMono.Spline.ControlPoints));
+            Display(new BezierSplineWithDistance(splineMono.Spline));
         }
+
         // [ContextMenu("Test2")]
         // private void Test2()
         // {
         //     splineMono.SetPoints(_spline.ControlPoints);
         // }
+        public void SetTime(double time, double duration)
+        {
+            testSlider = (float) time / (float) duration;
+        }
+
+        public void OnControlTimeStart()
+        {
+        }
+
+        public void OnControlTimeStop()
+        {
+        }
     }
 }

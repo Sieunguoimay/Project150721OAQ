@@ -11,22 +11,8 @@ namespace Gameplay.Board.BoardDrawing
     {
         [SerializeField] private DrawingPen pen;
         [SerializeField] private Transform penBall;
-        [SerializeField] private float scale = 0.5f;
 
-        private float _radius;
-        private BezierSpline _spline;
-
-        public void Draw(Vector2[] points, (int, int)[] contour, float radius, string inkName)
-        {
-            _radius = radius;
-
-            pen.Draw(points, contour, inkName);
-        }
-
-        public void Draw(Vector2[] points, (int, int)[] contour, string inkName)
-        {
-            pen.Draw(points, contour, inkName);
-        }
+        private BezierSplineWithDistance _spline;
 
         public void Draw(Vector2[] points, (int, int)[] contour, int contourStartIndex, int contourLength, string inkName)
         {
@@ -40,15 +26,17 @@ namespace Gameplay.Board.BoardDrawing
             points3D[^1] = new Vector3(points[contour[contourStartIndex + contourLength - 1].Item2].x, 0,
                 points[contour[contourStartIndex + contourLength - 1].Item2].y);
 
-            _spline = BezierSplineUtility.CreateSplineSmoothPath(points3D);
+            _spline = new BezierSplineWithDistance(BezierSplineUtility.CreateSplineSmoothPath(points3D));
             pen.Draw(points, contour, contourStartIndex, contourLength, inkName, this);
             // pen.DrawWithConstantSegmentDuration(points, contour, contourStartIndex, contourLength, inkName, this);
             // pen.DrawWithSpline(_spline, inkName, this);
+            Debug.Log(_spline.Vertices.Count);
+
         }
 
         public void OnDraw(Vector3 point, float progress)
         {
-            var p = _spline.GetPoint(progress);
+            var p = _spline.GetPointAtDistance(progress * _spline.ArcLength);
             var p3 = new Vector3(p.x, transform.position.y, p.z);
 
             transform.position = p3;
@@ -60,10 +48,10 @@ namespace Gameplay.Board.BoardDrawing
         {
         }
 
-        private Vector2 ProjectOnCircle(Vector2 drawPoint)
-        {
-            return (drawPoint - Vector2.zero).normalized * (_radius * scale);
-        }
+        // private Vector2 ProjectOnCircle(Vector2 drawPoint)
+        // {
+        //     return (drawPoint - Vector2.zero).normalized * (_radius * scale);
+        // }
 
         // private Vector2 ProjectOnPolygon(Vector2 drawPoint)
         // {

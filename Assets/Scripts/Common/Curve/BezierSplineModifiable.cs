@@ -1,71 +1,141 @@
-﻿using Curve;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Curve;
 using UnityEngine;
 
 namespace Common.Curve
 {
-    public class BezierSplineModifiable
+    public class BezierSplineModifiable : BezierSpline
     {
-        private readonly BezierPointMode[] _modes;
+        private BezierPointMode[] _modes;
         public bool Closed { get; private set; }
+        public IReadOnlyList<BezierPointMode> Modes => _modes;
 
-        public BezierSpline Spline { get; }
+        //
+        // public BezierSplineModifiable(Vector3[] controlPoints, BezierPointMode[] modes, bool closed)
+        // {
+        //     _modes = modes;
+        //     Closed = closed;
+        //     Spline = new BezierSpline();
+        //     SetControlPoints(controlPoints);
+        //     for (var i = 0; i < ControlPoints.Length; i++)
+        //     {
+        //         EnforceModeAtControlPoint(i);
+        //     }
+        // }
 
-        public BezierSplineModifiable(Vector3[] controlPoints, BezierPointMode[] modes, bool closed)
-            : this(new BezierSpline(controlPoints), modes, closed)
+        public BezierSplineModifiable(BezierPointMode[] modes, bool closed)
         {
-        }
-
-        public BezierSplineModifiable(BezierSpline spline, BezierPointMode[] modes, bool closed)
-        {
-            Spline = spline;
             _modes = modes;
             Closed = closed;
-            for (var i = 0; i < Spline.ControlPoints.Length; i++)
+        }
+
+        public override void SetControlPoints(Vector3[] controlPoints)
+        {
+            base.SetControlPoints(controlPoints);
+
+            for (var i = 0; i < ProtectedControlPoints.Length; i++)
             {
                 EnforceModeAtControlPoint(i);
             }
+        }
+
+        public void AddSegment(int segmentNum)
+        {
+            var controlPoints = ProtectedControlPoints;
+            if (controlPoints.Length < 4)
+            {
+                controlPoints = new[]
+                {
+                    new Vector3(1f, 0f, 0f),
+                    new Vector3(2f, 0f, 0f),
+                    new Vector3(3f, 0f, 0f),
+                    new Vector3(4f, 0f, 0f),
+                };
+                _modes = new[] {BezierPointMode.Free, BezierPointMode.Free};
+                segmentNum--;
+            }
+
+            if (segmentNum <= 0)
+            {
+                SetControlPoints(controlPoints);
+                return;
+            }
+
+            var point = controlPoints[^1];
+            var oldLength = controlPoints.Length;
+            var oldModeLength = _modes.Length;
+            var mode = _modes[oldModeLength - 1];
+
+            Array.Resize(ref controlPoints, oldLength + 3 * segmentNum);
+            Array.Resize(ref _modes, _modes.Length + 1 * segmentNum);
+
+            for (var i = 0; i < segmentNum; i++)
+            {
+                point.x += 1f;
+                controlPoints[oldLength + i * 3] = point;
+                point.x += 1f;
+                controlPoints[oldLength + 1 + i * 3] = point;
+                point.x += 1f;
+                controlPoints[oldLength + 2 + i * 3] = point;
+
+                _modes[oldModeLength + i * 1] = mode;
+            }
+
+            EnforceModeAtControlPoint(oldLength - 1);
+
+            if (Closed)
+            {
+                controlPoints[^1] = controlPoints[0];
+                _modes[^1] = _modes[0];
+
+                EnforceModeAtControlPoint(0);
+            }
+
+            SetControlPoints(controlPoints);
         }
 
         public void SetControlPoint(int index, Vector3 point)
         {
             if (index % 3 == 0)
             {
-                var delta = point - Spline.ControlPoints[index];
+                var delta = point - ProtectedControlPoints[index];
                 if (Closed)
                 {
                     if (index == 0)
                     {
-                        Spline.ControlPoints[1] += delta;
-                        Spline.ControlPoints[^2] += delta;
-                        Spline.ControlPoints[^1] = point;
+                        ProtectedControlPoints[1] += delta;
+                        ProtectedControlPoints[^2] += delta;
+                        ProtectedControlPoints[^1] = point;
                     }
-                    else if (index == Spline.ControlPoints.Length - 1)
+                    else if (index == ProtectedControlPoints.Length - 1)
                     {
-                        Spline.ControlPoints[index - 1] += delta;
-                        Spline.ControlPoints[1] += delta;
-                        Spline.ControlPoints[0] = point;
+                        ProtectedControlPoints[index - 1] += delta;
+                        ProtectedControlPoints[1] += delta;
+                        ProtectedControlPoints[0] = point;
                     }
                     else
                     {
-                        Spline.ControlPoints[index - 1] += delta;
-                        Spline.ControlPoints[index + 1] += delta;
+                        ProtectedControlPoints[index - 1] += delta;
+                        ProtectedControlPoints[index + 1] += delta;
                     }
                 }
                 else
                 {
                     if (index > 0)
                     {
-                        Spline.ControlPoints[index - 1] += delta;
+                        ProtectedControlPoints[index - 1] += delta;
                     }
 
-                    if (index < Spline.ControlPoints.Length - 1)
+                    if (index < ProtectedControlPoints.Length - 1)
                     {
-                        Spline.ControlPoints[index + 1] += delta;
+                        ProtectedControlPoints[index + 1] += delta;
                     }
                 }
             }
 
-            Spline.ControlPoints[index] = point;
+            ProtectedControlPoints[index] = point;
             EnforceModeAtControlPoint(index);
         }
 
@@ -109,11 +179,11 @@ namespace Common.Curve
                 fixedIndex = middleIndex - 1;
                 if (fixedIndex < 0)
                 {
-                    fixedIndex = Spline.ControlPoints.Length - 2;
+                    fixedIndex = ProtectedControlPoints.Length - 2;
                 }
 
                 enforcedIndex = middleIndex + 1;
-                if (enforcedIndex >= Spline.ControlPoints.Length)
+                if (enforcedIndex >= ProtectedControlPoints.Length)
                 {
                     enforcedIndex = 1;
                 }
@@ -121,7 +191,7 @@ namespace Common.Curve
             else
             {
                 fixedIndex = middleIndex + 1;
-                if (fixedIndex >= Spline.ControlPoints.Length)
+                if (fixedIndex >= ProtectedControlPoints.Length)
                 {
                     fixedIndex = 1;
                 }
@@ -129,19 +199,19 @@ namespace Common.Curve
                 enforcedIndex = middleIndex - 1;
                 if (enforcedIndex < 0)
                 {
-                    enforcedIndex = Spline.ControlPoints.Length - 2;
+                    enforcedIndex = ProtectedControlPoints.Length - 2;
                 }
             }
 
-            var middle = Spline.ControlPoints[middleIndex];
-            var enforcedTangent = middle - Spline.ControlPoints[fixedIndex];
+            var middle = ProtectedControlPoints[middleIndex];
+            var enforcedTangent = middle - ProtectedControlPoints[fixedIndex];
             if (mode == BezierPointMode.Aligned)
             {
                 enforcedTangent = enforcedTangent.normalized *
-                                  Vector3.Distance(middle, Spline.ControlPoints[enforcedIndex]);
+                                  Vector3.Distance(middle, ProtectedControlPoints[enforcedIndex]);
             }
 
-            Spline.ControlPoints[enforcedIndex] = middle + enforcedTangent;
+            ProtectedControlPoints[enforcedIndex] = middle + enforcedTangent;
         }
 
         public void SetClosed(bool closed)
@@ -151,7 +221,7 @@ namespace Common.Curve
             if (!closed) return;
 
             _modes[^1] = _modes[0];
-            SetControlPoint(0, Spline.ControlPoints[0]);
+            SetControlPoint(0, ProtectedControlPoints[0]);
         }
     }
 }

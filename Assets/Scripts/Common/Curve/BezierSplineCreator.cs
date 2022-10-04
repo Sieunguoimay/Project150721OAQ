@@ -1,9 +1,8 @@
-﻿using System;
-using Common.Curve;
+﻿using System.Linq;
+using Curve;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-namespace Curve
+namespace Common.Curve
 {
     public class BezierSplineCreator : MonoBehaviour
     {
@@ -11,12 +10,13 @@ namespace Curve
         [SerializeField] private BezierPointMode[] modes;
         [SerializeField] private bool closed;
 
-        private BezierSplineModifiable _splineModifiable;
+        public BezierSplineModifiable SplineModifiable { get; private set; }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            _splineModifiable = new BezierSplineModifiable(controlPoints, modes, closed);
+            SplineModifiable = new BezierSplineModifiable(modes, closed);
+            SplineModifiable.SetControlPoints(controlPoints);
         }
 
         public void Reset()
@@ -29,50 +29,29 @@ namespace Curve
                 new Vector3(4f, 0f, 0f),
             };
             modes = new[] {BezierPointMode.Free, BezierPointMode.Free};
-            _splineModifiable = new BezierSplineModifiable(controlPoints, modes, closed);
+            SplineModifiable = new BezierSplineModifiable(modes, closed);
+            SplineModifiable.SetControlPoints(controlPoints);
         }
 
         public void AddSegment()
         {
-            var point = controlPoints[^1];
-            Array.Resize(ref controlPoints, controlPoints.Length + 3);
-            point.x += 1f;
-            controlPoints[^3] = point;
-            point.x += 1f;
-            controlPoints[^2] = point;
-            point.x += 1f;
-            controlPoints[^1] = point;
-
-            Array.Resize(ref modes, modes.Length + 1);
-            modes[^1] = modes[^2];
-
-            if (!closed)
-            {
-                _splineModifiable = new BezierSplineModifiable(controlPoints, modes, closed);
-                return;
-            }
-
-            controlPoints[^1] = controlPoints[0];
-            modes[^1] = modes[0];
-
-            _splineModifiable = new BezierSplineModifiable(controlPoints, modes, closed);
+            SplineModifiable.AddSegment(2);
+            SaveToSerializedField();
+        }
+#endif
+        private void SaveToSerializedField()
+        {
+            controlPoints = SplineModifiable.ControlPoints.ToArray();
+            modes = SplineModifiable.Modes.ToArray();
+            closed = SplineModifiable.Closed;
         }
 
-#endif
-        public Vector3 GetPoint(float t) => Spline.GetPoint(t);
-        public Vector3 GetVelocity(float t) => Spline.GetVelocity(t);
-        public Vector3 GetLocalControlPoint(int index) => Spline.ControlPoints[index];
-        public void SetLocalControlPoint(int index, Vector3 point) => _splineModifiable.SetControlPoint(index, point);
-        public BezierPointMode GetControlPointMode(int index) => _splineModifiable.GetControlPointMode(index);
-        public void SetControlPointMode(int index, BezierPointMode mode) => _splineModifiable.SetControlPointMode(index, mode);
-        public int SegmentCount => (_splineModifiable.Spline.ControlPoints.Length - 1) / 3;
-        public int ControlPointCount => Spline.ControlPoints.Length;
-        public bool Closed => _splineModifiable.Closed;
-        public BezierSpline Spline => _splineModifiable.Spline;
+        public BezierSpline Spline => SplineModifiable;
+
         public void SetClosed(bool close)
         {
             closed = close;
-            _splineModifiable.SetClosed(close);
+            SplineModifiable.SetClosed(close);
         }
     }
 }

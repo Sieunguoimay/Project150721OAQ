@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Common.Curve;
 using Curve;
 using UnityEngine;
@@ -8,36 +9,27 @@ namespace Common
 {
     public class BezierMover : MonoBehaviour
     {
-        [SerializeField] private Config config;
-        [SerializeField] private UnityEvent onMove;
+        [SerializeField] private BezierSplineCreator initialPath;
+        [SerializeField, Min(0.01f)] private float speed = 1f;
+        [SerializeField] private bool loop;
 
-        [Serializable]
-        public class Config
-        {
-            [SerializeField] private BezierSplineCreator initialPath;
-            [SerializeField] private bool loop;
-            public BezierSplineCreator InitialPath => initialPath;
-            public bool Loop => loop;
-        }
-
-        private BezierSpline _spline;
+        private BezierSplineWithDistance _splineWithDistance;
         private bool _moving;
-        private float _time;
-        private float _duration;
-        public event Action OnComplete = delegate { };
+        private float _displacement;
+        private BezierSpline Spline => initialPath.Spline;
 
-        private void Start()
+        private void Awake()
         {
-            _spline = new BezierSpline(config.InitialPath.Spline.ControlPoints);
+            _splineWithDistance = new BezierSplineWithDistance(Spline);
         }
 
         [ContextMenu("Move")]
-        public void Move(float duration)
+        private void Move() => Move(0f);
+
+        public void Move(float startDisplacement)
         {
             _moving = true;
-            _time = 0f;
-            _duration = duration;
-            onMove?.Invoke();
+            _displacement = startDisplacement;
         }
 
         [ContextMenu("Stop")]
@@ -48,27 +40,18 @@ namespace Common
 
         private void Update()
         {
-            if (!_moving || _spline == null) return;
-
-            _time += Time.deltaTime;
-
-            var pos3D = _spline.GetPoint(_time / _duration);
-            var dir = _spline.GetVelocity(_time / _duration).normalized;
-
-            transform.position = pos3D;
-            transform.rotation = Quaternion.LookRotation(dir);
-
-            if (!(_time >= _duration)) return;
-
-            if (config.Loop)
+            if (loop && _displacement >= _splineWithDistance.ArcLength)
             {
-                Move(_duration);
+                _displacement -= _splineWithDistance.ArcLength;
             }
-            else
-            {
-                _moving = false;
-                OnComplete?.Invoke();
-            }
+
+            if (!_moving || Spline == null || _displacement >= _splineWithDistance.ArcLength) return;
+
+            _displacement += Time.deltaTime * speed;
+
+            var t = _splineWithDistance.GetTAtDistance(_displacement);
+            transform.position = _splineWithDistance.Spline.GetPoint(t);
+            transform.rotation = Quaternion.LookRotation(_splineWithDistance.Spline.GetVelocity(t));
         }
     }
 }
