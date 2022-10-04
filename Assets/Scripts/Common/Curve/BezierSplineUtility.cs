@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Common.Curve
 {
-    public static class BezierSplineHelper
+    public static class BezierSplineUtility
     {
         public static BezierSpline CreateSplineSmoothPath(Vector3[] points)
         {
@@ -43,7 +43,7 @@ namespace Common.Curve
             splinePoints[lastIndex * 3 + 2] = (points[^2] - points[^1]).normalized * Vector3.Distance(points[^2], points[^1]) / 3f + points[^1];
             splinePoints[lastIndex * 3 + 3] = points[^1];
 
-            return new BezierSpline(splinePoints, null, false);
+            return new BezierSpline(splinePoints);
         }
 
         private static bool IsCollinear(Vector3 a, Vector3 b, Vector3 c)

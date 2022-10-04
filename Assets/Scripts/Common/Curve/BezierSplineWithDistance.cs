@@ -4,12 +4,14 @@ using UnityEngine;
 
 namespace Common.Curve
 {
-    public class BezierSplineWithDistance : BezierSpline
+    public class BezierSplineWithDistance
     {
         private readonly VertexData[] _vertices;
         public float ArcLength { get; }
         private readonly float _unitLength;
         public IReadOnlyList<VertexData> Vertices => _vertices;
+
+        public BezierSpline Spline { get; }
 
         public class VertexData
         {
@@ -17,10 +19,14 @@ namespace Common.Curve
             public float T;
         }
 
-        public BezierSplineWithDistance(Vector3[] controlPoints, BezierPointMode[] modes, bool closed) : base(controlPoints, modes, closed)
+        public BezierSplineWithDistance(Vector3[] controlPoints, float unitLength = 0.1f)
+            : this(new BezierSpline(controlPoints), unitLength) { }
+
+        public BezierSplineWithDistance(BezierSpline spline, float unitLength = 0.1f)
         {
-            _unitLength = 0.1f;
-            _vertices = GenerateVerticesEvenly(controlPoints, out var totalLength, _unitLength);
+            Spline = spline;
+            _unitLength = unitLength;
+            _vertices = GenerateVerticesEvenly(Spline.ControlPoints, out var totalLength, _unitLength);
             ArcLength = totalLength;
         }
 
@@ -29,16 +35,17 @@ namespace Common.Curve
             distance = Mathf.Min(distance, ArcLength);
 
             var vertexIndex = Mathf.FloorToInt(distance / _unitLength);
-            if (vertexIndex >= _vertices.Length - 1) return GetPoint(1f);
+            if (vertexIndex >= _vertices.Length - 1) return Spline.GetPoint(1f);
 
             var redundant = distance - vertexIndex * _unitLength;
             var vertex1 = Vertices[vertexIndex];
             var vertex2 = Vertices[vertexIndex + 1];
 
-            return GetPoint(Mathf.Lerp(vertex1.T, vertex2.T, redundant / _unitLength));
+            return Spline.GetPoint(Mathf.Lerp(vertex1.T, vertex2.T, redundant / _unitLength));
         }
 
-        private static VertexData[] GenerateVerticesEvenly(IReadOnlyList<Vector3> controlPoints, out float totalLength, float unitLength, int iterationsPerUnit = 4)
+        private static VertexData[] GenerateVerticesEvenly(IReadOnlyList<Vector3> controlPoints, out float totalLength,
+            float unitLength, int iterationsPerUnit = 4)
         {
             totalLength = 0f;
             var vertices = new List<VertexData>();
@@ -50,7 +57,9 @@ namespace Common.Curve
             for (var i = 0; i < segmentCount; i++)
             {
                 var controlPointIndex = i * 3;
-                var estimatedSegmentLength = EstimateCurveLength(controlPoints[controlPointIndex], controlPoints[controlPointIndex + 1], controlPoints[controlPointIndex + 2], controlPoints[controlPointIndex + 3]);
+                var estimatedSegmentLength = EstimateCurveLength(controlPoints[controlPointIndex],
+                    controlPoints[controlPointIndex + 1], controlPoints[controlPointIndex + 2],
+                    controlPoints[controlPointIndex + 3]);
                 minSegmentLength = Mathf.Min(minSegmentLength, estimatedSegmentLength);
             }
 
@@ -62,7 +71,9 @@ namespace Common.Curve
             {
                 var controlPointIndex = i * 3;
 
-                var estimatedSegmentLength = EstimateCurveLength(controlPoints[controlPointIndex], controlPoints[controlPointIndex + 1], controlPoints[controlPointIndex + 2], controlPoints[controlPointIndex + 3]);
+                var estimatedSegmentLength = EstimateCurveLength(controlPoints[controlPointIndex],
+                    controlPoints[controlPointIndex + 1], controlPoints[controlPointIndex + 2],
+                    controlPoints[controlPointIndex + 3]);
                 var vertexNum = estimatedSegmentLength / unitLength;
                 var iterationStepLength = 1f / (vertexNum * iterationsPerUnit);
                 for (var t = 0f; t <= 1f; t += iterationStepLength)
@@ -90,7 +101,8 @@ namespace Common.Curve
         private static Vector3 GetSegmentPoint(IReadOnlyList<Vector3> controlPoints, int segmentIndex, float t)
         {
             var index = segmentIndex * 3;
-            return Bezier.GetPoint(controlPoints[index], controlPoints[index + 1], controlPoints[index + 2], controlPoints[index + 3], t);
+            return Bezier.GetPoint(controlPoints[index], controlPoints[index + 1], controlPoints[index + 2],
+                controlPoints[index + 3], t);
         }
 
         private static float EstimateCurveLength(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)

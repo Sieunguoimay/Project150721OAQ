@@ -40,7 +40,7 @@ namespace Gameplay.Board.BoardDrawing
             points3D[^1] = new Vector3(points[contour[contourStartIndex + contourLength - 1].Item2].x, 0,
                 points[contour[contourStartIndex + contourLength - 1].Item2].y);
 
-            _spline = BezierSplineHelper.CreateSplineSmoothPath(points3D);
+            _spline = BezierSplineUtility.CreateSplineSmoothPath(points3D);
             pen.Draw(points, contour, contourStartIndex, contourLength, inkName, this);
             // pen.DrawWithConstantSegmentDuration(points, contour, contourStartIndex, contourLength, inkName, this);
             // pen.DrawWithSpline(_spline, inkName, this);

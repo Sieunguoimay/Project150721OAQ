@@ -28,7 +28,7 @@ namespace Common
 
         private void Start()
         {
-            _spline = new BezierSpline(config.InitialPath.ControlPoints, null, false);
+            _spline = new BezierSpline(config.InitialPath.Spline.ControlPoints);
         }
 
         [ContextMenu("Move")]

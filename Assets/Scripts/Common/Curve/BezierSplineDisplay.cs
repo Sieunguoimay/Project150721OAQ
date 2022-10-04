@@ -31,13 +31,6 @@ namespace Common.Curve
         {
             if (_spline == null) return;
 
-            // for (var i = 0f; i < 1f; i += 0.01f)
-            // {
-            //     var p = transform.TransformPoint(_spline.GetPoint(i));
-            //     DrawCross(p);
-            // }
-            //
-
             for (var i = 0; i < _spline.Vertices.Count - 1; i++)
             {
                 var p1 = transform.TransformPoint(_spline.Vertices[i].Vertex);
@@ -66,7 +59,7 @@ namespace Common.Curve
         [ContextMenu("Test")]
         private void Test()
         {
-            Display(new BezierSplineWithDistance(splineMono.ControlPoints, null, false));
+            Display(new BezierSplineWithDistance(splineMono.Spline.ControlPoints));
         }
         // [ContextMenu("Test2")]
         // private void Test2()
