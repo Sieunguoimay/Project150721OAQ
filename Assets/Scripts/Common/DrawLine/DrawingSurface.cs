@@ -22,6 +22,7 @@ namespace Common.DrawLine
         public void DryInk(string meshName = "(Static)mesh")
         {
             meshFilter.mesh = _drawMesh.GenerateStaticMesh(meshName);
+            meshFilter.mesh.RecalculateBounds();
         }
         
 // #if UNITY_EDITOR

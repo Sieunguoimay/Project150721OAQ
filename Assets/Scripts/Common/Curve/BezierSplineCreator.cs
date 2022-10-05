@@ -35,7 +35,7 @@ namespace Common.Curve
 
         public void AddSegment()
         {
-            SplineModifiable.AddSegment(2);
+            SplineModifiable.AddSegment(1);
             SaveToSerializedField();
         }
 #endif

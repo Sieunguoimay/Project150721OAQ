@@ -4,8 +4,8 @@ using UnityEngine.Timeline;
 
 namespace Timeline
 {
-    [TrackClipType(typeof(TimeControlAsset), false)]
-    public class TimeControlTrack : TrackAsset
+    [TrackClipType(typeof(CustomTimeControlAsset), false)]
+    public class CustomControlTrack : TrackAsset
     {
     }
 }

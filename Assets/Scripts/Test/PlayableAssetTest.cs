@@ -18,7 +18,7 @@ namespace Test
             Debug.Log("OnControlTimeStart");
         }
 
-        public void OnControlTimeStop()
+        public void OnControlTimeStop()  
         {
             Debug.Log("OnControlTimeStop");
         }

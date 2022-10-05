@@ -24,7 +24,7 @@ namespace Timeline
         void OnControlTimeStop();
     }
 
-    public class TimeControlAsset : PlayableAsset, IPropertyPreview, ITimelineClipAsset
+    public class CustomTimeControlAsset : PlayableAsset, IPropertyPreview, ITimelineClipAsset
     {
         [SerializeField] private ExposedReference<GameObject> sourceGameObject;
 
