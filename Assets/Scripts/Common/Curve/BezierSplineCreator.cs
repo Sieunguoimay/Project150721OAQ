@@ -4,7 +4,12 @@ using UnityEngine;
 
 namespace Common.Curve
 {
-    public class BezierSplineCreator : MonoBehaviour
+    public abstract class BezierSplineMono : MonoBehaviour
+    {
+        public abstract BezierSpline Spline { get; }
+    }
+    
+    public class BezierSplineCreator : BezierSplineMono
     {
         [SerializeField] private Vector3[] controlPoints;
         [SerializeField] private BezierPointMode[] modes;
@@ -12,12 +17,13 @@ namespace Common.Curve
 
         public BezierSplineModifiable SplineModifiable { get; private set; }
 
-#if UNITY_EDITOR
         private void OnValidate()
         {
             SplineModifiable = new BezierSplineModifiable(modes, closed);
             SplineModifiable.SetControlPoints(controlPoints);
         }
+
+#if UNITY_EDITOR
 
         public void Reset()
         {
@@ -46,7 +52,7 @@ namespace Common.Curve
             closed = SplineModifiable.Closed;
         }
 
-        public BezierSpline Spline => SplineModifiable;
+        public override BezierSpline Spline => SplineModifiable;
 
         public void SetClosed(bool close)
         {

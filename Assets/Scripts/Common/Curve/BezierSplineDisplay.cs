@@ -64,11 +64,6 @@ namespace Common.Curve
             Display(new BezierSplineWithDistance(splineMono.Spline));
         }
 
-        // [ContextMenu("Test2")]
-        // private void Test2()
-        // {
-        //     splineMono.SetPoints(_spline.ControlPoints);
-        // }
         public void SetTime(double time, double duration)
         {
             testSlider = (float) time / (float) duration;

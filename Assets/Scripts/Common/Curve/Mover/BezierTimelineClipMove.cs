@@ -6,7 +6,7 @@ namespace Common.Curve.Mover
 {
     public class BezierTimelineClipMove : MonoBehaviour, ITimeControlExtended
     {
-        [SerializeField] private BezierSplineCreator bezierSplineCreator;
+        [SerializeField] private BezierSplineMono bezierSpline;
         [SerializeField, Min(0f)] private float distance;
         [SerializeField] private UnityEvent onFinished;
 
@@ -26,7 +26,7 @@ namespace Common.Curve.Mover
             var t = _splineWithDistance.GetTAtDistance(_displacement);
 
             Transform tr;
-            var globalPosition = (tr = bezierSplineCreator.transform).TransformPoint(_splineWithDistance.Spline.GetPoint(t));
+            var globalPosition = (tr = bezierSpline.transform).TransformPoint(_splineWithDistance.Spline.GetPoint(t));
             var globalRotation = tr.rotation * Quaternion.LookRotation(_splineWithDistance.Spline.GetVelocity(t));
 
             transform.position = globalPosition;
@@ -43,13 +43,13 @@ namespace Common.Curve.Mover
         {
             if (_splineWithDistance == null)
             {
-                if (bezierSplineCreator == null)
+                if (bezierSpline == null)
                 {
                     Debug.LogError("bezierSplineCreator is null");
                     return;
                 }
 
-                _splineWithDistance = new BezierSplineWithDistance(bezierSplineCreator.Spline);
+                _splineWithDistance = new BezierSplineWithDistance(bezierSpline.Spline);
             }
 
             _initialDisplacement = _displacement;
