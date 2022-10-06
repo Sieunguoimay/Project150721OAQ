@@ -3,6 +3,7 @@ using Common;
 using Common.ResolveSystem;
 using DG.Tweening;
 using Gameplay;
+using Gameplay.BambooStick;
 using Gameplay.Board;
 using Gameplay.Board.BoardDrawing;
 using Gameplay.Piece;
@@ -11,7 +12,7 @@ using UnityEngine;
 
 namespace System
 {
-    public class GameManager : MonoBehaviour, IGameFlowHandler, IInjectable
+    public class GameManager : MonoBehaviour, IInjectable
     {
         private readonly Gameplay _gameplay = new();
         private readonly MatchChooser _matchChooser = new();
@@ -19,11 +20,11 @@ namespace System
         private PlayersManager _playersManager;
         private BoardManager _boardManager;
         private PieceManager _pieceManager;
-        private BoardSketcher _boardSketcher;
+        private BambooFamilyManager _bambooFamily;
 
         public void Bind(IResolver resolver)
         {
-            _gameFlowManager = new GameFlowManager(this);
+            _gameFlowManager = new GameFlowManager();
 
             resolver.Bind(_gameFlowManager);
             resolver.Bind<IMatchChooser>(_matchChooser);
@@ -34,7 +35,7 @@ namespace System
             _playersManager = resolver.Resolve<PlayersManager>();
             _boardManager = resolver.Resolve<BoardManager>();
             _pieceManager = resolver.Resolve<PieceManager>();
-            _boardSketcher = resolver.Resolve<BoardSketcher>();
+            _bambooFamily = resolver.Resolve<BambooFamilyManager>();
 
             var cam = resolver.Resolve<CameraManager>().Camera;
             RayPointer.Instance.SetCamera(cam);
@@ -80,9 +81,10 @@ namespace System
 
             _pieceManager.SpawnPieces(playerNum, tilesPerGroup);
             
-            _gameFlowManager.ChangeState(GameFlowManager.GameState.BeforeGameplay);
+            // _gameFlowManager.ChangeState(GameFlowManager.GameState.BeforeGameplay);
 
-            _boardSketcher.Sketch(_boardManager.Board);
+            // _boardSketcher.Sketch(_boardManager.Board);
+            _bambooFamily.BeginAnimSequence();
         }
 
         public void StartGame()

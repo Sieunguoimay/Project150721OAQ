@@ -8,15 +8,38 @@ namespace Gameplay.Board.BoardDrawing
     {
         [SerializeField] private VisualPen[] pens;
 
+        private Vector2[] _points;
+        private (int, int)[] _contour;
+
         public void Sketch(Board board)
         {
             GenerateSketch(board.Metadata, out var points, out var edges);
-
             var contour = ConnectContour(edges);
-            var n = contour.Length / board.Metadata.Polygon.Length;
-            for (var i = 0; i < board.Metadata.Polygon.Length; i++)
+
+            _points = points;
+            _contour = contour;
+            PenUsageNum = board.Metadata.Polygon.Length;
+        }
+
+        public void StartDrawing()
+        {
+            var n = _contour.Length / PenUsageNum;
+            for (var i = 0; i < PenUsageNum; i++)
             {
-                pens[i].Draw(points, contour, i * n, n, "Board");
+                pens[i].Draw(_points, _contour, i * n, n, "Board");
+            }
+        }
+
+        public IReadOnlyList<Vector2> Points => _points;
+
+        [field: System.NonSerialized] public int PenUsageNum { get; private set; }
+
+        public void SetPenBalls(Transform[] transforms)
+        {
+            var n = Mathf.Min(pens.Length, transforms.Length);
+            for (var i = 0; i < n; i++)
+            {
+                pens[i].SetPenBall(transforms[i]);
             }
         }
 

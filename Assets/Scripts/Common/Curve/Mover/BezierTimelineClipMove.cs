@@ -1,6 +1,8 @@
-﻿using Timeline;
+﻿using System;
+using Timeline;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Playables;
 
 namespace Common.Curve.Mover
 {
@@ -13,11 +15,12 @@ namespace Common.Curve.Mover
         private BezierSplineWithDistance _splineWithDistance;
         private float _displacement;
         private float _initialDisplacement;
-        private bool _finished;
+
+        [field: NonSerialized] public bool Finished { get; private set; }
 
         public void SetTime(double time, double duration)
         {
-            if (_splineWithDistance == null || _finished) return;
+            if (_splineWithDistance == null || Finished) return;
 
             var p = (float) time / (float) duration;
 
@@ -32,9 +35,9 @@ namespace Common.Curve.Mover
             transform.position = globalPosition;
             transform.rotation = globalRotation;
 
-            if (!_finished && (t >= 1f || _displacement >= _splineWithDistance.ArcLength))
+            if (!Finished && (t >= 1f || _displacement >= _splineWithDistance.ArcLength))
             {
-                _finished = true;
+                Finished = true;
                 onFinished?.Invoke();
             }
         }
@@ -63,7 +66,8 @@ namespace Common.Curve.Mover
         public void ResetDisplacement()
         {
             _displacement = 0f;
-            _finished = false;
+            Finished = false;
+            _splineWithDistance = null;
         }
     }
 }

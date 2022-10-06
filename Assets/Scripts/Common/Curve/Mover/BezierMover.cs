@@ -1,11 +1,6 @@
-﻿using System;
-using System.Linq;
-using Common.Curve;
-using Curve;
-using UnityEngine;
-using UnityEngine.Events;
+﻿using UnityEngine;
 
-namespace Common
+namespace Common.Curve.Mover
 {
     public class BezierMover : MonoBehaviour
     {

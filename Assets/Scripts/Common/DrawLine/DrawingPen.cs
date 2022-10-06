@@ -16,7 +16,7 @@ namespace Common.DrawLine
         void OnDone();
     }
 
-    public sealed class DrawingPen : MonoBehaviour
+    public class DrawingPen : MonoBehaviour
     {
         [SerializeField] private DrawingSurface drawingSurface;
         [SerializeField, Min(0.05f)] private float lineThickness = 0.1f;
@@ -24,9 +24,6 @@ namespace Common.DrawLine
         [SerializeField, Min(0.1f)] private float speed = 1f;
 
         public ActivityQueue ActivityQueue { get; } = new();
-
-        // public event Action<Vector3> OnDraw;
-        // public event Action OnDone;
 
         private struct DrawUnit
         {

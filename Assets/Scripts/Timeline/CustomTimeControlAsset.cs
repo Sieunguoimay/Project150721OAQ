@@ -31,12 +31,8 @@ namespace Timeline
         public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
         {
             var sourceObject = sourceGameObject.Resolve(graph.GetResolver());
-
             var timeControl = sourceObject.GetComponent<ITimeControlExtended>();
-            if (timeControl == null) return Playable.Create(graph);
-
-            var root = TimeControlExtendPlayable.Create(graph, timeControl);
-            return root;
+            return timeControl == null ? Playable.Create(graph) : TimeControlExtendPlayable.Create(graph, timeControl);
         }
 
         public void GatherProperties(PlayableDirector director, IPropertyCollector driver)
@@ -51,10 +47,9 @@ namespace Timeline
 
     public class TimeControlExtendPlayable : TimeControlPlayable
     {
-        ITimeControlExtended m_timeControl;
+        private ITimeControlExtended _mTimeControl;
         private double _duration;
-
-        bool m_started;
+        private bool _mStarted;
 
         /// <summary>
         /// Creates a Playable with a TimeControlPlayable behaviour attached
@@ -78,7 +73,7 @@ namespace Timeline
         /// <param name="timeControl">Component that implements the ITimeControl interface</param>
         public void Initialize(ITimeControlExtended timeControl)
         {
-            m_timeControl = timeControl;
+            _mTimeControl = timeControl;
         }
 
         /// <summary>
@@ -88,9 +83,9 @@ namespace Timeline
         /// <param name="info">A FrameData structure that contains information about the current frame context.</param>
         public override void PrepareFrame(Playable playable, FrameData info)
         {
-            Debug.Assert(m_started, "PrepareFrame has been called without OnControlTimeStart being called first.");
-            if (m_timeControl != null)
-                m_timeControl.SetTime(playable.GetTime(), playable.GetDuration());
+            Debug.Assert(_mStarted, "PrepareFrame has been called without OnControlTimeStart being called first.");
+            if (_mTimeControl != null)
+                _mTimeControl.SetTime(playable.GetTime(), playable.GetDuration());
         }
 
         /// <summary>
@@ -100,13 +95,13 @@ namespace Timeline
         /// <param name="info">A FrameData structure that contains information about the current frame context.</param>
         public override void OnBehaviourPlay(Playable playable, FrameData info)
         {
-            if (m_timeControl == null)
+            if (_mTimeControl == null)
                 return;
 
-            if (!m_started)
+            if (!_mStarted)
             {
-                m_timeControl.OnControlTimeStart();
-                m_started = true;
+                _mTimeControl.OnControlTimeStart();
+                _mStarted = true;
             }
         }
 
@@ -117,13 +112,13 @@ namespace Timeline
         /// <param name="info">A FrameData structure that contains information about the current frame context.</param>
         public override void OnBehaviourPause(Playable playable, FrameData info)
         {
-            if (m_timeControl == null)
+            if (_mTimeControl == null)
                 return;
 
-            if (m_started)
+            if (_mStarted)
             {
-                m_timeControl.OnControlTimeStop();
-                m_started = false;
+                _mTimeControl.OnControlTimeStop();
+                _mStarted = false;
             }
         }
     }

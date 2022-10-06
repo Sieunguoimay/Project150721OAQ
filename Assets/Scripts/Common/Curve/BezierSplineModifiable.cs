@@ -12,19 +12,6 @@ namespace Common.Curve
         public bool Closed { get; private set; }
         public IReadOnlyList<BezierPointMode> Modes => _modes;
 
-        //
-        // public BezierSplineModifiable(Vector3[] controlPoints, BezierPointMode[] modes, bool closed)
-        // {
-        //     _modes = modes;
-        //     Closed = closed;
-        //     Spline = new BezierSpline();
-        //     SetControlPoints(controlPoints);
-        //     for (var i = 0; i < ControlPoints.Length; i++)
-        //     {
-        //         EnforceModeAtControlPoint(i);
-        //     }
-        // }
-
         public BezierSplineModifiable(BezierPointMode[] modes, bool closed)
         {
             _modes = modes;

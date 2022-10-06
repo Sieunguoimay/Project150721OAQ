@@ -10,19 +10,18 @@ namespace Gameplay.UI
 
         public void Bind(IResolver resolver)
         {
-
         }
 
         public void Setup(IResolver resolver)
         {
             _flowManager = resolver.Resolve<GameFlowManager>();
             OnStateChanged();
-            _flowManager.StateChanged += OnStateChanged;
+            // _flowManager.StateChanged += OnStateChanged;
         }
 
         public void TearDown()
         {
-            _flowManager.StateChanged -= OnStateChanged;
+            // _flowManager.StateChanged -= OnStateChanged;
         }
 
         public void Unbind(IResolver resolver)
@@ -33,8 +32,7 @@ namespace Gameplay.UI
         {
             for (var i = 0; i < transform.childCount; i++)
             {
-                transform.GetChild(i).
-                    gameObject.SetActive(_flowManager.CurrentState == GameFlowManager.GameState.DuringGameplay);
+                // transform.GetChild(i).gameObject.SetActive(_flowManager.CurrentState == GameFlowManager.GameState.DuringGameplay);
             }
         }
 

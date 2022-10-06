@@ -7,9 +7,8 @@ using UnityEngine;
 
 namespace Gameplay.Board.BoardDrawing
 {
-    public class VisualPen : MonoBehaviour, IDrawingPenHandler
+    public class VisualPen : DrawingPen, IDrawingPenHandler
     {
-        [SerializeField] private DrawingPen pen;
         [SerializeField] private Transform penBall;
 
         private BezierSplineWithDistance _spline;
@@ -27,11 +26,8 @@ namespace Gameplay.Board.BoardDrawing
                 points[contour[contourStartIndex + contourLength - 1].Item2].y);
 
             _spline = new BezierSplineWithDistance(BezierSplineUtility.CreateSplineSmoothPath(points3D));
-            pen.Draw(points, contour, contourStartIndex, contourLength, inkName, this);
-            // pen.DrawWithConstantSegmentDuration(points, contour, contourStartIndex, contourLength, inkName, this);
-            // pen.DrawWithSpline(_spline, inkName, this);
-            Debug.Log(_spline.Vertices.Count);
 
+            Draw(points, contour, contourStartIndex, contourLength, inkName, this);
         }
 
         public void OnDraw(Vector3 point, float progress)
@@ -40,66 +36,19 @@ namespace Gameplay.Board.BoardDrawing
             var p3 = new Vector3(p.x, transform.position.y, p.z);
 
             transform.position = p3;
+            if (penBall == null) return;
             penBall.position = point;
-            penBall.rotation = Quaternion.LookRotation(p3 - point);
+            // penBall.rotation = Quaternion.LookRotation(p3 - point);
+            penBall.up = (p3 - point).normalized;
         }
 
         public void OnDone()
         {
         }
 
-        // private Vector2 ProjectOnCircle(Vector2 drawPoint)
-        // {
-        //     return (drawPoint - Vector2.zero).normalized * (_radius * scale);
-        // }
-
-        // private Vector2 ProjectOnPolygon(Vector2 drawPoint)
-        // {
-        //     var rootPos = transform.position;
-        //     var root = new Vector2(rootPos.x, rootPos.z);
-        //     var minDistance = float.MaxValue;
-        //     var point = Vector2.zero;
-        //     for (var i = 0; i < _clampPolygon.Length; i++)
-        //     {
-        //         var p1 = _clampPolygon[i] * scale;
-        //         var p2 = _clampPolygon[(i + 1) % _clampPolygon.Length] * scale;
-        //         var projectedPoint = ProjectionOfPointOnSegment(drawPoint, p1, p2);
-        //         var sqrDistance = (projectedPoint - drawPoint).sqrMagnitude;
-        //         var sqrDistanceToRoot = (projectedPoint - root).sqrMagnitude;
-        //         sqrDistance += sqrDistanceToRoot;
-        //         if (sqrDistance < minDistance)
-        //         {
-        //             minDistance = sqrDistance;
-        //             point = projectedPoint;
-        //         }
-        //     }
-        //
-        //     return point;
-        // }
-        //
-        // private static Vector2 ProjectionOfPointOnSegment(Vector2 point, Vector2 a, Vector2 b)
-        // {
-        //     var aToPoint = point - a;
-        //     var aTob = b - a;
-        //
-        //     if (aTob.sqrMagnitude > 0.001f)
-        //     {
-        //         var dot = Vector2.Dot(aTob, aToPoint);
-        //         var magAToBSqr = aTob.sqrMagnitude;
-        //         if (dot >= magAToBSqr)
-        //         {
-        //             return b;
-        //         }
-        //
-        //         if (dot <= 0)
-        //         {
-        //             return a;
-        //         }
-        //
-        //         return aTob * dot / magAToBSqr + a;
-        //     }
-        //
-        //     return Vector2.zero;
-        // }
+        public void SetPenBall(Transform tr)
+        {
+            penBall = tr;
+        }
     }
 }
