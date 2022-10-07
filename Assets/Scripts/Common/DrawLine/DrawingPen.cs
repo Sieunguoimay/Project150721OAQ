@@ -44,7 +44,7 @@ namespace Common.DrawLine
             {
                 var point = points[contour[contourStartIndex].Item1];
                 drawingSurface.DrawBegin(point);
-                handler.OnDraw(point, 0f);
+                handler.OnDraw(drawingSurface.transform.TransformPoint(new Vector3(point.x, 0, point.y)), 0f);
             }, () => true));
 
             var n = Mathf.Min(contour.Length, contourStartIndex + contourLength);

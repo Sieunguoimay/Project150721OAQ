@@ -27,9 +27,6 @@ namespace Gameplay.BambooStick
             _boardSketcher.Sketch(_boardManager.Board);
             for (var i = 0; i < _boardSketcher.PenUsageNum; i++)
             {
-                _boardSketcher.Pens[i].SetPenBall(bambooStickVisualTransforms[i]);
-                _boardSketcher.Pens[i].Done += OnSketchingDone;
-
                 var stick = bambooSticks[i];
                 var index = i * (_boardSketcher.Points.Count / _boardSketcher.PenUsageNum);
                 stick.timeline.Play();
@@ -62,6 +59,12 @@ namespace Gameplay.BambooStick
 
         public void BeginDrawing()
         {
+            for (var i = 0; i < _boardSketcher.PenUsageNum; i++)
+            {
+                _boardSketcher.Pens[i].SetPenBall(bambooStickVisualTransforms[i]);
+                _boardSketcher.Pens[i].Done += OnSketchingDone;
+            }
+
             _boardSketcher.StartDrawing();
         }
 
