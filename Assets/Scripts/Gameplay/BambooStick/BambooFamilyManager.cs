@@ -25,13 +25,38 @@ namespace Gameplay.BambooStick
         public void BeginAnimSequence()
         {
             _boardSketcher.Sketch(_boardManager.Board);
-            _boardSketcher.SetPenBalls(bambooStickVisualTransforms);
             for (var i = 0; i < _boardSketcher.PenUsageNum; i++)
             {
+                _boardSketcher.Pens[i].SetPenBall(bambooStickVisualTransforms[i]);
+                _boardSketcher.Pens[i].Done += OnSketchingDone;
+
                 var stick = bambooSticks[i];
+                var index = i * (_boardSketcher.Points.Count / _boardSketcher.PenUsageNum);
                 stick.timeline.Play();
                 stick.timeline.stopped += TimelineStopped;
-                stick.end.position = _boardSketcher.Points[i * (_boardSketcher.Points.Count / _boardSketcher.PenUsageNum)];
+                var endPos = _boardSketcher.transform.TransformPoint(new Vector3(_boardSketcher.Points[index].x, 0,
+                    _boardSketcher.Points[index].y));
+                var forward = (_boardSketcher.Points[index] - _boardSketcher.Points[index + 1]).normalized;
+                var endForward = _boardSketcher.transform.TransformPoint(new Vector3(forward.x, 0, forward.y));
+                stick.UpdatePath(stick.start.position, stick.start.forward, endPos, endForward);
+            }
+        }
+
+        private void OnSketchingDone(VisualPen visualPen)
+        {
+            visualPen.Done -= OnSketchingDone;
+            _timelineCount++;
+            if (_timelineCount == _boardSketcher.PenUsageNum)
+            {
+                for (var i = 0; i < _boardSketcher.PenUsageNum; i++)
+                {
+                    var stick = bambooSticks[i];
+                    var endPosition = stick.start.position;
+                    var endForward = stick.start.forward;
+                    stick.mover.ResetDisplacement();
+                    stick.UpdatePath(stick.mover.transform.position, stick.mover.transform.forward, endPosition, endForward);
+                    stick.timeline.Play();
+                }
             }
         }
 
@@ -43,9 +68,10 @@ namespace Gameplay.BambooStick
         private void TimelineStopped(PlayableDirector playableDirector)
         {
             _timelineCount++;
-            if (_timelineCount == bambooSticks.Length)
+            if (_timelineCount == _boardSketcher.PenUsageNum)
             {
                 BeginDrawing();
+                _timelineCount = 0;
             }
 
             playableDirector.stopped -= TimelineStopped;

@@ -13,6 +13,8 @@ namespace Gameplay.Board.BoardDrawing
 
         private BezierSplineWithDistance _spline;
 
+        public event Action<VisualPen> Done;
+
         public void Draw(Vector2[] points, (int, int)[] contour, int contourStartIndex, int contourLength, string inkName)
         {
             var points3D = new Vector3[contourLength + 1];
@@ -44,6 +46,7 @@ namespace Gameplay.Board.BoardDrawing
 
         public void OnDone()
         {
+            Done?.Invoke(this);
         }
 
         public void SetPenBall(Transform tr)

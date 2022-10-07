@@ -13,15 +13,26 @@ namespace Common.Curve
     {
         public abstract BezierSplineModifiable SplineModifiable { get; }
     }
-    
+
     public class BezierSplineCreator : BezierSplineModifiableMono
     {
         [SerializeField] private Vector3[] controlPoints;
         [SerializeField] private BezierPointMode[] modes;
         [SerializeField] private bool closed;
 
-        public override BezierSplineModifiable SplineModifiable => _splineModifiable;
-        
+        public override BezierSplineModifiable SplineModifiable
+        {
+            get
+            {
+                if (_splineModifiable == null)
+                {
+                    OnValidate();
+                }
+
+                return _splineModifiable;
+            }
+        }
+
         private BezierSplineModifiable _splineModifiable;
 
         private void OnValidate()
@@ -59,17 +70,7 @@ namespace Common.Curve
             closed = SplineModifiable.Closed;
         }
 
-        public override BezierSpline Spline
-        {
-            get
-            {
-                if (SplineModifiable == null)
-                {
-                    OnValidate();
-                }
-                return SplineModifiable;
-            }
-        }
+        public override BezierSpline Spline => SplineModifiable;
 
         public void SetClosed(bool close)
         {

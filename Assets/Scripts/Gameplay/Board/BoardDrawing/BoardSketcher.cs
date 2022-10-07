@@ -34,6 +34,8 @@ namespace Gameplay.Board.BoardDrawing
 
         [field: System.NonSerialized] public int PenUsageNum { get; private set; }
 
+        public VisualPen[] Pens => pens;
+
         public void SetPenBalls(Transform[] transforms)
         {
             var n = Mathf.Min(pens.Length, transforms.Length);

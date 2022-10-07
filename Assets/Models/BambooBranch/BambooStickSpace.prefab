@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2964745638245834820}
+  - component: {fileID: 8750962693409042281}
   m_Layer: 0
   m_Name: BambooStickSpace
   m_TagString: Untagged
@@ -34,6 +35,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8750962693409042281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3428474911248958965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b447eba57a54871bf9815b7d6bc5cc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mover: {fileID: 5983454113372052464}
+  timeline: {fileID: 3731970366165721802}
+  start: {fileID: 7680233613799053206}
+  end: {fileID: 3058907933668942640}
 --- !u!1 &3557494859024931712
 GameObject:
   m_ObjectHideFlags: 0
@@ -305,7 +322,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bezierSpline: {fileID: 3771502840049055048}
-  distance: 1.5
+  distance: 2
   onFinished:
     m_PersistentCalls:
       m_Calls: []
