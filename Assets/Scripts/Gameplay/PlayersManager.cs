@@ -1,5 +1,6 @@
 ﻿using Common.ResolveSystem;
 using Gameplay.Board;
+using Gameplay.GameInteract;
 using SNM;
 using UnityEngine;
 
@@ -10,10 +11,11 @@ namespace Gameplay
         public Player[] Players { get; private set; }
         private Player _mainPlayer;
         private TileSelector _tileSelector;
-
+        private GameInteractManager _interactManager;
         public override void Setup(IResolver resolver)
         {
             _tileSelector = resolver.Resolve<TileSelector>();
+            _interactManager = resolver.Resolve<GameInteractManager>();
         }
 
         public override void TearDown()
@@ -22,7 +24,7 @@ namespace Gameplay
 
         private void Start()
         {
-            _mainPlayer = new RealPlayer(0, _tileSelector);
+            _mainPlayer = new Player(0, _interactManager);
         }
 
         public void ResetAll()
@@ -39,7 +41,7 @@ namespace Gameplay
             Players[0] = _mainPlayer;
             for (var i = 1; i < n; i++)
             {
-                Players[i] = new FakePlayer(i, _tileSelector);
+                Players[i] = new Player(i, _interactManager);
             }
         }
 

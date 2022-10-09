@@ -442,7 +442,7 @@ MonoBehaviour:
       size: 0.01
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
-    m_Visible: 1
+    m_Visible: 0
   - m_Transform: {fileID: 3246257156417261910}
     m_Style:
       shape: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
@@ -450,7 +450,7 @@ MonoBehaviour:
       size: 0.01
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
-    m_Visible: 1
+    m_Visible: 0
 --- !u!1 &3804107264244022917
 GameObject:
   m_ObjectHideFlags: 0

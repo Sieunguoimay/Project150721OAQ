@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Gameplay.Board
 {
     [SelectionBase]
-    public class Tile : PieceContainer, RayPointer.ITarget, ISelectorTarget
+    public class Tile : PieceContainer, RayPointer.IRaycastTarget, ISelectorTarget
     {
         [SerializeField] private float size;
         private BoxCollider _collider;
@@ -39,7 +39,7 @@ namespace Gameplay.Board
 
         #endregion ISelectorTarget
 
-        #region RayPointer.ITarget
+        #region RayPointer.IRaycastTarget
 
         public Bounds Bounds => Collider.bounds;
 

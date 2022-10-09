@@ -12,7 +12,7 @@ namespace Gameplay.Board
         [SerializeField] private Tile mandarinTilePrefab;
         [SerializeField] private Tile citizenTilePrefab;
         public Board Board { get; } = new();
-
+        [field: System.NonSerialized] public Tile[] SpawnedTiles { get; private set; }
 
 
         public override void Setup(IResolver resolver)
@@ -44,12 +44,13 @@ namespace Gameplay.Board
 
             if (Application.isPlaying)
             {
+                SpawnedTiles = new Tile[polygon.Length * (tilesPerGroup + 1)];
                 var tileGroups = new Board.TileGroup[groupNum];
                 for (var i = 0; i < polygon.Length; i++)
                 {
                     var cornerPos = polygon[i];
 
-                    SpawnMandarinTile(tileGroups, i, tilesPerGroup,
+                    SpawnedTiles[i * (tilesPerGroup + 1)] = SpawnMandarinTile(tileGroups, i, tilesPerGroup,
                         ToVector3(cornerPos + cornerPos.normalized * mandarinTilePrefab.Size / 2f),
                         Quaternion.LookRotation(ToVector3(cornerPos)));
 
@@ -61,7 +62,8 @@ namespace Gameplay.Board
                     for (var j = 0; j < tilesPerGroup; j++)
                     {
                         var pj = p0 + (j + 0.5f) * citizenTilePrefab.Size * dir;
-                        SpawnCitizenTile(tileGroups, i, j, ToVector3(pj + normal * citizenTilePrefab.Size / 2f),
+                        SpawnedTiles[i * (tilesPerGroup + 1) + j] = SpawnCitizenTile(tileGroups, i, j,
+                            ToVector3(pj + normal * citizenTilePrefab.Size / 2f),
                             Quaternion.LookRotation(ToVector3(normal)));
                     }
                 }
@@ -77,7 +79,7 @@ namespace Gameplay.Board
             });
         }
 
-        private void SpawnMandarinTile(IList<Board.TileGroup> tileGroups, int i, int tilesPerGroup, Vector3 position,
+        private Tile SpawnMandarinTile(IList<Board.TileGroup> tileGroups, int i, int tilesPerGroup, Vector3 position,
             Quaternion rotation)
         {
             var mandarinTile = Instantiate(mandarinTilePrefab, transform);
@@ -86,15 +88,17 @@ namespace Gameplay.Board
 
             tileGroups[i] = new Board.TileGroup
                 {MandarinTile = mandarinTile, Tiles = new IPieceHolder[tilesPerGroup]};
+            return mandarinTile;
         }
 
-        private void SpawnCitizenTile(IList<Board.TileGroup> tileGroups, int i, int j, Vector3 position,
+        private Tile SpawnCitizenTile(IList<Board.TileGroup> tileGroups, int i, int j, Vector3 position,
             Quaternion rotation)
         {
             var citizenTile = Instantiate(citizenTilePrefab, transform);
             citizenTile.Setup();
             citizenTile.transform.SetPositionAndRotation(position, rotation);
             tileGroups[i].Tiles[j] = citizenTile;
+            return citizenTile;
         }
 
         private static Vector3 ToVector3(Vector2 v) => new(v.x, 0, v.y);

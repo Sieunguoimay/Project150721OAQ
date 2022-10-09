@@ -9,7 +9,7 @@ namespace SNM
 {
     public class RayPointer : Singleton<RayPointer>
     {
-        private readonly List<ITarget> _listeners = new();
+        private readonly List<IRaycastTarget> _listeners = new();
         private Camera _camera;
 
         public void SetCamera(Camera cam)
@@ -22,12 +22,12 @@ namespace SNM
             _listeners.Clear();
         }
 
-        public void Register(ITarget target)
+        public void Register(IRaycastTarget target)
         {
             _listeners.Add(target);
         }
 
-        public void Unregister(ITarget target)
+        public void Unregister(IRaycastTarget target)
         {
             _listeners.Remove(target);
         }
@@ -45,7 +45,7 @@ namespace SNM
             var ray = _camera.ScreenPointToRay(position);
 
             var minDistance = float.MaxValue;
-            ITarget selectedTarget = null;
+            IRaycastTarget selectedTarget = null;
 
             foreach (var l in _listeners)
             {
@@ -60,10 +60,9 @@ namespace SNM
             selectedTarget?.OnHit(ray, minDistance);
         }
 
-        public interface ITarget
+        public interface IRaycastTarget
         {
             Bounds Bounds { get; }
-
             void OnHit(Ray ray, float distance);
         }
     }

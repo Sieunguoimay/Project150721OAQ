@@ -6,7 +6,7 @@ using UnityEngine.Events;
 namespace SNM
 {
     [RequireComponent(typeof(MeshRenderer))]
-    public class MeshBoundsClicker : MonoBehaviour, RayPointer.ITarget
+    public class MeshBoundsClicker : MonoBehaviour, RayPointer.IRaycastTarget
     {
         [SerializeField] private UnityEvent onClick;
         public event Action OnClick = delegate { };

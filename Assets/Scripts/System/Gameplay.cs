@@ -12,7 +12,7 @@ namespace System
         private PlayersManager _playersManager;
         private Board _board;
         private PieceManager _pieceManager;
-        
+
         private readonly PieceDropper _pieceDropper = new();
 
         private PerMatchData _perMatchData;
@@ -26,7 +26,7 @@ namespace System
             _board = board;
             _playersManager = playersManager;
             _pieceManager = pieceManager;
-            
+
             _pieceDropper.Setup(_board);
 
             ConnectEvents();
@@ -45,10 +45,7 @@ namespace System
             IsPlaying = true;
             ChangePlayer();
             _perMatchData = new PerMatchData(_playersManager.Players.Length);
-            _pieceManager.ReleasePieces(() =>
-            {
-                CurrentPlayer.MakeDecision(_board);
-            }, _board);
+            _pieceManager.ReleasePieces(() => { CurrentPlayer.MakeDecision(_board, OnDecisionResult); }, _board);
         }
 
         public void ResetGame()
@@ -80,10 +77,6 @@ namespace System
         {
             _pieceDropper.OnDone += OnDropperDone;
             _pieceDropper.OnEat += OnEatPieces;
-            foreach (var player in _playersManager.Players)
-            {
-                player.OnDecisionResult += OnDecisionResult;
-            }
         }
 
         private void DisconnectEvents()
@@ -92,11 +85,6 @@ namespace System
             _pieceDropper.OnEat -= OnEatPieces;
 
             if (_playersManager.Players == null) return;
-            
-            foreach (var player in _playersManager.Players)
-            {
-                player.OnDecisionResult -= OnDecisionResult;
-            }
         }
 
         private void OnDecisionResult(Tile tile, bool forward)
@@ -134,7 +122,7 @@ namespace System
                 }
                 else
                 {
-                    CurrentPlayer.MakeDecision(_board);
+                    CurrentPlayer.MakeDecision(_board, OnDecisionResult);
                     gameOver = false;
                 }
             }
