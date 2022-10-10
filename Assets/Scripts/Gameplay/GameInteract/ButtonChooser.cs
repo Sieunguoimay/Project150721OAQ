@@ -16,7 +16,7 @@ namespace Gameplay.GameInteract
             var n = Mathf.Min(buttonViews.Length, _buttons.Length);
             for (var i = 0; i < n; i++)
             {
-                buttonViews[i].RiseUp(_buttons[i].position, _buttons[i], OnButtonClick);
+                buttonViews[i].RiseUp(_buttons[i].position, _buttons[i].rotation, _buttons[i], OnButtonClick);
             }
         }
 
@@ -38,6 +38,7 @@ namespace Gameplay.GameInteract
         public class ButtonData
         {
             public Vector3 position;
+            public Quaternion rotation;
             public int displayInfo;
             public object AttachedData;
         }

@@ -9,12 +9,13 @@ using UnityEngine;
 namespace Gameplay.Board
 {
     [SelectionBase]
-    public class Tile : PieceContainer, RayPointer.IRaycastTarget, ISelectorTarget
+    public class Tile : PieceContainer, RayPointer.IRaycastMiss, ISelectorTarget
     {
         [SerializeField] private float size;
         private BoxCollider _collider;
         private BoxCollider Collider => _collider ??= GetComponent<BoxCollider>();
         public event Action<Tile> OnTouched = delegate { };
+        public event Action<Tile> OnOutSide = delegate { };
 
         public override void Setup()
         {
@@ -48,6 +49,11 @@ namespace Gameplay.Board
         public void OnHit(Ray ray, float distance)
         {
             OnTouched?.Invoke(this);
+        }
+
+        public void OnMiss()
+        {
+            OnOutSide?.Invoke(this);
         }
 
         #endregion RayPointer.ITarget

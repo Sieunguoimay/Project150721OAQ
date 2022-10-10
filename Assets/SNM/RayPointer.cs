@@ -47,8 +47,9 @@ namespace SNM
             var minDistance = float.MaxValue;
             IRaycastTarget selectedTarget = null;
 
-            foreach (var l in _listeners)
+            for (var i = 0; i < _listeners.Count; i++)
             {
+                var l = _listeners[i];
                 if (!l.Bounds.IntersectRay(ray, out var distance)) continue;
                 if (minDistance > distance)
                 {
@@ -58,12 +59,24 @@ namespace SNM
             }
 
             selectedTarget?.OnHit(ray, minDistance);
+            for (var i = 0; i < _listeners.Count; i++)
+            {
+                if (_listeners[i] != selectedTarget && _listeners[i] is IRaycastMiss miss)
+                {
+                    miss.OnMiss();
+                }
+            }
         }
 
         public interface IRaycastTarget
         {
             Bounds Bounds { get; }
             void OnHit(Ray ray, float distance);
+        }
+
+        public interface IRaycastMiss : IRaycastTarget
+        {
+            void OnMiss();
         }
     }
 }

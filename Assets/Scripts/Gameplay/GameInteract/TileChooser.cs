@@ -25,7 +25,7 @@ namespace Gameplay.GameInteract
 
         private static ButtonChooser.ButtonData[] GenerateButtonData(IReadOnlyList<Tile> tiles, float offsetFromTile)
         {
-            var offset = Vector3.Cross(tiles[0].transform.position + tiles[1].transform.position,
+            var offset = Vector3.Cross(tiles[0].transform.position - tiles[1].transform.position,
                 tiles[0].transform.up) * offsetFromTile;
             var buttons = new ButtonChooser.ButtonData[tiles.Count];
             for (var i = 0; i < tiles.Count; i++)
@@ -33,6 +33,7 @@ namespace Gameplay.GameInteract
                 buttons[i] = new ButtonChooser.ButtonData
                 {
                     position = tiles[i].transform.position + offset,
+                    rotation = tiles[i].transform.rotation,
                     displayInfo = tiles[i].Pieces.Count,
                     AttachedData = tiles[i]
                 };

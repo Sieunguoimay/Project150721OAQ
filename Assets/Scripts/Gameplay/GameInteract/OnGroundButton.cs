@@ -11,8 +11,8 @@ namespace Gameplay.GameInteract
 
         [field: NonSerialized] public bool Active { get; private set; }
         [field: NonSerialized] public object AttachedData { get; private set; }
-        private  Action<OnGroundButton> _onClick;
-        
+        private Action<OnGroundButton> _onClick;
+
         private void Start()
         {
             Initialize();
@@ -24,9 +24,10 @@ namespace Gameplay.GameInteract
             visual.gameObject.SetActive(Active);
         }
 
-        public void RiseUp(Vector3 position, object data, Action<OnGroundButton> onClick)
+        public void RiseUp(Vector3 position, Quaternion rotation, object data, Action<OnGroundButton> onClick)
         {
             transform.position = position;
+            transform.rotation = rotation;
             AttachedData = data;
             _onClick = onClick;
             Active = true;
