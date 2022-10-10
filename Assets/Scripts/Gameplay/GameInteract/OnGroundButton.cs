@@ -1,4 +1,5 @@
 ﻿using System;
+using DG.Tweening;
 using SNM;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace Gameplay.GameInteract
     public class OnGroundButton : MonoBehaviour, RayPointer.IRaycastTarget
     {
         [SerializeField] private Transform visual;
-        [SerializeField] private Vector2 size;
+        [SerializeField] private Vector3 size;
 
         [field: NonSerialized] public bool Active { get; private set; }
         [field: NonSerialized] public object AttachedData { get; private set; }
@@ -30,24 +31,36 @@ namespace Gameplay.GameInteract
             transform.rotation = rotation;
             AttachedData = data;
             _onClick = onClick;
-            Active = true;
-            RayPointer.Instance.Register(this);
-            visual.gameObject.SetActive(Active);
+            visual.transform.localPosition = -Vector3.up * (size.y * 0.5f);
+            visual.gameObject.SetActive(true);
+            visual.transform.DOLocalMoveY(0, .15f).OnComplete(() =>
+            {
+                Active = true;
+                RayPointer.Instance.Register(this);
+            }).SetLink(visual.gameObject);
         }
 
         public void HideAway()
         {
+            if (!Active) return;
             Active = false;
             RayPointer.Instance.Unregister(this);
-            visual.gameObject.SetActive(Active);
+            visual.transform.DOLocalMoveY(-size.y * 0.5f, .15f).OnComplete(() =>
+            {
+                visual.gameObject.SetActive(Active);
+            }).SetLink(visual.gameObject);
         }
 
         public void Click()
         {
-            _onClick?.Invoke(this);
+            HideAway();
+            this.Delay(.2f, () =>
+            {
+                _onClick?.Invoke(this);
+            });
         }
 
-        public Bounds Bounds => new(transform.position, new Vector3(size.x, .1f, size.y));
+        public Bounds Bounds => new(transform.position, size);
 
         public void OnHit(Ray ray, float distance)
         {

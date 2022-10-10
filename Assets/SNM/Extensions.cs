@@ -20,6 +20,34 @@ namespace SNM
             onDone?.Invoke();
         }
 
+        public static Coroutine TimingForLoop(this MonoBehaviour mb, float duration, int n, Action<int> onIteration)
+        {
+            var index = 0;
+            return mb.TimeProgress(duration, p =>
+            {
+                if (!(p >= index * (1f / (n - 1)))) return;
+                
+                onIteration?.Invoke(index);
+                index++;
+            });
+        }
+
+        public static Coroutine TimeProgress(this MonoBehaviour mb, float duration, Action<float> onProgress)
+            => mb.StartCoroutine(TimeProgress(duration, onProgress));
+
+        private static IEnumerator TimeProgress(float duration, Action<float> onProgress)
+        {
+            var time = 0f;
+            while (time < duration)
+            {
+                onProgress?.Invoke(time / duration);
+                time += Time.deltaTime;
+                yield return null;
+            }
+
+            onProgress?.Invoke(1f);
+        }
+
         public static void ExecuteInNextFrame(this MonoBehaviour mb, Action onDone)
         {
             mb.StartCoroutine(ExecuteInNextFrame(onDone));

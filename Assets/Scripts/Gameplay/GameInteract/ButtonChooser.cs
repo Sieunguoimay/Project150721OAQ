@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using SNM;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
@@ -14,10 +17,10 @@ namespace Gameplay.GameInteract
             _buttons = buttons;
             _onResult = onResult;
             var n = Mathf.Min(buttonViews.Length, _buttons.Length);
-            for (var i = 0; i < n; i++)
+            this.TimingForLoop(.3f, n, i =>
             {
                 buttonViews[i].RiseUp(_buttons[i].position, _buttons[i].rotation, _buttons[i], OnButtonClick);
-            }
+            });
         }
 
         public void HideButtons()
