@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using SNM;
+using TMPro;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
@@ -20,6 +21,14 @@ namespace Gameplay.GameInteract
             this.TimingForLoop(.3f, n, i =>
             {
                 buttonViews[i].RiseUp(_buttons[i].position, _buttons[i].rotation, _buttons[i], OnButtonClick);
+                try
+                {
+                    buttonViews[i].GetComponentInChildren<TextMeshPro>().text = $"{_buttons[i].displayInfo}";
+                }
+                catch (Exception e)
+                {
+                    //                    
+                }
             });
         }
 

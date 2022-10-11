@@ -18,15 +18,15 @@ namespace Gameplay.GameInteract
         public void ChooseTile(Tile[] tiles, Action<Tile> onResult)
         {
             _onResult = onResult;
-            var offset = tiles[0].Size;
-            _buttons = GenerateButtonData(tiles, offset);
+            var offsetFromTile = tiles[0].Size;
+            var offset = Vector3.Cross((tiles[0].transform.position - tiles[1].transform.position).normalized,
+                tiles[0].transform.up) * offsetFromTile;
+            _buttons = GenerateButtonData(tiles.Where(t => t.Pieces.Count > 0).ToList(), offset);
             buttonChooser.ShowButtons(_buttons, OnTileChooserResult);
         }
 
-        private static ButtonChooser.ButtonData[] GenerateButtonData(IReadOnlyList<Tile> tiles, float offsetFromTile)
+        private static ButtonChooser.ButtonData[] GenerateButtonData(IReadOnlyList<Tile> tiles, Vector3 offset)
         {
-            var offset = Vector3.Cross(tiles[0].transform.position - tiles[1].transform.position,
-                tiles[0].transform.up) * offsetFromTile;
             var buttons = new ButtonChooser.ButtonData[tiles.Count];
             for (var i = 0; i < tiles.Count; i++)
             {

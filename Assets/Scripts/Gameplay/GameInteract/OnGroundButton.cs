@@ -1,6 +1,7 @@
 ﻿using System;
 using DG.Tweening;
 using SNM;
+using TMPro;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
@@ -33,7 +34,7 @@ namespace Gameplay.GameInteract
             _onClick = onClick;
             visual.transform.localPosition = -Vector3.up * (size.y * 0.5f);
             visual.gameObject.SetActive(true);
-            visual.transform.DOLocalMoveY(0, .15f).OnComplete(() =>
+            visual.transform.DOLocalMoveY(size.y * 0.5f, .15f).OnComplete(() =>
             {
                 Active = true;
                 RayPointer.Instance.Register(this);
@@ -42,22 +43,22 @@ namespace Gameplay.GameInteract
 
         public void HideAway()
         {
+            HideAway(.15f);
+        }
+
+        private void HideAway(float duration)
+        {
             if (!Active) return;
             Active = false;
             RayPointer.Instance.Unregister(this);
-            visual.transform.DOLocalMoveY(-size.y * 0.5f, .15f).OnComplete(() =>
-            {
-                visual.gameObject.SetActive(Active);
-            }).SetLink(visual.gameObject);
+            visual.transform.DOLocalMoveY(-size.y * 0.5f, duration).OnComplete(() => { visual.gameObject.SetActive(Active); })
+                .SetLink(visual.gameObject);
         }
 
         public void Click()
         {
-            HideAway();
-            this.Delay(.2f, () =>
-            {
-                _onClick?.Invoke(this);
-            });
+            HideAway(.05f);
+            this.Delay(.1f, () => { _onClick?.Invoke(this); });
         }
 
         public Bounds Bounds => new(transform.position, size);
