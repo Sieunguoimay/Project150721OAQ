@@ -11,18 +11,24 @@ namespace Gameplay.GameInteract
     {
         [SerializeField] private ButtonChooser buttonChooser;
 
-        private ButtonChooser.ButtonData[] _buttons;
+        private Tile[] _tiles;
+        private Tile[] _options;
+        private Action<int> _onResult;
 
-        private Action<Tile> _onResult;
-
-        public void ChooseTile(Tile[] tiles, Action<Tile> onResult)
+        public void ChooseTile(Tile[] tiles, Action<int> onResult)
         {
+            _tiles = tiles;
             _onResult = onResult;
             var offsetFromTile = tiles[0].Size;
             var offset = Vector3.Cross((tiles[0].transform.position - tiles[1].transform.position).normalized,
                 tiles[0].transform.up) * offsetFromTile;
-            _buttons = GenerateButtonData(tiles.Where(t => t.Pieces.Count > 0).ToList(), offset);
-            buttonChooser.ShowButtons(_buttons, OnTileChooserResult);
+            _options = tiles.Where(t => t.Pieces.Count > 0).ToArray();
+            buttonChooser.ShowButtons(GenerateButtonData(_options, offset), OnTileChooserResult);
+        }
+
+        private void OnTileChooserResult(int id)
+        {
+            _onResult?.Invoke(Array.IndexOf(_tiles, _options[id]));
         }
 
         private static ButtonChooser.ButtonData[] GenerateButtonData(IReadOnlyList<Tile> tiles, Vector3 offset)
@@ -34,17 +40,12 @@ namespace Gameplay.GameInteract
                 {
                     position = tiles[i].transform.position + offset,
                     rotation = tiles[i].transform.rotation,
-                    displayInfo = tiles[i].Pieces.Count,
-                    AttachedData = tiles[i]
+                    displayInfo = $"{tiles[i].Pieces.Count}",
+                    ID = i
                 };
             }
 
             return buttons;
-        }
-
-        private void OnTileChooserResult(ButtonChooser.ButtonData buttonData)
-        {
-            _onResult?.Invoke(buttonData.AttachedData as Tile);
         }
     }
 }

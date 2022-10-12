@@ -7,27 +7,53 @@ using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
+    public interface IOptionChooser
+    {
+        void SetupOptions(IReadOnlyList<IChoosingOption> options, Action<int> onResult);
+        void Choose(int index);
+    }
+
+    public interface IChoosingOption
+    {
+    }
+
+    public class OptionChooser : IOptionChooser
+    {
+        private Action<int> _onResult;
+
+        public void SetupOptions(IReadOnlyList<IChoosingOption> options, Action<int> onResult)
+        {
+            _onResult = onResult;
+        }
+
+        public void Choose(int index)
+        {
+            _onResult?.Invoke(index);
+        }
+    }
+
     public class ButtonChooser : MonoBehaviour
     {
         [SerializeField] private OnGroundButton[] buttonViews;
-        private ButtonData[] _buttons;
-        private Action<ButtonData> _onResult;
 
-        public void ShowButtons(ButtonData[] buttons, Action<ButtonData> onResult)
+        private ButtonData[] _buttons;
+        private Action<int> _onResult;
+
+        public void ShowButtons(ButtonData[] buttons, Action<int> onResult)
         {
             _buttons = buttons;
             _onResult = onResult;
             var n = Mathf.Min(buttonViews.Length, _buttons.Length);
             this.TimingForLoop(.3f, n, i =>
             {
-                buttonViews[i].RiseUp(_buttons[i].position, _buttons[i].rotation, _buttons[i], OnButtonClick);
+                buttonViews[i].RiseUp(_buttons[i].position, _buttons[i].rotation, i, OnButtonClick);
                 try
                 {
-                    buttonViews[i].GetComponentInChildren<TextMeshPro>().text = $"{_buttons[i].displayInfo}";
+                    buttonViews[i].GetComponentInChildren<TextMeshPro>().text = _buttons[i].displayInfo;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    //                    
+                    //
                 }
             });
         }
@@ -43,7 +69,7 @@ namespace Gameplay.GameInteract
 
         private void OnButtonClick(OnGroundButton obj)
         {
-            _onResult?.Invoke(obj.AttachedData as ButtonData);
+            _onResult?.Invoke(_buttons[obj.ID].ID);
             HideButtons();
         }
 
@@ -51,8 +77,8 @@ namespace Gameplay.GameInteract
         {
             public Vector3 position;
             public Quaternion rotation;
-            public int displayInfo;
-            public object AttachedData;
+            public string displayInfo;
+            public int ID;
         }
     }
 }

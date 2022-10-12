@@ -34,15 +34,15 @@ namespace Gameplay.Board
         public void Setup(IResolver resolver)
         {
             gameObject.SetActive(false);
-
-            left.OnClick += InvokeOnTouchedLeft;
-            right.OnClick += InvokeOnTouchedRight;
+            
+            left.Clicked.AddListener(InvokeOnTouchedLeft);
+            right.Clicked.AddListener(InvokeOnTouchedRight);
         }
 
         public void TearDown()
         {
-            left.OnClick -= InvokeOnTouchedLeft;
-            right.OnClick -= InvokeOnTouchedRight;
+            left.Clicked.RemoveListener(InvokeOnTouchedLeft);
+            right.Clicked.RemoveListener(InvokeOnTouchedRight);
         }
 
         public void Unbind(IResolver resolver)

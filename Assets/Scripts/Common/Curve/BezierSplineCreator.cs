@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Curve;
 using UnityEngine;
 
 namespace Common.Curve

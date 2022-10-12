@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Curve;
 using UnityEditor;
 using UnityEngine;
 

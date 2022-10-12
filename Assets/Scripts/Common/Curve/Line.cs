@@ -1,9 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Line : MonoBehaviour
+namespace Common.Curve
 {
-    public Vector3 p0;
-    public Vector3 p1;
+    public class Line : MonoBehaviour
+    {
+        public Vector3 p0;
+        public Vector3 p1;
+    }
 }

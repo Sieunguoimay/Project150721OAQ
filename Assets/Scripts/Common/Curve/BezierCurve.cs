@@ -1,7 +1,6 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Curve
+namespace Common.Curve
 {
     public class BezierCurve : MonoBehaviour
     {

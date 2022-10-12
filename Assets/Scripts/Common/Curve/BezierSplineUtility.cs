@@ -1,5 +1,4 @@
-﻿using Curve;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Common.Curve
 {

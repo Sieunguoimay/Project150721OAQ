@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Curve
+namespace Common.Curve
 {
     public static class Bezier
     {

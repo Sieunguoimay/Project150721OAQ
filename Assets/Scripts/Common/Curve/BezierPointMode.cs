@@ -1,4 +1,4 @@
-﻿namespace Curve
+﻿namespace Common.Curve
 {
     public enum BezierPointMode
     {

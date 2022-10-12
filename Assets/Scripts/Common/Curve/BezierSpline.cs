@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Curve;
 using UnityEngine;
 
 namespace Common.Curve

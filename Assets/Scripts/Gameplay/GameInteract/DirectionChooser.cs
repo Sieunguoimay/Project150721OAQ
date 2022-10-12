@@ -7,7 +7,7 @@ namespace Gameplay.GameInteract
     {
         [SerializeField] private ButtonChooser buttonChooser;
         [SerializeField, Min(0f)] private float spacing = .3f;
-        
+
         private ButtonChooser.ButtonData[] _buttons;
         private Action<int> _onResult;
 
@@ -16,15 +16,15 @@ namespace Gameplay.GameInteract
             _buttons = new ButtonChooser.ButtonData[3];
             _buttons[0] = new ButtonChooser.ButtonData
             {
-                AttachedData = 0
+                ID = 0
             };
             _buttons[1] = new ButtonChooser.ButtonData
             {
-                AttachedData = 1
+                ID = 1
             };
             _buttons[2] = new ButtonChooser.ButtonData
             {
-                AttachedData = 2
+                ID = 2
             };
         }
 
@@ -40,9 +40,9 @@ namespace Gameplay.GameInteract
             buttonChooser.ShowButtons(_buttons, OnTileChooserResult);
         }
 
-        private void OnTileChooserResult(ButtonChooser.ButtonData buttonData)
+        private void OnTileChooserResult(int id)
         {
-            _onResult?.Invoke((int)buttonData.AttachedData);
+            _onResult?.Invoke(_buttons[id].ID);
         }
     }
 }

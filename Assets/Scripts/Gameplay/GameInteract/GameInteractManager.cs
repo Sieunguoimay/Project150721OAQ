@@ -33,8 +33,9 @@ namespace Gameplay.GameInteract
             tileChooser.ChooseTile(_tiles, OnTileChooserResult);
         }
 
-        private void OnTileChooserResult(Tile tile)
+        private void OnTileChooserResult(int obj)
         {
+            var tile = _tiles[obj];
             _chosenTile = tile;
             _onSelected?.Invoke(tile);
 
@@ -67,5 +68,6 @@ namespace Gameplay.GameInteract
 
             _chosenTile = null;
         }
+
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using Curve;
 using Timeline;
 using UnityEngine;
 using UnityEngine.Timeline;

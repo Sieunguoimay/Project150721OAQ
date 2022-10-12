@@ -1,38 +1,30 @@
-﻿using System;
-using Common.ResolveSystem;
-using UnityEngine;
-using UnityEngine.Events;
+﻿using UnityEngine;
 
 namespace SNM
 {
-    [RequireComponent(typeof(MeshRenderer))]
-    public class MeshBoundsClicker : MonoBehaviour, RayPointer.IRaycastTarget
+    [RequireComponent(typeof(Renderer))]
+    public class MeshBoundsClicker : ABoundsClicker
     {
-        [SerializeField] private UnityEvent onClick;
-        public event Action OnClick = delegate { };
-
-        public Bounds Bounds => GetComponent<MeshRenderer>().bounds;
-
-        private void OnEnable()
+        private Renderer _renderer;
+        public override Bounds Bounds
         {
-            RayPointer.Instance.Register(this);
+            get
+            {
+                if (!Application.isPlaying)
+                {
+                    if (_renderer == null)
+                    {
+                        _renderer = GetComponent<MeshRenderer>();
+                    }
+                }
+                return _renderer.bounds;
+            }
         }
 
-        private void OnDisable()
+        protected override void InnerSetup()
         {
-            RayPointer.Instance.Unregister(this);
-        }
-
-        private void OnDrawGizmos()
-        {
-            Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.DrawWireCube(Vector3.zero, Bounds.size);
-        }
-
-        public void OnHit(Ray ray, float distance)
-        {
-            OnClick?.Invoke();
-            onClick?.Invoke();
+            _renderer = GetComponent<Renderer>();
+            base.InnerSetup();
         }
     }
 }

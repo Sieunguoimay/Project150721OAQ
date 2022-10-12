@@ -2,7 +2,6 @@
 using Common.Algorithm;
 using Common.Curve;
 using Common.DrawLine;
-using Curve;
 using UnityEngine;
 
 namespace Gameplay.Board.BoardDrawing
