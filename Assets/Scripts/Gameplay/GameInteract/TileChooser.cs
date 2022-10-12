@@ -23,7 +23,10 @@ namespace Gameplay.GameInteract
             var offset = Vector3.Cross((tiles[0].transform.position - tiles[1].transform.position).normalized,
                 tiles[0].transform.up) * offsetFromTile;
             _options = tiles.Where(t => t.Pieces.Count > 0).ToArray();
-            buttonChooser.ShowButtons(GenerateButtonData(_options, offset), OnTileChooserResult);
+            var buttons = GenerateButtonData(_options, offset);
+            buttonChooser.Setup(buttons, OnTileChooserResult);
+            buttonChooser.SetButtonsPositionAndRotation(buttons.Select(t => (t.Position, t.Rotation)).ToArray());
+            buttonChooser.ShowButtons();
         }
 
         private void OnTileChooserResult(int id)
@@ -38,9 +41,9 @@ namespace Gameplay.GameInteract
             {
                 buttons[i] = new ButtonChooser.ButtonData
                 {
-                    position = tiles[i].transform.position + offset,
-                    rotation = tiles[i].transform.rotation,
-                    displayInfo = $"{tiles[i].Pieces.Count}",
+                    Position = tiles[i].transform.position + offset,
+                    Rotation = tiles[i].transform.rotation,
+                    DisplayInfo = $"{tiles[i].Pieces.Count}",
                     ID = i
                 };
             }

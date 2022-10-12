@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
@@ -13,7 +14,7 @@ namespace Gameplay.GameInteract
 
         private void Start()
         {
-            _buttons = new ButtonChooser.ButtonData[3];
+            _buttons = new ButtonChooser.ButtonData[6];
             _buttons[0] = new ButtonChooser.ButtonData
             {
                 ID = 0
@@ -26,18 +27,32 @@ namespace Gameplay.GameInteract
             {
                 ID = 2
             };
+            _buttons[3] = new ButtonChooser.ButtonData
+            {
+                ID = 3
+            };
+            _buttons[4] = new ButtonChooser.ButtonData
+            {
+                ID = 4
+            };
+            _buttons[5] = new ButtonChooser.ButtonData
+            {
+                ID = 5
+            };
         }
 
         public void ChooseDirection(Vector3 position, Quaternion rotation, Action<int> onResult)
         {
             _onResult = onResult;
-            _buttons[0].position = position + rotation * Vector3.right * spacing;
-            _buttons[0].rotation = rotation;
-            _buttons[1].position = position - rotation * Vector3.right * spacing;
-            _buttons[1].rotation = rotation;
-            _buttons[2].position = position;
-            _buttons[2].rotation = rotation;
-            buttonChooser.ShowButtons(_buttons, OnTileChooserResult);
+            _buttons[0].Position = position + rotation * Vector3.right * spacing;
+            _buttons[0].Rotation = rotation;
+            _buttons[1].Position = position - rotation * Vector3.right * spacing;
+            _buttons[1].Rotation = rotation;
+            _buttons[2].Position = position;
+            _buttons[2].Rotation = rotation;
+            buttonChooser.Setup(_buttons, OnTileChooserResult);
+            buttonChooser.SetButtonsPositionAndRotation(_buttons.Select(b=>(b.Position,b.Rotation)).ToList().GetRange(0,3));
+            buttonChooser.ShowButtons();
         }
 
         private void OnTileChooserResult(int id)

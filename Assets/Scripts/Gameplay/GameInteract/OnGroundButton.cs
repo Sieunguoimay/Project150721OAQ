@@ -28,13 +28,20 @@ namespace Gameplay.GameInteract
             visual.Clicked.AddListener(Click);
         }
 
-        public void RiseUp(Vector3 position, Quaternion rotation, int id, Action<OnGroundButton> onClick)
+        public void SetupCallback(int id, Action<OnGroundButton> onClick)
+        {
+            ID = id;
+            _onClick = onClick;
+        }
+
+        public void SetPositionAndRotation(Vector3 position, Quaternion rotation)
         {
             transform.position = position;
             transform.rotation = rotation;
-            ID = id;
-            _onClick = onClick;
+        }
 
+        public void ShowUp()
+        {
             visual.gameObject.SetActive(true);
 
             visual.transform.localPosition = -Vector3.up * (VisualHeight * 0.5f);
@@ -55,10 +62,7 @@ namespace Gameplay.GameInteract
             if (!Active) return;
             Active = false;
             visual.SetInteractable(false);
-            visual.transform.DOLocalMoveY(-VisualHeight * 0.5f, duration).OnComplete(() =>
-            {
-                visual.gameObject.SetActive(Active);
-            }).SetLink(visual.gameObject);
+            visual.transform.DOLocalMoveY(-VisualHeight * 0.5f, duration).OnComplete(() => { visual.gameObject.SetActive(Active); }).SetLink(visual.gameObject);
         }
 
         [ContextMenu("Click")]

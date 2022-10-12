@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using SNM;
 using TMPro;
@@ -7,77 +6,64 @@ using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
-    public interface IOptionChooser
-    {
-        void SetupOptions(IReadOnlyList<IChoosingOption> options, Action<int> onResult);
-        void Choose(int index);
-    }
-
-    public interface IChoosingOption
-    {
-    }
-
-    public class OptionChooser : IOptionChooser
-    {
-        private Action<int> _onResult;
-
-        public void SetupOptions(IReadOnlyList<IChoosingOption> options, Action<int> onResult)
-        {
-            _onResult = onResult;
-        }
-
-        public void Choose(int index)
-        {
-            _onResult?.Invoke(index);
-        }
-    }
-
     public class ButtonChooser : MonoBehaviour
     {
-        [SerializeField] private OnGroundButton[] buttonViews;
+        [SerializeField] protected OnGroundButton[] buttonViews;
 
-        private ButtonData[] _buttons;
-        private Action<int> _onResult;
+        [field: System.NonSerialized] protected ButtonData[] Buttons { get; set; }
+        [field: System.NonSerialized] protected Action<int> Result { get; set; }
 
-        public void ShowButtons(ButtonData[] buttons, Action<int> onResult)
+        public virtual void Setup(ButtonData[] buttons, Action<int> onResult)
         {
-            _buttons = buttons;
-            _onResult = onResult;
-            var n = Mathf.Min(buttonViews.Length, _buttons.Length);
-            this.TimingForLoop(.3f, n, i =>
+            Buttons = buttons;
+            Result = onResult;
+            var n = Mathf.Min(buttonViews.Length, Buttons.Length);
+            for (var i = 0; i < n; i++)
             {
-                buttonViews[i].RiseUp(_buttons[i].position, _buttons[i].rotation, i, OnButtonClick);
-                try
-                {
-                    buttonViews[i].GetComponentInChildren<TextMeshPro>().text = _buttons[i].displayInfo;
-                }
-                catch (Exception)
-                {
-                    //
-                }
-            });
+                buttonViews[i].SetupCallback(i, OnButtonClick);
+            }
+        }
+
+        public void SetButtonsPositionAndRotation(IReadOnlyList<(Vector3, Quaternion)> posAndRots)
+        {
+            var n = Mathf.Min(buttonViews.Length, posAndRots.Count);
+            for (var i = 0; i < n; i++)
+            {
+                buttonViews[i].SetPositionAndRotation(posAndRots[i].Item1, posAndRots[i].Item2);
+            }
+        }
+
+        protected void OnButtonClick(OnGroundButton obj)
+        {
+            Choose(Buttons[obj.ID].ID);
+            HideButtons();
+        }
+
+        public void ShowButtons()
+        {
+            var n = Mathf.Min(buttonViews.Length, Buttons.Length);
+            this.TimingForLoop(.3f, n, i => { buttonViews[i].ShowUp(); });
         }
 
         public void HideButtons()
         {
-            var n = Mathf.Min(buttonViews.Length, _buttons.Length);
+            var n = Mathf.Min(buttonViews.Length, Buttons.Length);
             for (var i = 0; i < n; i++)
             {
                 buttonViews[i].HideAway();
             }
         }
 
-        private void OnButtonClick(OnGroundButton obj)
+        public void Choose(int index)
         {
-            _onResult?.Invoke(_buttons[obj.ID].ID);
-            HideButtons();
+            Result?.Invoke(index);
         }
 
         public class ButtonData
         {
-            public Vector3 position;
-            public Quaternion rotation;
-            public string displayInfo;
+            public Vector3 Position;
+            public Quaternion Rotation;
+            public string DisplayInfo;
             public int ID;
         }
     }
