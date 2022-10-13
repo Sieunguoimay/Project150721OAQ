@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1351281157230165190}
-  - component: {fileID: 7790210212337980076}
+  - component: {fileID: 6872908592761627781}
   m_Layer: 0
   m_Name: ButtonOnGround
   m_TagString: Untagged
@@ -33,7 +33,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7790210212337980076
+--- !u!114 &6872908592761627781
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,11 +42,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3899014435979982509}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c117cd463824198859e4534dff20ea3, type: 3}
+  m_Script: {fileID: 11500000, guid: 98dcecbe5c434373ac908fe6a4ff51b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   visual: {fileID: 218906656817105352}
-  text: {fileID: 3376947417822130440}
 --- !u!1 &4184641671575884770
 GameObject:
   m_ObjectHideFlags: 0
