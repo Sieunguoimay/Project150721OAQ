@@ -7,8 +7,6 @@ namespace Gameplay.GameInteract
     public class DirectionChooser : MonoBehaviour
     {
         [SerializeField] private ButtonChooser buttonChooser;
-        [SerializeField, Min(0f)] private float spacing = .3f;
-
         private ButtonChooser.ButtonData[] _buttons;
         private Action<int> _onResult;
 
@@ -44,14 +42,9 @@ namespace Gameplay.GameInteract
         public void ChooseDirection(Vector3 position, Quaternion rotation, Action<int> onResult)
         {
             _onResult = onResult;
-            _buttons[0].Position = position + rotation * Vector3.right * spacing;
-            _buttons[0].Rotation = rotation;
-            _buttons[1].Position = position - rotation * Vector3.right * spacing;
-            _buttons[1].Rotation = rotation;
-            _buttons[2].Position = position;
-            _buttons[2].Rotation = rotation;
+            transform.position = position;
+            transform.rotation = rotation;
             buttonChooser.Setup(_buttons, OnTileChooserResult);
-            buttonChooser.SetButtonsPositionAndRotation(_buttons.Select(b=>(b.Position,b.Rotation)).ToList().GetRange(0,3));
             buttonChooser.ShowButtons();
         }
 
