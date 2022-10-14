@@ -14,8 +14,9 @@ namespace Gameplay.GameInteract
 
         private BoardManager _boardManager;
         private Action<(Tile, bool)> _onResult;
-        private Tile _chosenTile;
+        [field: System.NonSerialized] public Tile ChosenTile { get; set; }
         private Tile[] _tiles;
+        private ICommand[] _choosingTileCommand;
 
         public override void Setup(IResolver resolver)
         {
@@ -25,16 +26,20 @@ namespace Gameplay.GameInteract
 
         public void PerformAction(Board.Board.TileGroup tileGroup, Action<(Tile, bool)> onResult)
         {
+
             _onResult = onResult;
             _tiles = _boardManager.SpawnedTiles.Where(st => tileGroup.Tiles.Contains(st)).ToArray();
-            tileChooser.ChooseTile(_tiles, OnTileChooserResult);
-        }
+            var options = _tiles.Where(t => t.Pieces.Count > 0).ToArray();
 
-        private void OnTileChooserResult(Tile tile)
-        {
-            _chosenTile = tile;
-            NotifyTilesAdapters(tile, true);
-            ShowDirectionChooserForTile(tile);
+            _choosingTileCommand = new ICommand[options.Length];
+            for (var i = 0; i < options.Length; i++)
+            {
+                _choosingTileCommand[i] = new ChoosingTileCommand(tileChooser.ButtonChooser, this, options[i]);
+            }
+            
+            ChosenTile = null;
+
+            ShowTileChooser();
         }
 
         public void NotifyTilesAdapters(Tile tile, bool selected)
@@ -52,24 +57,59 @@ namespace Gameplay.GameInteract
         public void ShowDirectionChooserForTile(Tile tile)
         {
             var pos = tile.transform.position + tile.transform.rotation * Vector3.forward * tile.Size;
-            actionChooser.ShowUp(pos, tile.transform.rotation, OnActionChooserResult);
+            actionChooser.ShowUp(pos, tile.transform.rotation, this);
         }
 
-
-        private void OnActionChooserResult(int result)
+        public void ShowTileChooser()
         {
-            if (result == 2)
-            {
-                NotifyTilesAdapters(_chosenTile, false);
+            tileChooser.ChooseTile(_tiles, _choosingTileCommand);
+        }
 
-                tileChooser.ChooseTile(_tiles, OnTileChooserResult);
-            }
-            else
-            {
-                _onResult?.Invoke((_chosenTile, result == 1));
-            }
+        // private void OnActionChooserResult(int result)
+        // {
+        //     if (result == 2)
+        //     {
+        //         NotifyTilesAdapters(ChosenTile, false);
+        //
+        //         ShowTileChooser();
+        //     }
+        //     else
+        //     {
+        //     }
+        //
+        // }
 
-            _chosenTile = null;
+        public void MoveLeftRight(bool right)
+        {
+            if (ChosenTile != null)
+            {
+                _onResult?.Invoke((ChosenTile, right));
+            }
+        }
+    }
+
+    public interface ICommand
+    {
+        void Execute();
+    }
+
+    public class ChoosingTileCommand : ButtonChooser.ButtonCommand
+    {
+        private readonly GameInteractManager _interact;
+        private readonly Tile _tile;
+
+        public ChoosingTileCommand(ButtonChooser buttonChooser, GameInteractManager interact, Tile tile) : base(buttonChooser)
+        {
+            _interact = interact;
+            _tile = tile;
+        }
+
+        public override void Execute()
+        {
+            base.Execute();
+            _interact.NotifyTilesAdapters(_tile, true);
+            _interact.ShowDirectionChooserForTile(_tile);
+            _interact.ChosenTile = _tile;
         }
     }
 }

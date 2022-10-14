@@ -13,7 +13,8 @@ namespace Gameplay.GameInteract
 
         private Tile[] _options;
         private TextMeshPro[] _texts;
-        private Action<Tile> _onResult;
+
+        public ButtonChooser ButtonChooser => buttonChooser;
 
         private void Start()
         {
@@ -24,12 +25,11 @@ namespace Gameplay.GameInteract
             }
         }
 
-        public void ChooseTile(Tile[] tiles, Action<Tile> onResult)
+        public void ChooseTile(Tile[] tiles, ICommand[] commands)
         {
-            _onResult = onResult;
-            _options = tiles.Where(t => t.Pieces.Count > 0).ToArray();
+            _options = tiles;//tiles.Where(t => t.Pieces.Count > 0).ToArray();
             SetButtonsPositionAndRotation(_options);
-            buttonChooser.Setup(_options.Length, OnTileChooserResult);
+            buttonChooser.Setup(_options.Length, commands);
             buttonChooser.ShowButtons();
         }
 
@@ -44,10 +44,10 @@ namespace Gameplay.GameInteract
                 _texts[i].text = $"{optionTiles[i].Pieces.Count}";
             }
         }
-
-        private void OnTileChooserResult(int index)
-        {
-            _onResult?.Invoke(_options[index]);
-        }
+        //
+        // private void OnTileChooserResult(int index)
+        // {
+        //     _onResult?.Invoke(_options[index]);
+        // }
     }
 }

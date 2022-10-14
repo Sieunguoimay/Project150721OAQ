@@ -9,28 +9,24 @@ namespace Gameplay.GameInteract
     public sealed class ButtonChooser : MonoBehaviour
     {
         [SerializeField] private OnGroundButton[] buttonViews;
-
         [field: System.NonSerialized] private int OptionNum { get; set; }
-        [field: System.NonSerialized] private Action<int> Result { get; set; }
-
         public OnGroundButton[] ButtonViews => buttonViews;
 
-        public void Setup(int num, Action<int> onResult)
+        public void Setup(int num, ICommand[] commands)
         {
             OptionNum = num;
-            Result = onResult;
             var n = Mathf.Min(buttonViews.Length, OptionNum);
             for (var i = 0; i < n; i++)
             {
-                buttonViews[i].SetupCallback(i, OnButtonClick);
+                buttonViews[i].SetupCallback(i, commands[i]);
             }
         }
 
-        private void OnButtonClick(OnGroundButton obj)
-        {
-            Choose(obj.ID);
-            HideButtons();
-        }
+        // private void OnButtonClick(OnGroundButton obj)
+        // {
+        //     // Choose(obj.ID);
+        //     HideButtons();
+        // }
 
         public void ShowButtons()
         {
@@ -47,9 +43,24 @@ namespace Gameplay.GameInteract
             }
         }
 
-        public void Choose(int index)
+        //
+        // public void Choose(int index)
+        // {
+        //     Result?.Invoke(index);
+        // }
+        public class ButtonCommand : ICommand
         {
-            Result?.Invoke(index);
+            private readonly ButtonChooser _chooser;
+
+            public ButtonCommand(ButtonChooser chooser)
+            {
+                _chooser = chooser;
+            }
+
+            public virtual void Execute()
+            {
+                _chooser.HideButtons();
+            }
         }
     }
 }

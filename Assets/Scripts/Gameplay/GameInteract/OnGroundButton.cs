@@ -13,7 +13,7 @@ namespace Gameplay.GameInteract
         [field: NonSerialized] public bool Active { get; private set; }
         [field: NonSerialized] public int ID { get; private set; }
 
-        private Action<OnGroundButton> _onClick;
+        private ICommand _command;
         private float VisualHeight => visual.Bounds.size.y;
 
         private void Start()
@@ -28,10 +28,10 @@ namespace Gameplay.GameInteract
             visual.Clicked.AddListener(Click);
         }
 
-        public void SetupCallback(int id, Action<OnGroundButton> onClick)
+        public void SetupCallback(int id, ICommand command)
         {
             ID = id;
-            _onClick = onClick;
+            _command = command;
         }
 
         public void SetPositionAndRotation(Vector3 position, Quaternion rotation)
@@ -69,7 +69,7 @@ namespace Gameplay.GameInteract
         public void Click()
         {
             HideAway(.05f);
-            this.Delay(.2f, () => { _onClick?.Invoke(this); });
+            this.Delay(.2f, () => { _command.Execute(); });
         }
     }
 }
