@@ -19,22 +19,15 @@ namespace Gameplay.Piece
         public override Animator Animator => _animator ??= animatorListener.GetComponent<Animator>();
         public override PlayableDirector JumpTimeline => jumpTimeline;
 
-        public void FaceCamera(Vector3 pos, bool immediate, Vector3 offset = new())
+        public void PlayAnimStandUp()
         {
-            var t = transform;
-            var dir = pos - t.position;
-            var up = t.up;
-            dir = SNM.Math.Projection(dir, up);
-            if (immediate)
-            {
-                transform.rotation = Quaternion.LookRotation(dir, up);
-            }
-            else
-            {
-                var target = Quaternion.LookRotation(dir, up).eulerAngles + offset;
-                var duration = (target - transform.eulerAngles).magnitude / PieceActivityQueue.Config.angularSpeed;
-                transform.DORotate(target, duration).SetLink(gameObject);
-            }
+            PieceScheduler.CreateAnimActivity(this, LegHashes.stand_up, () => { Animator.Play(LegHashes.idle); });
+            PieceActivityQueue.Begin();
+        }
+
+        public void PlayAnimSitDown()
+        {
+            Animator.Play(LegHashes.sit_down);
         }
     }
 }

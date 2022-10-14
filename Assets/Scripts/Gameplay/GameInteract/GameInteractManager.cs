@@ -10,11 +10,10 @@ namespace Gameplay.GameInteract
     public class GameInteractManager : InjectableBehaviour<GameInteractManager>
     {
         [SerializeField] private TileChooser tileChooser;
-        [SerializeField] private DirectionChooser directionChooser;
+        [SerializeField] private ActionChooser actionChooser;
 
         private BoardManager _boardManager;
         private Action<(Tile, bool)> _onResult;
-        private Action<Tile> _onSelected;
         private Tile _chosenTile;
         private Tile[] _tiles;
 
@@ -24,11 +23,9 @@ namespace Gameplay.GameInteract
             _boardManager = resolver.Resolve<BoardManager>();
         }
 
-        public void PerformAction(Board.Board.TileGroup tileGroup, Action<Tile> onSelected,
-            Action<(Tile, bool)> onResult)
+        public void PerformAction(Board.Board.TileGroup tileGroup, Action<(Tile, bool)> onResult)
         {
             _onResult = onResult;
-            _onSelected = onSelected;
             _tiles = _boardManager.SpawnedTiles.Where(st => tileGroup.Tiles.Contains(st)).ToArray();
             tileChooser.ChooseTile(_tiles, OnTileChooserResult);
         }
@@ -36,27 +33,34 @@ namespace Gameplay.GameInteract
         private void OnTileChooserResult(Tile tile)
         {
             _chosenTile = tile;
-            _onSelected?.Invoke(tile);
+            NotifyTilesAdapters(tile, true);
+            ShowDirectionChooserForTile(tile);
+        }
 
+        public void NotifyTilesAdapters(Tile tile, bool selected)
+        {
             var selectionAdaptors = tile.GetSelectionAdaptors();
             foreach (var sa in selectionAdaptors)
             {
-                sa.OnTileSelected();
+                if (selected)
+                    sa.OnTileSelected();
+                else
+                    sa.OnTileDeselected(false);
             }
-
-            var pos = tile.transform.position + tile.transform.rotation * Vector3.forward * tile.Size;
-            directionChooser.ChooseDirection(pos, tile.transform.rotation, OnDirectionChooserResult);
         }
 
-        private void OnDirectionChooserResult(int result)
+        public void ShowDirectionChooserForTile(Tile tile)
+        {
+            var pos = tile.transform.position + tile.transform.rotation * Vector3.forward * tile.Size;
+            actionChooser.ShowUp(pos, tile.transform.rotation, OnActionChooserResult);
+        }
+
+
+        private void OnActionChooserResult(int result)
         {
             if (result == 2)
             {
-                var selectionAdaptors = _chosenTile.GetSelectionAdaptors();
-                foreach (var sa in selectionAdaptors)
-                {
-                    sa.OnTileDeselected(false);
-                }
+                NotifyTilesAdapters(_chosenTile, false);
 
                 tileChooser.ChooseTile(_tiles, OnTileChooserResult);
             }
@@ -67,6 +71,5 @@ namespace Gameplay.GameInteract
 
             _chosenTile = null;
         }
-
     }
 }

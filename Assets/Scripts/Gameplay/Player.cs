@@ -26,7 +26,7 @@ namespace Gameplay
         public virtual void MakeDecision(Board.Board board, Action<Tile, bool> onResult)
         {
             _onDecisionResult = onResult;
-            _interactManager.PerformAction(board.TileGroups[Index], null, InvokeOnDecisionResult);
+            _interactManager.PerformAction(board.TileGroups[Index], InvokeOnDecisionResult);
         }
 
         protected void InvokeOnDecisionResult((Tile, bool) obj)

@@ -6,16 +6,16 @@ using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
-    public class ButtonChooser : MonoBehaviour
+    public sealed class ButtonChooser : MonoBehaviour
     {
-        [SerializeField] protected OnGroundButton[] buttonViews;
+        [SerializeField] private OnGroundButton[] buttonViews;
 
         [field: System.NonSerialized] private int OptionNum { get; set; }
         [field: System.NonSerialized] private Action<int> Result { get; set; }
 
         public OnGroundButton[] ButtonViews => buttonViews;
 
-        public virtual void Setup(int num, Action<int> onResult)
+        public void Setup(int num, Action<int> onResult)
         {
             OptionNum = num;
             Result = onResult;
@@ -26,7 +26,7 @@ namespace Gameplay.GameInteract
             }
         }
 
-        protected void OnButtonClick(OnGroundButton obj)
+        private void OnButtonClick(OnGroundButton obj)
         {
             Choose(obj.ID);
             HideButtons();

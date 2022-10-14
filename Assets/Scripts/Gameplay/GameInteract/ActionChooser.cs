@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
-    public class DirectionChooser : MonoBehaviour
+    public class ActionChooser : MonoBehaviour
     {
         [SerializeField] private ButtonChooser buttonChooser;
         
         private Action<int> _onResult;
 
-        public void ChooseDirection(Vector3 position, Quaternion rotation, Action<int> onResult)
+        public void ShowUp(Vector3 position, Quaternion rotation, Action<int> onResult)
         {
             _onResult = onResult;
             transform.position = position;
