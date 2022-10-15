@@ -6,27 +6,21 @@ using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
-    public sealed class ButtonChooser : MonoBehaviour
+    public sealed class ButtonContainer : MonoBehaviour
     {
         [SerializeField] private OnGroundButton[] buttonViews;
         [field: System.NonSerialized] private int OptionNum { get; set; }
         public OnGroundButton[] ButtonViews => buttonViews;
 
-        public void Setup(int num, ICommand[] commands)
+        public void Setup(ButtonData[] buttons)
         {
-            OptionNum = num;
+            OptionNum = buttons.Length;
             var n = Mathf.Min(buttonViews.Length, OptionNum);
             for (var i = 0; i < n; i++)
             {
-                buttonViews[i].SetupCallback(i, commands[i]);
+                buttonViews[i].SetCommand(buttons[i].Command);
             }
         }
-
-        // private void OnButtonClick(OnGroundButton obj)
-        // {
-        //     // Choose(obj.ID);
-        //     HideButtons();
-        // }
 
         public void ShowButtons()
         {
@@ -40,26 +34,22 @@ namespace Gameplay.GameInteract
             for (var i = 0; i < n; i++)
             {
                 buttonViews[i].HideAway();
+                buttonViews[i].SetCommand(null);
             }
         }
 
-        //
-        // public void Choose(int index)
-        // {
-        //     Result?.Invoke(index);
-        // }
         public class ButtonCommand : ICommand
         {
-            private readonly ButtonChooser _chooser;
+            private readonly ButtonContainer _container;
 
-            public ButtonCommand(ButtonChooser chooser)
+            public ButtonCommand(ButtonContainer container)
             {
-                _chooser = chooser;
+                _container = container;
             }
 
             public virtual void Execute()
             {
-                _chooser.HideButtons();
+                _container.HideButtons();
             }
         }
     }

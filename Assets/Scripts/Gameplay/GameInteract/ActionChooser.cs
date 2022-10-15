@@ -4,9 +4,9 @@ namespace Gameplay.GameInteract
 {
     public class ActionChooser : MonoBehaviour
     {
-        [SerializeField] private ButtonChooser buttonChooser;
+        [SerializeField] private ButtonContainer buttonContainer;
 
-        private ICommand[] _commands;
+        private ButtonData[] _commands;
 
         public void ShowUp(Vector3 position, Quaternion rotation, GameInteractManager interact)
         {
@@ -15,26 +15,35 @@ namespace Gameplay.GameInteract
 
             if (_commands == null)
             {
-                _commands = new ICommand[6];
-                _commands[0] = new MoveCommand(buttonChooser, interact, false);
-                _commands[1] = new MoveCommand(buttonChooser, interact, true);
-                _commands[2] = new CancelActionChooserCommand(buttonChooser, interact);
-
-                _commands[3] = new SpecialMoveCommand(buttonChooser);
-                _commands[4] = new SpecialMoveCommand(buttonChooser);
-                _commands[5] = new SpecialMoveCommand(buttonChooser);
+                _commands = new ButtonData[6];
+                // _commands[0] =  new  new MoveCommand(buttonContainer, interact, false);
+                // _commands[1] = new MoveCommand(buttonContainer, interact, true);
+                // _commands[2] = new CancelActionChooserCommand(buttonContainer, interact);
+                //
+                // _commands[3] = new SpecialMoveCommand(buttonContainer);
+                // _commands[4] = new SpecialMoveCommand(buttonContainer);
+                // _commands[5] = new SpecialMoveCommand(buttonContainer);
             }
 
-            buttonChooser.Setup(6, _commands);
-            buttonChooser.ShowButtons();
+            buttonContainer.Setup(_commands);
+
+            foreach (var bv in buttonContainer.ButtonViews)
+            {
+                if (bv.Command != null)
+                {
+                    bv.Display.SetDisplayInfo(new ButtonDisplaySpecialActionData());
+                }
+            }
+
+            buttonContainer.ShowButtons();
         }
 
-        public class MoveCommand : ButtonChooser.ButtonCommand
+        public class MoveCommand : ButtonContainer.ButtonCommand
         {
             private readonly bool _forward;
             private readonly GameInteractManager _interact;
 
-            public MoveCommand(ButtonChooser chooser, GameInteractManager interact, bool forward) : base(chooser)
+            public MoveCommand(ButtonContainer container, GameInteractManager interact, bool forward) : base(container)
             {
                 _forward = forward;
                 _interact = interact;
@@ -47,11 +56,11 @@ namespace Gameplay.GameInteract
             }
         }
 
-        public class CancelActionChooserCommand : ButtonChooser.ButtonCommand
+        public class CancelActionChooserCommand : ButtonContainer.ButtonCommand
         {
             private readonly GameInteractManager _interact;
 
-            public CancelActionChooserCommand(ButtonChooser chooser, GameInteractManager interact) : base(chooser)
+            public CancelActionChooserCommand(ButtonContainer container, GameInteractManager interact) : base(container)
             {
                 _interact = interact;
             }
@@ -64,9 +73,9 @@ namespace Gameplay.GameInteract
             }
         }
 
-        public class SpecialMoveCommand : ButtonChooser.ButtonCommand
+        public class SpecialMoveCommand : ButtonContainer.ButtonCommand
         {
-            public SpecialMoveCommand(ButtonChooser chooser) : base(chooser)
+            public SpecialMoveCommand(ButtonContainer container) : base(container)
             {
             }
 

@@ -1,20 +1,41 @@
 ﻿using System;
 using DG.Tweening;
 using SNM;
-using TMPro;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
+    public interface IButtonDisplayInfo
+    {
+    }
+
+    public abstract class AButtonDisplay : MonoBehaviour
+    {
+        public abstract void SetDisplayInfo(IButtonDisplayInfo displayInfo);
+    }
+
+    public class ButtonData
+    {
+        public ButtonData(ICommand command, IButtonDisplayInfo displayInfo)
+        {
+            Command = command;
+            DisplayInfo = displayInfo;
+        }
+
+        public ICommand Command { get; }
+        public IButtonDisplayInfo DisplayInfo { get; }
+    }
+
     public class OnGroundButton : MonoBehaviour
     {
         [SerializeField] private ABoundsClicker visual;
-
+        [SerializeField] private AButtonDisplay display;
         [field: NonSerialized] public bool Active { get; private set; }
-        [field: NonSerialized] public int ID { get; private set; }
 
-        private ICommand _command;
         private float VisualHeight => visual.Bounds.size.y;
+        public AButtonDisplay Display => display;
+
+        [field: System.NonSerialized] public ICommand Command { get; private set; }
 
         private void Start()
         {
@@ -28,16 +49,9 @@ namespace Gameplay.GameInteract
             visual.Clicked.AddListener(Click);
         }
 
-        public void SetupCallback(int id, ICommand command)
+        public void SetCommand(ICommand command)
         {
-            ID = id;
-            _command = command;
-        }
-
-        public void SetPositionAndRotation(Vector3 position, Quaternion rotation)
-        {
-            transform.position = position;
-            transform.rotation = rotation;
+            Command = command;
         }
 
         public void ShowUp()
@@ -62,14 +76,15 @@ namespace Gameplay.GameInteract
             if (!Active) return;
             Active = false;
             visual.SetInteractable(false);
-            visual.transform.DOLocalMoveY(-VisualHeight * 0.5f, duration).OnComplete(() => { visual.gameObject.SetActive(Active); }).SetLink(visual.gameObject);
+            visual.transform.DOLocalMoveY(-VisualHeight * 0.5f, duration)
+                .OnComplete(() => { visual.gameObject.SetActive(Active); }).SetLink(visual.gameObject);
         }
 
         [ContextMenu("Click")]
         public void Click()
         {
             HideAway(.05f);
-            this.Delay(.2f, () => { _command.Execute(); });
+            this.Delay(.2f, () => { Command?.Execute(); });
         }
     }
 }

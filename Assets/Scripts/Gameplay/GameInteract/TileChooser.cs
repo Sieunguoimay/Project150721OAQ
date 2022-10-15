@@ -9,45 +9,42 @@ namespace Gameplay.GameInteract
 {
     public class TileChooser : MonoBehaviour
     {
-        [SerializeField] private ButtonChooser buttonChooser;
+        [SerializeField] private ButtonContainer buttonContainer;
 
-        private Tile[] _options;
         private TextMeshPro[] _texts;
 
-        public ButtonChooser ButtonChooser => buttonChooser;
+        public ButtonContainer ButtonContainer => buttonContainer;
 
         private void Start()
         {
-            _texts = new TextMeshPro[buttonChooser.ButtonViews.Length];
+            _texts = new TextMeshPro[buttonContainer.ButtonViews.Length];
             for (var i = 0; i < _texts.Length; i++)
             {
-                _texts[i] = buttonChooser.ButtonViews[i].GetComponentInChildren<TextMeshPro>();
+                _texts[i] = buttonContainer.ButtonViews[i].GetComponentInChildren<TextMeshPro>();
             }
         }
 
         public void ChooseTile(Tile[] tiles, ICommand[] commands)
         {
-            _options = tiles;//tiles.Where(t => t.Pieces.Count > 0).ToArray();
-            SetButtonsPositionAndRotation(_options);
-            buttonChooser.Setup(_options.Length, commands);
-            buttonChooser.ShowButtons();
+            SetButtonsPositionAndRotation(tiles);
+            buttonContainer.Setup(commands.Select(c => new ButtonData(c, new ButtonDisplaySpecialActionData()))
+                .ToArray());
+            buttonContainer.ShowButtons();
         }
 
         private void SetButtonsPositionAndRotation(IReadOnlyList<Tile> optionTiles)
         {
-            var offset = Vector3.Cross((optionTiles[0].transform.position - optionTiles[1].transform.position).normalized,
+            var offset = Vector3.Cross(
+                (optionTiles[0].transform.position - optionTiles[1].transform.position).normalized,
                 optionTiles[0].transform.up) * optionTiles[0].Size;
 
             for (var i = 0; i < optionTiles.Count; i++)
             {
-                buttonChooser.ButtonViews[i].SetPositionAndRotation(optionTiles[i].transform.position + offset, optionTiles[i].transform.rotation);
-                _texts[i].text = $"{optionTiles[i].Pieces.Count}";
+                buttonContainer.ButtonViews[i].transform.position = optionTiles[i].transform.position + offset;
+                buttonContainer.ButtonViews[i].transform.rotation = optionTiles[i].transform.rotation;
+                buttonContainer.ButtonViews[i].Display
+                    .SetDisplayInfo(new ButtonDisplayInfoText($"{optionTiles[i].Pieces.Count}"));
             }
         }
-        //
-        // private void OnTileChooserResult(int index)
-        // {
-        //     _onResult?.Invoke(_options[index]);
-        // }
     }
 }

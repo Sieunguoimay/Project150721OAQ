@@ -2,7 +2,6 @@
 using System.Linq;
 using Common.ResolveSystem;
 using Gameplay.Board;
-using SNM;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
@@ -16,7 +15,7 @@ namespace Gameplay.GameInteract
         private Action<(Tile, bool)> _onResult;
         [field: System.NonSerialized] public Tile ChosenTile { get; set; }
         private Tile[] _tiles;
-        private ICommand[] _choosingTileCommand;
+        private ICommand[] _choosingTileCommands;
 
         public override void Setup(IResolver resolver)
         {
@@ -26,15 +25,15 @@ namespace Gameplay.GameInteract
 
         public void PerformAction(Board.Board.TileGroup tileGroup, Action<(Tile, bool)> onResult)
         {
-
             _onResult = onResult;
-            _tiles = _boardManager.SpawnedTiles.Where(st => tileGroup.Tiles.Contains(st)).ToArray();
-            var options = _tiles.Where(t => t.Pieces.Count > 0).ToArray();
+            
+            _tiles = _boardManager.SpawnedTiles.Where(st => tileGroup.Tiles.Contains(st)&&st.Pieces.Count > 0).ToArray();
 
-            _choosingTileCommand = new ICommand[options.Length];
-            for (var i = 0; i < options.Length; i++)
+            _choosingTileCommands = new ICommand[_tiles.Length];
+            
+            for (var i = 0; i < _tiles.Length; i++)
             {
-                _choosingTileCommand[i] = new ChoosingTileCommand(tileChooser.ButtonChooser, this, options[i]);
+                _choosingTileCommands[i] = new ChoosingTileCommand(tileChooser.ButtonContainer, this, _tiles[i]);
             }
             
             ChosenTile = null;
@@ -62,22 +61,8 @@ namespace Gameplay.GameInteract
 
         public void ShowTileChooser()
         {
-            tileChooser.ChooseTile(_tiles, _choosingTileCommand);
+            tileChooser.ChooseTile(_tiles, _choosingTileCommands);
         }
-
-        // private void OnActionChooserResult(int result)
-        // {
-        //     if (result == 2)
-        //     {
-        //         NotifyTilesAdapters(ChosenTile, false);
-        //
-        //         ShowTileChooser();
-        //     }
-        //     else
-        //     {
-        //     }
-        //
-        // }
 
         public void MoveLeftRight(bool right)
         {
@@ -93,12 +78,12 @@ namespace Gameplay.GameInteract
         void Execute();
     }
 
-    public class ChoosingTileCommand : ButtonChooser.ButtonCommand
+    public class ChoosingTileCommand : ButtonContainer.ButtonCommand
     {
         private readonly GameInteractManager _interact;
         private readonly Tile _tile;
 
-        public ChoosingTileCommand(ButtonChooser buttonChooser, GameInteractManager interact, Tile tile) : base(buttonChooser)
+        public ChoosingTileCommand(ButtonContainer buttonContainer, GameInteractManager interact, Tile tile) : base(buttonContainer)
         {
             _interact = interact;
             _tile = tile;
