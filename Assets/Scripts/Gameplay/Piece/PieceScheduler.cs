@@ -12,8 +12,7 @@ namespace Gameplay.Piece
 {
     public static class PieceScheduler
     {
-        public static void MovePiecesOutOfTheBoard(Gameplay.Piece.Piece[] pieces, Vector3[] positions,
-            Vector3 centerPoint)
+        public static void MovePiecesOutOfTheBoard(Piece[] pieces, Vector3[] positions, Vector3 centerPoint)
         {
             Array.Sort(pieces, (a, b) =>
             {

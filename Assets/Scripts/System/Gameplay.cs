@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Common;
 using Gameplay;
 using Gameplay.Board;
 using Gameplay.Piece;
+using SNM;
 using UnityEngine;
 
 namespace System
@@ -20,6 +22,7 @@ namespace System
 
         private bool IsGameOver { get; set; }
         public bool IsPlaying { get; private set; }
+        private Coroutine _coroutine;
 
         public void Setup(PlayersManager playersManager, Board board, PieceManager pieceManager)
         {
@@ -38,6 +41,10 @@ namespace System
         public void TearDown()
         {
             DisconnectEvents();
+            if (_coroutine != null)
+            {
+                PublicExecutor.Instance.StopCoroutine(_coroutine);
+            }
         }
 
         public void StartNewMatch()
@@ -87,18 +94,49 @@ namespace System
         {
             _pieceDropper.Take(tile.Pieces, tile.Pieces.Count);
             _pieceDropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tile), forward);
-            _pieceDropper.DropAll(OnDropAllDone);
+            _pieceDropper.DropAll(() =>
+                _pieceDropper.ContinueTillEatOrStop(t =>
+                {
+                    if (CheckSuccessEatable(t, forward))
+                    {
+                        EatRecursively(t, forward, () => { MakeDecision(true); });
+                    }
+                    else
+                    {
+                        MakeDecision(true);
+                    }
+                }));
         }
 
-        private void OnDropAllDone()
+        private void EatRecursively(Tile tile, bool forward, Action done)
         {
-            _pieceDropper.Continue(() => { MakeDecision(true); });
+            var successTile = _board.GetSuccessTile(tile, forward);
+
+            OnEatPieces(successTile);
+
+            if (CheckSuccessEatable(_board.GetSuccessTile(successTile, forward), forward))
+            {
+                _coroutine = PublicExecutor.Instance.Delay(0.2f,
+                    () =>
+                    {
+                        _coroutine = null;
+                        EatRecursively(_board.GetSuccessTile(successTile, forward), forward, done);
+                    });
+            }
+            else
+            {
+                done?.Invoke();
+            }
         }
 
+        private bool CheckSuccessEatable(Tile t, bool f)
+        {
+            return t.Pieces.Count == 0 && t is not MandarinTile && _board.GetSuccessTile(t, f).Pieces.Count > 0;
+        }
 
         private void MakeDecision(bool changePlayer)
         {
-            var gameOver = true;
+            bool gameOver;
             var allMandarinTilesEmpty = _board.TileGroups.All(tg => tg.MandarinTile.Pieces.Count <= 0);
             if (!allMandarinTilesEmpty)
             {
@@ -119,12 +157,20 @@ namespace System
                         _pieceDropper.DropAll(() => { MakeDecision(false); });
                         gameOver = false;
                     }
+                    else
+                    {
+                        gameOver = true;
+                    }
                 }
                 else
                 {
                     CurrentPlayer.MakeDecision(_board, OnDecisionResult);
                     gameOver = false;
                 }
+            }
+            else
+            {
+                gameOver = true;
             }
 
             if (gameOver)
