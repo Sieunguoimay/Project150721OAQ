@@ -9,7 +9,7 @@ namespace Gameplay.Board
 {
     public class BoardManager : InjectableBehaviour<BoardManager>
     {
-        [SerializeField] private Tile mandarinTilePrefab;
+        [SerializeField] private MandarinTile mandarinTilePrefab;
         [SerializeField] private Tile citizenTilePrefab;
         public Board Board { get; } = new();
         [field: System.NonSerialized] public Tile[] SpawnedTiles { get; private set; }
@@ -87,7 +87,7 @@ namespace Gameplay.Board
             mandarinTile.transform.SetPositionAndRotation(position, rotation);
 
             tileGroups[i] = new Board.TileGroup
-                {MandarinTile = mandarinTile, Tiles = new IPieceHolder[tilesPerGroup]};
+                {MandarinTile = mandarinTile, Tiles = new Tile[tilesPerGroup]};
             return mandarinTile;
         }
 
@@ -129,24 +129,5 @@ namespace Gameplay.Board
 
             return vertices;
         }
-// #if UNITY_EDITOR
-//         [ContextMenu("Test")]
-//         private void Test()
-//         {
-//             var groupNum = 5;
-//             var tilesPerGroup = 5;
-//
-//             var length = tilesPerGroup * citizenTilePrefab.Size;
-//             var polygon = CreatePolygon(groupNum, length);
-//
-//             Board.SetMetadata(new Board.BoardMetadata
-//             {
-//                 Polygon = polygon,
-//                 TilesPerGroup = tilesPerGroup,
-//                 TileSize = citizenTilePrefab.Size
-//             });
-//             boardSketcher.Sketch(Board);
-//         }
-// #endif
     }
 }

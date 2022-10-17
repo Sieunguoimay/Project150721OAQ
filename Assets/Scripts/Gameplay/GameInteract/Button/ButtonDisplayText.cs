@@ -1,7 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 
-namespace Gameplay.GameInteract
+namespace Gameplay.GameInteract.Button
 {
     public class ButtonDisplayText : AButtonDisplay
     {

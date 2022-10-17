@@ -31,15 +31,13 @@ namespace Gameplay.Piece
             for (var i = 0; i < groups; i++)
             {
                 Pieces[count] = Instantiate(mandarinPrefab, transform, true);
-                Pieces[count].Setup();
-
+                
                 count++;
                 for (var j = 0; j < tilesPerGroup; j++)
                 {
                     for (var k = 0; k < 5; k++)
                     {
                         var p = Instantiate(citizenPrefab, transform, true);
-                        p.Setup();
                         Pieces[count++] = p;
                     }
                 }
@@ -58,14 +56,13 @@ namespace Gameplay.Piece
                     {
                         if (Pieces[index] is Citizen p)
                         {
-                            t.Grasp(p);
+                            t.Pieces.Add(p);
                             PieceScheduler.MovePieceToTheBoardOnGameStart(p, t as Tile, null, delay += 0.1f);
                         }
                         else
                         {
-                            Pieces[index].transform.position =
-                                ((MandarinTile) tg.MandarinTile).GetPositionInFilledCircle(0);
-                            tg.MandarinTile.Grasp(Pieces[index]);
+                            Pieces[index].transform.position = tg.MandarinTile.GetPositionInFilledCircle(0);
+                            tg.MandarinTile.Pieces.Add(Pieces[index]);
                             i--;
                         }
 

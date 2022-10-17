@@ -1,34 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Common.ResolveSystem;
 using Gameplay.Piece;
-using SNM;
 using UnityEngine;
 
 namespace Gameplay.Board
 {
     [SelectionBase]
-    public class Tile : PieceContainer, RayPointer.IRaycastMiss, ISelectorTarget
+    public class Tile : PieceContainer, ISelectorTarget
     {
         [SerializeField] private float size;
         private BoxCollider _collider;
         private BoxCollider Collider => _collider ??= GetComponent<BoxCollider>();
-        public event Action<Tile> OnTouched = delegate { };
-        public event Action<Tile> OnOutSide = delegate { };
 
         public override void Setup()
         {
             base.Setup();
-            RayPointer.Instance.Register(this);
             Collider.size = new Vector3(size, 0.1f, size);
         }
 
-        public override void TearDown()
-        {
-            base.TearDown();
-            RayPointer.Instance.Unregister(this);
-        }
+        public float Size => size;
 
         #region ISelectorTarget
 
@@ -39,24 +29,6 @@ namespace Gameplay.Board
         public Vector3 DisplayPos => transform.position;
 
         #endregion ISelectorTarget
-
-        #region RayPointer.IRaycastTarget
-
-        public Bounds Bounds => Collider.bounds;
-
-        public float Size => size;
-
-        public void OnHit(Ray ray, float distance)
-        {
-            OnTouched?.Invoke(this);
-        }
-
-        public void OnMiss()
-        {
-            OnOutSide?.Invoke(this);
-        }
-
-        #endregion RayPointer.ITarget
 
 #if UNITY_EDITOR
 

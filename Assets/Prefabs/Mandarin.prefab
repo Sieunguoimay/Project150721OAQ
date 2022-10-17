@@ -27,6 +27,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.8702898, y: 0.04894018, z: 2.5325584}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8233054067817942652}
   - {fileID: 8253560598947595455}
@@ -47,13 +48,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   config:
-    point: 10
     size: {x: 0.4, y: 0.6, z: 0.4}
-    boidConfigData:
+    flockingConfigData:
       maxSpeed: 3
       maxAcceleration: 10
       arriveDistance: 1
       spacing: 0.3
+  size: {x: 0.4, y: 0.6, z: 0.4}
 --- !u!1 &3580329900981908367
 GameObject:
   m_ObjectHideFlags: 0
@@ -80,6 +81,7 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.00000023841858, y: 0.51936, z: 0.00000023841858}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3812148025094160538}
   m_RootOrder: 1

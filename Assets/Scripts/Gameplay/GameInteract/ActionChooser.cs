@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Gameplay.GameInteract.Button;
+using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
@@ -8,42 +9,31 @@ namespace Gameplay.GameInteract
 
         private ButtonData[] _commands;
 
-        public void ShowUp(Vector3 position, Quaternion rotation, GameInteractManager interact)
+        public void ShowUp(GameInteractManager interact)
         {
-            transform.position = position;
-            transform.rotation = rotation;
 
             if (_commands == null)
             {
                 _commands = new ButtonData[6];
-                // _commands[0] =  new  new MoveCommand(buttonContainer, interact, false);
-                // _commands[1] = new MoveCommand(buttonContainer, interact, true);
-                // _commands[2] = new CancelActionChooserCommand(buttonContainer, interact);
-                //
-                // _commands[3] = new SpecialMoveCommand(buttonContainer);
-                // _commands[4] = new SpecialMoveCommand(buttonContainer);
-                // _commands[5] = new SpecialMoveCommand(buttonContainer);
-            }
+                _commands[0] = new ButtonData(new MoveButtonCommand(buttonContainer, interact, false), null);
+                _commands[1] = new ButtonData(new MoveButtonCommand(buttonContainer, interact, true),null);
+                _commands[2] = new ButtonData(new CancelActionChooserCommand(buttonContainer, interact),null);
+
+                _commands[3] = new ButtonData(new SpecialMoveCommand(buttonContainer),new ButtonDisplayInfoSpecialAction());
+                _commands[4] = new ButtonData(new SpecialMoveCommand(buttonContainer),new ButtonDisplayInfoSpecialAction());
+                _commands[5] = new ButtonData(new SpecialMoveCommand(buttonContainer),new ButtonDisplayInfoSpecialAction());
+            }                                  
 
             buttonContainer.Setup(_commands);
-
-            foreach (var bv in buttonContainer.ButtonViews)
-            {
-                if (bv.Command != null)
-                {
-                    bv.Display.SetDisplayInfo(new ButtonDisplaySpecialActionData());
-                }
-            }
-
             buttonContainer.ShowButtons();
         }
 
-        public class MoveCommand : ButtonContainer.ButtonCommand
+        public class MoveButtonCommand : ButtonContainer.ButtonCommand
         {
             private readonly bool _forward;
             private readonly GameInteractManager _interact;
 
-            public MoveCommand(ButtonContainer container, GameInteractManager interact, bool forward) : base(container)
+            public MoveButtonCommand(ButtonContainer container, GameInteractManager interact, bool forward) : base(container)
             {
                 _forward = forward;
                 _interact = interact;
@@ -68,7 +58,7 @@ namespace Gameplay.GameInteract
             public override void Execute()
             {
                 base.Execute();
-                _interact.NotifyTilesAdapters(_interact.ChosenTile, false);
+                GameInteractManager.NotifyTilesAdapters(_interact.ChosenTile, false);
                 _interact.ShowTileChooser();
             }
         }

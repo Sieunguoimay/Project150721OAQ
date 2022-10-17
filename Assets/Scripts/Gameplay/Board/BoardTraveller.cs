@@ -8,7 +8,6 @@ namespace Gameplay.Board
         private int _stepCount = -1;
         private int _number;
         public int CurrentIndex { get; private set; } = -1;
-        public bool IsTravelling => _stepCount >= 0 && _stepCount < _steps;
 
         public void Start(int startIndex, int steps, int number)
         {
@@ -20,7 +19,10 @@ namespace Gameplay.Board
 
         public void Next(bool forward)
         {
-            if (!IsTravelling)
+            
+            var isTravelling = _stepCount >= 0 && _stepCount < _steps;
+
+            if (!isTravelling)
             {
                 Debug.Log("Bug... " + _stepCount + " " + _steps);
                 return;

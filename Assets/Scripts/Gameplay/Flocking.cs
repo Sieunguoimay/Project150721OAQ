@@ -58,7 +58,7 @@ namespace Gameplay
             }
         }
 
-        public override void OnEnd()
+        public override void End()
         {
         }
 

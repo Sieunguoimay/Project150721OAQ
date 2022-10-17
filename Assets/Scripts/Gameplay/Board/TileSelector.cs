@@ -14,6 +14,7 @@ namespace Gameplay.Board
         Vector3 DisplayPos { get; }
     }
 
+    [Obsolete]
     public class TileSelector : MonoBehaviour, IInjectable
     {
         [SerializeField] private MeshBoundsClicker left;
@@ -34,7 +35,7 @@ namespace Gameplay.Board
         public void Setup(IResolver resolver)
         {
             gameObject.SetActive(false);
-            
+
             left.Clicked.AddListener(InvokeOnTouchedLeft);
             right.Clicked.AddListener(InvokeOnTouchedRight);
         }
@@ -49,6 +50,7 @@ namespace Gameplay.Board
         {
             resolver.Unbind(this);
         }
+
         public void ResetAll()
         {
             _options = null;
@@ -66,24 +68,24 @@ namespace Gameplay.Board
         public void SelectTile(ISelectorTarget selected)
         {
             _selected = selected;
-            
+
             if (_selectionAdaptors != null)
             {
                 InvokeDeselect(false);
             }
-            
+
             _selectionAdaptors = _selected.GetSelectionAdaptors();
-            
-            if (!_selectionAdaptors?.Any()??false) return;
+
+            if (!_selectionAdaptors?.Any() ?? false) return;
 
             foreach (var sa in _selectionAdaptors)
             {
                 sa.OnTileSelected();
             }
-            
+
             var dir = _options[^1].DisplayPos - _options[0].DisplayPos;
             dir = SNM.Math.Projection(dir, Vector3.up);
-            
+
             transform.position = _selected.DisplayPos + Vector3.up * 0.3f;
             transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
 
@@ -96,6 +98,7 @@ namespace Gameplay.Board
             {
                 sa.OnTileDeselected(success);
             }
+
             _selectionAdaptors = null;
         }
 
@@ -117,11 +120,11 @@ namespace Gameplay.Board
         {
             DirectionTouched?.Invoke(false);
         }
+    }
 
-        public interface ISelectionAdaptor
-        {
-            void OnTileSelected();
-            void OnTileDeselected(bool success);
-        }
+    public interface ISelectionAdaptor
+    {
+        void OnTileSelected();
+        void OnTileDeselected(bool success);
     }
 }

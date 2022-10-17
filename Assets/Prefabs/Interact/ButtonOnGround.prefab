@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1351281157230165190}
   - component: {fileID: 6872908592761627781}
+  - component: {fileID: 5036759648354736096}
   m_Layer: 0
   m_Name: ButtonOnGround
   m_TagString: Untagged
@@ -46,6 +47,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visual: {fileID: 218906656817105352}
+  display: {fileID: 5036759648354736096}
+--- !u!114 &5036759648354736096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3899014435979982509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9f36f3f73214451b739db2afdd0f837, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tmp: {fileID: 3376947417822130440}
 --- !u!1 &4184641671575884770
 GameObject:
   m_ObjectHideFlags: 0

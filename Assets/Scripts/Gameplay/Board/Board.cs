@@ -7,14 +7,14 @@ namespace Gameplay.Board
     public class Board
     {
         private readonly BoardTraveller _traveller = new();
-        public IPieceHolder[] Tiles { get; private set; }
+        public Tile[] Tiles { get; private set; }
         public TileGroup[] TileGroups { get; private set; }
         public BoardMetadata Metadata { get; private set; }
 
         public void SetGroups(TileGroup[] groups)
         {
             TileGroups = groups;
-            Tiles = new IPieceHolder[TileGroups.Length * TileGroups[0].Tiles.Length + TileGroups.Length];
+            Tiles = new Tile[TileGroups.Length * TileGroups[0].Tiles.Length + TileGroups.Length];
 
             var index = 0;
             foreach (var tg in TileGroups)
@@ -29,7 +29,7 @@ namespace Gameplay.Board
 
         public void SetMetadata(BoardMetadata metadata) => Metadata = metadata;
 
-        public IPieceHolder GetSuccessTile(IPieceHolder tile, bool forward)
+        public Tile GetSuccessTile(Tile tile, bool forward)
         {
             _traveller.Start(Array.IndexOf(Tiles, tile), Tiles.Length, Tiles.Length);
             _traveller.Next(forward);
@@ -38,8 +38,8 @@ namespace Gameplay.Board
 
         public class TileGroup
         {
-            public IPieceHolder MandarinTile;
-            public IPieceHolder[] Tiles;
+            public MandarinTile MandarinTile;
+            public Tile[] Tiles;
         }
 
         public class BoardMetadata

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Gameplay.Piece
 {
-    public class CitizenToTileSelectorAdaptor : TileSelector.ISelectionAdaptor
+    public class CitizenToTileSelectorAdaptor : ISelectionAdaptor
     {
         private readonly Citizen _piece;
 

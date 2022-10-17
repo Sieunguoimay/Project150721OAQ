@@ -75,28 +75,26 @@ namespace System
 
         private void ConnectEvents()
         {
-            _pieceDropper.OnDone += OnDropperDone;
             _pieceDropper.OnEat += OnEatPieces;
         }
 
         private void DisconnectEvents()
         {
-            _pieceDropper.OnDone -= OnDropperDone;
             _pieceDropper.OnEat -= OnEatPieces;
-
-            if (_playersManager.Players == null) return;
         }
 
         private void OnDecisionResult(Tile tile, bool forward)
         {
-            _pieceDropper.Pickup(tile);
-            _pieceDropper.DropAll(forward);
+            _pieceDropper.Take(tile.Pieces, tile.Pieces.Count);
+            _pieceDropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tile), forward);
+            _pieceDropper.DropAll(OnDropAllDone);
         }
 
-        private void OnDropperDone(PieceDropper.ActionID actionID)
+        private void OnDropAllDone()
         {
-            MakeDecision(actionID == PieceDropper.ActionID.DroppingInTurn);
+            _pieceDropper.Continue(() => { MakeDecision(true); });
         }
+
 
         private void MakeDecision(bool changePlayer)
         {
@@ -109,15 +107,17 @@ namespace System
                     ChangePlayer();
                 }
 
-                if (_board.TileGroups[CurrentPlayer.Index].Tiles.All(t => t.Pieces.Count <= 0))
+                var tileGroup = _board.TileGroups[CurrentPlayer.Index];
+                var isNewPlayerAllEmpty = tileGroup.Tiles.All(t => t.Pieces.Count <= 0);
+                if (isNewPlayerAllEmpty)
                 {
                     if (CurrentPlayer.PieceBench.Pieces.Count > 0)
                     {
-                        if (!TakeBackCitizens(CurrentPlayer.PieceBench.Pieces, _pieceDropper,
-                            _board.TileGroups[CurrentPlayer.Index]))
-                        {
-                            gameOver = false;
-                        }
+                        //Take back pieces to board
+                        _pieceDropper.Take(CurrentPlayer.PieceBench.Pieces, tileGroup.Tiles.Length);
+                        _pieceDropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tileGroup.MandarinTile), true);
+                        _pieceDropper.DropAll(() => { MakeDecision(false); });
+                        gameOver = false;
                     }
                 }
                 else
@@ -133,32 +133,27 @@ namespace System
             }
         }
 
-        private static bool TakeBackCitizens(List<Piece> pieces, PieceDropper dropper, Board.TileGroup tg)
+        private void OnEatPieces(Tile pieceContainerMb)
         {
-            if (pieces.Count <= 0) return false;
+            var n = pieceContainerMb.Pieces.Count;
 
-            dropper.GetReadyForTakingBackCitizens(tg, pieces);
-            dropper.DropAll(true);
-
-            return true;
-        }
-
-        private void OnEatPieces(IPieceHolder pieceContainerMb)
-        {
             var bench = CurrentPlayer.PieceBench;
-            var positions = new Vector3[pieceContainerMb.Pieces.Count];
-            var pieces = new Piece[pieceContainerMb.Pieces.Count];
-            var count = 0;
+            var positions = new Vector3[n];
+            var pieces = new Piece[n];
             var centerPoint = Vector3.zero;
-
-            bench.Grasp(pieceContainerMb, p =>
+            var startIndex = bench.Pieces.Count;
+            for (var i = 0; i < n; i++)
             {
-                positions[count] = bench.GetPosAndRot(bench.Pieces.Count - 1).Position;
-                pieces[count] = p;
-                centerPoint += positions[count++];
-            });
+                positions[i] = bench.GetPosAndRot(startIndex + i).Position;
+                var p = pieceContainerMb.Pieces[i];
+                pieces[i] = p;
+                centerPoint += positions[i];
+                bench.Pieces.Add(p);
+            }
 
-            centerPoint /= count;
+            pieceContainerMb.Pieces.Clear();
+
+            centerPoint /= n;
 
             PieceScheduler.MovePiecesOutOfTheBoard(pieces, positions, centerPoint);
         }
@@ -179,7 +174,8 @@ namespace System
             {
                 foreach (var tile in _board.TileGroups[i].Tiles)
                 {
-                    _playersManager.Players[i].PieceBench.Grasp(tile);
+                    _playersManager.Players[i].PieceBench.Pieces.AddRange(tile.Pieces);
+                    tile.Pieces.Clear();
                 }
 
                 var sum = 0;
@@ -189,8 +185,10 @@ namespace System
                     switch (p)
                     {
                         case Citizen:
+                            sum += 1;
+                            break;
                         case Mandarin:
-                            sum += p.Config.point;
+                            sum += 10;
                             break;
                     }
                 }

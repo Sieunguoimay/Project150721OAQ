@@ -18,7 +18,7 @@ namespace Common
         {
         }
 
-        public virtual void OnEnd()
+        public virtual void End()
         {
         }
 
@@ -55,7 +55,7 @@ namespace Common
 
                 if (!_activities[i].Inactive) continue;
 
-                _activities[i].OnEnd();
+                _activities[i].End();
 
                 RemoveAt(i--);
             }
@@ -75,14 +75,14 @@ namespace Common
             _activities.RemoveAt(lastIndex);
         }
 
-        public override void OnEnd()
+        public override void End()
         {
             foreach (var activity in _activities)
             {
-                activity.OnEnd();
+                activity.End();
             }
 
-            base.OnEnd();
+            base.End();
         }
     }
 
@@ -115,7 +115,7 @@ namespace Common
             }
             else if (_currentActivity.Inactive)
             {
-                _currentActivity.OnEnd();
+                _currentActivity.End();
                 if (Activities.Count > 0)
                 {
                     _currentActivity = Activities.Dequeue();
@@ -133,14 +133,14 @@ namespace Common
             }
         }
 
-        public override void OnEnd()
+        public override void End()
         {
-            base.OnEnd();
+            base.End();
 
             foreach (var a in Activities.Where(a => !a.Inactive))
             {
                 a.NotifyDone();
-                a.OnEnd();
+                a.End();
             }
 
             Activities.Clear();

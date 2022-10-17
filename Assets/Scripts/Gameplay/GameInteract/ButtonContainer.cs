@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Gameplay.GameInteract.Button;
 using SNM;
 using TMPro;
 using UnityEngine;
@@ -19,6 +20,7 @@ namespace Gameplay.GameInteract
             for (var i = 0; i < n; i++)
             {
                 buttonViews[i].SetCommand(buttons[i].Command);
+                buttonViews[i].Display?.SetDisplayInfo(buttons[i].DisplayInfo);
             }
         }
 

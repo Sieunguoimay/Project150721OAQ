@@ -33,7 +33,7 @@ namespace Gameplay.GameInteract
             
             for (var i = 0; i < _tiles.Length; i++)
             {
-                _choosingTileCommands[i] = new ChoosingTileCommand(tileChooser.ButtonContainer, this, _tiles[i]);
+                _choosingTileCommands[i] = new ButtonCommandChoosingTile(tileChooser.ButtonContainer, this, _tiles[i]);
             }
             
             ChosenTile = null;
@@ -41,7 +41,7 @@ namespace Gameplay.GameInteract
             ShowTileChooser();
         }
 
-        public void NotifyTilesAdapters(Tile tile, bool selected)
+        public static void NotifyTilesAdapters(Tile tile, bool selected)
         {
             var selectionAdaptors = tile.GetSelectionAdaptors();
             foreach (var sa in selectionAdaptors)
@@ -55,8 +55,14 @@ namespace Gameplay.GameInteract
 
         public void ShowDirectionChooserForTile(Tile tile)
         {
-            var pos = tile.transform.position + tile.transform.rotation * Vector3.forward * tile.Size;
-            actionChooser.ShowUp(pos, tile.transform.rotation, this);
+            var tileTransform = tile.transform;
+            var tileRotation = tileTransform.rotation;
+            var pos = tileTransform.position + tileRotation * Vector3.forward * tile.Size;
+            var t = actionChooser.transform;
+            t.position = pos;
+            t.rotation = tileRotation;
+            
+            actionChooser.ShowUp(this);
         }
 
         public void ShowTileChooser()
@@ -78,12 +84,12 @@ namespace Gameplay.GameInteract
         void Execute();
     }
 
-    public class ChoosingTileCommand : ButtonContainer.ButtonCommand
+    public class ButtonCommandChoosingTile : ButtonContainer.ButtonCommand
     {
         private readonly GameInteractManager _interact;
         private readonly Tile _tile;
 
-        public ChoosingTileCommand(ButtonContainer buttonContainer, GameInteractManager interact, Tile tile) : base(buttonContainer)
+        public ButtonCommandChoosingTile(ButtonContainer buttonContainer, GameInteractManager interact, Tile tile) : base(buttonContainer)
         {
             _interact = interact;
             _tile = tile;
@@ -92,7 +98,7 @@ namespace Gameplay.GameInteract
         public override void Execute()
         {
             base.Execute();
-            _interact.NotifyTilesAdapters(_tile, true);
+            GameInteractManager.NotifyTilesAdapters(_tile, true);
             _interact.ShowDirectionChooserForTile(_tile);
             _interact.ChosenTile = _tile;
         }

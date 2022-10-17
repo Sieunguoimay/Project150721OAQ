@@ -3,7 +3,7 @@ using DG.Tweening;
 using SNM;
 using UnityEngine;
 
-namespace Gameplay.GameInteract
+namespace Gameplay.GameInteract.Button
 {
     public interface IButtonDisplayInfo
     {

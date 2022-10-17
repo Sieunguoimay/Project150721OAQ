@@ -6,31 +6,19 @@ namespace Gameplay.Piece
 {
     public class Piece : MonoBehaviour
     {
-        [SerializeField] private ConfigData config;
-
-        [Serializable]
-        public class ConfigData
+        [SerializeField] private Vector3 size;
+        [SerializeField] private Flocking.ConfigData flockingConfigData = new()
         {
-            public int point;
-            public Vector3 size;
-
-            public Flocking.ConfigData flockingConfigData = new()
-            {
-                maxSpeed = 3f,
-                maxAcceleration = 10f,
-                arriveDistance = 1f,
-                spacing = 0.3f
-            };
-        }
+            maxSpeed = 3f,
+            maxAcceleration = 10f,
+            arriveDistance = 1f,
+            spacing = 0.3f
+        };
 
         [field: NonSerialized] public PieceActivityQueue PieceActivityQueue { get; } = new();
-        public ConfigData Config => config;
         public virtual Animator Animator => null;
         public virtual PlayableDirector JumpTimeline => null;
-
-        public virtual void Setup()
-        {
-        }
+        public Flocking.ConfigData FlockingConfigData => flockingConfigData;
 
         private void Update()
         {
@@ -38,15 +26,12 @@ namespace Gameplay.Piece
         }
 
 
-
 #if UNITY_EDITOR
 
         private void OnDrawGizmos()
         {
-            if (Config == null) return;
-
             var t = transform;
-            Gizmos.DrawWireCube(t.position + t.up * Config.size.y * 0.5f, Config.size);
+            Gizmos.DrawWireCube(t.position + t.up * size.y * 0.5f, size);
         }
 #endif
     }

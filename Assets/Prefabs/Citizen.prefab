@@ -562,13 +562,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   config:
-    point: 1
     size: {x: 0.15, y: 0.3, z: 0.15}
     flockingConfigData:
       maxSpeed: 3
       maxAcceleration: 10
       arriveDistance: 1
       spacing: 0.3
+  size: {x: 0.15, y: 0.3, z: 0.15}
   animatorListener: {fileID: 695480551792940659}
   jumpTimeline: {fileID: 5262788228897660633}
 --- !u!1 &4691225833022002017

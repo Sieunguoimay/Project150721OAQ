@@ -1,46 +1,37 @@
 ﻿using System;
+using System.Collections.Generic;
 using Gameplay.Piece;
 using SNM;
 using UnityEngine;
 
 namespace Gameplay
 {
-    public class PieceBench : PieceHolder
+    public class PieceBench
     {
-        [Serializable]
-        public struct ConfigData
-        {
-            public PosAndRot PosAndRot;
-            public float spacing;
-            public int perRow;
-        }
-    
-        private readonly ConfigData _config;
+        public List<Piece.Piece> Pieces { get; } = new();
 
-        public PieceBench(ConfigData config)
+        private readonly Vector3 _position;
+        private readonly Quaternion _rotation;
+        private readonly float _spacing;
+        private readonly int _perRow;
+
+        public PieceBench(Vector3 position, Quaternion rotation, float spacing, int perRow)
         {
-            _config = config;
+            _position = position;
+            _rotation = rotation;
+            _spacing = spacing;
+            _perRow = perRow;
         }
 
         public PosAndRot GetPosAndRot(int index)
         {
-            var dirX = _config.PosAndRot.Rotation * Vector3.right;
-            var dirY = _config.PosAndRot.Rotation * Vector3.forward;
-            var x = index % _config.perRow;
-            var y = index / _config.perRow;
-            var offsetX = _config.spacing * x;
-            var offsetY = _config.spacing * y;
-            return new PosAndRot(_config.PosAndRot.Position + dirX * offsetX + dirY * offsetY, _config.PosAndRot.Rotation);
+            var dirX = _rotation * Vector3.right;
+            var dirY = _rotation * Vector3.forward;
+            var x = index % _perRow;
+            var y = index / _perRow;
+            var offsetX = _spacing * x;
+            var offsetY = _spacing * y;
+            return new PosAndRot(_position + dirX * offsetX + dirY * offsetY, _rotation);
         }
-
-        // public PosAndRot GetMandarinPosAndRot(int index)
-        // {
-        //     var dirX = _config.PosAndRot.Rotation * Vector3.left;
-        //     var dirY = _config.PosAndRot.Rotation * Vector3.forward;
-        //     var y = index;
-        //     var offsetX = _config.spacing;
-        //     var offsetY = _config.spacing * y;
-        //     return new PosAndRot(_config.PosAndRot.Position + dirX * offsetX + dirY * offsetY, _config.PosAndRot.Rotation);
-        // }
     }
 }

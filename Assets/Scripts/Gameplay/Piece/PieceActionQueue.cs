@@ -68,7 +68,7 @@ namespace Gameplay.Piece
                 }
             }
 
-            public override void OnEnd()
+            public override void End()
             {
             }
 
@@ -104,9 +104,9 @@ namespace Gameplay.Piece
             {
             }
 
-            public override void OnEnd()
+            public override void End()
             {
-                base.OnEnd();
+                base.End();
                 DOTween.Kill(this);
             }
         }

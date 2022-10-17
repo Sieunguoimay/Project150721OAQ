@@ -4,60 +4,58 @@ using UnityEngine;
 
 namespace Gameplay.Piece
 {
-    public interface IPieceHolder
-    {
-        List<Piece> Pieces { get; }
-        void Grasp(Piece piece, Action<Piece> onGrasp = null);
-        void Grasp(IPieceHolder other, Action<Piece> onGrasp = null);
-        void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null);
-        void OnGrasp(IPieceHolder other);
-    }
-
-    public class PieceHolder : IPieceHolder
-    {
-        [field: NonSerialized] public List<Piece> Pieces { get; } = new ();
-
-        public virtual void Grasp(Piece piece, Action<Piece> onGrasp = null)
-        {
-            Pieces.Add(piece);
-            onGrasp?.Invoke(piece);
-        }
-
-        public void Grasp(IPieceHolder other, Action<Piece> onGrasp = null)
-        {
-            foreach (var b in other.Pieces)
-            {
-                Grasp(b, onGrasp);
-            }
-
-            other.OnGrasp(this);
-            other.Pieces.Clear();
-        }
-
-        public void Grasp(List<Piece> otherPieces, int count = -1, Action<Piece> onGrasp = null)
-        {
-            if (count == otherPieces.Count || count == -1)
-            {
-                foreach (var b in otherPieces)
-                {
-                    Grasp(b, onGrasp);
-                }
-
-                otherPieces.Clear();
-            }
-            else
-            {
-                var n = Mathf.Min(count, otherPieces.Count);
-                for (var i = n - 1; i >= 0; i--)
-                {
-                    Grasp(otherPieces[i], onGrasp);
-                    otherPieces.RemoveAt(i);
-                }
-            }
-        }
-
-        public virtual void OnGrasp(IPieceHolder whom)
-        {
-        }
-    }
+    // public interface IPieceHolder
+    // {
+    //     IReadOnlyList<Piece> Pieces { get; }
+    //     void Grasp(Piece piece);
+    //     void Remove(Piece piece);
+    //     void Grasp(IPieceHolder pieceHolder, int count = -1, Action<Piece> onGrasp = null);
+    //     void Empty();
+    // }
+    //
+    // public class PieceHolder : IPieceHolder
+    // {
+    //     private readonly List<Piece> _pieces = new();
+    //     public IReadOnlyList<Piece> Pieces => _pieces;
+    //
+    //     public virtual void Grasp(Piece piece)
+    //     {
+    //         _pieces.Add(piece);
+    //     }
+    //
+    //     public void Remove(Piece piece)
+    //     {
+    //         _pieces.Remove(piece);
+    //     }
+    //
+    //     public void Empty()
+    //     {
+    //         _pieces.Clear();
+    //     }
+    //
+    //     public void Grasp(IPieceHolder other, int count = -1, Action<Piece> onGrasp = null)
+    //     {
+    //         if (count == other.Pieces.Count || count == -1)
+    //         {
+    //             foreach (var b in other.Pieces)
+    //             {
+    //                 _pieces.Add(b);
+    //                 onGrasp?.Invoke(b);
+    //             }
+    //
+    //             other.Empty();
+    //         }
+    //         else
+    //         {
+    //             var n = Mathf.Min(count, other.Pieces.Count);
+    //             var a = other as PieceHolder;
+    //             for (var i = n - 1; i >= 0; i--)
+    //             {
+    //                 _pieces.Add(other.Pieces[i]);
+    //                 onGrasp?.Invoke(other.Pieces[i]);
+    //                 other.Remove(other.Pieces[i]);
+    //             }
+    //         }
+    //     }
+    // }
 }

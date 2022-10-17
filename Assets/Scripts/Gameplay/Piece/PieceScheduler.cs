@@ -24,7 +24,7 @@ namespace Gameplay.Piece
             var delay = 0f;
             for (var i = 0; i < pieces.Length; i++)
             {
-                var flocking = new Flocking(pieces[i].Config.flockingConfigData, positions[i], pieces[i].transform,
+                var flocking = new Flocking(pieces[i].FlockingConfigData, positions[i], pieces[i].transform,
                     null);
 
                 pieces[i].PieceActivityQueue.Add(new Delay(delay += 0.2f));
@@ -46,7 +46,7 @@ namespace Gameplay.Piece
 
             CreateAnimActivity(p, LegHashes.sit_down, null);
             p.PieceActivityQueue.Add(new Delay(delay));
-            p.PieceActivityQueue.Add(new Flocking(p.Config.flockingConfigData, position, p.transform, null));
+            p.PieceActivityQueue.Add(new Flocking(p.FlockingConfigData, position, p.transform, null));
             p.PieceActivityQueue.Begin();
         }
 
