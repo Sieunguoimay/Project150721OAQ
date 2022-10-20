@@ -35,7 +35,7 @@ namespace Gameplay.BambooStick
                     _boardSketcher.Points[index].y));
                 var forward = (_boardSketcher.Points[index] - _boardSketcher.Points[index + 1]).normalized;
                 var endForward = _boardSketcher.transform.TransformPoint(new Vector3(forward.x, 0, forward.y));
-                stick.UpdatePath(stick.start.position, stick.start.forward, endPos, endForward);
+                stick.pathPlan.PlanPath(stick.start.position, stick.start.forward, endPos, endForward);
             }
         }
 
@@ -51,7 +51,7 @@ namespace Gameplay.BambooStick
                     var endPosition = stick.start.position;
                     var endForward = stick.start.forward;
                     stick.mover.ResetDisplacement();
-                    stick.UpdatePath(stick.mover.transform.position, stick.mover.transform.forward, endPosition, endForward);
+                    stick.pathPlan.PlanPath(stick.mover.transform.position, stick.mover.transform.forward, endPosition, endForward);
                     stick.timeline.Play();
                 }
             }

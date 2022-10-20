@@ -9,17 +9,13 @@ namespace Gameplay.Board
     {
         private const int MaxPiecesSupported = 50;
         private readonly Vector2Int[] _reservedPoints = new Vector2Int[MaxPiecesSupported];
+        
         public readonly List<Piece.Piece> Pieces = new();
 
         public virtual void Setup()
         {
             ReservePositionsInFilledCircle();
         }
-
-        // public void Reposition(Transform t)
-        // {
-        //     t.position = GetPositionInFilledCircle(Mathf.Max(0, Pieces.Count - 1), false);
-        // }
 
         public Vector3 GetPositionInFilledCircle(int index, bool local = false, float size = 0.15f)
         {
@@ -171,13 +167,5 @@ namespace Gameplay.Board
         //
         //     return false;
         // }
-// #if UNITY_EDITOR
-//         [SerializeField] private int input = 1;
-//         [ContextMenu("Test Get Position")]
-//         private void TestGetPosition()
-//         {
-//             SpawnPositionInUnityUnit(input);
-//         }
-// #endif
     }
 }

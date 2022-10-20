@@ -183,7 +183,7 @@ namespace Gameplay
     public class JumpingFlocking : Flocking
     {
         private Vector3 _flockingPosition;
-        private readonly PieceActivityQueue.Jump _jump;
+        private readonly Gameplay.Piece.Jump _jump;
         private bool _delay;
         private float _intervalTime;
         private bool _noJumping;
@@ -193,10 +193,10 @@ namespace Gameplay
         public JumpingFlocking(ConfigData configData, Vector3 target, Transform transform, Flocking[] others)
             : base(configData, target, transform, others)
         {
-            _jump = new PieceActivityQueue.Jump(Transform, new PieceActivityQueue.Jump.InputData
+            _jump = new Gameplay.Piece.Jump(Transform, new Gameplay.Piece.Jump.InputData
             {
-                height = 0.3f,
-                duration = 0.25f
+                Height = 0.3f,
+                Duration = 0.25f
             }, new LinearEasing());
         }
 

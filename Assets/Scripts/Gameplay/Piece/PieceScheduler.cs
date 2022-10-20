@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Common;
 using CommonActivities;
@@ -12,16 +13,16 @@ namespace Gameplay.Piece
 {
     public static class PieceScheduler
     {
-        public static void MovePiecesOutOfTheBoard(Piece[] pieces, Vector3[] positions, Vector3 centerPoint)
+        public static void MovePiecesOutOfTheBoard(List<Piece> pieces, Vector3[] positions, Vector3 centerPoint)
         {
-            Array.Sort(pieces, (a, b) =>
+            pieces.Sort((a, b) =>
             {
                 var da = Vector3.SqrMagnitude(centerPoint - a.transform.position);
                 var db = Vector3.SqrMagnitude(centerPoint - b.transform.position);
                 return da < db ? -1 : 1;
             });
             var delay = 0f;
-            for (var i = 0; i < pieces.Length; i++)
+            for (var i = 0; i < pieces.Count; i++)
             {
                 var flocking = new Flocking(pieces[i].FlockingConfigData, positions[i], pieces[i].transform,
                     null);
@@ -76,10 +77,12 @@ namespace Gameplay.Piece
                     {
                         return newEuler - 360f;
                     }
+
                     if (offset < -180f)
                     {
                         return newEuler + 360f;
                     }
+
                     return newEuler;
                 }
 

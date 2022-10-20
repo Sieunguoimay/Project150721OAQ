@@ -8,13 +8,9 @@ namespace Gameplay.BambooStick
     {
         [SerializeField] private BezierSplineModifiableMono splineMono;
 
-        [SerializeField] private Transform startPoint;
-        [SerializeField] private Transform endPoint;
-
         [SerializeField, Min(0f)] private float endPointFactor;
 
-        [ContextMenu("Plan")]
-        public void PlanPath()
+        public void PlanPath(Vector3 startPos, Vector3 startForward, Vector3 endPos, Vector3 endForward)
         {
             var controlPoints = splineMono.SplineModifiable.ControlPoints;
 
@@ -24,12 +20,10 @@ namespace Gameplay.BambooStick
                 return;
             }
 
-            var startPos = startPoint.position;
-            var endPos = endPoint.position;
-            var point1 = startPos + startPoint.forward * endPointFactor;
-            var point5 = endPos + endPoint.forward * endPointFactor;
+            var point1 = startPos + startForward * endPointFactor;
+            var point5 = endPos + endForward * endPointFactor;
             var point3 = (point1 + point5) / 2f;
-            
+
             SetPoint(0, startPos);
             SetPoint(1, point1);
             SetPoint(6, endPos);

@@ -1,4 +1,5 @@
 ﻿using System;
+using Common;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -15,7 +16,7 @@ namespace Gameplay.Piece
             spacing = 0.3f
         };
 
-        [field: NonSerialized] public PieceActivityQueue PieceActivityQueue { get; } = new();
+        [field: NonSerialized] public ActivityQueue PieceActivityQueue { get; } = new();
         public virtual Animator Animator => null;
         public virtual PlayableDirector JumpTimeline => null;
         public Flocking.ConfigData FlockingConfigData => flockingConfigData;

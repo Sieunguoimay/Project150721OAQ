@@ -50,7 +50,7 @@ MonoBehaviour:
   mover: {fileID: 5983454113372052464}
   timeline: {fileID: 3731970366165721802}
   start: {fileID: 7680233613799053206}
-  end: {fileID: 3058907933668942640}
+  pathPlan: {fileID: 6503068670774835498}
 --- !u!1 &3557494859024931712
 GameObject:
   m_ObjectHideFlags: 0
@@ -121,8 +121,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   splineMono: {fileID: 3771502840049055048}
-  startPoint: {fileID: 7680233613799053206}
-  endPoint: {fileID: 3058907933668942640}
   endPointFactor: 1
 --- !u!1 &6355048304972677958
 GameObject:

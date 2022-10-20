@@ -15,7 +15,6 @@ namespace Gameplay
         private readonly List<Piece.Piece> _pieces = new();
 
         private readonly BoardTraveller _boardTraveller = new();
-        public event Action<Tile> OnEat = delegate { };
 
         private bool _forward;
         private Board.Board _board;
@@ -61,30 +60,6 @@ namespace Gameplay
             source.RemoveRange(source.Count - num, num);
         }
 
-        private class ActivityRotatePiece : Activity
-        {
-            private readonly Vector3 _citizenPos;
-            private readonly Piece.Piece _p;
-            private readonly float _duration;
-
-            public ActivityRotatePiece(Vector3 pos, Piece.Piece p, float duration)
-            {
-                _citizenPos = pos;
-                _p = p;
-                _duration = duration;
-            }
-
-            public override void Begin()
-            {
-                base.Begin();
-
-                var euler = Quaternion.LookRotation(_citizenPos - _p.transform.position).eulerAngles;
-                var targetEuler = _p.transform.eulerAngles;
-                targetEuler.y = euler.y;
-                _p.transform.DORotate(targetEuler, _duration).SetLink(_p.gameObject).OnComplete(NotifyDone);
-            }
-        }
-
         public void DropAll(Action done)
         {
             var delay = 0f;
@@ -104,7 +79,7 @@ namespace Gameplay
 
                     if (i == 0)
                     {
-                        p.PieceActivityQueue.Add(new ActivityRotatePiece(citizenPos, p, delay));
+                        p.PieceActivityQueue.Add(new ActivityRotateToTarget(p.transform, citizenPos, delay));
 
                         delay += 0.2f;
                     }
@@ -113,7 +88,7 @@ namespace Gameplay
 
                     if (i == n - 1)
                     {
-                        p.PieceActivityQueue.Add(new ActivityFinalize(done));
+                        p.PieceActivityQueue.Add(new ActivityCallback(done));
                     }
                 }
 
@@ -122,7 +97,7 @@ namespace Gameplay
 
             foreach (var p in _pieces)
             {
-                p.PieceActivityQueue.Add(new PieceActivityQueue.TurnAway(p.transform));
+                p.PieceActivityQueue.Add(new TurnAway(p.transform));
                 PieceScheduler.CreateAnimActivity(p, LegHashes.sit_down, null);
                 p.PieceActivityQueue.Begin();
             }
@@ -130,23 +105,7 @@ namespace Gameplay
             _pieces.Clear();
         }
 
-        private class ActivityFinalize : Activity
-        {
-            private readonly Action _callback;
-
-            public ActivityFinalize(Action callback)
-            {
-                _callback = callback;
-            }
-
-            public override void Begin()
-            {
-                base.Begin();
-                _callback?.Invoke();
-            }
-        }
-
-        public void ContinueTillEatOrStop(Action<Tile> done)
+        public void ContinueDropping(Action<Tile> done)
         {
             var t = _board.GetSuccessTile(CurrentTile, _forward);
 
@@ -162,7 +121,7 @@ namespace Gameplay
                     PieceScheduler.CreateAnimActivity(p, () => LegHashes.stand_up, null);
                 }
 
-                DropAll(() => ContinueTillEatOrStop(done));
+                DropAll(() => ContinueDropping(done));
             }
             else
             {

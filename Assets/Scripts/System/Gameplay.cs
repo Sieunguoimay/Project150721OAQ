@@ -32,15 +32,12 @@ namespace System
 
             _pieceDropper.Setup(_board);
 
-            ConnectEvents();
-
             IsPlaying = false;
             IsGameOver = false;
         }
 
         public void TearDown()
         {
-            DisconnectEvents();
             if (_coroutine != null)
             {
                 PublicExecutor.Instance.StopCoroutine(_coroutine);
@@ -80,48 +77,28 @@ namespace System
             CurrentPlayer.AcquireTurn();
         }
 
-        private void ConnectEvents()
-        {
-            _pieceDropper.OnEat += OnEatPieces;
-        }
-
-        private void DisconnectEvents()
-        {
-            _pieceDropper.OnEat -= OnEatPieces;
-        }
-
         private void OnDecisionResult(Tile tile, bool forward)
         {
             _pieceDropper.Take(tile.Pieces, tile.Pieces.Count);
             _pieceDropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tile), forward);
             _pieceDropper.DropAll(() =>
-                _pieceDropper.ContinueTillEatOrStop(t =>
-                {
-                    if (CheckSuccessEatable(t, forward))
-                    {
-                        EatRecursively(t, forward, () => { MakeDecision(true); });
-                    }
-                    else
-                    {
-                        MakeDecision(true);
-                    }
-                }));
+                _pieceDropper.ContinueDropping(t => 
+                    EatRecursively(t, forward, () => { MakeDecision(true); })));
         }
 
         private void EatRecursively(Tile tile, bool forward, Action done)
         {
-            var successTile = _board.GetSuccessTile(tile, forward);
-
-            OnEatPieces(successTile);
-
-            if (CheckSuccessEatable(_board.GetSuccessTile(successTile, forward), forward))
+            if (CheckSuccessEatable(tile, forward))
             {
-                _coroutine = PublicExecutor.Instance.Delay(0.2f,
-                    () =>
-                    {
-                        _coroutine = null;
-                        EatRecursively(_board.GetSuccessTile(successTile, forward), forward, done);
-                    });
+                var successTile = _board.GetSuccessTile(tile, forward);
+
+                EatPieces(successTile);
+
+                _coroutine = PublicExecutor.Instance.Delay(0.2f, () =>
+                {
+                    _coroutine = null;
+                    EatRecursively( _board.GetSuccessTile(successTile, forward), forward, done);
+                });
             }
             else
             {
@@ -179,29 +156,26 @@ namespace System
             }
         }
 
-        private void OnEatPieces(Tile pieceContainerMb)
+        private void EatPieces(PieceContainer tile)
         {
-            var n = pieceContainerMb.Pieces.Count;
-
             var bench = CurrentPlayer.PieceBench;
+            var n = tile.Pieces.Count;
+
             var positions = new Vector3[n];
-            var pieces = new Piece[n];
             var centerPoint = Vector3.zero;
             var startIndex = bench.Pieces.Count;
             for (var i = 0; i < n; i++)
             {
                 positions[i] = bench.GetPosAndRot(startIndex + i).Position;
-                var p = pieceContainerMb.Pieces[i];
-                pieces[i] = p;
                 centerPoint += positions[i];
-                bench.Pieces.Add(p);
+                bench.Pieces.Add(tile.Pieces[i]);
             }
-
-            pieceContainerMb.Pieces.Clear();
 
             centerPoint /= n;
 
-            PieceScheduler.MovePiecesOutOfTheBoard(pieces, positions, centerPoint);
+            PieceScheduler.MovePiecesOutOfTheBoard(tile.Pieces, positions, centerPoint);
+            
+            tile.Pieces.Clear();
         }
 
         private void GameOver()
