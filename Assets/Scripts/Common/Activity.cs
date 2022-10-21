@@ -94,7 +94,10 @@ namespace Common
 
         public void Add(Activity anim)
         {
-            Activities.Enqueue(anim);
+            if (anim != null)
+            {
+                Activities.Enqueue(anim);
+            }
         }
 
         public override void Update(float deltaTime)

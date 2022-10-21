@@ -6,45 +6,60 @@ using UnityEngine;
 namespace Gameplay.Board
 {
     [SelectionBase]
-    public class Tile : PieceContainer, ISelectorTarget
+    public class Tile : PieceContainer
     {
         [SerializeField] private float size;
-        private BoxCollider _collider;
-        private BoxCollider Collider => _collider ??= GetComponent<BoxCollider>();
-
-        public override void Setup()
-        {
-            base.Setup();
-            Collider.size = new Vector3(size, 0.1f, size);
-        }
-
         public float Size => size;
 
-        #region ISelectorTarget
+        private const int MaxPiecesSupported = 50;
+        private Vector2Int[] _reservedPoints;
 
-        public IEnumerable<CitizenToTileSelectorAdaptor> GetSelectionAdaptors() =>
+        public IEnumerable<ISelectionAdaptor> GetSelectionAdaptors() =>
             Pieces.Where(p => p is Citizen)
-                .Select(p => new CitizenToTileSelectorAdaptor(p as Citizen));
+                .Select(p => new CitizenToTileSelectorAdaptor(p));
 
-        public Vector3 DisplayPos => transform.position;
-
-        #endregion ISelectorTarget
-
-#if UNITY_EDITOR
-
-        private void OnDrawGizmos()
+        public void Setup()
         {
-            if (Collider == null) return;
-            Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.DrawWireCube(Collider.center, Collider.size);
+            _reservedPoints = ReservePositionsInFilledCircle(MaxPiecesSupported);
         }
 
-        [SerializeField] private GameObject model;
-        [ContextMenu("Test")]
-        void Test()
+        public Vector3 GetPositionInFilledCircle(int index, bool local = false, float space = 0.15f)
         {
-            Instantiate(model, transform);
+            var pos = new Vector3(_reservedPoints[index].x, 0, _reservedPoints[index].y) * space;
+            return local ? pos : transform.TransformPoint(pos);
         }
-#endif
+
+        private static Vector2Int[] ReservePositionsInFilledCircle(int num)
+        {
+            var r = 1;
+            var n = 0;
+            var points = new List<Vector2Int>();
+            while (n < num)
+            {
+                n = 0;
+                points.Clear();
+                for (var x = -r; x <= r; x++)
+                {
+                    for (var y = -r; y <= r; y++)
+                    {
+                        if (x * x + y * y > r * r) continue;
+
+                        points.Add(new Vector2Int(x, y));
+                        n++;
+                    }
+                }
+
+                r++;
+            }
+
+            points.Sort((a, b) =>
+            {
+                var da = a.x * a.x + a.y * a.y;
+                var db = b.x * b.x + b.y * b.y;
+                return (da == db ? 0 : (da < db ? -1 : 1));
+            });
+
+            return points.ToArray();
+        }
     }
 }

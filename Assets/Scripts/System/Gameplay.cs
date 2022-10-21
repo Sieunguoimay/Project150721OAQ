@@ -14,8 +14,7 @@ namespace System
         private PlayersManager _playersManager;
         private Board _board;
         private PieceManager _pieceManager;
-
-        private readonly PieceDropper _pieceDropper = new();
+        private PieceDropper _pieceDropper;
 
         private PerMatchData _perMatchData;
         private Player CurrentPlayer { get; set; }
@@ -30,7 +29,7 @@ namespace System
             _playersManager = playersManager;
             _pieceManager = pieceManager;
 
-            _pieceDropper.Setup(_board);
+            _pieceDropper = new PieceDropper(_board);
 
             IsPlaying = false;
             IsGameOver = false;
@@ -56,7 +55,7 @@ namespace System
         {
             IsGameOver = false;
             IsPlaying = false;
-            _pieceDropper.Reset();
+            _pieceDropper.ClearHoldingPieces();
             CurrentPlayer = null;
         }
 
@@ -81,9 +80,7 @@ namespace System
         {
             _pieceDropper.Take(tile.Pieces, tile.Pieces.Count);
             _pieceDropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tile), forward);
-            _pieceDropper.DropAll(() =>
-                _pieceDropper.ContinueDropping(t => 
-                    EatRecursively(t, forward, () => { MakeDecision(true); })));
+            _pieceDropper.DropNonStop(lastTile => EatRecursively(_board.GetSuccessTile(lastTile, forward), forward, () => { MakeDecision(true); }));
         }
 
         private void EatRecursively(Tile tile, bool forward, Action done)
@@ -92,12 +89,12 @@ namespace System
             {
                 var successTile = _board.GetSuccessTile(tile, forward);
 
-                EatPieces(successTile);
+                EatPieces(successTile.Pieces);
 
                 _coroutine = PublicExecutor.Instance.Delay(0.2f, () =>
                 {
                     _coroutine = null;
-                    EatRecursively( _board.GetSuccessTile(successTile, forward), forward, done);
+                    EatRecursively(_board.GetSuccessTile(successTile, forward), forward, done);
                 });
             }
             else
@@ -131,7 +128,7 @@ namespace System
                         //Take back pieces to board
                         _pieceDropper.Take(CurrentPlayer.PieceBench.Pieces, tileGroup.Tiles.Length);
                         _pieceDropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tileGroup.MandarinTile), true);
-                        _pieceDropper.DropAll(() => { MakeDecision(false); });
+                        _pieceDropper.DropOnce(_ => { MakeDecision(false); });
                         gameOver = false;
                     }
                     else
@@ -156,10 +153,10 @@ namespace System
             }
         }
 
-        private void EatPieces(PieceContainer tile)
+        private void EatPieces(List<Piece> pieces)
         {
             var bench = CurrentPlayer.PieceBench;
-            var n = tile.Pieces.Count;
+            var n = pieces.Count;
 
             var positions = new Vector3[n];
             var centerPoint = Vector3.zero;
@@ -168,14 +165,14 @@ namespace System
             {
                 positions[i] = bench.GetPosAndRot(startIndex + i).Position;
                 centerPoint += positions[i];
-                bench.Pieces.Add(tile.Pieces[i]);
+                bench.Pieces.Add(pieces[i]);
             }
 
             centerPoint /= n;
 
-            PieceScheduler.MovePiecesOutOfTheBoard(tile.Pieces, positions, centerPoint);
-            
-            tile.Pieces.Clear();
+            PieceScheduler.MovePiecesOutOfTheBoard(pieces, positions, centerPoint);
+
+            pieces.Clear();
         }
 
         private void GameOver()

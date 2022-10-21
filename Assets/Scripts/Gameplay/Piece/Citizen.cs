@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Common.Animation;
+using CommonActivities;
 using DG.Tweening;
 using Timeline;
 using UnityEngine;
@@ -21,7 +22,8 @@ namespace Gameplay.Piece
 
         public void PlayAnimStandUp()
         {
-            PieceScheduler.CreateAnimActivity(this, LegHashes.stand_up, () => { Animator.Play(LegHashes.idle); });
+            PieceScheduler.CreateAnimActivity(this, LegHashes.stand_up);
+            PieceActivityQueue.Add(new ActivityCallback(() => Animator.Play(LegHashes.idle)));
             PieceActivityQueue.Begin();
         }
 

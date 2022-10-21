@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Common;
-using CommonActivities;
-using DG.Tweening;
-using Gameplay.Board;
 using Gameplay.Piece;
-using SNM;
-using UnityEngine;
 
-namespace Gameplay
+namespace Gameplay.Board
 {
     public class PieceDropper
     {
@@ -17,22 +12,15 @@ namespace Gameplay
         private readonly BoardTraveller _boardTraveller = new();
 
         private bool _forward;
-        private Board.Board _board;
-        private Tile CurrentTile => _board.Tiles[_boardTraveller.CurrentIndex];
-        private Coroutine _coroutine;
+        private readonly Gameplay.Board.Board _board;
 
-        public void Setup(Board.Board board)
+        public PieceDropper(Gameplay.Board.Board board)
         {
             _board = board;
         }
 
-        public void Reset()
+        public void ClearHoldingPieces()
         {
-            if (_coroutine != null)
-            {
-                PublicExecutor.Instance.StopCoroutine(_coroutine);
-            }
-
             _pieces.Clear();
         }
 
@@ -60,7 +48,7 @@ namespace Gameplay
             source.RemoveRange(source.Count - num, num);
         }
 
-        public void DropAll(Action done)
+        public void DropOnce(Action<Tile> done)
         {
             var delay = 0f;
             var n = _pieces.Count;
@@ -68,14 +56,15 @@ namespace Gameplay
             for (var i = 0; i < n; i++)
             {
                 _boardTraveller.Next(_forward);
+                var currentTile = _board.Tiles[_boardTraveller.CurrentIndex];
 
                 for (var j = 0; j < n - i; j++)
                 {
                     if (_pieces[i + j] is not Citizen p) continue;
 
-                    var skipSlot = CurrentTile is MandarinTile;
+                    var skipSlot = currentTile is MandarinTile;
                     var citizenPos =
-                        CurrentTile.GetPositionInFilledCircle(CurrentTile.Pieces.Count + j + (skipSlot ? 5 : 0));
+                        currentTile.GetPositionInFilledCircle(currentTile.Pieces.Count + j + (skipSlot ? 5 : 0));
 
                     if (i == 0)
                     {
@@ -84,49 +73,73 @@ namespace Gameplay
                         delay += 0.2f;
                     }
 
-                    PieceScheduler.CreateJumpTimelineActivity(p, citizenPos);
+                    p.PieceActivityQueue.Add(PieceScheduler.CreateJumpTimelineActivity(p, citizenPos));
 
                     if (i == n - 1)
                     {
-                        p.PieceActivityQueue.Add(new ActivityCallback(done));
+                        p.PieceActivityQueue.Add(new ActivityLastDrop(done, currentTile));
                     }
                 }
 
-                CurrentTile.Pieces.Add(_pieces[i]);
+                currentTile.Pieces.Add(_pieces[i]);
             }
 
             foreach (var p in _pieces)
             {
                 p.PieceActivityQueue.Add(new TurnAway(p.transform));
-                PieceScheduler.CreateAnimActivity(p, LegHashes.sit_down, null);
+                p.PieceActivityQueue.Add(PieceScheduler.CreateAnimActivity(p, LegHashes.sit_down));
                 p.PieceActivityQueue.Begin();
             }
 
             _pieces.Clear();
         }
 
-        public void ContinueDropping(Action<Tile> done)
+        public void DropNonStop(Action<Tile> onDone)
         {
-            var t = _board.GetSuccessTile(CurrentTile, _forward);
+            DropOnce(t => ContinueDropping(onDone, t));
+        }
+
+        private void ContinueDropping(Action<Tile> done, Tile tile)
+        {
+            var successTile = _board.GetSuccessTile(tile, _forward);
 
             _boardTraveller.Reset();
 
-            if (t.Pieces.Count > 0 && t is not MandarinTile)
+            if (successTile.Pieces.Count > 0 && successTile is not MandarinTile)
             {
-                Take(t.Pieces, t.Pieces.Count);
-                SetMoveStartPoint(Array.IndexOf(_board.Tiles, t), _forward);
+                Take(successTile.Pieces, successTile.Pieces.Count);
+                SetMoveStartPoint(Array.IndexOf(_board.Tiles, successTile), _forward);
 
                 foreach (var p in _pieces)
                 {
-                    PieceScheduler.CreateAnimActivity(p, () => LegHashes.stand_up, null);
+                    p.PieceActivityQueue.Add(PieceScheduler.CreateAnimActivity(p, LegHashes.stand_up));
                 }
 
-                DropAll(() => ContinueDropping(done));
+                DropOnce(t => ContinueDropping(done, t));
             }
             else
             {
-                done?.Invoke(t);
+                done?.Invoke(tile);
             }
+        }
+    }
+
+    public class ActivityLastDrop : Activity
+    {
+        private readonly Action<Tile> _callback;
+        private readonly Tile _tile;
+
+        public ActivityLastDrop(Action<Tile> callback, Tile tile)
+        {
+            _tile = tile;
+            _callback = callback;
+        }
+
+        public override void Begin()
+        {
+            base.Begin();
+            _callback?.Invoke(_tile);
+            NotifyDone();
         }
     }
 }

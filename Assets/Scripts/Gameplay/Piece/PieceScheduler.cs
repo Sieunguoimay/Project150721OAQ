@@ -28,9 +28,9 @@ namespace Gameplay.Piece
                     null);
 
                 pieces[i].PieceActivityQueue.Add(new Delay(delay += 0.2f));
-                CreateAnimActivity(pieces[i], LegHashes.stand_up, null);
+                CreateAnimActivity(pieces[i], LegHashes.stand_up);
                 pieces[i].PieceActivityQueue.Add(flocking);
-                CreateAnimActivity(pieces[i], LegHashes.sit_down, null);
+                CreateAnimActivity(pieces[i], LegHashes.sit_down);
                 pieces[i].PieceActivityQueue.Begin();
             }
         }
@@ -44,7 +44,7 @@ namespace Gameplay.Piece
                 p.PieceActivityQueue.Add(triggerActivity);
             }
 
-            CreateAnimActivity(p, LegHashes.sit_down, null);
+            CreateAnimActivity(p, LegHashes.sit_down);
             p.PieceActivityQueue.Add(new Delay(delay));
             p.PieceActivityQueue.Add(new Flocking(p.FlockingConfigData, position, p.transform, null));
             p.PieceActivityQueue.Begin();
@@ -53,6 +53,14 @@ namespace Gameplay.Piece
         public static Activity CreateJumpTimelineActivity(Piece p, Vector3 target)
         {
             if (p.JumpTimeline == null) return null;
+
+            var tracks =
+                p.JumpTimeline.playableAsset.outputs.Where(tr => tr.sourceObject is TransformControlTrack)
+                    .Select(tr => tr.sourceObject as TransformControlTrack).ToArray();
+
+            var jumping = tracks.FirstOrDefault(t => t.label.Equals("jumping"));
+            var facing = tracks.FirstOrDefault(t => t.label.Equals("facing"));
+
             Activity activity = null;
             activity = new Lambda(() =>
             {
@@ -61,42 +69,8 @@ namespace Gameplay.Piece
                     .LookRotation(p.transform.InverseTransformDirection(target - p.transform.position))
                     .eulerAngles;
 
-                var tracks =
-                    p.JumpTimeline.playableAsset.outputs.Where(tr => tr.sourceObject is TransformControlTrack)
-                        .Select(tr => tr.sourceObject as TransformControlTrack);
-
-                var jumping = tracks.FirstOrDefault(t => t.label.Equals("jumping"));
-                var facing = tracks.FirstOrDefault(t => t.label.Equals("facing"));
                 SetTrack(jumping, target.x, target.z, 0);
                 SetTrack(facing, 0, 0, ClampEuler(euler.y, ((Transform) p.JumpTimeline.GetGenericBinding(facing)).localEulerAngles.y));
-
-                static float ClampEuler(float newEuler, float oldEuler)
-                {
-                    var offset = newEuler - oldEuler;
-                    if (offset > 180f)
-                    {
-                        return newEuler - 360f;
-                    }
-
-                    if (offset < -180f)
-                    {
-                        return newEuler + 360f;
-                    }
-
-                    return newEuler;
-                }
-
-                static void SetTrack(TrackAsset tr, float x, float z, float eulerY)
-                {
-                    if (tr == null) return;
-                    var clips = tr.GetClips();
-                    foreach (var c in clips)
-                    {
-                        ((TransformControlClip) c.asset).Template.position.x = x;
-                        ((TransformControlClip) c.asset).Template.position.z = z;
-                        ((TransformControlClip) c.asset).Template.eulerAngles.y = eulerY;
-                    }
-                }
 
                 var transform = p.transform;
                 var pos = transform.position;
@@ -107,7 +81,7 @@ namespace Gameplay.Piece
                 p.Delay((float) p.JumpTimeline.duration, () =>
                 {
                     activity?.NotifyDone();
-
+                    if (!jumping || !facing) return;
                     var clips = jumping.GetClips().Concat(facing.GetClips());
                     foreach (var c in clips)
                     {
@@ -117,17 +91,70 @@ namespace Gameplay.Piece
                     }
                 });
             }, null);
+            
+            var activity1 = new ActivityCallback(() =>
+            {
+                p.JumpTimeline.Stop();
+                var euler = Quaternion
+                    .LookRotation(p.transform.InverseTransformDirection(target - p.transform.position))
+                    .eulerAngles;
 
-            p.PieceActivityQueue.Add(activity);
-            return activity;
+                SetTrack(jumping, target.x, target.z, 0);
+                SetTrack(facing, 0, 0, ClampEuler(euler.y, ((Transform) p.JumpTimeline.GetGenericBinding(facing)).localEulerAngles.y));
+
+                var transform = p.transform;
+                var pos = transform.position;
+                pos.y = 0f;
+                transform.position = pos;
+
+                p.JumpTimeline.Play();
+            });
+            var delayActivity = new Delay((float) p.JumpTimeline.duration);
+            var activity2 = new ActivityCallback(() =>
+            {
+                if (!jumping || !facing) return;
+                var clips = jumping.GetClips().Concat(facing.GetClips());
+                foreach (var c in clips)
+                {
+                    var clip = ((TransformControlClip) c.asset);
+                    clip.Template.position = Vector3.zero;
+                    clip.Template.eulerAngles = Vector3.zero;
+                }
+            });
+
+            return new ActivityQueue();
+
+
+            static float ClampEuler(float newEuler, float oldEuler)
+            {
+                var offset = newEuler - oldEuler;
+                return offset switch
+                {
+                    > 180f => newEuler - 360f,
+                    < -180f => newEuler + 360f,
+                    _ => newEuler
+                };
+            }
+
+            static void SetTrack(TrackAsset tr, float x, float z, float eulerY)
+            {
+                if (tr == null) return;
+                var clips = tr.GetClips();
+                foreach (var c in clips)
+                {
+                    ((TransformControlClip) c.asset).Template.position.x = x;
+                    ((TransformControlClip) c.asset).Template.position.z = z;
+                    ((TransformControlClip) c.asset).Template.eulerAngles.y = eulerY;
+                }
+            }
         }
 
-        public static void CreateAnimActivity(Piece p, int animHash, Action onDone)
-            => CreateAnimActivity(p, () => animHash, onDone);
+        public static Activity CreateAnimActivity(Piece p, int animHash)
+            => CreateAnimActivity(p, () => animHash);
 
-        public static void CreateAnimActivity(Piece p, Func<int> animHash, Action onDone)
+        public static Activity CreateAnimActivity(Piece p, Func<int> animHash)
         {
-            if (p.Animator == null) return;
+            if (p.Animator == null) return null;
 
             var anim = -1;
             Activity animActivity = new Lambda(() =>
@@ -144,12 +171,8 @@ namespace Gameplay.Piece
 
                 return info.normalizedTime >= 1f;
             });
-            if (onDone != null)
-            {
-                animActivity.Done += onDone;
-            }
 
-            p.PieceActivityQueue.Add(animActivity);
+            return animActivity;
         }
     }
 }
