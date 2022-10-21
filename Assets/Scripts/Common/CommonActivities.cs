@@ -137,24 +137,17 @@ namespace CommonActivities
 
     public class Delay : Activity
     {
-        private readonly Func<float> _onBegin;
         protected float Time { get; set; } = 0;
-        protected float Duration { get; private set; }
+        protected float Duration { get; }
 
         public Delay(float duration)
         {
             Duration = duration;
         }
 
-        public Delay(Func<float> onBegin)
-        {
-            _onBegin = onBegin;
-        }
-
         public override void Begin()
         {
             base.Begin();
-            Duration = _onBegin?.Invoke() ?? Duration;
             Time = 0f;
         }
 
