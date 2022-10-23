@@ -3,11 +3,12 @@ using UnityEngine;
 
 namespace Gameplay.Board
 {
-    public class PieceContainer : MonoBehaviour
+    public interface IPieceContainer 
     {
-        public readonly List<Piece.Piece> Pieces = new();
+        List<Piece.Piece> Pieces { get; }
     }
 }
+
 // public Vector3 SpawnPositionInCircle(int index, bool local = false, float size = 0.15f)
 // {
 //     var points = new List<Vector2Int>();

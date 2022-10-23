@@ -11,36 +11,69 @@ namespace Gameplay.GameInteract
     public class TileChooser : MonoBehaviour
     {
         [SerializeField] private ButtonContainer buttonContainer;
-
-        private TextMeshPro[] _texts;
+        [SerializeField] private ButtonContainer buttonContainer2;
 
         public ButtonContainer ButtonContainer => buttonContainer;
+        public ButtonContainer ButtonContainer2 => buttonContainer2;
 
-        private void Start()
+        public void ChooseTile(Tile[] tiles, ButtonCommand[] commands)
         {
-            _texts = new TextMeshPro[buttonContainer.ButtonViews.Length];
-            for (var i = 0; i < _texts.Length; i++)
-            {
-                _texts[i] = buttonContainer.ButtonViews[i].GetComponentInChildren<TextMeshPro>();
-            }
-        }
+            var bd = commands.Select(c => new ButtonData(c, new ButtonDisplayInfoSpecialAction())).ToArray();
 
-        public void ChooseTile(Tile[] tiles, ICommand[] commands)
-        {
             SetButtonsPositionAndRotation(tiles);
-            buttonContainer.Setup(commands.Select(c => new ButtonData(c, new ButtonDisplayInfoSpecialAction()))
-                .ToArray());
+
+            buttonContainer.Setup(bd);
             buttonContainer.ShowButtons();
+            buttonContainer2.Setup(bd);
+            buttonContainer2.ShowButtons();
         }
 
         private void SetButtonsPositionAndRotation(IReadOnlyList<Tile> optionTiles)
         {
             for (var i = 0; i < optionTiles.Count; i++)
             {
-                buttonContainer.ButtonViews[i].transform.position = optionTiles[i].transform.position + optionTiles[i].transform.forward*optionTiles[i].Size;
-                buttonContainer.ButtonViews[i].transform.rotation = optionTiles[i].transform.rotation;
+                var tilePos = optionTiles[i].transform.position;
+                var tileRot = optionTiles[i].transform.rotation;
+                var pos = tilePos + optionTiles[i].transform.forward * optionTiles[i].Size;
+
+                buttonContainer.ButtonViews[i].transform.position = pos;
+                buttonContainer.ButtonViews[i].transform.rotation = tileRot;
                 buttonContainer.ButtonViews[i].Display
                     .SetDisplayInfo(new ButtonDisplayInfoText($"{optionTiles[i].Pieces.Count}"));
+
+                buttonContainer2.ButtonViews[i].transform.position = tilePos;
+                buttonContainer2.ButtonViews[i].transform.rotation = tileRot;
+            }
+        }
+
+        public class ButtonCommand : ButtonContainer.ButtonCommand
+        {
+            private readonly TileChooser _tileChooser;
+
+            protected ButtonCommand(TileChooser tileChooser, ButtonContainer container) : base(
+                container)
+            {
+                _tileChooser = tileChooser;
+            }
+
+            public override void Execute()
+            {
+                base.Execute();
+
+                foreach (var bv in _tileChooser.ButtonContainer2.ButtonViews)
+                {
+                    if (bv.Command == this)
+                    {
+                        bv.HideAway();
+                    }
+                    else
+                    {
+                        if (!bv.Active && bv.Command != null)
+                        {
+                            bv.ShowUp();
+                        }
+                    }
+                }
             }
         }
     }

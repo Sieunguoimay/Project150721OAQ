@@ -22,11 +22,18 @@ namespace SNM
 
         public static Coroutine TimingForLoop(this MonoBehaviour mb, float duration, int n, Action<int> onIteration)
         {
+            if (n <= 0) return null;
+            if (n == 1)
+            {
+                onIteration?.Invoke(0);
+                return null;
+            }
+
             var index = 0;
             return mb.TimeProgress(duration, p =>
             {
                 if (!(p >= index * (1f / (n - 1)))) return;
-                
+
                 onIteration?.Invoke(index);
                 index++;
             });

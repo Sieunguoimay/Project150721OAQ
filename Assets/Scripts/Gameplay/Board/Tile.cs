@@ -6,17 +6,18 @@ using UnityEngine;
 namespace Gameplay.Board
 {
     [SelectionBase]
-    public class Tile : PieceContainer
+    public class Tile : MonoBehaviour, IPieceContainer
     {
         [SerializeField] private float size;
         public float Size => size;
+        public List<Piece.Piece> Pieces { get; } = new();
 
         private const int MaxPiecesSupported = 50;
         private Vector2Int[] _reservedPoints;
 
         public IEnumerable<ISelectionAdaptor> GetSelectionAdaptors() =>
             Pieces.Where(p => p is Citizen)
-                .Select(p => new CitizenToTileSelectorAdaptor(p));
+                .Select(p => new CitizenToTileSelectorAdaptor(p as Citizen));
 
         public void Setup()
         {
@@ -25,6 +26,11 @@ namespace Gameplay.Board
 
         public Vector3 GetPositionInFilledCircle(int index, bool local = false, float space = 0.15f)
         {
+            if (index >= _reservedPoints.Length)
+            {
+                _reservedPoints = ReservePositionsInFilledCircle(_reservedPoints.Length + MaxPiecesSupported);
+            }
+
             var pos = new Vector3(_reservedPoints[index].x, 0, _reservedPoints[index].y) * space;
             return local ? pos : transform.TransformPoint(pos);
         }
@@ -61,5 +67,11 @@ namespace Gameplay.Board
 
             return points.ToArray();
         }
+    }
+
+    public interface ISelectionAdaptor
+    {
+        void OnTileSelected();
+        void OnTileDeselected(bool success);
     }
 }

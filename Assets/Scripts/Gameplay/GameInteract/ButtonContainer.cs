@@ -2,39 +2,64 @@
 using System.Collections.Generic;
 using Gameplay.GameInteract.Button;
 using SNM;
-using TMPro;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
+    
+    public interface ICommand
+    {
+        void Execute();
+    }
+
     public sealed class ButtonContainer : MonoBehaviour
     {
         [SerializeField] private OnGroundButton[] buttonViews;
         [field: System.NonSerialized] private int OptionNum { get; set; }
         public OnGroundButton[] ButtonViews => buttonViews;
 
+        private Coroutine _coroutine;
+
+        private void OnDisable()
+        {
+            if (_coroutine != null)
+            {
+                StopCoroutine(_coroutine);
+            }
+        }
+
         public void Setup(ButtonData[] buttons)
         {
             OptionNum = buttons.Length;
-            var n = Mathf.Min(buttonViews.Length, OptionNum);
-            for (var i = 0; i < n; i++)
+            for (var i = 0; i < buttonViews.Length; i++)
             {
-                buttonViews[i].SetCommand(buttons[i].Command);
-                buttonViews[i].Display?.SetDisplayInfo(buttons[i].DisplayInfo);
+                if (i < OptionNum)
+                {
+                    buttonViews[i].SetCommand(buttons[i].Command);
+                    buttonViews[i].Display?.SetDisplayInfo(buttons[i].DisplayInfo);
+                }
+                else
+                {
+                    buttonViews[i].SetCommand(null);
+                }
             }
         }
 
         public void ShowButtons()
         {
             var n = Mathf.Min(buttonViews.Length, OptionNum);
-            this.TimingForLoop(.3f, n, i => { buttonViews[i].ShowUp(); });
+            _coroutine = this.TimingForLoop(.3f, n, i =>
+            {
+                buttonViews[i].ShowUp();
+                _coroutine = null;
+            });
         }
 
         public void HideButtons()
         {
-            var n = Mathf.Min(buttonViews.Length, OptionNum);
-            for (var i = 0; i < n; i++)
+            for (var i = 0; i < Mathf.Min(buttonViews.Length, OptionNum); i++)
             {
+                if (!buttonViews[i].Active) continue;
                 buttonViews[i].HideAway();
                 buttonViews[i].SetCommand(null);
             }
@@ -44,7 +69,7 @@ namespace Gameplay.GameInteract
         {
             private readonly ButtonContainer _container;
 
-            public ButtonCommand(ButtonContainer container)
+            protected ButtonCommand(ButtonContainer container)
             {
                 _container = container;
             }

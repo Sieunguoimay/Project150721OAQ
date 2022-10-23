@@ -5,25 +5,23 @@ namespace Gameplay.Piece
 {
     public class CitizenToTileSelectorAdaptor : ISelectionAdaptor
     {
-        private readonly Piece _piece;
+        private readonly Citizen _piece;
 
-        public CitizenToTileSelectorAdaptor(Piece piece)
+        public CitizenToTileSelectorAdaptor(Citizen piece)
         {
             _piece = piece;
         }
 
         public void OnTileSelected()
         {
-            if (_piece is Citizen c)
-                c.PlayAnimStandUp();
+            _piece.PlayAnimStandUp();
         }
 
         public void OnTileDeselected(bool success)
         {
             if (!success)
             {
-                if (_piece is Citizen c)
-                    c.PlayAnimSitDown();
+                _piece.PlayAnimSitDown();
             }
         }
     }

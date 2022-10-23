@@ -1,5 +1,6 @@
 ﻿using System;
 using Common;
+using Gameplay.Piece.Activities;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -8,7 +9,7 @@ namespace Gameplay.Piece
     public class Piece : MonoBehaviour
     {
         [SerializeField] private Vector3 size;
-        [SerializeField] private Flocking.ConfigData flockingConfigData = new()
+        [SerializeField] private ActivityFlocking.ConfigData flockingConfigData = new()
         {
             maxSpeed = 3f,
             maxAcceleration = 10f,
@@ -16,14 +17,14 @@ namespace Gameplay.Piece
             spacing = 0.3f
         };
 
-        [field: NonSerialized] public ActivityQueue PieceActivityQueue { get; } = new();
+        [field: NonSerialized] public ActivityQueue ActivityQueue { get; } = new();
         public virtual Animator Animator => null;
         public virtual PlayableDirector JumpTimeline => null;
-        public Flocking.ConfigData FlockingConfigData => flockingConfigData;
+        public ActivityFlocking.ConfigData FlockingConfigData => flockingConfigData;
 
         private void Update()
         {
-            PieceActivityQueue?.Update(Time.deltaTime);
+            ActivityQueue?.Update(Time.deltaTime);
         }
 
 

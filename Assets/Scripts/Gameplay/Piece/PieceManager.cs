@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Linq;
 using Common;
-using Common.ResolveSystem;
-using Gameplay.Board;
-using SNM;
+using Gameplay.Piece.Activities;
 using UnityEngine;
 
 namespace Gameplay.Piece
@@ -13,32 +10,31 @@ namespace Gameplay.Piece
         [SerializeField] private Piece mandarinPrefab;
         [SerializeField] private Piece citizenPrefab;
 
-        public Piece[] Pieces { get; set; }
+        public Piece[] Pieces { get; private set; }
 
         public void ResetAll()
         {
             foreach (var p in Pieces)
             {
-                p.PieceActivityQueue.NotifyDone();
-                p.PieceActivityQueue.Activities.Clear();
+                p.ActivityQueue.NotifyDone();
+                p.ActivityQueue.Clear();
             }
         }
-        
+
         public void SpawnPieces(int groups, int tilesPerGroup)
         {
             Pieces = new Piece[groups * tilesPerGroup * 5 + groups];
+
             var count = 0;
             for (var i = 0; i < groups; i++)
             {
-                Pieces[count] = Instantiate(mandarinPrefab, transform, true);
-                
-                count++;
+                Pieces[count++] = Instantiate(mandarinPrefab, transform, true);
+
                 for (var j = 0; j < tilesPerGroup; j++)
                 {
                     for (var k = 0; k < 5; k++)
                     {
-                        var p = Instantiate(citizenPrefab, transform, true);
-                        Pieces[count++] = p;
+                        Pieces[count++] = Instantiate(citizenPrefab, transform, true);
                     }
                 }
             }
@@ -49,7 +45,6 @@ namespace Gameplay.Piece
             var index = 0;
             foreach (var tg in board.TileGroups)
             {
-                var delay = 0f;
                 foreach (var t in tg.Tiles)
                 {
                     for (var i = 0; i < 5; i++)
@@ -57,7 +52,18 @@ namespace Gameplay.Piece
                         if (Pieces[index] is Citizen p)
                         {
                             t.Pieces.Add(p);
-                            PieceScheduler.MovePieceToTheBoardOnGameStart(p, t as Tile, null, delay += 0.1f);
+
+                            var delay = i * 0.1f;
+                            var position = t.GetPositionInFilledCircle(Mathf.Max(0, t.Pieces.Count - 1));
+
+                            p.ActivityQueue.Add(new ActivityAnimation(p.Animator, LegHashes.sit_down));
+                            p.ActivityQueue.Add(delay > 0 ? new ActivityDelay(delay) : null);
+                            p.ActivityQueue.Add(new ActivityFlocking(p.FlockingConfigData, position, p.transform,
+                                null));
+                            p.ActivityQueue.Add(index == Pieces.Length - 1
+                                ? new ActivityCallback(onAllInPlace)
+                                : null);
+                            p.ActivityQueue.Begin();
                         }
                         else
                         {
@@ -70,8 +76,6 @@ namespace Gameplay.Piece
                     }
                 }
             }
-
-            this.WaitUntil(() => Pieces.All(p => p.PieceActivityQueue.Inactive), onAllInPlace);
         }
 
     }

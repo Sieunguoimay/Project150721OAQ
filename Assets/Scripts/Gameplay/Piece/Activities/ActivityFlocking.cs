@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using Common;
-using CommonActivities;
-using Gameplay.Piece;
 using UnityEngine;
 
-namespace Gameplay
+namespace Gameplay.Piece.Activities
 {
-    public class Flocking : Activity
+    public class ActivityFlocking : Activity
     {
         protected MotionMetrics Motion;
 
         private readonly ConfigData _configData;
         protected Vector3 Target;
         protected readonly Transform Transform;
-        private Flocking[] _others;
+        private ActivityFlocking[] _others;
 
-        public Flocking(ConfigData configData, Vector3 target, Transform transform, Flocking[] others)
+        public ActivityFlocking(ConfigData configData, Vector3 target, Transform transform, ActivityFlocking[] others)
         {
-            _others = others ?? new Flocking[0];
+            _others = others ?? new ActivityFlocking[0];
             _configData = configData;
             Target = target;
             Transform = transform;
@@ -62,7 +60,7 @@ namespace Gameplay
         {
         }
 
-        public void SetOthers(Flocking[] others)
+        public void SetOthers(ActivityFlocking[] others)
         {
             _others = others;
         }
@@ -117,7 +115,7 @@ namespace Gameplay
             return desiredAcceleration;
         }
 
-        private Vector3 Separate(IEnumerable<Flocking> others)
+        private Vector3 Separate(IEnumerable<ActivityFlocking> others)
         {
             var desiredSeparation = _configData.spacing;
             var sum = new Vector3();
@@ -155,7 +153,7 @@ namespace Gameplay
             public Vector3 acceleration;
             public Vector3 direction;
 
-            public Vector3 GetFinalPosition(float deltaTime, Flocking.ConfigData config)
+            public Vector3 GetFinalPosition(float deltaTime, ActivityFlocking.ConfigData config)
             {
                 velocity += acceleration * deltaTime;
                 velocity = SNM.Math.ClampMagnitude(velocity, config.maxSpeed);
@@ -180,20 +178,20 @@ namespace Gameplay
         }
     }
 
-    public class JumpingFlocking : Flocking
+    public class JumpingFlocking : ActivityFlocking
     {
         private Vector3 _flockingPosition;
-        private readonly Gameplay.Piece.Jump _jump;
+        private readonly ActivityJump _activityJump;
         private bool _delay;
         private float _intervalTime;
         private bool _noJumping;
 
-        public override bool Inactive => base.Inactive && _jump.Inactive;
+        public override bool Inactive => base.Inactive && _activityJump.Inactive;
 
-        public JumpingFlocking(ConfigData configData, Vector3 target, Transform transform, Flocking[] others)
+        public JumpingFlocking(ConfigData configData, Vector3 target, Transform transform, ActivityFlocking[] others)
             : base(configData, target, transform, others)
         {
-            _jump = new Gameplay.Piece.Jump(Transform, new Gameplay.Piece.Jump.InputData
+            _activityJump = new ActivityJump(Transform, new ActivityJump.InputData
             {
                 Height = 0.3f,
                 Duration = 0.25f
@@ -212,16 +210,16 @@ namespace Gameplay
         public override void Begin()
         {
             base.Begin();
-            _jump.Begin();
+            _activityJump.Begin();
             _noJumping = false;
         }
 
         public override void Update(float deltaTime)
         {
-            _jump.Update(deltaTime);
+            _activityJump.Update(deltaTime);
             if (Motion.moving)
             {
-                if (!_noJumping && _jump.Inactive)
+                if (!_noJumping && _activityJump.Inactive)
                 {
                     _delay = true;
                 }
@@ -237,11 +235,11 @@ namespace Gameplay
             if (_intervalTime < 0.08f) return;
             _intervalTime = 0f;
 
-            var jumpDistance = _jump.GetJumpDistance(Speed);
+            var jumpDistance = _activityJump.GetJumpDistance(Speed);
             if (Vector3.SqrMagnitude(Target - Motion.position) > jumpDistance * jumpDistance)
             {
                 _delay = false;
-                _jump.Begin();
+                _activityJump.Begin();
             }
             else
             {

@@ -7,7 +7,6 @@ namespace Common
     public class Activity
     {
         public virtual bool Inactive { get; protected set; } = true;
-        public event Action Done;
 
         public virtual void Begin()
         {
@@ -25,7 +24,6 @@ namespace Common
         public void NotifyDone()
         {
             Inactive = true;
-            Done?.Invoke();
         }
     }
 
@@ -86,18 +84,31 @@ namespace Common
         }
     }
 
-    public class ActivityQueue : Activity
+    public interface IActivityQueue
+    {
+        IEnumerable<Activity> Activities { get; }
+        void Add(Activity activity);
+        void Clear();
+    }
+
+    public class ActivityQueue : Activity, IActivityQueue
     {
         private Activity _currentActivity;
 
-        public Queue<Activity> Activities { get; } = new();
+        private readonly Queue<Activity> _activities = new();
+        public IEnumerable<Activity> Activities => _activities;
 
         public void Add(Activity anim)
         {
             if (anim != null)
             {
-                Activities.Enqueue(anim);
+                _activities.Enqueue(anim);
             }
+        }
+
+        public void Clear()
+        {
+            _activities.Clear();
         }
 
         public override void Update(float deltaTime)
@@ -106,9 +117,9 @@ namespace Common
 
             if (_currentActivity == null)
             {
-                if (Activities.Count > 0)
+                if (_activities.Count > 0)
                 {
-                    _currentActivity = Activities.Dequeue();
+                    _currentActivity = _activities.Dequeue();
                     _currentActivity.Begin();
                 }
                 else
@@ -119,9 +130,9 @@ namespace Common
             else if (_currentActivity.Inactive)
             {
                 _currentActivity.End();
-                if (Activities.Count > 0)
+                if (_activities.Count > 0)
                 {
-                    _currentActivity = Activities.Dequeue();
+                    _currentActivity = _activities.Dequeue();
                     _currentActivity.Begin();
                 }
                 else
@@ -140,13 +151,13 @@ namespace Common
         {
             base.End();
 
-            foreach (var a in Activities.Where(a => !a.Inactive))
+            foreach (var a in _activities.Where(a => !a.Inactive))
             {
                 a.NotifyDone();
                 a.End();
             }
 
-            Activities.Clear();
+            _activities.Clear();
         }
     }
 }

@@ -36,15 +36,6 @@ namespace Gameplay.Board.BoardDrawing
 
         public VisualPen[] Pens => pens;
 
-        public void SetPenBalls(Transform[] transforms)
-        {
-            var n = Mathf.Min(pens.Length, transforms.Length);
-            for (var i = 0; i < n; i++)
-            {
-                pens[i].SetPenBall(transforms[i]);
-            }
-        }
-
         private static void GenerateSketch(Board.BoardMetadata boardMetadata, out Vector2[] points,
             out (int, int)[] edges)
         {

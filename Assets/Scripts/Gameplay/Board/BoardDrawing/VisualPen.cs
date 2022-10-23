@@ -28,7 +28,8 @@ namespace Gameplay.Board.BoardDrawing
 
             _spline = new BezierSplineWithDistance(BezierSplineUtility.CreateSplineSmoothPath(points3D));
 
-            Draw(points, contour, contourStartIndex, contourLength, inkName, this);
+            SetupDrawActivity(points, contour, contourStartIndex, contourLength, inkName, this);
+            ActivityQueue.Begin();
         }
 
         public void OnDraw(Vector3 point, float progress)
@@ -39,7 +40,6 @@ namespace Gameplay.Board.BoardDrawing
             transform.position = p3;
             if (penBall == null) return;
             penBall.position = point;
-            // penBall.rotation = Quaternion.LookRotation(p3 - point);
             penBall.up = (p3 - point).normalized;
         }
 

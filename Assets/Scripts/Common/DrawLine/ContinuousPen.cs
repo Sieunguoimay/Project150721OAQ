@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Common.Algorithm;
+using Gameplay.Piece;
+using Gameplay.Piece.Activities;
 using UnityEngine;
 
 namespace Common.DrawLine
@@ -9,7 +12,7 @@ namespace Common.DrawLine
     {
         [SerializeField] private DrawingPen pen;
 
-        public void Draw(Vector2[] points, (int, int)[] edges, bool shouldConnect = false)
+        public void Draw(Vector2[] points, (int, int)[] edges, Action onDone, bool shouldConnect = false)
         {
             var contour = SwapEdges(GenerateContour(points, (edges)));
             if (shouldConnect)
@@ -19,7 +22,9 @@ namespace Common.DrawLine
 
             if (Application.isPlaying)
             {
-                pen.Draw(points, contour,"static_mesh");
+                pen.SetupDrawActivity(points, contour, "static_mesh");
+                pen.ActivityQueue.Add(new ActivityCallback(onDone));
+                pen.ActivityQueue.Begin();
             }
         }
 
@@ -27,15 +32,7 @@ namespace Common.DrawLine
         {
             if (index >= sentence.Count) return;
 
-            Draw(sentence[index].Item2, sentence[index].Item1);
-
-            void Done()
-            {
-                DrawAll(sentence, index + 1);
-                pen.ActivityQueue.Done -= Done;
-            }
-
-            pen.ActivityQueue.Done += Done;
+            Draw(sentence[index].Item2, sentence[index].Item1, () => { DrawAll(sentence, index + 1); });
         }
 
         public static (int, int)[] GenerateContour(Vector2[] points, (int, int)[] edges)
@@ -89,7 +86,8 @@ namespace Common.DrawLine
                         var shouldSwap = true;
                         for (var j = 0; j < connectedContour.Count; j++)
                         {
-                            if (connectedContour[j].Item1 == contour[i].Item2 && connectedContour[j].Item2 == contour[i].Item1)
+                            if (connectedContour[j].Item1 == contour[i].Item2 &&
+                                connectedContour[j].Item2 == contour[i].Item1)
                             {
                                 shouldSwap = false;
                             }
@@ -170,7 +168,10 @@ namespace Common.DrawLine
                             edges[i].Item1 == edges[j].Item2 ||
                             edges[i].Item2 == edges[j].Item1 ||
                             edges[i].Item2 == edges[j].Item2;
-                        matrix[i][j] = connected ? (int) Mathf.Max(1f, (Vector2.Distance(points[edges[i].Item2], points[edges[j].Item1]) * 10f)) : int.MaxValue;
+                        matrix[i][j] = connected
+                            ? (int) Mathf.Max(1f,
+                                (Vector2.Distance(points[edges[i].Item2], points[edges[j].Item1]) * 10f))
+                            : int.MaxValue;
                     }
 
                     str += (matrix[i][j] == int.MaxValue ? "-" : $"{matrix[i][j]}") + " ";
@@ -198,7 +199,7 @@ namespace Common.DrawLine
                 new Vector2(0, 1), new Vector2(1, 1), new Vector2(2, 1), new Vector2(3, 1),
                 new Vector2(3, 0), new Vector2(2, 0), new Vector2(1, 0), new Vector2(0, 0),
             };
-            Draw(points, edges);
+            Draw(points, edges, null);
         }
 
         [ContextMenu("Test2")]
@@ -213,7 +214,7 @@ namespace Common.DrawLine
                 new Vector2(0, 0), new Vector2(0, 3), new Vector2(1, 3), new Vector2(2, 2),
                 new Vector2(2, 1), new Vector2(1, 0),
             };
-            Draw(points, edges);
+            Draw(points, edges, null);
         }
 
         [ContextMenu("Test3")]

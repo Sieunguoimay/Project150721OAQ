@@ -1,7 +1,6 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Movement
+namespace Gameplay
 {
     public class MovingSphere : MonoBehaviour
     {

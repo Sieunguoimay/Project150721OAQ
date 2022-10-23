@@ -1,5 +1,5 @@
 ﻿using Common;
-using CommonActivities;
+using Gameplay.Piece;
 using UnityEngine;
 
 namespace SNM.Easings

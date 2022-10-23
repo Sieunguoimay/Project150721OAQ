@@ -54,7 +54,14 @@ namespace Gameplay
                 var diff = pos2 - pos1;
                 var pos = pos1 + new Vector3(diff.z, diff.y, -diff.x) * 0.5f;
                 var rot = Quaternion.LookRotation(pos1 - pos, Vector3.up);
-                p.PieceBench = new PieceBench(pos, rot, 0.25f, 15);
+
+                p.PieceBench = new GameObject($"{nameof(PieceBench)} {p.Index}").AddComponent<PieceBench>();
+                p.PieceBench.SetArrangement(0.25f, 15);
+
+                var t = p.PieceBench.transform;
+                t.SetParent(transform);
+                t.position = pos;
+                t.rotation = rot;
             }
         }
     }

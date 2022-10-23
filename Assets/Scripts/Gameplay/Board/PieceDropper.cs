@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Common;
 using Gameplay.Piece;
+using Gameplay.Piece.Activities;
 
 namespace Gameplay.Board
 {
-    public class PieceDropper
+    public class PieceDropper : IPieceContainer
     {
-        private readonly List<Piece.Piece> _pieces = new();
-
         private readonly BoardTraveller _boardTraveller = new();
 
         private bool _forward;
         private readonly Gameplay.Board.Board _board;
+
+        public List<Piece.Piece> Pieces { get; } = new();
 
         public PieceDropper(Gameplay.Board.Board board)
         {
@@ -21,17 +23,17 @@ namespace Gameplay.Board
 
         public void ClearHoldingPieces()
         {
-            _pieces.Clear();
+            Pieces.Clear();
         }
 
         public void Take(List<Piece.Piece> pieces, int num)
         {
-            ForwardLastItems(pieces, _pieces, num);
+            ForwardLastItems(pieces, Pieces, num);
         }
 
         public void SetMoveStartPoint(int index, bool forward)
         {
-            _boardTraveller.Start(index, _pieces.Count, _board.Tiles.Length);
+            _boardTraveller.Start(index, Pieces.Count, _board.Tiles.Length);
             _forward = forward;
         }
 
@@ -51,7 +53,7 @@ namespace Gameplay.Board
         public void DropOnce(Action<Tile> done)
         {
             var delay = 0f;
-            var n = _pieces.Count;
+            var n = Pieces.Count;
 
             for (var i = 0; i < n; i++)
             {
@@ -60,38 +62,38 @@ namespace Gameplay.Board
 
                 for (var j = 0; j < n - i; j++)
                 {
-                    if (_pieces[i + j] is not Citizen p) continue;
+                    if (Pieces[i + j] is not Citizen p) continue;
 
-                    var skipSlot = currentTile is MandarinTile;
+                    var skipSlot = (currentTile is MandarinTile mt) && mt.Pieces.Any(pi => pi is Mandarin);
                     var citizenPos =
-                        currentTile.GetPositionInFilledCircle(currentTile.Pieces.Count + j + (skipSlot ? 5 : 0));
+                        currentTile.GetPositionInFilledCircle(currentTile.Pieces.Count + j + (skipSlot ? 9 : 0));
 
                     if (i == 0)
                     {
-                        p.PieceActivityQueue.Add(new ActivityRotateToTarget(p.transform, citizenPos, delay));
+                        p.ActivityQueue.Add(new ActivityRotateToTarget(p.transform, citizenPos, delay));
 
                         delay += 0.2f;
                     }
 
-                    p.PieceActivityQueue.Add(PieceScheduler.CreateJumpTimelineActivity(p, citizenPos));
+                    p.ActivityQueue.Add(new ActivityJumpTimeline(p, citizenPos));
 
                     if (i == n - 1)
                     {
-                        p.PieceActivityQueue.Add(new ActivityLastDrop(done, currentTile));
+                        p.ActivityQueue.Add(new ActivityLastDrop(done, currentTile));
                     }
                 }
 
-                currentTile.Pieces.Add(_pieces[i]);
+                currentTile.Pieces.Add(Pieces[i]);
             }
 
-            foreach (var p in _pieces)
+            foreach (var p in Pieces)
             {
-                p.PieceActivityQueue.Add(new TurnAway(p.transform));
-                p.PieceActivityQueue.Add(PieceScheduler.CreateAnimActivity(p, LegHashes.sit_down));
-                p.PieceActivityQueue.Begin();
+                p.ActivityQueue.Add(new ActivityTurnAway(p.transform));
+                p.ActivityQueue.Add(new ActivityAnimation(p.Animator, LegHashes.sit_down));
+                p.ActivityQueue.Begin();
             }
 
-            _pieces.Clear();
+            Pieces.Clear();
         }
 
         public void DropNonStop(Action<Tile> onDone)
@@ -110,9 +112,9 @@ namespace Gameplay.Board
                 Take(successTile.Pieces, successTile.Pieces.Count);
                 SetMoveStartPoint(Array.IndexOf(_board.Tiles, successTile), _forward);
 
-                foreach (var p in _pieces)
+                foreach (var p in Pieces)
                 {
-                    p.PieceActivityQueue.Add(PieceScheduler.CreateAnimActivity(p, LegHashes.stand_up));
+                    p.ActivityQueue.Add(new ActivityAnimation(p.Animator, LegHashes.stand_up));
                 }
 
                 DropOnce(t => ContinueDropping(done, t));

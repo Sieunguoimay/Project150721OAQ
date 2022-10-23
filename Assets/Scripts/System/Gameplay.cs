@@ -4,6 +4,7 @@ using Common;
 using Gameplay;
 using Gameplay.Board;
 using Gameplay.Piece;
+using Gameplay.Piece.Activities;
 using SNM;
 using UnityEngine;
 
@@ -80,7 +81,8 @@ namespace System
         {
             _pieceDropper.Take(tile.Pieces, tile.Pieces.Count);
             _pieceDropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tile), forward);
-            _pieceDropper.DropNonStop(lastTile => EatRecursively(_board.GetSuccessTile(lastTile, forward), forward, () => { MakeDecision(true); }));
+            _pieceDropper.DropNonStop(lastTile =>
+                EatRecursively(_board.GetSuccessTile(lastTile, forward), forward, () => { MakeDecision(true); }));
         }
 
         private void EatRecursively(Tile tile, bool forward, Action done)
@@ -170,7 +172,26 @@ namespace System
 
             centerPoint /= n;
 
-            PieceScheduler.MovePiecesOutOfTheBoard(pieces, positions, centerPoint);
+            pieces.Sort((a, b) =>
+            {
+                var da = Vector3.SqrMagnitude(centerPoint - a.transform.position);
+                var db = Vector3.SqrMagnitude(centerPoint - b.transform.position);
+                return da < db ? -1 : 1;
+            });
+
+            for (var i = 0; i < pieces.Count; i++)
+            {
+                pieces[i].ActivityQueue.Add(i > 0 ? new ActivityDelay(i * 0.2f) : null);
+                pieces[i].ActivityQueue.Add(pieces[i].Animator
+                    ? new ActivityAnimation(pieces[i].Animator, LegHashes.stand_up)
+                    : null);
+                pieces[i].ActivityQueue.Add(new ActivityFlocking(pieces[i].FlockingConfigData, positions[i],
+                    pieces[i].transform, null));
+                pieces[i].ActivityQueue.Add(pieces[i].Animator
+                    ? new ActivityAnimation(pieces[i].Animator, LegHashes.sit_down)
+                    : null);
+                pieces[i].ActivityQueue.Begin();
+            }
 
             pieces.Clear();
         }

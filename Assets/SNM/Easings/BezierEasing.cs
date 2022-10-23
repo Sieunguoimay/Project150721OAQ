@@ -1,9 +1,12 @@
-﻿using Common;
-using CommonActivities;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace SNM
+namespace SNM.Easings
 {
+    public interface IEasing
+    {
+        float GetEase(float x);
+    }
+
     public class BezierEasing : IEasing
     {
         private const float SubdivisionPrecision = 0.0000001f;
