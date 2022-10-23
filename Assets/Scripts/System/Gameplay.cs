@@ -3,6 +3,7 @@ using System.Linq;
 using Common;
 using Gameplay;
 using Gameplay.Board;
+using Gameplay.GameInteract;
 using Gameplay.Piece;
 using Gameplay.Piece.Activities;
 using SNM;
@@ -16,6 +17,7 @@ namespace System
         private Board _board;
         private PieceManager _pieceManager;
         private PieceDropper _pieceDropper;
+        private GameInteractManager _interactManager;
 
         private PerMatchData _perMatchData;
         private Player CurrentPlayer { get; set; }
@@ -24,11 +26,15 @@ namespace System
         public bool IsPlaying { get; private set; }
         private Coroutine _coroutine;
 
-        public void Setup(PlayersManager playersManager, Board board, PieceManager pieceManager)
+        public ActivityQueue ActivityQueue { get; } = new();
+
+        public void Setup(PlayersManager playersManager, Board board, PieceManager pieceManager,
+            GameInteractManager interactManager)
         {
             _board = board;
             _playersManager = playersManager;
             _pieceManager = pieceManager;
+            _interactManager = interactManager;
 
             _pieceDropper = new PieceDropper(_board);
 
@@ -49,7 +55,9 @@ namespace System
             IsPlaying = true;
             ChangePlayer();
             _perMatchData = new PerMatchData(_playersManager.Players.Length);
-            _pieceManager.ReleasePieces(() => { CurrentPlayer.MakeDecision(_board, OnDecisionResult); }, _board);
+            _pieceManager.ReleasePieces(
+                () => { _interactManager.PerformAction(_board.TileGroups[CurrentPlayer.Index], OnDecisionResult); },
+                _board);
         }
 
         public void ResetGame()
@@ -77,17 +85,20 @@ namespace System
             CurrentPlayer.AcquireTurn();
         }
 
-        private void OnDecisionResult(Tile tile, bool forward)
+        private void OnDecisionResult((Tile, bool) valueTuple)
         {
+            var (tile, forward) = valueTuple;
+
             _pieceDropper.Take(tile.Pieces, tile.Pieces.Count);
             _pieceDropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tile), forward);
-            _pieceDropper.DropNonStop(lastTile =>
+            _pieceDropper.DropTillDawn(lastTile =>
                 EatRecursively(_board.GetSuccessTile(lastTile, forward), forward, () => { MakeDecision(true); }));
         }
 
         private void EatRecursively(Tile tile, bool forward, Action done)
         {
-            if (CheckSuccessEatable(tile, forward))
+            var eatable = tile.Pieces.Count == 0 && tile is not MandarinTile && _board.GetSuccessTile(tile, forward).Pieces.Count > 0;
+            if (eatable)
             {
                 var successTile = _board.GetSuccessTile(tile, forward);
 
@@ -103,11 +114,6 @@ namespace System
             {
                 done?.Invoke();
             }
-        }
-
-        private bool CheckSuccessEatable(Tile t, bool f)
-        {
-            return t.Pieces.Count == 0 && t is not MandarinTile && _board.GetSuccessTile(t, f).Pieces.Count > 0;
         }
 
         private void MakeDecision(bool changePlayer)
@@ -140,7 +146,7 @@ namespace System
                 }
                 else
                 {
-                    CurrentPlayer.MakeDecision(_board, OnDecisionResult);
+                    _interactManager.PerformAction(_board.TileGroups[CurrentPlayer.Index], OnDecisionResult);
                     gameOver = false;
                 }
             }
@@ -216,20 +222,7 @@ namespace System
                     tile.Pieces.Clear();
                 }
 
-                var sum = 0;
-
-                foreach (var p in _playersManager.Players[i].PieceBench.Pieces)
-                {
-                    switch (p)
-                    {
-                        case Citizen:
-                            sum += 1;
-                            break;
-                        case Mandarin:
-                            sum += 10;
-                            break;
-                    }
-                }
+                var sum = _playersManager.Players[i].PieceBench.Pieces.Sum(p => p is Citizen ? 1 : 10);
 
                 _perMatchData.SetPlayerScore(i, sum);
             }

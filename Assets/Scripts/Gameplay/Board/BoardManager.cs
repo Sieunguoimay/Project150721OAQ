@@ -11,7 +11,7 @@ namespace Gameplay.Board
     {
         [SerializeField] private MandarinTile mandarinTilePrefab;
         [SerializeField] private Tile citizenTilePrefab;
-        public Board Board { get; } = new();
+        [field: System.NonSerialized] public Board Board { get; } = new();
         [field: System.NonSerialized] public Tile[] SpawnedTiles { get; private set; }
 
 
@@ -32,12 +32,7 @@ namespace Gameplay.Board
             }
         }
 
-        public void SetBoardByTileGroupNum(int tileGroupNum, int tilesPerGroup)
-        {
-            CreateBoard(tileGroupNum, tilesPerGroup);
-        }
-
-        private void CreateBoard(int groupNum, int tilesPerGroup)
+        public void CreateBoard(int groupNum, int tilesPerGroup)
         {
             var length = tilesPerGroup * citizenTilePrefab.Size;
             var polygon = CreatePolygon(groupNum, length);

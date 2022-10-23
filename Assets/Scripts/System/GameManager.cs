@@ -6,6 +6,7 @@ using Gameplay;
 using Gameplay.BambooStick;
 using Gameplay.Board;
 using Gameplay.Board.BoardDrawing;
+using Gameplay.GameInteract;
 using Gameplay.Piece;
 using SNM;
 using UnityEngine;
@@ -16,15 +17,18 @@ namespace System
     {
         private readonly Gameplay _gameplay = new();
         private readonly MatchChooser _matchChooser = new();
-        private GameFlowManager _gameFlowManager;
+        private readonly GameFlowManager _gameFlowManager = new();
+
+        private BambooFamilyManager _bambooFamily;
         private PlayersManager _playersManager;
         private BoardManager _boardManager;
         private PieceManager _pieceManager;
-        private BambooFamilyManager _bambooFamily;
+
+        private IResolver _resolver;
 
         public void Bind(IResolver resolver)
         {
-            _gameFlowManager = new GameFlowManager();
+            _resolver = resolver;
 
             resolver.Bind(_gameFlowManager);
             resolver.Bind<IMatchChooser>(_matchChooser);
@@ -37,12 +41,10 @@ namespace System
             _pieceManager = resolver.Resolve<PieceManager>();
             _bambooFamily = resolver.Resolve<BambooFamilyManager>();
 
-            var cam = resolver.Resolve<CameraManager>().Camera;
-            RayPointer.Instance.SetCamera(cam);
+            RayPointer.Instance.SetCamera(resolver.Resolve<CameraManager>().Camera);
 
             _matchChooser.OnMatchOptionChanged += OnMatchChooserResult;
         }
-
 
         public void TearDown()
         {
@@ -59,31 +61,33 @@ namespace System
         {
             _gameplay.TearDown();
         }
-        
+
+        private void Update()
+        {
+            _gameplay.ActivityQueue.Update(Time.deltaTime);
+        }
+
         private void OnMatchChooserResult()
         {
             GenerateMatch();
             StartGame();
         }
-        
+
         public void GenerateMatch()
         {
             var playerNum = _matchChooser.PlayerNum;
             var tilesPerGroup = _matchChooser.TilesPerGroup;
-            
-            _boardManager.SetBoardByTileGroupNum(playerNum, _matchChooser.TilesPerGroup);
-            
+
+            _boardManager.CreateBoard(playerNum, _matchChooser.TilesPerGroup);
+
             _playersManager.FillWithFakePlayers(playerNum);
-            
             _playersManager.CreatePieceBench(_boardManager.Board);
-              
-            _gameplay.Setup(_playersManager, _boardManager.Board, _pieceManager);
+
+            _gameplay.Setup(_playersManager, _boardManager.Board, _pieceManager,
+                _resolver.Resolve<GameInteractManager>());
 
             _pieceManager.SpawnPieces(playerNum, tilesPerGroup);
-            
-            // _gameFlowManager.ChangeState(GameFlowManager.GameState.BeforeGameplay);
 
-            // _boardSketcher.Sketch(_boardManager.Board);
             _bambooFamily.BeginAnimSequence();
         }
 

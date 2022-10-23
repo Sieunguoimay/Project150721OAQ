@@ -79,6 +79,7 @@ MonoBehaviour:
   drawingSurface: {fileID: 1342539529370974833}
   lineThickness: 0.06
   minDistance: 0.1
+  initialSpeed: 3
   speed: 7
   penBall: {fileID: 5588118981918089898}
 --- !u!1 &1167031623193777304
@@ -128,6 +129,7 @@ MonoBehaviour:
   drawingSurface: {fileID: 5529122550386922764}
   lineThickness: 0.06
   minDistance: 0.1
+  initialSpeed: 3
   speed: 7
   penBall: {fileID: 8487661169985899937}
 --- !u!1 &1968521977015597275
@@ -916,6 +918,7 @@ MonoBehaviour:
   drawingSurface: {fileID: 3099233986469376379}
   lineThickness: 0.06
   minDistance: 0.1
+  initialSpeed: 3
   speed: 7
   penBall: {fileID: 7538584443382891711}
 --- !u!1 &7702147342299459059
@@ -1159,5 +1162,6 @@ MonoBehaviour:
   drawingSurface: {fileID: 7473321163317218911}
   lineThickness: 0.06
   minDistance: 0.1
+  initialSpeed: 3
   speed: 7
   penBall: {fileID: 7026410341089744989}

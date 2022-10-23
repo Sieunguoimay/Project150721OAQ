@@ -23,7 +23,7 @@ namespace Gameplay
 
         private void Start()
         {
-            _mainPlayer = new Player(0, _interactManager);
+            _mainPlayer = new Player(0);
         }
 
         public void ResetAll()
@@ -40,7 +40,7 @@ namespace Gameplay
             Players[0] = _mainPlayer;
             for (var i = 1; i < n; i++)
             {
-                Players[i] = new Player(i, _interactManager);
+                Players[i] = new Player(i);
             }
         }
 

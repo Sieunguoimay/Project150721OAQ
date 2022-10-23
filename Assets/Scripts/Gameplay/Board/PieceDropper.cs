@@ -96,7 +96,7 @@ namespace Gameplay.Board
             Pieces.Clear();
         }
 
-        public void DropNonStop(Action<Tile> onDone)
+        public void DropTillDawn(Action<Tile> onDone)
         {
             DropOnce(t => ContinueDropping(onDone, t));
         }
