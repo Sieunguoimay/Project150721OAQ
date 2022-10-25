@@ -1,17 +1,19 @@
-﻿namespace System
+﻿using Gameplay.Entities;
+
+namespace System
 {
-    public class PerMatchData
+    public class PerMatchData 
     {
-        public int[] PlayerScores { get; }
+        public Currency[] PlayerScores { get; }
 
         public PerMatchData(int playerNum)
         {
-            PlayerScores = new int[playerNum];
+            PlayerScores = new Currency[playerNum];
         }
 
         public void SetPlayerScore(int playerIndex, int score)
         {
-            PlayerScores[playerIndex] = score;
+            PlayerScores[playerIndex].Set(score);
         }
     }
 }

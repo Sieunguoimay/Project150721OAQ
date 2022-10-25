@@ -16,7 +16,7 @@ namespace System
     public class GameManager : MonoBehaviour, IInjectable
     {
         private readonly Gameplay _gameplay = new();
-        private readonly MatchChooser _matchChooser = new();
+        private readonly IMatchChooser _matchChooser = new MatchChooser();
         private readonly GameFlowManager _gameFlowManager = new();
 
         private BambooFamilyManager _bambooFamily;
@@ -31,7 +31,7 @@ namespace System
             _resolver = resolver;
 
             resolver.Bind(_gameFlowManager);
-            resolver.Bind<IMatchChooser>(_matchChooser);
+            resolver.Bind(_matchChooser);
         }
 
         public void Setup(IResolver resolver)
@@ -54,7 +54,7 @@ namespace System
         public void Unbind(IResolver resolver)
         {
             resolver.Unbind(_gameFlowManager);
-            resolver.Unbind<IMatchChooser>(_matchChooser);
+            resolver.Unbind(_matchChooser);
         }
 
         private void OnCleanup()
@@ -75,10 +75,10 @@ namespace System
 
         public void GenerateMatch()
         {
-            var playerNum = _matchChooser.PlayerNum;
-            var tilesPerGroup = _matchChooser.TilesPerGroup;
+            var playerNum = _matchChooser.MatchOption.PlayerNum;
+            var tilesPerGroup = _matchChooser.MatchOption.TilesPerGroup;
 
-            _boardManager.CreateBoard(playerNum, _matchChooser.TilesPerGroup);
+            _boardManager.CreateBoard(playerNum, tilesPerGroup);
 
             _playersManager.FillWithFakePlayers(playerNum);
             _playersManager.CreatePieceBench(_boardManager.Board);

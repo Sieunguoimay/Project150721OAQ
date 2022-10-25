@@ -4,19 +4,20 @@ using System.Linq;
 using Common;
 using Gameplay.Piece;
 using Gameplay.Piece.Activities;
+using UnityEngine;
 
 namespace Gameplay.Board
 {
     public class PieceDropper : IPieceContainer
     {
         private readonly BoardTraveller _boardTraveller = new();
+        private Board _board;
 
         private bool _forward;
-        private readonly Gameplay.Board.Board _board;
 
         public List<Piece.Piece> Pieces { get; } = new();
 
-        public PieceDropper(Gameplay.Board.Board board)
+        public void SetBoard(Board board)
         {
             _board = board;
         }
@@ -52,7 +53,6 @@ namespace Gameplay.Board
 
         public void DropOnce(Action<Tile> done)
         {
-            var delay = 0f;
             var n = Pieces.Count;
 
             for (var i = 0; i < n; i++)
@@ -64,23 +64,14 @@ namespace Gameplay.Board
                 {
                     if (Pieces[i + j] is not Citizen p) continue;
 
-                    var skipSlot = (currentTile is MandarinTile mt) && mt.Pieces.Any(pi => pi is Mandarin);
-                    var citizenPos =
-                        currentTile.GetPositionInFilledCircle(currentTile.Pieces.Count + j + (skipSlot ? 9 : 0));
+                    var skipSlot = currentTile is MandarinTile mt && mt.Pieces.Any(pi => pi is Mandarin);
+                    var index = currentTile.Pieces.Count + j + (skipSlot ? 9 : 0);
+                    var citizenPos = currentTile.GetPositionInFilledCircle(index);
 
-                    if (i == 0)
-                    {
-                        p.ActivityQueue.Add(new ActivityRotateToTarget(p.transform, citizenPos, delay));
-
-                        delay += 0.2f;
-                    }
-
+                    p.ActivityQueue.Add(i == 0 && j > 0 ? new ActivityDelay(j * 0.1f) : null);
+                    p.ActivityQueue.Add(i == 0 ? new ActivityRotateToTarget(p.transform, citizenPos, 0.2f) : null);
                     p.ActivityQueue.Add(new ActivityJumpTimeline(p, citizenPos));
-
-                    if (i == n - 1)
-                    {
-                        p.ActivityQueue.Add(new ActivityLastDrop(done, currentTile));
-                    }
+                    p.ActivityQueue.Add(i == n - 1 ? new ActivityNotifyOnLastDrop(done, currentTile) : null);
                 }
 
                 currentTile.Pieces.Add(Pieces[i]);
@@ -88,6 +79,7 @@ namespace Gameplay.Board
 
             foreach (var p in Pieces)
             {
+                p.ActivityQueue.Add(new ActivityAnimation(p.Animator, LegHashes.land));
                 p.ActivityQueue.Add(new ActivityTurnAway(p.transform));
                 p.ActivityQueue.Add(new ActivityAnimation(p.Animator, LegHashes.sit_down));
                 p.ActivityQueue.Begin();
@@ -124,24 +116,24 @@ namespace Gameplay.Board
                 done?.Invoke(tile);
             }
         }
-    }
 
-    public class ActivityLastDrop : Activity
-    {
-        private readonly Action<Tile> _callback;
-        private readonly Tile _tile;
-
-        public ActivityLastDrop(Action<Tile> callback, Tile tile)
+        private class ActivityNotifyOnLastDrop : Activity
         {
-            _tile = tile;
-            _callback = callback;
-        }
+            private readonly Action<Tile> _callback;
+            private readonly Tile _tile;
 
-        public override void Begin()
-        {
-            base.Begin();
-            _callback?.Invoke(_tile);
-            NotifyDone();
+            public ActivityNotifyOnLastDrop(Action<Tile> callback, Tile tile)
+            {
+                _tile = tile;
+                _callback = callback;
+            }
+
+            public override void Begin()
+            {
+                base.Begin();
+                _callback?.Invoke(_tile);
+                NotifyDone();
+            }
         }
     }
 }

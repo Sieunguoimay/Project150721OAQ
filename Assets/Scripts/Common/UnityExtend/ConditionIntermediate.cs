@@ -3,6 +3,7 @@ using System.Linq;
 using Common.UnityExtend.Attribute;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 namespace Common.UnityExtend
 {
@@ -68,7 +69,7 @@ namespace Common.UnityExtend
             GreaterThanOrEqual,
         }
 
-        private enum FieldType
+        private enum FieldDataSourceType
         {
             Bool,
             Text,
@@ -79,21 +80,21 @@ namespace Common.UnityExtend
         [Serializable]
         private class Field
         {
-            public FieldType type;
+            public FieldDataSourceType dataSource;
 
-            [ShowIf(nameof(type), FieldType.ObjectField), SerializeField]
+            [ShowIf(nameof(dataSource), FieldDataSourceType.ObjectField), SerializeField]
             private UnityEngine.Object sourceObject;
 
-            [ShowIf(nameof(type), FieldType.ObjectField), SerializeField] [StringSelector(nameof(ObjectFields))]
+            [ShowIf(nameof(dataSource), FieldDataSourceType.ObjectField), SerializeField] [StringSelector(nameof(ObjectFields))]
             private string path;
 
-            [ShowIf(nameof(type), FieldType.Text), SerializeField]
+            [ShowIf(nameof(dataSource), FieldDataSourceType.Text), SerializeField]
             private string stringValue;
 
-            [ShowIf(nameof(type), FieldType.Number), SerializeField]
+            [ShowIf(nameof(dataSource), FieldDataSourceType.Number), SerializeField]
             private double numberValue;
 
-            [ShowIf(nameof(type), FieldType.Bool), SerializeField]
+            [ShowIf(nameof(dataSource), FieldDataSourceType.Bool), SerializeField]
             private bool boolValue;
 
             public string[] ObjectFields
@@ -103,12 +104,12 @@ namespace Common.UnityExtend
 
             public object GetValue()
             {
-                return type switch
+                return dataSource switch
                 {
-                    FieldType.Bool => boolValue,
-                    FieldType.Text => stringValue,
-                    FieldType.Number => numberValue,
-                    FieldType.ObjectField => ReflectionUtility.GetPropertyOrFieldValue(sourceObject, path),
+                    FieldDataSourceType.Bool => boolValue,
+                    FieldDataSourceType.Text => stringValue,
+                    FieldDataSourceType.Number => numberValue,
+                    FieldDataSourceType.ObjectField => ReflectionUtility.GetPropertyOrFieldValue(sourceObject, path),
                     _ => null
                 };
             }

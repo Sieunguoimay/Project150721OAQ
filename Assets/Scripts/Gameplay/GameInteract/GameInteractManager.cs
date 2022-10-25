@@ -12,11 +12,10 @@ namespace Gameplay.GameInteract
         [SerializeField] private TileChooser tileChooser;
         [SerializeField] private ActionChooser actionChooser;
 
-        private BoardManager _boardManager;
-        private Action<(Tile, bool)> _onResult;
-        [field: System.NonSerialized] public Tile ChosenTile { get; set; }
         private Tile[] _tiles;
+        private BoardManager _boardManager;
         private TileChooser.ButtonCommand[] _choosingTileCommands;
+        [field: System.NonSerialized] public Tile ChosenTile { get; private set; }
 
         public override void Setup(IResolver resolver)
         {
@@ -24,10 +23,8 @@ namespace Gameplay.GameInteract
             _boardManager = resolver.Resolve<BoardManager>();
         }
 
-        public void PerformAction(Board.Board.TileGroup tileGroup, Action<(Tile, bool)> onResult)
+        public void SetupInteract(Board.Board.TileGroup tileGroup, MoveButtonCommand left, MoveButtonCommand right)
         {
-            _onResult = onResult;
-
             _tiles = _boardManager.SpawnedTiles.Where(st => tileGroup.Tiles.Contains(st) && st.Pieces.Count > 0)
                 .ToArray();
 
@@ -35,12 +32,12 @@ namespace Gameplay.GameInteract
 
             for (var i = 0; i < _tiles.Length; i++)
             {
-                _choosingTileCommands[i] = new ButtonCommandChoosingTile(tileChooser, actionChooser, this, _tiles[i]);
+                _choosingTileCommands[i] = new ButtonCommandChoosingTile().Setup(actionChooser, this, _tiles[i]);
             }
 
             ChosenTile = null;
-
-            ShowTileChooser();
+            actionChooser.SetMoveCommands(left.Setup(this, false), right.Setup(this, true));
+            actionChooser.SetupOtherCommands();
         }
 
         public static void NotifyTilesAdapters(Tile tile, bool selected)
@@ -64,7 +61,7 @@ namespace Gameplay.GameInteract
             t.position = pos;
             t.rotation = tileRotation;
 
-            actionChooser.ShowUp(this);
+            actionChooser.ShowUp();
         }
 
         public void ShowTileChooser()
@@ -77,56 +74,71 @@ namespace Gameplay.GameInteract
             tileChooser.ButtonContainer2.HideButtons();
         }
 
-        public void MoveLeftRight(bool right)
+        private class ButtonCommandChoosingTile : TileChooser.ButtonCommand
         {
-            if (ChosenTile != null)
+            private GameInteractManager _interact;
+            private ActionChooser _actionChooser;
+            private Tile _tile;
+
+            public ButtonCommandChoosingTile Setup(ActionChooser actionChooser, GameInteractManager interact, Tile tile)
             {
-                _onResult?.Invoke((ChosenTile, right));
-            }
-        }
-    }
-
-
-    public class ButtonCommandChoosingTile : TileChooser.ButtonCommand
-    {
-        private readonly GameInteractManager _interact;
-        private readonly ActionChooser _actionChooser;
-        private readonly Tile _tile;
-
-        public ButtonCommandChoosingTile(TileChooser tileChooser, ActionChooser actionChooser,
-            GameInteractManager interact, Tile tile) : base(
-            tileChooser, tileChooser.ButtonContainer)
-        {
-            _actionChooser = actionChooser;
-            _interact = interact;
-            _tile = tile;
-        }
-
-        public override void Execute()
-        {
-            base.Execute();
-            if (_interact.ChosenTile != null)
-            {
-                GameInteractManager.NotifyTilesAdapters(_interact.ChosenTile, false);
+                _actionChooser = actionChooser;
+                _interact = interact;
+                _tile = tile;
+                return this;
             }
 
-            var shouldHide = _actionChooser.ButtonContainer.ButtonViews.Any(bv => bv.Active);
-            if (shouldHide)
+            public override void Execute()
             {
-                _actionChooser.ButtonContainer.HideButtons();
-                _actionChooser.Delay(.15f, ShowDirectionChooser);
+                base.Execute();
+                if (_interact.ChosenTile != null)
+                {
+                    NotifyTilesAdapters(_interact.ChosenTile, false);
+                }
+
+                var shouldHide = _actionChooser.ButtonContainer.ButtonViews.Any(bv => bv.Active);
+                if (shouldHide)
+                {
+                    _actionChooser.ButtonContainer.HideButtons();
+                    _actionChooser.Delay(.15f, ShowDirectionChooser);
+                }
+                else
+                {
+                    ShowDirectionChooser();
+                }
             }
-            else
+
+            private void ShowDirectionChooser()
             {
-                ShowDirectionChooser();
+                NotifyTilesAdapters(_tile, true);
+                _interact.ShowDirectionChooserForTile(_tile);
+                _interact.ChosenTile = _tile;
             }
         }
 
-        private void ShowDirectionChooser()
+        public abstract class MoveButtonCommand : ButtonContainer.ButtonCommand
         {
-            GameInteractManager.NotifyTilesAdapters(_tile, true);
-            _interact.ShowDirectionChooserForTile(_tile);
-            _interact.ChosenTile = _tile;
+            private bool _forward;
+            private GameInteractManager _interact;
+
+            public ButtonContainer.ButtonCommand Setup(GameInteractManager interact, bool forward)
+            {
+                _forward = forward;
+                _interact = interact;
+                return this;
+            }
+
+            public override void Execute()
+            {
+                base.Execute();
+                _interact.HideTileChooser();
+                if (_interact.ChosenTile)
+                {
+                    Move(_interact.ChosenTile, _forward);
+                }
+            }
+
+            protected abstract void Move(Tile tile, bool forward);
         }
     }
 }

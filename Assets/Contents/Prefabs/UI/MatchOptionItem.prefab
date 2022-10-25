@@ -227,7 +227,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 8739253769481216942}
-  format: '{0} {1}x{2}'
+  format: '{0}x{1}'
 --- !u!114 &8683865925403146772
 MonoBehaviour:
   m_ObjectHideFlags: 0

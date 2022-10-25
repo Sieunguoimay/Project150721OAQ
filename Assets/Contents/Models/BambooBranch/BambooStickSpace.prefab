@@ -338,7 +338,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ifStatement:
     fieldA:
-      type: 3
+      dataSource: 3
       sourceObject: {fileID: 5983454113372052464}
       path: Finished
       stringValue: b
@@ -346,7 +346,7 @@ MonoBehaviour:
       boolValue: 0
     compareOperator: 0
     fieldB:
-      type: 0
+      dataSource: 0
       sourceObject: {fileID: 0}
       path: 
       stringValue: 0

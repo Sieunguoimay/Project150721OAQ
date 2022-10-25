@@ -179,6 +179,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   optionItems:
   - playerNum: 2
+    tilesPerGroup: 3
+  - playerNum: 2
     tilesPerGroup: 5
   - playerNum: 2
     tilesPerGroup: 7
@@ -188,6 +190,7 @@ MonoBehaviour:
     tilesPerGroup: 7
   - playerNum: 4
     tilesPerGroup: 5
+  matchConfig: {fileID: 11400000, guid: cbbd2c6890e6d0443b1ac307a87a24da, type: 2}
   itemPrefab: {fileID: 8739253769681978096, guid: 02fc21680151d5e4099e704738133edd, type: 3}
   onSelected:
     m_PersistentCalls:

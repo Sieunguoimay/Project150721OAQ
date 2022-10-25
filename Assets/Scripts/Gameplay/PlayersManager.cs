@@ -8,13 +8,11 @@ namespace Gameplay
 {
     public class PlayersManager : InjectableBehaviour<PlayersManager>
     {
-        public Player[] Players { get; private set; }
+        [field: System.NonSerialized] public Player[] Players { get; private set; }
         private Player _mainPlayer;
-        private GameInteractManager _interactManager;
 
         public override void Setup(IResolver resolver)
         {
-            _interactManager = resolver.Resolve<GameInteractManager>();
         }
 
         public override void TearDown()

@@ -16,13 +16,13 @@ namespace Gameplay.GameInteract.Button
 
     public class ButtonData
     {
-        public ButtonData(ICommand command, IButtonDisplayInfo displayInfo)
+        public ButtonData(ButtonContainer.ButtonCommand command, IButtonDisplayInfo displayInfo)
         {
             Command = command;
             DisplayInfo = displayInfo;
         }
 
-        public ICommand Command { get; }
+        public ButtonContainer.ButtonCommand Command { get; }
         public IButtonDisplayInfo DisplayInfo { get; }
     }
 

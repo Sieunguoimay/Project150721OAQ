@@ -7,56 +7,36 @@ namespace Gameplay.GameInteract
     {
         [SerializeField] private ButtonContainer buttonContainer;
 
-        private ButtonData[] _commands;
+        private readonly ButtonData[] _commands = new ButtonData[6];
 
         public ButtonContainer ButtonContainer => buttonContainer;
 
-        public void ShowUp(GameInteractManager interact)
+        public void SetMoveCommands(ButtonContainer.ButtonCommand left, ButtonContainer.ButtonCommand right)
         {
-            if (_commands == null)
-            {
-                _commands = new ButtonData[6];
-                _commands[0] = new ButtonData(new MoveButtonCommand(buttonContainer, interact, false), null);
-                _commands[1] = new ButtonData(new MoveButtonCommand(buttonContainer, interact, true), null);
-                _commands[2] = new ButtonData(null, null);
-
-                _commands[3] = new ButtonData(new SpecialMoveCommand(buttonContainer),
-                    new ButtonDisplayInfoSpecialAction());
-                _commands[4] = new ButtonData(new SpecialMoveCommand(buttonContainer),
-                    new ButtonDisplayInfoSpecialAction());
-                _commands[5] = new ButtonData(new SpecialMoveCommand(buttonContainer),
-                    new ButtonDisplayInfoSpecialAction());
-            }
-
-            buttonContainer.Setup(_commands);
-            buttonContainer.ShowButtons();
+            _commands[0] = new ButtonData(left, null);
+            _commands[1] = new ButtonData(right, null);
         }
 
-        private class MoveButtonCommand : ButtonContainer.ButtonCommand
+        public void SetupOtherCommands()
         {
-            private readonly bool _forward;
-            private readonly GameInteractManager _interact;
+            _commands[2] = new ButtonData(null, null);
+            _commands[3] = new ButtonData(new SpecialMoveCommand(), new ButtonDisplayInfoSpecialAction());
+            _commands[4] = new ButtonData(new SpecialMoveCommand(), new ButtonDisplayInfoSpecialAction());
+            _commands[5] = new ButtonData(new SpecialMoveCommand(), new ButtonDisplayInfoSpecialAction());
+            foreach (var c in _commands) c.Command?.SetContainer(buttonContainer);
+        }
 
-            public MoveButtonCommand(ButtonContainer container, GameInteractManager interact, bool forward) : base(
-                container)
-            {
-                _forward = forward;
-                _interact = interact;
-            }
-
-            public override void Execute()
-            {
-                base.Execute();
-                _interact.HideTileChooser();
-                _interact.MoveLeftRight(_forward);
-            }
+        public void ShowUp()
+        {
+            buttonContainer.Setup(_commands);
+            buttonContainer.ShowButtons();
         }
 
         private class CancelActionChooserCommand : ButtonContainer.ButtonCommand
         {
             private readonly GameInteractManager _interact;
 
-            public CancelActionChooserCommand(ButtonContainer container, GameInteractManager interact) : base(container)
+            public CancelActionChooserCommand(GameInteractManager interact)
             {
                 _interact = interact;
             }
@@ -71,10 +51,6 @@ namespace Gameplay.GameInteract
 
         private class SpecialMoveCommand : ButtonContainer.ButtonCommand
         {
-            public SpecialMoveCommand(ButtonContainer container) : base(container)
-            {
-            }
-
             public override void Execute()
             {
                 base.Execute();

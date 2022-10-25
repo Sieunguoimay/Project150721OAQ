@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Common.UnityExtend.Attribute;
 using Gameplay.Board;
 using Gameplay.GameInteract.Button;
 using TMPro;
@@ -10,22 +11,25 @@ namespace Gameplay.GameInteract
 {
     public class TileChooser : MonoBehaviour
     {
-        [SerializeField] private ButtonContainer buttonContainer;
-        [SerializeField] private ButtonContainer buttonContainer2;
+        [SerializeField, TypeConstraint(typeof(IButtonContainer))]
+        private UnityEngine.Object buttonContainer;
 
-        public ButtonContainer ButtonContainer => buttonContainer;
-        public ButtonContainer ButtonContainer2 => buttonContainer2;
+        [SerializeField, TypeConstraint(typeof(IButtonContainer))]
+        private UnityEngine.Object buttonContainer2;
+
+        public IButtonContainer ButtonContainer => buttonContainer as IButtonContainer;
+        public IButtonContainer ButtonContainer2 => buttonContainer2 as IButtonContainer;
 
         public void ChooseTile(Tile[] tiles, ButtonCommand[] commands)
         {
-            var bd = commands.Select(c => new ButtonData(c, new ButtonDisplayInfoSpecialAction())).ToArray();
+            var bd = commands.Select(c => new ButtonData(c.SetButtonContainer2(ButtonContainer2).SetContainer(ButtonContainer), new ButtonDisplayInfoSpecialAction())).ToArray();
 
             SetButtonsPositionAndRotation(tiles);
 
-            buttonContainer.Setup(bd);
-            buttonContainer.ShowButtons();
-            buttonContainer2.Setup(bd);
-            buttonContainer2.ShowButtons();
+            ButtonContainer.Setup(bd);
+            ButtonContainer.ShowButtons();
+            ButtonContainer2.Setup(bd);
+            ButtonContainer2.ShowButtons();
         }
 
         private void SetButtonsPositionAndRotation(IReadOnlyList<Tile> optionTiles)
@@ -36,31 +40,31 @@ namespace Gameplay.GameInteract
                 var tileRot = optionTiles[i].transform.rotation;
                 var pos = tilePos + optionTiles[i].transform.forward * optionTiles[i].Size;
 
-                buttonContainer.ButtonViews[i].transform.position = pos;
-                buttonContainer.ButtonViews[i].transform.rotation = tileRot;
-                buttonContainer.ButtonViews[i].Display
+                ButtonContainer.ButtonViews[i].transform.position = pos;
+                ButtonContainer.ButtonViews[i].transform.rotation = tileRot;
+                ButtonContainer.ButtonViews[i].Display
                     .SetDisplayInfo(new ButtonDisplayInfoText($"{optionTiles[i].Pieces.Count}"));
 
-                buttonContainer2.ButtonViews[i].transform.position = tilePos;
-                buttonContainer2.ButtonViews[i].transform.rotation = tileRot;
+                ButtonContainer2.ButtonViews[i].transform.position = tilePos;
+                ButtonContainer2.ButtonViews[i].transform.rotation = tileRot;
             }
         }
 
         public class ButtonCommand : ButtonContainer.ButtonCommand
         {
-            private readonly TileChooser _tileChooser;
+            private IButtonContainer _buttonContainer2;
 
-            protected ButtonCommand(TileChooser tileChooser, ButtonContainer container) : base(
-                container)
+            public ButtonCommand SetButtonContainer2(IButtonContainer buttonContainer)
             {
-                _tileChooser = tileChooser;
+                _buttonContainer2 = buttonContainer;
+                return this;
             }
 
             public override void Execute()
             {
                 base.Execute();
 
-                foreach (var bv in _tileChooser.ButtonContainer2.ButtonViews)
+                foreach (var bv in _buttonContainer2.ButtonViews)
                 {
                     if (bv.Command == this)
                     {

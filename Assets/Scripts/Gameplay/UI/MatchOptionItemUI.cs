@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System;
+using TMPro;
 using UnityEngine;
 
 namespace Gameplay.UI
@@ -6,13 +7,16 @@ namespace Gameplay.UI
     public class MatchOptionItemUI : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI text;
-        [SerializeField] private string format = "{0} {1}x{2}";
-        private MatchOptionItem _item;
+        [SerializeField] private string format = "{0}x{1}";
+        private IItemHandler _handler;
 
-        public void Setup(MatchOptionItem item)
+        private IMatchOption _item;
+
+        public void Setup(IMatchOption item, IItemHandler handler)
         {
             _item = item;
-            text.text = string.Format(format, item.Index, item.PlayerNum, item.TilesPerGroup);
+            _handler = handler;
+            text.text = string.Format(format, item.PlayerNum, item.TilesPerGroup);
         }
 
         public void TearDown()
@@ -22,7 +26,12 @@ namespace Gameplay.UI
 
         public void OnClick()
         {
-            _item.OnSelect();
+            _handler?.ItemSelected(_item);
+        }
+
+        public interface IItemHandler
+        {
+            void ItemSelected(IMatchOption item);
         }
     }
 }

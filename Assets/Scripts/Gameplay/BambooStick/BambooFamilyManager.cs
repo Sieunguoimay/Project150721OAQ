@@ -38,10 +38,36 @@ namespace Gameplay.BambooStick
                 stick.pathPlan.PlanPath(stick.start.position, stick.start.forward, endPos, endForward);
             }
         }
+        private void TimelineStopped(PlayableDirector playableDirector)
+        {
+            _timelineCount++;
+            if (_timelineCount == _boardSketcher.PenUsageNum)
+            {
+                BeginDrawing();
+                _timelineCount = 0;
+            }
+
+            playableDirector.stopped -= TimelineStopped;
+        }
+        public void BeginDrawing()
+        {
+            for (var i = 0; i < _boardSketcher.PenUsageNum; i++)
+            {
+                _boardSketcher.Pens[i].SetPenBall(bambooStickVisualTransforms[i]);
+                _boardSketcher.Pens[i].Done += OnSketchingDone;
+            }
+
+            _boardSketcher.StartDrawing();
+        }
 
         private void OnSketchingDone(VisualPen visualPen)
         {
             visualPen.Done -= OnSketchingDone;
+            MoveSticksBackToTheForest();
+        }
+
+        public void MoveSticksBackToTheForest()
+        {
             _timelineCount++;
             if (_timelineCount == _boardSketcher.PenUsageNum)
             {
@@ -55,29 +81,6 @@ namespace Gameplay.BambooStick
                     stick.timeline.Play();
                 }
             }
-        }
-
-        public void BeginDrawing()
-        {
-            for (var i = 0; i < _boardSketcher.PenUsageNum; i++)
-            {
-                _boardSketcher.Pens[i].SetPenBall(bambooStickVisualTransforms[i]);
-                _boardSketcher.Pens[i].Done += OnSketchingDone;
-            }
-
-            _boardSketcher.StartDrawing();
-        }
-
-        private void TimelineStopped(PlayableDirector playableDirector)
-        {
-            _timelineCount++;
-            if (_timelineCount == _boardSketcher.PenUsageNum)
-            {
-                BeginDrawing();
-                _timelineCount = 0;
-            }
-
-            playableDirector.stopped -= TimelineStopped;
         }
     }
 }

@@ -6,6 +6,7 @@ namespace System
 {
     public class Launcher : MonoBehaviour
     {
+        [SerializeField] private string sceneName;
         private void Start()
         {
             SpawnGame();
@@ -18,7 +19,7 @@ namespace System
 
         public void SpawnGame()
         {
-            StartCoroutine(LoadScene("Main", OnLoadSceneDone));
+            StartCoroutine(LoadScene(sceneName, OnLoadSceneDone));
         }
 
         private void OnLoadSceneDone()

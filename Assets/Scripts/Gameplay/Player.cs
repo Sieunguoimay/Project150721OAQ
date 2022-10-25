@@ -7,7 +7,6 @@ namespace Gameplay
     [Serializable]
     public class Player
     {
-
         public PieceBench PieceBench { get; set; }
         public int Index { get; private set; }
 

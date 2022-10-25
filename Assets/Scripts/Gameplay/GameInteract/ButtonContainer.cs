@@ -6,13 +6,20 @@ using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
-    
     public interface ICommand
     {
         void Execute();
     }
 
-    public sealed class ButtonContainer : MonoBehaviour
+    public interface IButtonContainer
+    {
+        void Setup(ButtonData[] buttons);
+        void ShowButtons();
+        void HideButtons();
+        OnGroundButton[] ButtonViews { get; }
+    }
+
+    public sealed class ButtonContainer : MonoBehaviour, IButtonContainer
     {
         [SerializeField] private OnGroundButton[] buttonViews;
         [field: System.NonSerialized] private int OptionNum { get; set; }
@@ -67,11 +74,12 @@ namespace Gameplay.GameInteract
 
         public class ButtonCommand : ICommand
         {
-            private readonly ButtonContainer _container;
+            private IButtonContainer _container;
 
-            protected ButtonCommand(ButtonContainer container)
+            public ButtonCommand SetContainer(IButtonContainer container)
             {
                 _container = container;
+                return this;
             }
 
             public virtual void Execute()

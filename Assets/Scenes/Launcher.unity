@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43008ca82e064903b7c5e21732c0e6d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gamePrefab: {fileID: 0}
+  sceneName: GameScene
 --- !u!4 &858286693
 Transform:
   m_ObjectHideFlags: 0

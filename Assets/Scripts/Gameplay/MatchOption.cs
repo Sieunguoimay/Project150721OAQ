@@ -2,23 +2,25 @@
 
 namespace Gameplay
 {
-    public interface IMatchChooser
+    public interface IMatchOption
     {
         int PlayerNum { get; }
         int TilesPerGroup { get; }
+    }
+    public interface IMatchChooser
+    {
+        public IMatchOption MatchOption { get; }
         event Action OnMatchOptionChanged;
     }
 
     public class MatchChooser : IMatchChooser
     {
-        public int PlayerNum { get; private set; } = 3;
-        public int TilesPerGroup { get; private set; } = 5;
+        public IMatchOption MatchOption { get; private set; }
         public event Action OnMatchOptionChanged;
 
-        public void SetMatchOption(int playerNum, int tilesPerGroup)
+        public void SetMatchOption(IMatchOption matchOption)
         {
-            PlayerNum = playerNum;
-            TilesPerGroup = tilesPerGroup;
+            MatchOption = matchOption;
             OnMatchOptionChanged?.Invoke();
         }
     }

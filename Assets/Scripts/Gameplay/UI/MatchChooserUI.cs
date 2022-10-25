@@ -5,28 +5,9 @@ using UnityEngine.Events;
 
 namespace Gameplay.UI
 {
-    [Serializable]
-    public class MatchOptionItem
+    public class MatchChooserUI : MonoBehaviour, IInjectable, MatchOptionItemUI.IItemHandler
     {
-        [SerializeField] private int playerNum;
-        [SerializeField] private int tilesPerGroup;
-
-        public int PlayerNum => playerNum;
-
-        public int TilesPerGroup => tilesPerGroup;
-        public int Index { get; set; }
-
-        public event Action<int> Selected;
-
-        public virtual void OnSelect()
-        {
-            Selected?.Invoke(Index);
-        }
-    }
-
-    public class MatchChooserUI : MonoBehaviour, IInjectable
-    {
-        [SerializeField] private MatchOptionItem[] optionItems;
+        [SerializeField] private MatchConfig matchConfig;
         [SerializeField] private MatchOptionItemUI itemPrefab;
         [SerializeField] private UnityEvent onSelected;
         [SerializeField] private UnityEvent onReset;
@@ -36,7 +17,6 @@ namespace Gameplay.UI
 
         public void Bind(IResolver resolver)
         {
-
         }
 
         public void Setup(IResolver resolver)
@@ -54,13 +34,11 @@ namespace Gameplay.UI
 
         private void Start()
         {
-            _itemUIs = new MatchOptionItemUI[optionItems.Length];
-            for (var i = 0; i < optionItems.Length; i++)
+            _itemUIs = new MatchOptionItemUI[matchConfig.optionItems.Length];
+            for (var i = 0; i < matchConfig.optionItems.Length; i++)
             {
-                optionItems[i].Index = i;
                 _itemUIs[i] = Instantiate(itemPrefab, transform);
-                _itemUIs[i].Setup(optionItems[i]);
-                optionItems[i].Selected += OnSelected;
+                _itemUIs[i].Setup(matchConfig.optionItems[i], this);
             }
         }
 
@@ -69,13 +47,12 @@ namespace Gameplay.UI
             for (var i = 0; i < _itemUIs.Length; i++)
             {
                 _itemUIs[i].TearDown();
-                optionItems[i].Selected -= OnSelected;
             }
         }
 
-        private void OnSelected(int index)
+        public void ItemSelected(IMatchOption item)
         {
-            SetMatchOption(optionItems[index].PlayerNum, optionItems[index].TilesPerGroup);
+            (_matchChooser as MatchChooser)?.SetMatchOption(item);
             onSelected?.Invoke();
         }
 
@@ -84,12 +61,8 @@ namespace Gameplay.UI
             onReset?.Invoke();
         }
 
-        private void SetMatchOption(int playerNum, int tilesPerGroup)
-            => (_matchChooser as MatchChooser)?.SetMatchOption(playerNum, tilesPerGroup);
-
         public void StartGame()
         {
-            
         }
     }
 }

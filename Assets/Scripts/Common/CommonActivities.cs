@@ -3,8 +3,6 @@ using UnityEngine;
 
 namespace Common
 {
-    
-
     public class ActivityDelay : Activity
     {
         protected float Time { get; set; } = 0;
