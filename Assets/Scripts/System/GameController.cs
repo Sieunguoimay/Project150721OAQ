@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Common.ResolveSystem;
+using System.ResolveSystem;
 using Gameplay;
 using UnityEngine;
 
@@ -12,9 +12,10 @@ namespace System
 
         private GameObject[] _spawnedParts;
 
-        private readonly Resolver _resolver = new();
+        private readonly Container _container = new();
 
         private IInjectable[] _injectables;
+        private IBinding[] _bindings;
 
         private void Start()
         {
@@ -29,12 +30,14 @@ namespace System
         private void SpawnGame()
         {
             _spawnedParts = new GameObject[prefabs.Length];
-            
+
             var allInjectables = new List<IInjectable>();
-            
+            var allBindings = new List<IBinding>();
+
             foreach (var t in objects)
             {
                 allInjectables.AddRange(t.GetComponentsInChildren<IInjectable>(true));
+                allBindings.AddRange(t.GetComponentsInChildren<IBinding>(true));
             }
 
             for (var i = 0; i < prefabs.Length; i++)
@@ -42,31 +45,28 @@ namespace System
                 var pref = prefabs[i];
                 _spawnedParts[i] = Instantiate(pref);
                 allInjectables.AddRange(_spawnedParts[i].GetComponentsInChildren<IInjectable>(true));
+                allBindings.AddRange(_spawnedParts[i].GetComponentsInChildren<IBinding>(true));
             }
 
             _injectables = allInjectables.ToArray();
+            _bindings = allBindings.ToArray();
 
-            foreach (var injectable in _injectables)
+            foreach (var b in allBindings)
             {
-                injectable.Bind(_resolver);
+                b.Bind(_container);
             }
 
             foreach (var injectable in _injectables)
             {
-                injectable.Setup(_resolver);
+                injectable.Inject(_container);
             }
         }
 
         private void TearDown()
         {
-            foreach (var injectable in _injectables)
+            foreach (var b in _bindings)
             {
-                injectable.TearDown();
-            }
-
-            foreach (var injectable in _injectables)
-            {
-                injectable.Unbind(_resolver);
+                b.Unbind(_container);
             }
 
             foreach (var spawned in _spawnedParts)

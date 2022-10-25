@@ -1,6 +1,6 @@
 ﻿using System.Linq;
+using System.ResolveSystem;
 using Common;
-using Common.ResolveSystem;
 using DG.Tweening;
 using Gameplay;
 using Gameplay.BambooStick;
@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace System
 {
-    public class GameManager : MonoBehaviour, IInjectable
+    public class GameManager : MonoBehaviour, IInjectable, IBinding
     {
         private readonly Gameplay _gameplay = new();
         private readonly IMatchChooser _matchChooser = new MatchChooser();
@@ -26,35 +26,38 @@ namespace System
 
         private IResolver _resolver;
 
-        public void Bind(IResolver resolver)
+        public void Bind(IBinder binder)
+        {
+            binder.Bind(_gameFlowManager);
+            binder.Bind(_matchChooser);
+        }
+
+        public void Unbind(IBinder binder)
+        {
+            binder.Unbind(_gameFlowManager);
+            binder.Unbind(_matchChooser);
+        }
+
+        public void Inject(IResolver resolver)
         {
             _resolver = resolver;
 
-            resolver.Bind(_gameFlowManager);
-            resolver.Bind(_matchChooser);
-        }
-
-        public void Setup(IResolver resolver)
-        {
             _playersManager = resolver.Resolve<PlayersManager>();
             _boardManager = resolver.Resolve<BoardManager>();
             _pieceManager = resolver.Resolve<PieceManager>();
             _bambooFamily = resolver.Resolve<BambooFamilyManager>();
 
             RayPointer.Instance.SetCamera(resolver.Resolve<CameraManager>().Camera);
+        }
 
+        private void OnEnable()
+        {
             _matchChooser.OnMatchOptionChanged += OnMatchChooserResult;
         }
 
-        public void TearDown()
+        private void OnDisable()
         {
-            OnCleanup();
-        }
-
-        public void Unbind(IResolver resolver)
-        {
-            resolver.Unbind(_gameFlowManager);
-            resolver.Unbind(_matchChooser);
+            _matchChooser.OnMatchOptionChanged -= OnMatchChooserResult;
         }
 
         private void OnCleanup()

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Common;
-using Common.ResolveSystem;
 using Gameplay;
 using TMPro.Examples;
 using UnityEngine;
@@ -47,36 +46,21 @@ namespace SNM
             var minDistance = float.MaxValue;
             IRaycastTarget selectedTarget = null;
 
-            for (var i = 0; i < _listeners.Count; i++)
+            foreach (var l in _listeners)
             {
-                var l = _listeners[i];
                 if (!l.Bounds.IntersectRay(ray, out var distance)) continue;
-                if (minDistance > distance)
-                {
-                    minDistance = distance;
-                    selectedTarget = l;
-                }
+                if (minDistance <= distance) continue;
+                minDistance = distance;
+                selectedTarget = l;
             }
 
             selectedTarget?.OnHit(ray, minDistance);
-            for (var i = 0; i < _listeners.Count; i++)
-            {
-                if (_listeners[i] != selectedTarget && _listeners[i] is IRaycastMiss miss)
-                {
-                    miss.OnMiss();
-                }
-            }
         }
 
         public interface IRaycastTarget
         {
             Bounds Bounds { get; }
             void OnHit(Ray ray, float distance);
-        }
-
-        public interface IRaycastMiss : IRaycastTarget
-        {
-            void OnMiss();
         }
     }
 }

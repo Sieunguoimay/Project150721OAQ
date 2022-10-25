@@ -1,4 +1,4 @@
-﻿using Common.ResolveSystem;
+﻿using System.ResolveSystem;
 using Gameplay.Board;
 using Gameplay.Board.BoardDrawing;
 using UnityEngine;
@@ -6,7 +6,7 @@ using UnityEngine.Playables;
 
 namespace Gameplay.BambooStick
 {
-    public class BambooFamilyManager : InjectableBehaviour<BambooFamilyManager>
+    public class BambooFamilyManager : MonoBindingInjectable<BambooFamilyManager>
     {
         [SerializeField] private BambooStickSpace[] bambooSticks;
         [SerializeField] private Transform[] bambooStickVisualTransforms;
@@ -15,9 +15,8 @@ namespace Gameplay.BambooStick
         private BoardManager _boardManager;
         private int _timelineCount;
 
-        public override void Setup(IResolver resolver)
+        public override void Inject(IResolver resolver)
         {
-            base.Setup(resolver);
             _boardSketcher = resolver.Resolve<BoardSketcher>();
             _boardManager = resolver.Resolve<BoardManager>();
         }
@@ -38,6 +37,7 @@ namespace Gameplay.BambooStick
                 stick.pathPlan.PlanPath(stick.start.position, stick.start.forward, endPos, endForward);
             }
         }
+
         private void TimelineStopped(PlayableDirector playableDirector)
         {
             _timelineCount++;
@@ -49,6 +49,7 @@ namespace Gameplay.BambooStick
 
             playableDirector.stopped -= TimelineStopped;
         }
+
         public void BeginDrawing()
         {
             for (var i = 0; i < _boardSketcher.PenUsageNum; i++)
@@ -77,7 +78,8 @@ namespace Gameplay.BambooStick
                     var endPosition = stick.start.position;
                     var endForward = stick.start.forward;
                     stick.mover.ResetDisplacement();
-                    stick.pathPlan.PlanPath(stick.mover.transform.position, stick.mover.transform.forward, endPosition, endForward);
+                    stick.pathPlan.PlanPath(stick.mover.transform.position, stick.mover.transform.forward, endPosition,
+                        endForward);
                     stick.timeline.Play();
                 }
             }

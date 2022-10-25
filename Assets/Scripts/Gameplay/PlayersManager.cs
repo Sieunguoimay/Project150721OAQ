@@ -1,4 +1,4 @@
-﻿using Common.ResolveSystem;
+﻿using System.ResolveSystem;
 using Gameplay.Board;
 using Gameplay.GameInteract;
 using SNM;
@@ -6,19 +6,11 @@ using UnityEngine;
 
 namespace Gameplay
 {
-    public class PlayersManager : InjectableBehaviour<PlayersManager>
+    public class PlayersManager : MonoBindingInjectable<PlayersManager>
     {
         [field: System.NonSerialized] public Player[] Players { get; private set; }
         private Player _mainPlayer;
-
-        public override void Setup(IResolver resolver)
-        {
-        }
-
-        public override void TearDown()
-        {
-        }
-
+        
         private void Start()
         {
             _mainPlayer = new Player(0);
@@ -62,5 +54,6 @@ namespace Gameplay
                 t.rotation = rot;
             }
         }
+
     }
 }

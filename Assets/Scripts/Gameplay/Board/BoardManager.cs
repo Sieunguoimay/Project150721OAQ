@@ -1,28 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Common.ResolveSystem;
+using System.ResolveSystem;
 using Gameplay.Piece;
 using UnityEngine;
 
 namespace Gameplay.Board
 {
-    public class BoardManager : InjectableBehaviour<BoardManager>
+    public class BoardManager : MonoBindingInjectable<BoardManager>
     {
         [SerializeField] private MandarinTile mandarinTilePrefab;
         [SerializeField] private Tile citizenTilePrefab;
         [field: System.NonSerialized] public Board Board { get; } = new();
         [field: System.NonSerialized] public Tile[] SpawnedTiles { get; private set; }
-
-
-        public override void Setup(IResolver resolver)
-        {
-        }
-
-        public override void TearDown()
-        {
-        }
-
 
         public void ResetAll()
         {

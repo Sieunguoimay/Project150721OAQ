@@ -2,7 +2,7 @@
 
 namespace Gameplay.Entities
 {
-    public abstract class Currency : ICurrency
+    public class Currency : ICurrency
     {
         private double _amount;
 

@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
-using Common.ResolveSystem;
+using System.ResolveSystem;
 using Gameplay.Board;
 using SNM;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
-    public class GameInteractManager : InjectableBehaviour<GameInteractManager>
+    public class GameInteractManager : MonoBindingInjectable<GameInteractManager>
     {
         [SerializeField] private TileChooser tileChooser;
         [SerializeField] private ActionChooser actionChooser;
@@ -17,9 +17,8 @@ namespace Gameplay.GameInteract
         private TileChooser.ButtonCommand[] _choosingTileCommands;
         [field: System.NonSerialized] public Tile ChosenTile { get; private set; }
 
-        public override void Setup(IResolver resolver)
+        public override void Inject(IResolver resolver)
         {
-            base.Setup(resolver);
             _boardManager = resolver.Resolve<BoardManager>();
         }
 

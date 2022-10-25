@@ -1,24 +1,11 @@
-﻿using Common.ResolveSystem;
+﻿using System.ResolveSystem;
 using UnityEngine;
 
-namespace Gameplay
+namespace Gameplay.UI
 {
     public class UIManager : MonoBehaviour, IInjectable
     {
-        public void Bind(IResolver resolver)
-        {
-        }
-
-        public void Setup(IResolver resolver)
-        {
-            
-        }
-
-        public void TearDown()
-        {
-        }
-
-        public void Unbind(IResolver resolver)
+        public void Inject(IResolver resolver)
         {
         }
     }

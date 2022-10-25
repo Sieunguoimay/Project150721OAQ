@@ -1,5 +1,5 @@
 ﻿using System;
-using Common.ResolveSystem;
+using System.ResolveSystem;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -15,21 +15,9 @@ namespace Gameplay.UI
 
         private MatchOptionItemUI[] _itemUIs;
 
-        public void Bind(IResolver resolver)
-        {
-        }
-
-        public void Setup(IResolver resolver)
+        public void Inject(IResolver resolver)
         {
             _matchChooser = resolver.Resolve<IMatchChooser>();
-        }
-
-        public void TearDown()
-        {
-        }
-
-        public void Unbind(IResolver resolver)
-        {
         }
 
         private void Start()
@@ -64,5 +52,6 @@ namespace Gameplay.UI
         public void StartGame()
         {
         }
+
     }
 }
