@@ -2,20 +2,46 @@
 
 namespace Common.Curve.Mover
 {
-    public class BezierMover : MonoBehaviour
+    public abstract class ABezierMover : MonoBehaviour
+    {
+        [SerializeField] protected BezierSplineMono bezierSpline;
+
+        public BezierSplineWithDistance SplineWithDistance { get; protected set; }
+
+        public float Displacement { get; private set; }
+
+        public float SetToDisplacement(float displacement)
+        {
+            Displacement = displacement;
+
+            var t = SplineWithDistance.GetTAtDistance(displacement);
+
+            Transform tr;
+
+            var globalPosition = (tr = bezierSpline.transform).TransformPoint(SplineWithDistance.Spline.GetPoint(t));
+            var globalRotation = tr.rotation * Quaternion.LookRotation(SplineWithDistance.Spline.GetVelocity(t));
+
+            var tr2 = transform;
+
+            tr2.position = globalPosition;
+            tr2.rotation = globalRotation;
+
+            return t;
+        }
+    }
+
+    public class BezierMover : ABezierMover
     {
         [SerializeField] private BezierSplineCreator initialPath;
         [SerializeField, Min(0.01f)] private float speed = 1f;
         [SerializeField] private bool loop;
 
-        private BezierSplineWithDistance _splineWithDistance;
         private bool _moving;
-        private float _displacement;
         private BezierSpline Spline => initialPath.Spline;
 
         private void Awake()
         {
-            _splineWithDistance = new BezierSplineWithDistance(Spline);
+            SplineWithDistance = new BezierSplineWithDistance(Spline);
         }
 
         [ContextMenu("Move")]
@@ -24,7 +50,7 @@ namespace Common.Curve.Mover
         public void Move(float startDisplacement)
         {
             _moving = true;
-            _displacement = startDisplacement;
+            SetToDisplacement(startDisplacement);
         }
 
         [ContextMenu("Stop")]
@@ -35,18 +61,18 @@ namespace Common.Curve.Mover
 
         private void Update()
         {
-            if (loop && _displacement >= _splineWithDistance.ArcLength)
+            var displacement = Displacement;
+
+            if (loop && displacement >= SplineWithDistance.ArcLength)
             {
-                _displacement -= _splineWithDistance.ArcLength;
+                displacement -= SplineWithDistance.ArcLength;
             }
 
-            if (!_moving || Spline == null || _displacement >= _splineWithDistance.ArcLength) return;
+            if (!_moving || Spline == null || displacement >= SplineWithDistance.ArcLength) return;
 
-            _displacement += Time.deltaTime * speed;
+            displacement += Time.deltaTime * speed;
 
-            var t = _splineWithDistance.GetTAtDistance(_displacement);
-            transform.position = _splineWithDistance.Spline.GetPoint(t);
-            transform.rotation = Quaternion.LookRotation(_splineWithDistance.Spline.GetVelocity(t));
+            SetToDisplacement(displacement);
         }
     }
 }

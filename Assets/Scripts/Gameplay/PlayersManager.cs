@@ -1,5 +1,4 @@
-﻿using System.ResolveSystem;
-using Gameplay.Board;
+﻿using Gameplay.Board;
 using Gameplay.GameInteract;
 using SNM;
 using UnityEngine;

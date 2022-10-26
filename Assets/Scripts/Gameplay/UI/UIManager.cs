@@ -1,4 +1,4 @@
-﻿using System.ResolveSystem;
+﻿using Framework.Resolver;
 using UnityEngine;
 
 namespace Gameplay.UI

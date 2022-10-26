@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using System.ResolveSystem;
 using Common;
 using DG.Tweening;
+using Framework.Resolver;
 using Gameplay;
 using Gameplay.BambooStick;
 using Gameplay.Board;
@@ -26,13 +26,13 @@ namespace System
 
         private IResolver _resolver;
 
-        public void Bind(IBinder binder)
+        public void SelfBind(IBinder binder)
         {
             binder.Bind(_gameFlowManager);
             binder.Bind(_matchChooser);
         }
 
-        public void Unbind(IBinder binder)
+        public void SelfUnbind(IBinder binder)
         {
             binder.Unbind(_gameFlowManager);
             binder.Unbind(_matchChooser);
@@ -87,7 +87,7 @@ namespace System
             _playersManager.CreatePieceBench(_boardManager.Board);
 
             _gameplay.Setup(_playersManager, _boardManager.Board, _pieceManager,
-                _resolver.Resolve<GameInteractManager>());
+                _resolver.Resolve<GameInteractManager>(), _resolver);
 
             _pieceManager.SpawnPieces(playerNum, tilesPerGroup);
 

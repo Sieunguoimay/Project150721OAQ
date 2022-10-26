@@ -22,7 +22,7 @@ namespace Common.DrawLine
 
             if (Application.isPlaying)
             {
-                pen.SetupDrawActivity(points, contour, "static_mesh");
+                pen.SetupDrawActivity(points, contour, null, "static_mesh", 0f);
                 pen.ActivityQueue.Add(new ActivityCallback(onDone));
                 pen.ActivityQueue.Begin();
             }

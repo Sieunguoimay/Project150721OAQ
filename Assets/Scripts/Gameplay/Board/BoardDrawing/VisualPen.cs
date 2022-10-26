@@ -14,7 +14,7 @@ namespace Gameplay.Board.BoardDrawing
 
         public event Action<VisualPen> Done;
 
-        public void Draw(Vector2[] points, (int, int)[] contour, int contourStartIndex, int contourLength, string inkName)
+        public void Draw(Vector2[] points, (int, int)[] contour, int contourStartIndex, int contourLength, IDrawingSurface surface, string inkName, float initialSpeed)
         {
             var points3D = new Vector3[contourLength + 1];
             for (var i = contourStartIndex; i < contourStartIndex + contourLength; i++)
@@ -28,7 +28,7 @@ namespace Gameplay.Board.BoardDrawing
 
             _spline = new BezierSplineWithDistance(BezierSplineUtility.CreateSplineSmoothPath(points3D));
 
-            SetupDrawActivity(points, contour, contourStartIndex, contourLength, inkName, this);
+            SetupDrawActivity(points, contour, contourStartIndex, contourLength, surface, inkName, this, initialSpeed);
             ActivityQueue.Begin();
         }
 

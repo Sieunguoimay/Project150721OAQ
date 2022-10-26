@@ -1,16 +1,16 @@
-﻿using System.ResolveSystem;
+﻿using Framework.Resolver;
 using UnityEngine;
 
 namespace Gameplay
 {
     public abstract class MonoBindingInjectable<TInjectable> : MonoBehaviour, IInjectable, IBinding
     {
-        public void Bind(IBinder binder)
+        public void SelfBind(IBinder binder)
         {
             binder.Bind<TInjectable>(this);
         }
 
-        public void Unbind(IBinder binder)
+        public void SelfUnbind(IBinder binder)
         {
             binder.Unbind<TInjectable>(this);
         }

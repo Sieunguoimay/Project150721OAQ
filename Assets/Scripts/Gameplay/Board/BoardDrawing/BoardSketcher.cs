@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Common.Algorithm;
+using Common.DrawLine;
 using UnityEngine;
 
 namespace Gameplay.Board.BoardDrawing
@@ -7,6 +8,7 @@ namespace Gameplay.Board.BoardDrawing
     public class BoardSketcher : MonoBindingInjectable<BoardSketcher>
     {
         [SerializeField] private VisualPen[] pens;
+        [SerializeField] private DrawingSurface[] surfaces;
 
         private Vector2[] _points;
         private (int, int)[] _contour;
@@ -21,13 +23,18 @@ namespace Gameplay.Board.BoardDrawing
             PenUsageNum = board.Metadata.Polygon.Length;
         }
 
-        public void StartDrawing()
+        public void StartDrawing(float initialSpeed)
         {
-            var n = _contour.Length / PenUsageNum;
             for (var i = 0; i < PenUsageNum; i++)
             {
-                pens[i].Draw(_points, _contour, i * n, n, "Board");
+                StartPenDrawing(i, initialSpeed);
             }
+        }
+
+        public void StartPenDrawing(int index, float initialSpeed)
+        {
+            var n = _contour.Length / PenUsageNum;
+            pens[index].Draw(_points, _contour, index * n, n, surfaces[index], "Board", initialSpeed);
         }
 
         public IReadOnlyList<Vector2> Points => _points;
@@ -35,6 +42,8 @@ namespace Gameplay.Board.BoardDrawing
         [field: System.NonSerialized] public int PenUsageNum { get; private set; }
 
         public VisualPen[] Pens => pens;
+
+        public DrawingSurface[] Surfaces => surfaces;
 
         private static void GenerateSketch(Board.BoardMetadata boardMetadata, out Vector2[] points,
             out (int, int)[] edges)

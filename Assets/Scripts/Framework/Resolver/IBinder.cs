@@ -1,4 +1,4 @@
-﻿namespace System.ResolveSystem
+﻿namespace Framework.Resolver
 {
     public interface IBinder
     {
@@ -12,7 +12,7 @@
     
     public interface IBinding
     {
-        void Bind(IBinder binder);
-        void Unbind(IBinder binder);
+        void SelfBind(IBinder binder);
+        void SelfUnbind(IBinder binder);
     }
 }

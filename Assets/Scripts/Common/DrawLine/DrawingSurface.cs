@@ -3,7 +3,15 @@ using UnityEngine;
 
 namespace Common.DrawLine
 {
-    public class DrawingSurface : MonoBehaviour
+    public interface IDrawingSurface
+    {
+        void DrawBegin(Vector2 point);
+        void Draw(Vector2 point, float lineThickness, float minDistance);
+        void DryInk(string meshName = "(Static)mesh");
+        Vector3 Get3DPoint(Vector2 point);
+    }
+
+    public class DrawingSurface : MonoBehaviour, IDrawingSurface
     {
         [SerializeField] private MeshFilter meshFilter;
 
@@ -24,8 +32,14 @@ namespace Common.DrawLine
             meshFilter.mesh = _drawMesh.GenerateStaticMesh(meshName);
             meshFilter.mesh.RecalculateBounds();
         }
-        
-// #if UNITY_EDITOR
+
+        public Vector3 Get3DPoint(Vector2 point)
+        {
+            return transform.TransformPoint(new Vector3(point.x, 0, point.y));
+        }
+
+
+        // #if UNITY_EDITOR
 //         private Camera _camera;
 //
 //         private void Start()

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using System.ResolveSystem;
+using Framework.Resolver;
 using Gameplay.Board;
 using SNM;
 using UnityEngine;

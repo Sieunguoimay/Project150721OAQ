@@ -1,18 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-namespace System.ResolveSystem
+namespace Framework.Resolver
 {
-    public class Container : IResolver, IBinder
+    public interface IContainer : IResolver, IBinder
+    {
+        //Empty
+    }
+
+    public class Container : IContainer
     {
         private readonly Dictionary<Type, object> _boundObjects = new();
         private readonly Dictionary<(Type, string), object> _boundObjectsWithId = new();
 
-        public Container()
-        {
-            Bind<IBinder>(this);
-        }
-        
         public void Bind<TType>(TType target)
         {
             var type = typeof(TType);

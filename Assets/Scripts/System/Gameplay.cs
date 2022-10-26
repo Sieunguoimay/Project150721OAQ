@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Common;
+using Framework.Resolver;
 using Gameplay;
 using Gameplay.Board;
 using Gameplay.Entities;
@@ -30,10 +31,12 @@ namespace System
         private Coroutine _coroutine;
 
         public ActivityQueue ActivityQueue { get; } = new();
+        private IResolver _resolver;
 
         public void Setup(PlayersManager playersManager, Board board, PieceManager pieceManager,
-            GameInteractManager interactManager)
+            GameInteractManager interactManager, IResolver resolver)
         {
+            _resolver = resolver;
             _board = board;
             _playersManager = playersManager;
             _pieceManager = pieceManager;
@@ -59,6 +62,11 @@ namespace System
             IsPlaying = true;
             ChangePlayer();
             _perMatchData = new PerMatchData(_playersManager.Players.Length);
+            foreach (var score in _perMatchData.PlayerScores)
+            {
+                score.Inject(_resolver);
+            }
+
             _pieceManager.ReleasePieces(() =>
             {
                 _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index], new MoveCommand(this), new MoveCommand(this));
@@ -140,13 +148,13 @@ namespace System
                 _dropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tileGroup.MandarinTile), true);
                 _dropper.DropOnce(_ =>
                 {
-                    _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index],  new MoveCommand(this), new MoveCommand(this));
+                    _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index], new MoveCommand(this), new MoveCommand(this));
                     _interact.ShowTileChooser();
                 });
                 return;
             }
 
-            _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index],  new MoveCommand(this), new MoveCommand(this));
+            _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index], new MoveCommand(this), new MoveCommand(this));
             _interact.ShowTileChooser();
         }
 

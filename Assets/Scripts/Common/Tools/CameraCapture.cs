@@ -10,17 +10,17 @@ namespace Common.Tools
         [MenuItem("Tools/CaptureCamera")]
         public static void Capture()
         {
-            string currentDateTime =
-                DateTime.Now.ToString("yyyyMMdd_Hmmss");
+            // var currentDateTime =
+            //     DateTime.Now.ToString("yyyyMMdd_Hmmss");
 
             //You may want to use Application.persistentDataPath
-            var directory = new DirectoryInfo(Application.dataPath + "\\Assets\\Screenshots");
+            // var directory = new DirectoryInfo(Application.dataPath + "\\Assets");
+            //
+            // var path = Path.Combine(directory.Parent.FullName, $"Screenshot_{currentDateTime}.png");
+            //
+            // Debug.Log(path);
 
-            var path = Path.Combine(directory.Parent.FullName, $"Screenshot_{currentDateTime}.png");
-
-            Debug.Log(path);
-
-            ScreenCapture.CaptureScreenshot(path);
+            ScreenCapture.CaptureScreenshot($"C:\\Users\\Admin\\Pictures\\Screenshot_{DateTime.Now:yyyyMMdd_Hmmss}.png");
         }
     }
 }

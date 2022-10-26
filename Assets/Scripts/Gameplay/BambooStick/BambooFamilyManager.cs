@@ -1,6 +1,9 @@
-﻿using System.ResolveSystem;
+﻿using Common.Curve.Mover;
+using Framework;
+using Framework.Resolver;
 using Gameplay.Board;
 using Gameplay.Board.BoardDrawing;
+using SNM;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -27,18 +30,17 @@ namespace Gameplay.BambooStick
             for (var i = 0; i < _boardSketcher.PenUsageNum; i++)
             {
                 var stick = bambooSticks[i];
-                var index = i * (_boardSketcher.Points.Count / _boardSketcher.PenUsageNum);
-                stick.timeline.Play();
-                stick.timeline.stopped += TimelineStopped;
-                var endPos = _boardSketcher.transform.TransformPoint(new Vector3(_boardSketcher.Points[index].x, 0,
-                    _boardSketcher.Points[index].y));
-                var forward = (_boardSketcher.Points[index] - _boardSketcher.Points[index + 1]).normalized;
-                var endForward = _boardSketcher.transform.TransformPoint(new Vector3(forward.x, 0, forward.y));
-                stick.pathPlan.PlanPath(stick.start.position, stick.start.forward, endPos, endForward);
+                var startDrawingIndex = i * (_boardSketcher.Points.Count / _boardSketcher.PenUsageNum);
+                stick.StartTimelineMoving(TimelineStopped);
+
+                var startDrawingPos = _boardSketcher.Surfaces[i].Get3DPoint(_boardSketcher.Points[startDrawingIndex]);
+                var forward = (_boardSketcher.Points[startDrawingIndex] - _boardSketcher.Points[startDrawingIndex + 1]).normalized;
+                var endForward = _boardSketcher.Surfaces[i].transform.TransformDirection(new Vector3(forward.x, 0, forward.y));
+
+                stick.pathPlan.PlanPath(stick.start.position, stick.start.forward, startDrawingPos, endForward);
             }
         }
-
-        private void TimelineStopped(PlayableDirector playableDirector)
+        private void TimelineStopped()
         {
             _timelineCount++;
             if (_timelineCount == _boardSketcher.PenUsageNum)
@@ -46,8 +48,6 @@ namespace Gameplay.BambooStick
                 BeginDrawing();
                 _timelineCount = 0;
             }
-
-            playableDirector.stopped -= TimelineStopped;
         }
 
         public void BeginDrawing()
@@ -56,9 +56,8 @@ namespace Gameplay.BambooStick
             {
                 _boardSketcher.Pens[i].SetPenBall(bambooStickVisualTransforms[i]);
                 _boardSketcher.Pens[i].Done += OnSketchingDone;
+                _boardSketcher.StartPenDrawing(i, bambooSticks[i].GetMoverSpeed());
             }
-
-            _boardSketcher.StartDrawing();
         }
 
         private void OnSketchingDone(VisualPen visualPen)
@@ -77,10 +76,11 @@ namespace Gameplay.BambooStick
                     var stick = bambooSticks[i];
                     var endPosition = stick.start.position;
                     var endForward = stick.start.forward;
-                    stick.mover.ResetDisplacement();
                     stick.pathPlan.PlanPath(stick.mover.transform.position, stick.mover.transform.forward, endPosition,
                         endForward);
-                    stick.timeline.Play();
+                    // stick.timeline.Play();
+                    stick.mover.ResetDisplacement();
+                    stick.StartTimelineMoving(null);
                 }
             }
         }

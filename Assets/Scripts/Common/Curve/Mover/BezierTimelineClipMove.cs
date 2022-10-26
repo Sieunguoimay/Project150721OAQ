@@ -2,49 +2,49 @@
 using Timeline;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Playables;
+// using UnityEngine.Playables;
 
 namespace Common.Curve.Mover
 {
-    public class BezierTimelineClipMove : MonoBehaviour, ITimeControlExtended
+    public class BezierTimelineClipMove : ABezierMover, ITimeControlExtended
     {
-        [SerializeField] private BezierSplineMono bezierSpline;
+        // [SerializeField] private BezierSplineMono bezierSpline;
         [SerializeField, Min(0f)] private float distance;
         [SerializeField] private UnityEvent onFinished;
 
-        private BezierSplineWithDistance _splineWithDistance;
-        private float _displacement;
+        // private BezierSplineWithDistance _splineWithDistance;
+        // private float _displacement;
         private float _initialDisplacement;
 
         [field: NonSerialized] public bool Finished { get; private set; }
 
+        public float Distance => distance;
+
         public void SetTime(double time, double duration)
         {
-            if (_splineWithDistance == null || Finished) return;
+            if (SplineWithDistance == null || Finished) return;
 
             var p = (float) time / (float) duration;
 
-            _displacement = Mathf.Lerp(_initialDisplacement, _initialDisplacement + distance, p);
+            var displacement = Mathf.Lerp(_initialDisplacement, _initialDisplacement + distance, p);
 
-            var t = _splineWithDistance.GetTAtDistance(_displacement);
+            var t = SetToDisplacement(displacement);
 
-            Transform tr;
-            var globalPosition = (tr = bezierSpline.transform).TransformPoint(_splineWithDistance.Spline.GetPoint(t));
-            var globalRotation = tr.rotation * Quaternion.LookRotation(_splineWithDistance.Spline.GetVelocity(t));
-
-            transform.position = globalPosition;
-            transform.rotation = globalRotation;
-
-            if (!Finished && (t >= 1f || _displacement >= _splineWithDistance.ArcLength))
+            if (!Finished && ShouldTriggerFinish(t, displacement, SplineWithDistance.ArcLength))
             {
                 Finished = true;
                 onFinished?.Invoke();
             }
         }
 
+        protected virtual bool ShouldTriggerFinish(float t, float displacement, float curveLength)
+        {
+            return t >= 1f || displacement >= curveLength;
+        }
+
         public void OnControlTimeStart()
         {
-            if (_splineWithDistance == null)
+            if (SplineWithDistance == null)
             {
                 if (bezierSpline == null)
                 {
@@ -52,10 +52,10 @@ namespace Common.Curve.Mover
                     return;
                 }
 
-                _splineWithDistance = new BezierSplineWithDistance(bezierSpline.Spline);
+                SplineWithDistance = new BezierSplineWithDistance(bezierSpline.Spline);
             }
 
-            _initialDisplacement = _displacement;
+            _initialDisplacement = Displacement;
         }
 
         public void OnControlTimeStop()
@@ -65,9 +65,9 @@ namespace Common.Curve.Mover
         [ContextMenu("ResetDisplacement")]
         public void ResetDisplacement()
         {
-            _displacement = 0f;
+            SetToDisplacement(0f);
             Finished = false;
-            _splineWithDistance = null;
+            SplineWithDistance = null;
         }
     }
 }

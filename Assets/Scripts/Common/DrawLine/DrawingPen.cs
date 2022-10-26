@@ -25,6 +25,7 @@ namespace Common.DrawLine
         [SerializeField, Min(0.1f)] private float speed = 1f;
 
         [field: System.NonSerialized] public ActivityQueue ActivityQueue { get; } = new();
+        private IDrawingSurface _targetSurface;
 
         private struct DrawUnit
         {
@@ -33,19 +34,21 @@ namespace Common.DrawLine
             public int Index;
         }
 
-        public void SetupDrawActivity(Vector2[] points, (int, int)[] contour, string inkName)
+        public void SetupDrawActivity(Vector2[] points, (int, int)[] contour, IDrawingSurface surface, string inkName, float initialSpeed)
         {
-            SetupDrawActivity(points, contour, 0, contour.Length, inkName, null);
+            SetupDrawActivity(points, contour, 0, contour.Length, surface, inkName, null, initialSpeed);
         }
 
-        public void SetupDrawActivity(Vector2[] points, (int, int)[] contour, int contourStartIndex, int contourLength,
-            string inkName, IDrawingPenHandler handler)
+        public void SetupDrawActivity(Vector2[] points, (int, int)[] contour, int contourStartIndex, int contourLength, IDrawingSurface surface,
+            string inkName, IDrawingPenHandler handler, float initialSpeed)
         {
+            _targetSurface = surface ?? drawingSurface;
+
             ActivityQueue.Add(new ActivityCallback(() =>
             {
                 var point = points[contour[contourStartIndex].Item1];
-                drawingSurface.DrawBegin(point);
-                handler.OnDraw(drawingSurface.transform.TransformPoint(new Vector3(point.x, 0, point.y)), 0f);
+                _targetSurface.DrawBegin(point);
+                handler.OnDraw(_targetSurface.Get3DPoint(point), 0f);
             }));
 
             var n = Mathf.Min(contour.Length, contourStartIndex + contourLength);
@@ -73,10 +76,10 @@ namespace Common.DrawLine
                 drawUnits[i - contourStartIndex] = drawUnit;
             }
 
-            ActivityQueue.Add(new ActivityDrawing(this, drawUnits, points, contour, handler, totalLength));
+            ActivityQueue.Add(new ActivityDrawing(this, drawUnits, points, contour, handler, totalLength, initialSpeed));
             ActivityQueue.Add(new ActivityCallback(() =>
             {
-                drawingSurface.DryInk(inkName);
+                _targetSurface.DryInk(inkName);
                 handler?.OnDone();
             }));
         }
@@ -87,7 +90,7 @@ namespace Common.DrawLine
             ActivityQueue.Add(new ActivityCallback(() =>
             {
                 var point = points[contour[contourStartIndex].Item1];
-                drawingSurface.DrawBegin(point);
+                _targetSurface.DrawBegin(point);
                 handler.OnDraw(point, 0f);
             }));
 
@@ -110,14 +113,14 @@ namespace Common.DrawLine
                 var d = 1f / speed;
 
                 var point = Vector2.Lerp(point1, point2, Mathf.Min(1f, (t - d * (index - contourStartIndex)) / d));
-                drawingSurface.Draw(point, lineThickness, minDistance);
+                _targetSurface.Draw(point, lineThickness, minDistance);
 
-                handler.OnDraw(drawingSurface.transform.TransformPoint(new Vector3(point.x, 0, point.y)), t / duration);
+                handler.OnDraw(_targetSurface.Get3DPoint(point), t / duration);
             });
             ActivityQueue.Add(activity);
             ActivityQueue.Add(new Lambda(() =>
             {
-                drawingSurface.DryInk(inkName);
+                _targetSurface.DryInk(inkName);
                 handler?.OnDone();
             }, () => true));
             ActivityQueue.Begin();
@@ -128,7 +131,7 @@ namespace Common.DrawLine
             ActivityQueue.Add(new ActivityCallback(() =>
             {
                 var p = spline.ControlPoints[0];
-                drawingSurface.DrawBegin(p);
+                _targetSurface.DrawBegin(p);
                 handler.OnDraw(p, 0f);
             }));
 
@@ -138,14 +141,14 @@ namespace Common.DrawLine
             {
                 var point3D = spline.GetPoint(t / duration);
                 var point = new Vector2(point3D.x, point3D.z);
-                drawingSurface.Draw(point, lineThickness, minDistance);
+                _targetSurface.Draw(point, lineThickness, minDistance);
 
-                handler.OnDraw(drawingSurface.transform.TransformPoint(new Vector3(point.x, 0, point.y)), t / duration);
+                handler.OnDraw(_targetSurface.Get3DPoint(point), t / duration);
             });
             ActivityQueue.Add(activity);
             ActivityQueue.Add(new ActivityCallback(() =>
             {
-                drawingSurface.DryInk(inkName);
+                _targetSurface.DryInk(inkName);
                 handler?.OnDone();
             }));
             ActivityQueue.Begin();
@@ -168,7 +171,7 @@ namespace Common.DrawLine
             private float _speed;
 
             public ActivityDrawing(DrawingPen pen, DrawUnit[] drawUnits, Vector2[] points, (int, int)[] contour,
-                IDrawingPenHandler handler, float totalLength)
+                IDrawingPenHandler handler, float totalLength, float initialSpeed)
             {
                 _pen = pen;
                 _drawUnits = drawUnits;
@@ -177,7 +180,7 @@ namespace Common.DrawLine
                 _handler = handler;
                 _totalLength = totalLength;
                 _distance = 0f;
-                _speed = _pen.initialSpeed;
+                _speed = initialSpeed;
             }
 
             public override void Update(float deltaTime)
@@ -186,8 +189,9 @@ namespace Common.DrawLine
                 {
                     _speed += deltaTime * _pen.speed;
                 }
+
                 _distance += deltaTime * _speed;
-                
+
                 var time = _drawUnits[0];
                 for (var i = 0; i < _drawUnits.Length; i++)
                 {
@@ -207,9 +211,9 @@ namespace Common.DrawLine
                 var point2 = _points[_contour[time.Index].Item2];
 
                 var point = Vector2.Lerp(point1, point2, Mathf.Min(1f, (_distance - time.Start) / time.Length));
-                var pointWorld = _pen.drawingSurface.transform.TransformPoint(new Vector3(point.x, 0, point.y));
+                var pointWorld = _pen._targetSurface.Get3DPoint(point);
 
-                _pen.drawingSurface.Draw(point, _pen.lineThickness, _pen.minDistance);
+                _pen._targetSurface.Draw(point, _pen.lineThickness, _pen.minDistance);
                 _handler.OnDraw(pointWorld, _distance / _totalLength);
 
                 if (_distance >= _totalLength)
@@ -259,7 +263,7 @@ namespace Common.DrawLine
                 (0, 2),
             };
 
-            SetupDrawActivity(points, contour, "Test");
+            SetupDrawActivity(points, contour, null, "Test", initialSpeed);
         }
 #endif
     }

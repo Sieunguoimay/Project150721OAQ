@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.ResolveSystem;
+using Framework;
+using Framework.Resolver;
+using Framework.Services;
 using Gameplay;
 using UnityEngine;
 
@@ -12,13 +14,17 @@ namespace System
 
         private GameObject[] _spawnedParts;
 
-        private readonly Container _container = new();
-
         private IInjectable[] _injectables;
         private IBinding[] _bindings;
 
+        private IBinder _binder;
+        private IResolver _resolver;
+
         private void Start()
         {
+            _resolver = MonoInstaller.Instance.Resolver;
+            _binder = _resolver.Resolve<IBinder>();
+
             SpawnGame();
         }
 
@@ -29,8 +35,6 @@ namespace System
 
         private void SpawnGame()
         {
-            _spawnedParts = new GameObject[prefabs.Length];
-
             var allInjectables = new List<IInjectable>();
             var allBindings = new List<IBinding>();
 
@@ -40,10 +44,11 @@ namespace System
                 allBindings.AddRange(t.GetComponentsInChildren<IBinding>(true));
             }
 
+            _spawnedParts = new GameObject[prefabs.Length];
+
             for (var i = 0; i < prefabs.Length; i++)
             {
-                var pref = prefabs[i];
-                _spawnedParts[i] = Instantiate(pref);
+                _spawnedParts[i] = Instantiate(prefabs[i]);
                 allInjectables.AddRange(_spawnedParts[i].GetComponentsInChildren<IInjectable>(true));
                 allBindings.AddRange(_spawnedParts[i].GetComponentsInChildren<IBinding>(true));
             }
@@ -53,12 +58,12 @@ namespace System
 
             foreach (var b in allBindings)
             {
-                b.Bind(_container);
+                b.SelfBind(_binder);
             }
 
             foreach (var injectable in _injectables)
             {
-                injectable.Inject(_container);
+                injectable.Inject(_resolver);
             }
         }
 
@@ -66,7 +71,7 @@ namespace System
         {
             foreach (var b in _bindings)
             {
-                b.Unbind(_container);
+                b.SelfUnbind(_binder);
             }
 
             foreach (var spawned in _spawnedParts)

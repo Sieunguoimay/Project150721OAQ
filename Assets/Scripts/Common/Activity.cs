@@ -89,6 +89,7 @@ namespace Common
         IEnumerable<Activity> Activities { get; }
         void Add(Activity activity);
         void Clear();
+        void Begin();
     }
 
     public class ActivityQueue : Activity, IActivityQueue

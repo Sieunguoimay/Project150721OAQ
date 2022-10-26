@@ -7,24 +7,19 @@ namespace System
     public class Launcher : MonoBehaviour
     {
         [SerializeField] private string sceneName;
-        private void Start()
-        {
-            SpawnGame();
-        }
 
-        private void OnDestroy()
-        {
-            KillGame();
-        }
-
-        public void SpawnGame()
+        public void LoadGameScene()
         {
             StartCoroutine(LoadScene(sceneName, OnLoadSceneDone));
         }
 
+        public void UnloadGameScene()
+        {
+            StartCoroutine(UnloadScene(sceneName, OnLoadSceneDone));
+        }
+
         private void OnLoadSceneDone()
         {
-            
         }
 
         private static IEnumerator LoadScene(string sceneName, Action onDone)
@@ -38,8 +33,15 @@ namespace System
             onDone?.Invoke();
         }
 
-        public void KillGame()
+        private static IEnumerator UnloadScene(string sceneName, Action onDone)
         {
+            var ao = SceneManager.UnloadSceneAsync(sceneName);
+            while (!ao.isDone)
+            {
+                yield return null;
+            }
+
+            onDone?.Invoke();
         }
     }
 }

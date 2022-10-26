@@ -49,6 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mover: {fileID: 5983454113372052464}
   timeline: {fileID: 3731970366165721802}
+  timeline2: {fileID: 4529269390298407973}
   start: {fileID: 7680233613799053206}
   pathPlan: {fileID: 6503068670774835498}
 --- !u!1 &3557494859024931712
@@ -292,6 +293,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 814ea5592efaedd4c9d3f51bf3053222, type: 3}
+--- !u!320 &4529269390298407973 stripped
+PlayableDirector:
+  m_CorrespondingSourceObject: {fileID: 4614466015987957038, guid: 814ea5592efaedd4c9d3f51bf3053222, type: 3}
+  m_PrefabInstance: {fileID: 9138598487558691083}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6744226997592360961 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2543016872510230794, guid: 814ea5592efaedd4c9d3f51bf3053222, type: 3}
@@ -316,7 +322,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8654399426378284197}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 511a65d675cb4ae58951beea0a55b7a5, type: 3}
+  m_Script: {fileID: 11500000, guid: 0cab8d6376254209bfa1770139184546, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   bezierSpline: {fileID: 3771502840049055048}
@@ -324,6 +330,7 @@ MonoBehaviour:
   onFinished:
     m_PersistentCalls:
       m_Calls: []
+  finishDistance: 0
 --- !u!114 &7469025517467639780
 MonoBehaviour:
   m_ObjectHideFlags: 0

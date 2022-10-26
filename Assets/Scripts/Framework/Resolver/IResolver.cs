@@ -1,4 +1,4 @@
-﻿namespace System.ResolveSystem
+﻿namespace Framework.Resolver
 {
     public interface IResolver
     {
