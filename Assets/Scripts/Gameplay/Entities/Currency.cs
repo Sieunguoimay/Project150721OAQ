@@ -38,25 +38,23 @@ namespace Gameplay.Entities
 
         protected virtual void DispatchMessage(double prevAmount)
         {
-            _messageService.Dispatch<ICurrencyChangeMessage>(new CurrencyChangeMessage(this, prevAmount));
+            _messageService.Dispatch<ICurrencyChangeMessage,ICurrency>(new CurrencyChangeMessage(this, prevAmount));
         }
     }
 
-    public interface ICurrencyChangeMessage : IMessage
+    public interface ICurrencyChangeMessage : IMessage<ICurrency>
     {
-        Currency Currency { get; }
         double PrevAmount { get; }
     }
 
     public class CurrencyChangeMessage : ICurrencyChangeMessage
     {
-        public CurrencyChangeMessage(Currency currency, double prevAmount)
+        public CurrencyChangeMessage(ICurrency currency, double prevAmount)
         {
-            Currency = currency;
+            Sender = currency;
             PrevAmount = prevAmount;
         }
-
-        public Currency Currency { get; }
         public double PrevAmount { get; }
+        public ICurrency Sender { get; }
     }
 }

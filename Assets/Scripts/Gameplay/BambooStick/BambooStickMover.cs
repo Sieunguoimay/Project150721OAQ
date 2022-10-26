@@ -9,12 +9,7 @@ namespace Gameplay.BambooStick
 
         protected override bool ShouldTriggerFinish(float t, float displacement, float curveLength)
         {
-            if (t >= 1f || (displacement + finishDistance) >= curveLength)
-            {
-                return true;
-            }
-
-            return false;
+            return t >= 1f || displacement + finishDistance >= curveLength;
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
+using Framework.Entities.Currency;
 using Framework.Resolver;
 using Framework.Services;
+using Gameplay.Entities;
 using UnityEngine;
 
 namespace Framework
@@ -13,7 +15,7 @@ namespace Framework
     public class MonoInstaller : MonoBehaviour, IInstaller
     {
         public static MonoInstaller Instance { get; private set; }
-        
+
         private readonly IContainer _container = new Container();
 
         //Services
@@ -62,15 +64,18 @@ namespace Framework
 
         private void LoadEntities()
         {
+            _container.Bind<ICurrency>(new Currency(), "game_currency");
         }
 
         private void UnloadEntities()
         {
             SaveEntities();
+            _container.Unbind(_container.Resolve<ICurrency>("game_currency"), "game_currency");
         }
 
         private void SaveEntities()
         {
+            // _container.Resolve<ICurrency>("game_currency").SavedData
         }
 
         public IResolver Resolver => _container;

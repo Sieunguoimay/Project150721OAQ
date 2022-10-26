@@ -21,17 +21,10 @@ namespace Gameplay.BambooStick
 
         private Action _handler;
 
-        private readonly ActivityQueue _activityQueue = new();
-        public IActivityQueue ActivityQueue => _activityQueue;
-
-        private void Update()
-        {
-            _activityQueue.Update(Time.deltaTime);
-        }
-
         public float GetMoverSpeed()
         {
-            var cct = (timeline2.playableAsset as TimelineAsset)?.GetOutputTracks().FirstOrDefault(t => t is CustomControlTrack);
+            var cct = (timeline2.playableAsset as TimelineAsset)?.GetOutputTracks()
+                .FirstOrDefault(t => t is CustomControlTrack);
             if (cct == null) return 1f;
             var clip = cct.GetClips().FirstOrDefault(t => t.asset is CustomTimeControlAsset);
             if (clip == null) return 1f;
@@ -50,20 +43,7 @@ namespace Gameplay.BambooStick
         private void TimelineStopped(PlayableDirector obj)
         {
             timeline.stopped -= TimelineStopped;
-            //
-            // var remainingDistance = mover.SplineWithDistance.ArcLength - mover.Displacement;
-            // if (remainingDistance > .01f)
-            // {
-            //     var duration = remainingDistance / GetMoverSpeed();
-            //     var initialDisplacement = mover.Displacement;
-            //     ActivityQueue.Add(new ActivityTimer(duration, t => { mover.SetToDisplacement(Mathf.Lerp(initialDisplacement, mover.SplineWithDistance.ArcLength, t / duration)); }));
-            //     ActivityQueue.Add(new ActivityCallback(_handler));
-            //     ActivityQueue.Begin();
-            // }
-            // else
-            // {
-                _handler?.Invoke();
-            // }
+            _handler?.Invoke();
         }
     }
 }

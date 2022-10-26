@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using Framework;
+using Framework.Entities.Currency;
 using Framework.Resolver;
 using Framework.Services;
 using Gameplay.Entities;
@@ -13,18 +14,19 @@ namespace Gameplay.UI
     {
         [SerializeField] private TextMeshProUGUI text;
         private GameFlowManager _flowManager;
-        private IMessageHandler<ICurrencyChangeMessage> _currencyChangeHandler;
+        private IMessageHandler<ICurrencyChangeMessage, ICurrency> _currencyChangeHandler;
 
         public void Inject(IResolver resolver)
         {
             _flowManager = resolver.Resolve<GameFlowManager>();
             OnStateChanged();
             _currencyChangeHandler = new CurrencyChangeMessageHandler(this);
-
-            resolver.Resolve<IMessageService>().Register(_currencyChangeHandler);
+            var gameCurrency = resolver.Resolve<ICurrency>("game_currency");
+            resolver.Resolve<IMessageService>().Register(_currencyChangeHandler, gameCurrency);
         }
 
-        private class CurrencyChangeMessageHandler : InnerClass<OnScreenUI>, IMessageHandler<ICurrencyChangeMessage>
+        private class CurrencyChangeMessageHandler : InnerClass<OnScreenUI>,
+            IMessageHandler<ICurrencyChangeMessage, ICurrency>
         {
             public CurrencyChangeMessageHandler(OnScreenUI context) : base(context)
             {
@@ -32,7 +34,7 @@ namespace Gameplay.UI
 
             public void OnReceiveMessage(ICurrencyChangeMessage message)
             {
-                Context.text.text = message.Currency.Get().ToString(CultureInfo.InvariantCulture);
+                Context.text.text = message.Sender.Get().ToString(CultureInfo.InvariantCulture);
             }
         }
 
