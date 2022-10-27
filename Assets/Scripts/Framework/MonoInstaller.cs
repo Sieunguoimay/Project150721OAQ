@@ -1,5 +1,5 @@
 ﻿using System;
-using Framework.Entities.Currency;
+using Framework.Entities;
 using Framework.Resolver;
 using Framework.Services;
 using Gameplay.Entities;
@@ -14,12 +14,15 @@ namespace Framework
 
     public class MonoInstaller : MonoBehaviour, IInstaller
     {
-        public static MonoInstaller Instance { get; private set; }
+        [SerializeField] private LocalDataServiceAsset dataServiceAsset;
+        public static IInstaller Instance { get; private set; }
 
         private readonly IContainer _container = new Container();
 
         //Services
         private readonly IMessageService _messageService = new MessageService();
+
+        private readonly IEntityLoader _entityLoader = new EntityLoader();
 
         private void Awake()
         {
@@ -54,23 +57,29 @@ namespace Framework
         private void BindServices()
         {
             _container.Bind<IBinder>(_container);
-            _container.Bind(_messageService);
+            _container.Bind<IMessageService>(_messageService);
+            _container.Bind<IDataService>(dataServiceAsset);
+            _container.Bind<IEntityLoader>(_entityLoader);
         }
 
         private void UnbindServices()
         {
-            _container.Unbind(_messageService);
+            _container.Unbind<IEntityLoader>(dataServiceAsset);
+            _container.Unbind<IDataService>(dataServiceAsset);
+            _container.Unbind<IMessageService>(_messageService);
+            _container.Unbind<IBinder>(_container);
         }
 
         private void LoadEntities()
         {
-            _container.Bind<ICurrency>(new Currency(), "game_currency");
+            _entityLoader.Inject(_container);
+            _entityLoader.CreateEntity<IGameContent, IGameContentData>("game_content");
         }
 
         private void UnloadEntities()
         {
             SaveEntities();
-            _container.Unbind(_container.Resolve<ICurrency>("game_currency"), "game_currency");
+            _entityLoader.DestroyEntity<IGameContent>("game_content");
         }
 
         private void SaveEntities()

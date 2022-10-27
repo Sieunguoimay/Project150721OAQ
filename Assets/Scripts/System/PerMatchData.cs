@@ -9,10 +9,10 @@ namespace System
         public PerMatchData(int playerNum)
         {
             PlayerScores = new Currency[playerNum];
-            for (var i = 0; i < PlayerScores.Length; i++)
-            {
-                PlayerScores[i] = new Currency();
-            }
+            // for (var i = 0; i < PlayerScores.Length; i++)
+            // {
+            //     PlayerScores[i] = new Currency(null);
+            // }
         }
 
         public void SetPlayerScore(int playerIndex, int score)

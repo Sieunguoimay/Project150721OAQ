@@ -14,29 +14,22 @@ namespace Gameplay.UI
     {
         [SerializeField] private TextMeshProUGUI text;
         private GameFlowManager _flowManager;
-        private IMessageHandler<ICurrencyChangeMessage, ICurrency> _currencyChangeHandler;
+        private IResolver _resolver;
 
         public void Inject(IResolver resolver)
         {
+            _resolver = resolver;
             _flowManager = resolver.Resolve<GameFlowManager>();
             OnStateChanged();
-            _currencyChangeHandler = new CurrencyChangeMessageHandler(this);
             var gameCurrency = resolver.Resolve<ICurrency>("game_currency");
-            resolver.Resolve<IMessageService>().Register(_currencyChangeHandler, gameCurrency);
+            resolver.Resolve<IMessageService>().Register<ICurrencyChangeMessage, ICurrency>(OnReceiveMessage, gameCurrency);
         }
 
-        private class CurrencyChangeMessageHandler : InnerClass<OnScreenUI>,
-            IMessageHandler<ICurrencyChangeMessage, ICurrency>
+        public void OnReceiveMessage(ICurrencyChangeMessage message)
         {
-            public CurrencyChangeMessageHandler(OnScreenUI context) : base(context)
-            {
-            }
-
-            public void OnReceiveMessage(ICurrencyChangeMessage message)
-            {
-                Context.text.text = message.Sender.Get().ToString(CultureInfo.InvariantCulture);
-            }
+            text.text = message.Sender.Get().ToString(CultureInfo.InvariantCulture);
         }
+
 
         private void OnStateChanged()
         {
@@ -49,5 +42,13 @@ namespace Gameplay.UI
         public void OnFirstTap() => _flowManager.StartGame();
         public void OnReplayButtonClicked() => _flowManager.OnReplayMatch();
         public void OnHomeButtonClicked() => _flowManager.OnResetGame();
+#if UNITY_EDITOR
+        [ContextMenu("Test")]
+        void Test()
+        {
+            var gameCurrency = _resolver.Resolve<ICurrency>("game_currency");
+            gameCurrency.Add(1);
+        }
+#endif
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System.Linq;
 using Common;
 using DG.Tweening;
+using Framework.Entities;
 using Framework.Resolver;
+using Framework.Services;
 using Gameplay;
 using Gameplay.BambooStick;
 using Gameplay.Board;
@@ -28,14 +30,14 @@ namespace System
 
         public void SelfBind(IBinder binder)
         {
-            binder.Bind(_gameFlowManager);
-            binder.Bind(_matchChooser);
+            binder.Bind<GameFlowManager>(_gameFlowManager);
+            binder.Bind<IMatchChooser>(_matchChooser);
         }
 
         public void SelfUnbind(IBinder binder)
         {
-            binder.Unbind(_gameFlowManager);
-            binder.Unbind(_matchChooser);
+            binder.Unbind<GameFlowManager>(_gameFlowManager);
+            binder.Unbind<IMatchChooser>(_matchChooser);
         }
 
         public void Inject(IResolver resolver)
@@ -48,6 +50,9 @@ namespace System
             _bambooFamily = resolver.Resolve<BambooFamilyManager>();
 
             RayPointer.Instance.SetCamera(resolver.Resolve<CameraManager>().Camera);
+
+            var matchProcessor = _resolver.Resolve<ICurrencyProcessor>("match_processor_1");
+            _resolver.Resolve<IMessageService>().Register<IMessage<ICurrencyProcessor>, ICurrencyProcessor>(MatchProcessorSuccess, matchProcessor);
         }
 
         private void OnEnable()
@@ -71,6 +76,11 @@ namespace System
         }
 
         private void OnMatchChooserResult()
+        {
+            _resolver.Resolve<ICurrencyProcessor>("match_processor_1").Process();
+        }
+
+        private void MatchProcessorSuccess(IMessage<ICurrencyProcessor> message)
         {
             GenerateMatch();
             StartGame();

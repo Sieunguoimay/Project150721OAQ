@@ -1,15 +1,21 @@
-﻿using Framework.Entities.Currency;
+﻿using Framework.Entities;
+using Framework.Entities.Currency;
 using Framework.Resolver;
 using Framework.Services;
 
 namespace Gameplay.Entities
 {
-    public class Currency : ICurrency
+    public sealed class Currency : Entity<ICurrencyData, ICurrencySavedData>, ICurrency
     {
         private double _amount;
         private IMessageService _messageService;
 
-        public void Inject(IResolver resolver)
+        public Currency(ICurrencyData data, ICurrencySavedData savedData) : base(data, savedData)
+        {
+            _amount = Data.InitialAmount;
+        }
+
+        public override void Inject(IResolver resolver)
         {
             _messageService = resolver.Resolve<IMessageService>();
         }
@@ -24,6 +30,11 @@ namespace Gameplay.Entities
             Set(_amount - amount);
         }
 
+        public bool CanRemove(double amount)
+        {
+            return amount <= _amount;
+        }
+
         public void Set(double amount)
         {
             var prevAmount = _amount;
@@ -36,9 +47,9 @@ namespace Gameplay.Entities
             return _amount;
         }
 
-        protected virtual void DispatchMessage(double prevAmount)
+        private void DispatchMessage(double prevAmount)
         {
-            _messageService.Dispatch<ICurrencyChangeMessage,ICurrency>(new CurrencyChangeMessage(this, prevAmount));
+            _messageService.Dispatch<ICurrencyChangeMessage, ICurrency>(new CurrencyChangeMessage(this, prevAmount), this);
         }
     }
 
@@ -47,14 +58,13 @@ namespace Gameplay.Entities
         double PrevAmount { get; }
     }
 
-    public class CurrencyChangeMessage : ICurrencyChangeMessage
+    public class CurrencyChangeMessage : AMessage<ICurrency>, ICurrencyChangeMessage
     {
-        public CurrencyChangeMessage(ICurrency currency, double prevAmount)
+        public CurrencyChangeMessage(ICurrency currency, double prevAmount) : base(currency)
         {
-            Sender = currency;
             PrevAmount = prevAmount;
         }
+
         public double PrevAmount { get; }
-        public ICurrency Sender { get; }
     }
 }

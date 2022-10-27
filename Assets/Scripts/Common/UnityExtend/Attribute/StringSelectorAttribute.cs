@@ -18,7 +18,7 @@ namespace Common.UnityExtend.Attribute
 #if UNITY_EDITOR
 
     [CustomPropertyDrawer(typeof(StringSelectorAttribute))]
-    public class ObjectSelectorDrawer : PropertyDrawer
+    public class StringSelectorDrawer : PropertyDrawer
     {
         private GenericMenu _menu;
 
@@ -38,7 +38,7 @@ namespace Common.UnityExtend.Attribute
             {
                 _menu = new GenericMenu();
 
-                var ids = ReflectionUtility.GetSiblingProperty(property, objectSelector.ProviderPropertyName) as string[];
+                var ids = GetIds(property, objectSelector);
 
                 if (ids == null) return;
 
@@ -53,6 +53,11 @@ namespace Common.UnityExtend.Attribute
             }
 
             _menu.ShowAsContext();
+        }
+
+        protected virtual string[] GetIds(SerializedProperty property, StringSelectorAttribute objectSelector)
+        {
+            return ReflectionUtility.GetSiblingProperty(property, objectSelector.ProviderPropertyName) as string[];
         }
     }
 #endif

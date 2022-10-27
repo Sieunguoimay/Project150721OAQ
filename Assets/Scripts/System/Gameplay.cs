@@ -62,10 +62,10 @@ namespace System
             IsPlaying = true;
             ChangePlayer();
             _perMatchData = new PerMatchData(_playersManager.Players.Length);
-            foreach (var score in _perMatchData.PlayerScores)
-            {
-                score.Inject(_resolver);
-            }
+            // foreach (var score in _perMatchData.PlayerScores)
+            // {
+            //     score.Inject(_resolver);
+            // }
 
             _pieceManager.ReleasePieces(() =>
             {

@@ -9,7 +9,7 @@ namespace Framework.Services
     {
         private readonly Dictionary<Type, List<MessageTarget>> _dictionary = new();
 
-        public void Dispatch<TMessage, TSender>(TMessage message, TSender sender = default)
+        public void Dispatch<TMessage, TSender>(TMessage message, TSender sender)
             where TMessage : IMessage<TSender>
         {
             var messageType = typeof(TMessage);
@@ -20,13 +20,13 @@ namespace Framework.Services
                 {
                     if (list[i].Sender == null || list[i].Sender.Equals(sender))
                     {
-                        (list[i].Handler as IMessageHandler<TMessage, TSender>)?.OnReceiveMessage(message);
+                        (list[i].Handler as Action<TMessage>)?.Invoke(message);
                     }
                 }
             }
         }
 
-        public void Register<TMessage,TSender>(IMessageHandler<TMessage,TSender> messageHandler, TSender sender = default)
+        public void Register<TMessage, TSender>(Action<TMessage> messageHandler, TSender sender = default)
             where TMessage : IMessage<TSender>
         {
             var messageType = typeof(TMessage);
@@ -37,7 +37,7 @@ namespace Framework.Services
                 return;
             }
 
-            if (_dictionary[messageType].Any(t => t.Handler == messageHandler && t.Sender == (object) sender))
+            if (_dictionary[messageType].Any(t => t.Handler == (Delegate) messageHandler && t.Sender == (object) sender))
             {
                 Debug.LogError($"The handler {messageHandler} is already registered!");
                 return;
@@ -46,7 +46,7 @@ namespace Framework.Services
             _dictionary[messageType].Add(new MessageTarget {Handler = messageHandler, Sender = sender});
         }
 
-        public void Unregister<TMessage,TSender>(IMessageHandler<TMessage,TSender> messageHandler, TSender sender = default)
+        public void Unregister<TMessage, TSender>(Action<TMessage> messageHandler, TSender sender = default)
             where TMessage : IMessage<TSender>
         {
             var messageType = typeof(TMessage);
@@ -57,7 +57,7 @@ namespace Framework.Services
                 return;
             }
 
-            var item = _dictionary[messageType].FirstOrDefault(t => t.Handler == messageHandler && t.Sender == (object) sender);
+            var item = _dictionary[messageType].FirstOrDefault(t => t.Handler == (Delegate) messageHandler && t.Sender == (object) sender);
             if (item == null)
             {
                 Debug.LogError($"Handler {messageHandler} has not been registered");
@@ -70,7 +70,17 @@ namespace Framework.Services
         private class MessageTarget
         {
             public object Sender;
-            public object Handler;
+            public Delegate Handler;
         }
+    }
+
+    public abstract class AMessage<TSender> : IMessage<TSender>
+    {
+        protected AMessage(TSender sender)
+        {
+            Sender = sender;
+        }
+
+        public TSender Sender { get; }
     }
 }

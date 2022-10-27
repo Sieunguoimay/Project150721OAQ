@@ -2,11 +2,22 @@
 
 namespace Framework.Entities.Currency
 {
-    public interface ICurrency : IInjectable
+    public interface ICurrency : IEntity<ICurrencyData, ICurrencySavedData>
     {
         void Add(double amount);
         void Remove(double amount);
+        bool CanRemove(double amount);
         void Set(double amount);
         double Get();
+    }
+
+    public interface ICurrencyData : IEntityData
+    {
+        //Saved data
+        double InitialAmount { get; }
+    }
+
+    public interface ICurrencySavedData : IEntitySavedData
+    {
     }
 }
