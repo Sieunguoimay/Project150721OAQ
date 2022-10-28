@@ -46,20 +46,20 @@ namespace Framework.Resolver
         }
 
 
-        public void Unbind<TType>(object target)
+        public void Unbind<TType>()
         {
             var type = typeof(TType);
-            var found = _boundObjects.TryGetValue(type, out var t) && t == target;
+            var found = _boundObjects.ContainsKey(type);
             if (!found && !_boundObjects.Remove(type))
             {
                 Debug.LogError($"Type {type.FullName} does not exist.");
             }
         }
 
-        public void Unbind<TType>(object target, string id)
+        public void Unbind<TType>(string id)
         {
             var type = typeof(TType);
-            var found = _boundObjectsWithId.TryGetValue(new KeyWithId(type, id), out var t) && t == target;
+            var found = _boundObjectsWithId.ContainsKey(new KeyWithId(type, id));
             if (!found && !_boundObjectsWithId.Remove(new KeyWithId(type, id)))
             {
                 Debug.LogError($"Key {type.FullName} - {id} does not exist.");

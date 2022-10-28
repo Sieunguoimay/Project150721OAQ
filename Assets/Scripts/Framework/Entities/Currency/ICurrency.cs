@@ -13,11 +13,11 @@ namespace Framework.Entities.Currency
 
     public interface ICurrencyData : IEntityData
     {
-        //Saved data
-        double InitialAmount { get; }
     }
 
     public interface ICurrencySavedData : IEntitySavedData
     {
+        double Get();
+        void Set(double amount);
     }
 }

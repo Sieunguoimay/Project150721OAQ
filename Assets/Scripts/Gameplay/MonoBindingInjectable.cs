@@ -12,7 +12,7 @@ namespace Gameplay
 
         public void SelfUnbind(IBinder binder)
         {
-            binder.Unbind<TInjectable>(this);
+            binder.Unbind<TInjectable>();
         }
 
         public virtual void Inject(IResolver resolver)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Framework.Entities;
 using Framework.Resolver;
 using Framework.Services;
@@ -15,12 +16,19 @@ namespace Framework
     public class MonoInstaller : MonoBehaviour, IInstaller
     {
         [SerializeField] private LocalDataServiceAsset dataServiceAsset;
+        [SerializeField] private string saveFolder = "SavedData";
+        
+        #if UNITY_EDITOR
+        public string ProjectPath => Path.GetDirectoryName(Application.dataPath);
+        public string SavedDataPath => Path.Combine(ProjectPath, saveFolder);
+        #else
+        #endif
+        
         public static IInstaller Instance { get; private set; }
 
         private readonly IContainer _container = new Container();
 
         //Services
-        private readonly IMessageService _messageService = new MessageService();
 
         private readonly IEntityLoader _entityLoader = new EntityLoader();
 
@@ -57,17 +65,19 @@ namespace Framework
         private void BindServices()
         {
             _container.Bind<IBinder>(_container);
-            _container.Bind<IMessageService>(_messageService);
+            _container.Bind<IMessageService>(new MessageService());
             _container.Bind<IDataService>(dataServiceAsset);
+            _container.Bind<ISavedDataService>(new SavedDataService(SavedDataPath));
             _container.Bind<IEntityLoader>(_entityLoader);
         }
 
         private void UnbindServices()
         {
-            _container.Unbind<IEntityLoader>(dataServiceAsset);
-            _container.Unbind<IDataService>(dataServiceAsset);
-            _container.Unbind<IMessageService>(_messageService);
-            _container.Unbind<IBinder>(_container);
+            _container.Unbind<IEntityLoader>();
+            _container.Unbind<ISavedDataService>();
+            _container.Unbind<IDataService>();
+            _container.Unbind<IMessageService>();
+            _container.Unbind<IBinder>();
         }
 
         private void LoadEntities()
@@ -84,7 +94,7 @@ namespace Framework
 
         private void SaveEntities()
         {
-            // _container.Resolve<ICurrency>("game_currency").SavedData
+            _container.Resolve<ISavedDataService>().WriteToStorage();
         }
 
         public IResolver Resolver => _container;

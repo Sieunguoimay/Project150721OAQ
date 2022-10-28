@@ -1,13 +1,9 @@
-﻿using System.Linq;
-using Common;
-using DG.Tweening;
-using Framework.Entities;
+﻿using Framework.Entities;
 using Framework.Resolver;
 using Framework.Services;
 using Gameplay;
 using Gameplay.BambooStick;
 using Gameplay.Board;
-using Gameplay.Board.BoardDrawing;
 using Gameplay.GameInteract;
 using Gameplay.Piece;
 using SNM;
@@ -17,6 +13,9 @@ namespace System
 {
     public class GameManager : MonoBehaviour, IInjectable, IBinding
     {
+        [SerializeField, IdSelector(typeof(ICurrencyProcessorData))]
+        private string matchProcessorId;
+        
         private readonly Gameplay _gameplay = new();
         private readonly IMatchChooser _matchChooser = new MatchChooser();
         private readonly GameFlowManager _gameFlowManager = new();
@@ -36,8 +35,8 @@ namespace System
 
         public void SelfUnbind(IBinder binder)
         {
-            binder.Unbind<GameFlowManager>(_gameFlowManager);
-            binder.Unbind<IMatchChooser>(_matchChooser);
+            binder.Unbind<GameFlowManager>();
+            binder.Unbind<IMatchChooser>();
         }
 
         public void Inject(IResolver resolver)
@@ -51,7 +50,7 @@ namespace System
 
             RayPointer.Instance.SetCamera(resolver.Resolve<CameraManager>().Camera);
 
-            var matchProcessor = _resolver.Resolve<ICurrencyProcessor>("match_processor_1");
+            var matchProcessor = _resolver.Resolve<ICurrencyProcessor>(matchProcessorId);
             _resolver.Resolve<IMessageService>().Register<IMessage<ICurrencyProcessor>, ICurrencyProcessor>(MatchProcessorSuccess, matchProcessor);
         }
 
@@ -77,7 +76,7 @@ namespace System
 
         private void OnMatchChooserResult()
         {
-            _resolver.Resolve<ICurrencyProcessor>("match_processor_1").Process();
+            _resolver.Resolve<ICurrencyProcessor>(matchProcessorId).Process();
         }
 
         private void MatchProcessorSuccess(IMessage<ICurrencyProcessor> message)

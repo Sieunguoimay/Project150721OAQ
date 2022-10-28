@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 namespace Gameplay.Entities
 {
     [CreateAssetMenu]
-    public class GameContentAsset : EntityAsset, IGameContentData
+    public class GameContentData : EntityAsset, IGameContentData
     {
         [field: SerializeField, IdSelector(typeof(ICurrencyData))]
         public string[] CurrencyIds { get; private set; }

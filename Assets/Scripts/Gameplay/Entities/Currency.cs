@@ -5,52 +5,43 @@ using Framework.Services;
 
 namespace Gameplay.Entities
 {
-    public sealed class Currency : Entity<ICurrencyData, ICurrencySavedData>, ICurrency
+    public sealed class Currency : BaseEntity<ICurrencyData, ICurrencySavedData>, ICurrency
     {
-        private double _amount;
         private IMessageService _messageService;
 
         public Currency(ICurrencyData data, ICurrencySavedData savedData) : base(data, savedData)
         {
-            _amount = Data.InitialAmount;
         }
 
         public override void Inject(IResolver resolver)
         {
+            base.Inject(resolver);
             _messageService = resolver.Resolve<IMessageService>();
         }
 
         public void Add(double amount)
         {
-            Set(_amount + amount);
+            Set(SavedData.Get() + amount);
         }
 
         public void Remove(double amount)
         {
-            Set(_amount - amount);
+            Set(SavedData.Get() - amount);
         }
 
         public bool CanRemove(double amount)
         {
-            return amount <= _amount;
+            return amount <= SavedData.Get();
         }
 
         public void Set(double amount)
         {
-            var prevAmount = _amount;
-            _amount = amount;
-            DispatchMessage(prevAmount);
-        }
-
-        public double Get()
-        {
-            return _amount;
-        }
-
-        private void DispatchMessage(double prevAmount)
-        {
+            var prevAmount = SavedData.Get();
+            SavedData.Set(amount);
             _messageService.Dispatch<ICurrencyChangeMessage, ICurrency>(new CurrencyChangeMessage(this, prevAmount), this);
         }
+
+        public double Get() => SavedData.Get();
     }
 
     public interface ICurrencyChangeMessage : IMessage<ICurrency>

@@ -1,11 +1,10 @@
 ﻿using Framework.Entities;
 using Framework.Entities.Currency;
 using Framework.Resolver;
-using Framework.Services;
 
 namespace Gameplay.Entities
 {
-    public class GameContent : Entity<IGameContentData, IGameContentSavedData>, IGameContent
+    public class GameContent : BaseEntity<IGameContentData, IGameContentSavedData>, IGameContent
     {
         private IEntityLoader _entityLoader;
 
@@ -15,6 +14,7 @@ namespace Gameplay.Entities
 
         public override void Inject(IResolver resolver)
         {
+            base.Inject(resolver);
             _entityLoader = resolver.Resolve<IEntityLoader>();
 
             foreach (var currencyId in Data.CurrencyIds)

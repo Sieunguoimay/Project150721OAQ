@@ -6,7 +6,7 @@ using Framework.Services;
 
 namespace Gameplay.Entities
 {
-    public class CurrencyProcessor : Entity<ICurrencyProcessorData, ICurrencyProcessorSavedData>, ICurrencyProcessor
+    public class CurrencyProcessor : BaseEntity<ICurrencyProcessorData, ICurrencyProcessorSavedData>, ICurrencyProcessor
     {
         private ICurrency[] _inputCurrencies;
         private ICurrency[] _outputCurrencies;
@@ -18,6 +18,7 @@ namespace Gameplay.Entities
 
         public override void Inject(IResolver resolver)
         {
+            base.Inject(resolver);
             _inputCurrencies = new ICurrency[Data.Inputs.Length];
             _outputCurrencies = new ICurrency[Data.Outputs.Length];
 

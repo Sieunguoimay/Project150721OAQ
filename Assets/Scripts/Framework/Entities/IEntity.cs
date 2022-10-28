@@ -1,4 +1,7 @@
-﻿using Framework.Resolver;
+﻿using System;
+using Framework.Resolver;
+using Framework.Services;
+using UnityEngine;
 
 namespace Framework.Entities
 {
@@ -19,6 +22,7 @@ namespace Framework.Entities
 
     public interface IEntitySavedData
     {
+        void Load(ISavedDataService savedDataService);
         void Save();
     }
 
@@ -33,21 +37,47 @@ namespace Framework.Entities
 
         public IEntity<IEntityData, IEntitySavedData> CreateEntity()
         {
-            return new Entity<IEntityData, IEntitySavedData>(this, null);
+            return new BaseEntity<IEntityData, IEntitySavedData>(this, null);
         }
     }
 
-    public class EntitySavedData : IEntitySavedData
+    [Serializable]
+    public abstract class BaseEntitySavedData : IEntitySavedData
     {
+        [SerializeField] private string id;
+        [NonSerialized] private ISavedDataService _savedDataService;
+
+        protected BaseEntitySavedData(string id)
+        {
+            this.id = id;
+        }
+
+        public void Load(ISavedDataService savedDataService)
+        {
+            _savedDataService = savedDataService;
+            _savedDataService.Load(id, this);
+            // var json = "{\"amount\":30.0}";
+            // JsonUtility.FromJsonOverwrite(json, this);
+        }
+
         public void Save()
         {
-            
+            if (_savedDataService == null)
+            {
+                Debug.LogError($"SavedData {id} not Loaded");
+                return;
+            }
+
+            _savedDataService.MarkDirty(id, this);
+            // var json = JsonUtility.ToJson(this);
+            // Debug.Log(json);
         }
     }
 
-    public class Entity<TData, TSavedData> : IEntity<TData, TSavedData> where TData : IEntityData where TSavedData : IEntitySavedData
+    public class BaseEntity<TData, TSavedData> : IEntity<TData, TSavedData> where TData : IEntityData where TSavedData : IEntitySavedData
     {
-        public Entity(TData data, TSavedData savedData)
+        private ISavedDataService _savedDataService;
+        public BaseEntity(TData data, TSavedData savedData)
         {
             Data = data;
             SavedData = savedData;
@@ -55,6 +85,7 @@ namespace Framework.Entities
 
         public virtual void Inject(IResolver resolver)
         {
+            _savedDataService = resolver.Resolve<ISavedDataService>();
         }
 
         public TData Data { get; }
@@ -62,6 +93,7 @@ namespace Framework.Entities
 
         public virtual void Initialize()
         {
+            SavedData?.Load(_savedDataService);
         }
 
         public virtual void Terminate()

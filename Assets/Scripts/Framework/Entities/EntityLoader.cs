@@ -5,7 +5,7 @@ namespace Framework.Entities
 {
     public interface IEntityLoader : IInjectable
     {
-        IEntity<IEntityData, IEntitySavedData> CreateEntity<TEntity, TEntityData>(string entityDataId) where TEntityData : IEntityData where TEntity : IEntity<IEntityData, IEntitySavedData>;
+        void CreateEntity<TEntity, TEntityData>(string entityDataId) where TEntityData : IEntityData where TEntity : IEntity<IEntityData, IEntitySavedData>;
         void DestroyEntity<TEntity>(string entityDataId) where TEntity : IEntity<IEntityData, IEntitySavedData>;
     }
 
@@ -23,17 +23,14 @@ namespace Framework.Entities
             _binder = resolver.Resolve<IBinder>();
         }
 
-        public IEntity<IEntityData, IEntitySavedData> CreateEntity<TEntity, TEntityData>(string entityDataId) where TEntityData : IEntityData where TEntity : IEntity<IEntityData, IEntitySavedData>
+        public void CreateEntity<TEntity, TEntityData>(string entityDataId) where TEntityData : IEntityData where TEntity : IEntity<IEntityData, IEntitySavedData>
         {
-            var entityData = _dataService.Load<TEntityData>(entityDataId);
-            var entity = entityData.CreateEntity();
+            var entity = _dataService.Load<TEntityData>(entityDataId).CreateEntity();
 
             _binder.Bind<TEntity>(entity, entityDataId);
 
             entity.Inject(_resolver);
             entity.Initialize();
-
-            return entity;
         }
 
         public void DestroyEntity<TEntity>(string entityDataId) where TEntity : IEntity<IEntityData, IEntitySavedData>
@@ -42,7 +39,7 @@ namespace Framework.Entities
 
             entity.Terminate();
 
-            _binder.Unbind<TEntity>(entity, entityDataId);
+            _binder.Unbind<TEntity>(entityDataId);
         }
     }
 }
