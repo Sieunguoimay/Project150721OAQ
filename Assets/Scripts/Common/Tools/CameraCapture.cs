@@ -20,7 +20,9 @@ namespace Common.Tools
             //
             // Debug.Log(path);
 
-            ScreenCapture.CaptureScreenshot($"C:\\Users\\Admin\\Pictures\\Screenshot_{DateTime.Now:yyyyMMdd_Hmmss}.png");
+            ScreenCapture.CaptureScreenshot(Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
+                $"Screenshot_{DateTime.Now:yyyyMMdd_Hmmss}.png"));
         }
     }
 }
