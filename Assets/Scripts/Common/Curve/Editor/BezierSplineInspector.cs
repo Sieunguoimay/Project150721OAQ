@@ -1,12 +1,10 @@
-﻿using System;
-using Common.Curve;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace Curve
+namespace Common.Curve.Editor
 {
     [CustomEditor(typeof(BezierSplineCreator))]
-    public class BezierSplineInspector : Editor
+    public class BezierSplineInspector : UnityEditor.Editor
     {
         private BezierSplineCreator _spline;
         private Transform _handleTransform;
@@ -79,7 +77,7 @@ namespace Curve
         {
             _spline = target as BezierSplineCreator;
             _handleTransform = _spline.transform;
-            _handleRotation = Tools.pivotRotation == PivotRotation.Local
+            _handleRotation = UnityEditor.Tools.pivotRotation == PivotRotation.Local
                 ? _handleTransform.rotation
                 : Quaternion.identity;
 

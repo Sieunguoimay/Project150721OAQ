@@ -1,19 +1,23 @@
 ﻿using System;
 using System.Linq;
+using Common.DecisionMaking.Actions;
+using Common.UnityExtend.Attribute;
 using UnityEngine;
 
 namespace Common.DecisionMaking
 {
     public class StateMachineCreator : MonoBehaviour
     {
-        [SerializeField] private StateConfig[] stateConfigs;
+        [SerializeField] private int defaultStateIndex = 0;
 
         private readonly StateMachine _stateMachine = new();
 
         private StateTransition[] _stateTransitions;
+        private ActionState[] _states;
 
         private void Start()
         {
+            _states = GetComponentsInChildren<ActionState>();
             _stateTransitions = GetComponentsInChildren<StateTransition>();
             CreateFromScript();
             SetupTransitions();
@@ -21,30 +25,20 @@ namespace Common.DecisionMaking
 
         public void CreateFromScript()
         {
-            var states = new IState[stateConfigs.Length];
-            var defaultStateIndex = stateConfigs.Select((s, index) => (s, index)).FirstOrDefault(t => t.s.isDefault).index;
-            _stateMachine.SetStates(states, defaultStateIndex);
+            _stateMachine.SetStates(_states.Select(s => s as IState).ToArray(), defaultStateIndex);
         }
 
         private void SetupTransitions()
         {
             foreach (var tr in _stateTransitions)
             {
-                var index = GetIndex(tr.TargetState);
-                tr.Setup(_stateMachine, index);
+                tr.Setup(_stateMachine, GetIndex(tr.TargetState));
             }
         }
 
         private int GetIndex(string stateName)
         {
-            return stateConfigs.Select((s, i) => (s, i)).FirstOrDefault(t => t.s.stateName.Equals(stateName)).i;
-        }
-
-        [Serializable]
-        public class StateConfig
-        {
-            public string stateName;
-            public bool isDefault;
+            return _states.Select((s, i) => (s, i)).FirstOrDefault(t => t.s.StateName.Equals(stateName)).i;
         }
     }
 }

@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using Gameplay.Piece.Activities;
+using UnityEngine;
 
-namespace Common.DecisionMaking
+namespace Common.DecisionMaking.Actions
 {
-    public class StateTransition : MonoBehaviour
+    public class StateTransition : MonoActivity
     {
         [field: SerializeField] public string TargetState { get; private set; }
         private StateMachine _stateMachine;
@@ -17,6 +18,11 @@ namespace Common.DecisionMaking
         public void Transition()
         {
             _stateMachine.ChangeState(_index);
+        }
+
+        public override Activity CreateActivity()
+        {
+            return new ActivityCallback(Transition);
         }
     }
 }
