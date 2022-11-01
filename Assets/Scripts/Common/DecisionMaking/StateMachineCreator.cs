@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Common.DecisionMaking.Actions;
 using Common.UnityExtend.Attribute;
@@ -15,9 +16,10 @@ namespace Common.DecisionMaking
         private StateTransition[] _stateTransitions;
         private ActionState[] _states;
 
+        public IEnumerable<ActionState> States => _states ??= GetComponentsInChildren<ActionState>();
+
         private void Start()
         {
-            _states = GetComponentsInChildren<ActionState>();
             _stateTransitions = GetComponentsInChildren<StateTransition>();
             CreateFromScript();
             SetupTransitions();
@@ -25,7 +27,7 @@ namespace Common.DecisionMaking
 
         public void CreateFromScript()
         {
-            _stateMachine.SetStates(_states.Select(s => s as IState).ToArray(), defaultStateIndex);
+            _stateMachine.SetStates(States.Select(s => s as IState).ToArray(), defaultStateIndex);
         }
 
         private void SetupTransitions()
@@ -38,7 +40,7 @@ namespace Common.DecisionMaking
 
         private int GetIndex(string stateName)
         {
-            return _states.Select((s, i) => (s, i)).FirstOrDefault(t => t.s.StateName.Equals(stateName)).i;
+            return States.Select((s, i) => (s, i)).FirstOrDefault(t => t.s.StateName.Equals(stateName)).i;
         }
     }
 }

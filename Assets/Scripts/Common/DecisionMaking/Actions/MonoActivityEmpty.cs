@@ -6,11 +6,12 @@
 
         public void End()
         {
-            _activity.NotifyDone();
+            _activity.MarkAsDone();
         }
 
         public override Activity CreateActivity()
         {
+            _activity.MarkAsDone();
             return _activity;
         }
     }

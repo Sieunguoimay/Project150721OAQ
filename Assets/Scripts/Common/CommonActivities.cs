@@ -24,7 +24,7 @@ namespace Common
             Time += deltaTime;
             if (Time >= Duration)
             {
-                NotifyDone();
+                MarkAsDone();
             }
         }
     }
@@ -49,12 +49,14 @@ namespace Common
         public override void Update(float deltaTime)
         {
             Time += deltaTime;
-
-            _onTick?.Invoke(_progress ? Mathf.Min(1f, Time / Duration) : Mathf.Min(Time, Duration));
-
             if (Time >= Duration)
             {
-                NotifyDone();
+                _onTick?.Invoke(_progress ? 1f : Duration);
+                MarkAsDone();
+            }
+            else
+            {
+                _onTick?.Invoke(_progress ? Mathf.Min(1f, Time / Duration) : Mathf.Min(Time, Duration));
             }
         }
     }
@@ -81,7 +83,7 @@ namespace Common
             base.Update(deltaTime);
             if (!Inactive && (_onUpdate?.Invoke() ?? false))
             {
-                NotifyDone();
+                MarkAsDone();
             }
         }
     }

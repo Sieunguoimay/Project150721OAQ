@@ -16,8 +16,8 @@ namespace Gameplay.Piece
         {
             foreach (var p in Pieces)
             {
-                p.ActivityQueue.NotifyDone();
-                p.ActivityQueue.Clear();
+                p.ActivityQueue.MarkAsDone();
+                p.ActivityQueue.End();
             }
         }
 

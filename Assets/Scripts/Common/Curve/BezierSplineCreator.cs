@@ -13,7 +13,16 @@ namespace Common.Curve
         public abstract BezierSplineModifiable SplineModifiable { get; }
     }
 
-    public class BezierSplineCreator : BezierSplineModifiableMono
+    public interface ISplineCreator
+    {
+        BezierSplineModifiable SplineModifiable { get; }
+        Transform Transform { get; }
+        UnityEngine.Object SerializeObject { get; }
+        void SetClosed(bool close);
+        void AddSegment();
+    }
+
+    public class BezierSplineCreator : BezierSplineModifiableMono, ISplineCreator
     {
         [SerializeField] private Vector3[] controlPoints;
         [SerializeField] private BezierPointMode[] modes;
@@ -36,8 +45,8 @@ namespace Common.Curve
 
         private void OnValidate()
         {
-            _splineModifiable = new BezierSplineModifiable(modes, closed);
-            SplineModifiable.SetControlPoints(controlPoints);
+            _splineModifiable = new BezierSplineModifiable(closed);
+            SplineModifiable.SetModesAndControlPoints(modes, controlPoints);
         }
 
 #if UNITY_EDITOR
@@ -52,29 +61,33 @@ namespace Common.Curve
                 new Vector3(4f, 0f, 0f),
             };
             modes = new[] {BezierPointMode.Free, BezierPointMode.Free};
-            _splineModifiable = new BezierSplineModifiable(modes, closed);
-            SplineModifiable.SetControlPoints(controlPoints);
+            _splineModifiable = new BezierSplineModifiable(closed);
+            SplineModifiable.SetModesAndControlPoints(modes, controlPoints);
+        }
+
+#endif
+
+        public override BezierSpline Spline => SplineModifiable;
+        public Transform Transform => transform;
+        public Object SerializeObject => this;
+
+        public void SetClosed(bool close)
+        {
+            SplineModifiable.SetClosed(close);
+            closed = close;
         }
 
         public void AddSegment()
         {
-            SplineModifiable.AddSegment(1);
+            SplineModifiable.AddSegment(1, BezierPointMode.Free);
             SaveToSerializedField();
-        }
-#endif
-        private void SaveToSerializedField()
-        {
-            controlPoints = SplineModifiable.ControlPoints.ToArray();
-            modes = SplineModifiable.Modes.ToArray();
-            closed = SplineModifiable.Closed;
-        }
 
-        public override BezierSpline Spline => SplineModifiable;
-
-        public void SetClosed(bool close)
-        {
-            closed = close;
-            SplineModifiable.SetClosed(close);
+            void SaveToSerializedField()
+            {
+                controlPoints = SplineModifiable.ControlPoints.ToArray();
+                modes = SplineModifiable.Modes.ToArray();
+                closed = SplineModifiable.Closed;
+            }
         }
     }
 }

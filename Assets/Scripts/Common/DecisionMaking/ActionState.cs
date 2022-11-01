@@ -17,12 +17,12 @@ namespace Common.DecisionMaking
         public void Enter()
         {
             Entered?.Invoke();
+            _activityQueue.End();
             foreach (var a in monoActivities)
             {
                 _activityQueue.Add(a.CreateActivity());
             }
             _activityQueue.Begin();
-            Debug.Log(StateName);
         }
 
         private void Update()
@@ -33,7 +33,7 @@ namespace Common.DecisionMaking
         public void Exit()
         {
             Exited?.Invoke();
-            _activityQueue.Clear();
+            _activityQueue.End();
         }
 
 #if UNITY_EDITOR

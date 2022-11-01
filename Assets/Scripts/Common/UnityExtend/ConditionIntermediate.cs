@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Common.UnityExtend.Attribute;
 using UnityEngine;
@@ -97,9 +98,9 @@ namespace Common.UnityExtend
             [ShowIf(nameof(dataSource), FieldDataSourceType.Bool), SerializeField]
             private bool boolValue;
 
-            public string[] ObjectFields
+            public IEnumerable<string> ObjectFields
             {
-                get { return sourceObject.GetType().GetProperties().Select(p => p.Name).ToArray(); }
+                get { return sourceObject.GetType().GetProperties().Select(p => p.Name); }
             }
 
             public object GetValue()

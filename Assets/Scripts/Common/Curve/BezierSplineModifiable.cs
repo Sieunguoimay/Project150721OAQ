@@ -11,9 +11,8 @@ namespace Common.Curve
         public bool Closed { get; private set; }
         public IReadOnlyList<BezierPointMode> Modes => _modes;
 
-        public BezierSplineModifiable(BezierPointMode[] modes, bool closed)
+        public BezierSplineModifiable(bool closed)
         {
-            _modes = modes;
             Closed = closed;
         }
 
@@ -27,7 +26,13 @@ namespace Common.Curve
             }
         }
 
-        public void AddSegment(int segmentNum)
+        public void SetModesAndControlPoints(BezierPointMode[] modes, Vector3[] controlPoints)
+        {
+            _modes = modes;
+            SetControlPoints(controlPoints);
+        }
+
+        public void AddSegment(int segmentNum, BezierPointMode initialMode)
         {
             var controlPoints = ProtectedControlPoints;
             if (controlPoints.Length < 4)
@@ -39,7 +44,7 @@ namespace Common.Curve
                     new Vector3(3f, 0f, 0f),
                     new Vector3(4f, 0f, 0f),
                 };
-                _modes = new[] {BezierPointMode.Free, BezierPointMode.Free};
+                _modes = new[] {initialMode, initialMode};
                 segmentNum--;
             }
 

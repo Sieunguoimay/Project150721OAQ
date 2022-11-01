@@ -21,7 +21,7 @@ namespace Common
         {
         }
 
-        public void NotifyDone()
+        public void MarkAsDone()
         {
             Inactive = true;
         }
@@ -60,7 +60,7 @@ namespace Common
 
             if (_activities.Count == 0)
             {
-                NotifyDone();
+                MarkAsDone();
             }
         }
 
@@ -88,8 +88,6 @@ namespace Common
     {
         IEnumerable<Activity> Activities { get; }
         void Add(Activity activity);
-        void Clear();
-        void Begin();
     }
 
     public class ActivityQueue : Activity, IActivityQueue
@@ -105,11 +103,6 @@ namespace Common
             {
                 _activities.Enqueue(anim);
             }
-        }
-
-        public void Clear()
-        {
-            _activities.Clear();
         }
 
         public override void Update(float deltaTime)
@@ -139,7 +132,7 @@ namespace Common
                 else
                 {
                     _currentActivity = null;
-                    NotifyDone();
+                    MarkAsDone();
                 }
             }
             else
@@ -152,9 +145,9 @@ namespace Common
         {
             base.End();
 
-            foreach (var a in _activities.Where(a => !a.Inactive))
+            foreach (var a in _activities)
             {
-                a.NotifyDone();
+                a.MarkAsDone();
                 a.End();
             }
 

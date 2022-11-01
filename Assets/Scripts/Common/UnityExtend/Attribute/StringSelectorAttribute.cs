@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -55,9 +56,9 @@ namespace Common.UnityExtend.Attribute
             _menu.ShowAsContext();
         }
 
-        protected virtual string[] GetIds(SerializedProperty property, StringSelectorAttribute objectSelector)
+        protected virtual IEnumerable<string> GetIds(SerializedProperty property, StringSelectorAttribute objectSelector)
         {
-            return ReflectionUtility.GetSiblingProperty(property, objectSelector.ProviderPropertyName) as string[];
+            return ReflectionUtility.GetSiblingProperty(property, objectSelector.ProviderPropertyName) as IEnumerable<string>;
         }
     }
 #endif

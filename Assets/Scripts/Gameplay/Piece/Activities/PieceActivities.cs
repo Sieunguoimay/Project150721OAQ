@@ -66,7 +66,7 @@ namespace Gameplay.Piece.Activities
 
             if (_time >= Duration)
             {
-                NotifyDone();
+                MarkAsDone();
             }
         }
 
@@ -300,7 +300,7 @@ namespace Gameplay.Piece.Activities
             var euler = Quaternion.LookRotation(_targetPos - _transform.position).eulerAngles;
             var targetEuler = _transform.eulerAngles;
             targetEuler.y = euler.y;
-            _transform.transform.DORotate(targetEuler, _duration).SetLink(_transform.gameObject).OnComplete(NotifyDone);
+            _transform.transform.DORotate(targetEuler, _duration).SetLink(_transform.gameObject).OnComplete(MarkAsDone);
         }
     }
 
@@ -317,7 +317,7 @@ namespace Gameplay.Piece.Activities
         {
             base.Begin();
             _callback?.Invoke();
-            NotifyDone();
+            MarkAsDone();
         }
     }
 
@@ -427,7 +427,7 @@ namespace Gameplay.Piece.Activities
 
             if (info.normalizedTime >= 1f)
             {
-                NotifyDone();
+                MarkAsDone();
             }
         }
     }

@@ -218,7 +218,7 @@ namespace Common.DrawLine
 
                 if (_distance >= _totalLength)
                 {
-                    NotifyDone();
+                    MarkAsDone();
                 }
             }
         }

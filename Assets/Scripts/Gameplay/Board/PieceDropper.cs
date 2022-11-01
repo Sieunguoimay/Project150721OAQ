@@ -132,7 +132,7 @@ namespace Gameplay.Board
             {
                 base.Begin();
                 _callback?.Invoke(_tile);
-                NotifyDone();
+                MarkAsDone();
             }
         }
     }

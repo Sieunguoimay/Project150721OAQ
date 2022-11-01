@@ -1,7 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 using Common.UnityExtend.Attribute;
 using UnityEditor;
-using UnityEngine;
 
 namespace Framework.Services.Editor
 {
@@ -10,9 +9,9 @@ namespace Framework.Services.Editor
     [CustomPropertyDrawer(typeof(IdSelectorAttribute))]
     public class IdSelectorDrawer : StringSelectorDrawer
     {
-        protected override string[] GetIds(SerializedProperty property, StringSelectorAttribute objectSelector)
+        protected override IEnumerable<string> GetIds(SerializedProperty property, StringSelectorAttribute objectSelector)
         {
-            return IdsHelper.GetIds((objectSelector as IdSelectorAttribute)?.TypeConstraint).ToArray();
+            return IdsHelper.GetIds((objectSelector as IdSelectorAttribute)?.TypeConstraint);
         }
     }
 #endif

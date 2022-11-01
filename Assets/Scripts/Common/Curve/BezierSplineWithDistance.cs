@@ -54,7 +54,6 @@ namespace Common.Curve
         {
             totalLength = 0f;
 
-            var vertices = new List<VertexData>();
             if (controlPoints.Count < 4) return new VertexData[0];
             var segmentCount = (controlPoints.Count - 1) / 3;
 
@@ -70,7 +69,8 @@ namespace Common.Curve
             }
 
             unitLength = Mathf.Min(unitLength, minSegmentLength);
-
+            
+            var vertices = new List<VertexData> {new() {Vertex = controlPoints[0], T = 0}};
             var lastVertex = controlPoints[0];
             var lastPoint = controlPoints[0];
             for (var i = 0; i < segmentCount; i++)

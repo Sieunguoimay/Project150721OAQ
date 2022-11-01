@@ -9,7 +9,7 @@ namespace Common.UnityExtend
         public static object GetSiblingProperty(SerializedProperty property, string name)
         {
             var pathToInterestedObject = property.propertyPath.Replace(property.name, "");
-            if (pathToInterestedObject[^1] == '.') pathToInterestedObject = pathToInterestedObject.Remove(pathToInterestedObject.Length - 1, 1);
+            if (pathToInterestedObject.Length > 0 && pathToInterestedObject[^1] == '.') pathToInterestedObject = pathToInterestedObject.Remove(pathToInterestedObject.Length - 1, 1);
             var sourceObject = string.IsNullOrEmpty(pathToInterestedObject) ? property.serializedObject.targetObject : GetPropertyValue(property.serializedObject.targetObject, pathToInterestedObject);
             return GetPropertyOrFieldValue(sourceObject, name);
         }

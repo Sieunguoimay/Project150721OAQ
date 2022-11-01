@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Common.UnityExtend.Attribute;
 using SNM;
@@ -23,7 +24,7 @@ namespace Common.Animation
         private int _stateHash;
 
 #if UNITY_EDITOR
-        private string[] StateNames => animatorListener.GetComponent<Animator>().GetAnimatorController().layers[0].stateMachine.states.Select(s => s.state.name).ToArray();
+        private IEnumerable<string> StateNames => animatorListener.GetComponent<Animator>().GetAnimatorController().layers[0].stateMachine.states.Select(s => s.state.name);//.ToArray();
 #endif
         private void OnEnable()
         {
