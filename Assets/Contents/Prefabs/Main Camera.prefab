@@ -130,5 +130,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8874fbb22d08ad94896cadebfd97de04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  drawAsSolidColor: {fileID: 4800000, guid: 4228d37e0dc9437cacb083cee1d3f570, type: 3}
   outline: {fileID: 4800000, guid: 6c237cd0db09af74796a2dfc8fe42606, type: 3}
+  layerMask: Outline
+  outlineSizeKeyword: OUTLINE_5

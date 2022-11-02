@@ -551,6 +551,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 975d92fa23f74ebaa7cf82e5c894e633, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  selectedLayer: Outline
+  defaultLayer: Default
   onShow:
     m_PersistentCalls:
       m_Calls:

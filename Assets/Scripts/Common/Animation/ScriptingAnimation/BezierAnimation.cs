@@ -9,6 +9,7 @@ namespace Common.Animation.ScriptingAnimation
     {
         [SerializeField] private Vector3[] controlPoints;
         [SerializeField] private bool faceMoveDirection;
+        [field: SerializeField, Min(0.01f)] public float VertexDistance { get; private set; } = 0.1f;
 
         public BezierSplineModifiable SplineModifiable
         {
@@ -58,7 +59,7 @@ namespace Common.Animation.ScriptingAnimation
 #endif
 
         public Transform Transform => transform;
-        public Object SerializeObject => this; 
+        public Object SerializeObject => this;
 
         public void SetClosed(bool close)
         {
@@ -88,7 +89,7 @@ namespace Common.Animation.ScriptingAnimation
             public BezierMoverByDistance(BezierAnimation animation, Transform target, BezierSpline spline) : base(target)
             {
                 _animation = animation;
-                _splineWithDistance = new BezierSplineWithDistance(spline);
+                _splineWithDistance = new BezierSplineWithDistance(spline, animation.VertexDistance);
             }
 
             public sealed override void Move(float progress)
@@ -97,7 +98,7 @@ namespace Common.Animation.ScriptingAnimation
                 Target.position = _animation.transform.TransformPoint(_splineWithDistance.Spline.GetPoint(t));
                 if (_animation.faceMoveDirection)
                 {
-                    Target.rotation = Quaternion.LookRotation(_animation.transform.TransformDirection(_splineWithDistance.Spline.GetVelocity(t)));
+                    Target.rotation = Quaternion.LookRotation(_animation.transform.TransformDirection(_splineWithDistance.Spline.GetVelocity(t)), Vector3.right);
                 }
             }
         }

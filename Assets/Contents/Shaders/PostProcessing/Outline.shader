@@ -1,10 +1,13 @@
-Shader "Custom/Outline_9"
+Shader "Custom/Outline"
 {
+
     Properties
     {
         _MainTex ("Texture", 2D) = "black" {}
         _SceneTex ("Scene Texture", 2D) = "black" {}
     }
+    CustomEditor "OutlineMaterialEditor"
+
     SubShader
     {
         Tags
@@ -17,10 +20,10 @@ Shader "Custom/Outline_9"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma shader_feature OUTLINE_12 OUTLINE_9 OUTLINE_5
 
             #include "UnityCG.cginc"
 
-            #define NUMBER_OF_ITERATIONS 5
 
             struct appdata
             {
@@ -63,16 +66,24 @@ Shader "Custom/Outline_9"
 
                 //and a final intensity that increments based on surrounding intensities.
                 float color_intensity_in_radius = 0.0;
-
+                
+                #if OUTLINE_12
+                const int number_of_iterations = 12;
+                #elif OUTLINE_9
+                const int number_of_iterations = 9;
+                #elif OUTLINE_5
+                const int number_of_iterations = 5;
+                #endif
+                
                 //for every iteration we need to do horizontally
-                for (int k = 0; k < NUMBER_OF_ITERATIONS; k += 1)
+                for (int k = 0; k < number_of_iterations; k += 1)
                 {
                     //for every iteration we need to do vertically
-                    for (int j = 0; j < NUMBER_OF_ITERATIONS; j += 1)
+                    for (int j = 0; j < number_of_iterations; j += 1)
                     {
                         //increase our output color by the pixels in the area
-                        const half2 offset = float2((k - NUMBER_OF_ITERATIONS / 2) * tx_x,
-                                                    (j - NUMBER_OF_ITERATIONS / 2) * tx_y);
+                        const half2 offset = float2((k - number_of_iterations / 2) * tx_x,
+                                                    (j - number_of_iterations / 2) * tx_y);
                         color_intensity_in_radius += tex2D(_MainTex, i.uv.xy + offset.xy).r;
                     }
                 }

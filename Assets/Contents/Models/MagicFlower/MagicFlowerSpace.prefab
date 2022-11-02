@@ -500,7 +500,8 @@ MonoBehaviour:
   - {x: -0.22799273, y: 0.30240896, z: 0.5664024}
   - {x: -0.31116515, y: 0.11189926, z: 0.56640464}
   - {x: -0.08155903, y: 0.07604009, z: 0.5664033}
-  faceMoveDirection: 0
+  faceMoveDirection: 1
+  <VertexDistance>k__BackingField: 0.05
 --- !u!1 &1704687184708094457
 GameObject:
   m_ObjectHideFlags: 0

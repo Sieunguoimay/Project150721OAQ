@@ -14,6 +14,7 @@ namespace Common.Curve
         public class VertexData
         {
             public Vector3 Vertex;
+            public Vector3 Normal = Vector3.right;
             public float T;
         }
 
@@ -28,7 +29,7 @@ namespace Common.Curve
         {
             return Spline.GetPoint(GetTAtDistance(distance));
         }
-        
+
         public float GetTAtDistance(float distance)
         {
             distance = Mathf.Min(distance, ArcLength);
@@ -45,16 +46,19 @@ namespace Common.Curve
 
         public void ForceRegenerateVertices()
         {
-            _vertices = GenerateVerticesEvenly(Spline.ControlPoints, out var totalLength, _unitLength);
+            _vertices = BezierSplineWithDistanceHelper.GenerateVerticesEvenly(Spline.ControlPoints, out var totalLength, _unitLength);
             ArcLength = totalLength;
         }
+    }
 
-        private static VertexData[] GenerateVerticesEvenly(IReadOnlyList<Vector3> controlPoints, out float totalLength,
+    public static class BezierSplineWithDistanceHelper
+    {
+        public static BezierSplineWithDistance.VertexData[] GenerateVerticesEvenly(IReadOnlyList<Vector3> controlPoints, out float totalLength,
             float unitLength, int iterationsPerUnit = 4)
         {
             totalLength = 0f;
 
-            if (controlPoints.Count < 4) return new VertexData[0];
+            if (controlPoints.Count < 4) return new BezierSplineWithDistance.VertexData[0];
             var segmentCount = (controlPoints.Count - 1) / 3;
 
             //Make sure that, the given unitLength is not greater than a segment min length, not sure why, I feel so.
@@ -69,8 +73,8 @@ namespace Common.Curve
             }
 
             unitLength = Mathf.Min(unitLength, minSegmentLength);
-            
-            var vertices = new List<VertexData> {new() {Vertex = controlPoints[0], T = 0}};
+
+            var vertices = new List<BezierSplineWithDistance.VertexData> {new() {Vertex = controlPoints[0], T = 0}};
             var lastVertex = controlPoints[0];
             var lastPoint = controlPoints[0];
             for (var i = 0; i < segmentCount; i++)
@@ -90,7 +94,7 @@ namespace Common.Curve
                     {
                         var overshootDistance = Mathf.Sqrt(sqrDistanceToLastVertex) - unitLength;
                         var newVertex = p + (lastPoint - p).normalized * overshootDistance;
-                        vertices.Add(new VertexData {Vertex = newVertex, T = (t + i) / segmentCount});
+                        vertices.Add(new BezierSplineWithDistance.VertexData {Vertex = newVertex, T = (t + i) / segmentCount});
                         totalLength += Vector3.Distance(lastVertex, newVertex);
                         lastVertex = newVertex;
                     }
@@ -99,10 +103,11 @@ namespace Common.Curve
                 }
             }
 
-            vertices.Add(new VertexData {Vertex = controlPoints[^1], T = 1f});
+            vertices.Add(new BezierSplineWithDistance.VertexData {Vertex = controlPoints[^1], T = 1f});
             totalLength += Vector3.Distance(lastVertex, controlPoints[^1]);
             return vertices.ToArray();
         }
+
 
         private static Vector3 GetSegmentPoint(IReadOnlyList<Vector3> controlPoints, int segmentIndex, float t)
         {

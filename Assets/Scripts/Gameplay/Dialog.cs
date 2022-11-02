@@ -1,9 +1,32 @@
-﻿using UnityEngine;
+﻿using Common.UnityExtend.PostProcessing;
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace Gameplay
 {
-    public class Dialog : MonoBehaviour
+    public class LayerToggle : MonoBehaviour
+    {
+        [SerializeField, LayerSelector] private string selectedLayer;
+        [SerializeField, LayerSelector] private string defaultLayer;
+
+        public void ToggleLayer(GameObject target, bool toggle, bool children = true)
+        {
+            if (children)
+            {
+                var all = target.GetComponentsInChildren<Transform>();
+                foreach (var child in all)
+                {
+                    child.gameObject.layer = LayerMask.NameToLayer(toggle ? selectedLayer : defaultLayer);
+                }
+            }
+            else
+            {
+                target.layer = LayerMask.NameToLayer(toggle ? selectedLayer : defaultLayer);
+            }
+        }
+    }
+
+    public class Dialog : LayerToggle
     {
         [SerializeField] private UnityEvent onShow;
         private Transform _currentTarget;
@@ -12,13 +35,13 @@ namespace Gameplay
         {
             if (_currentTarget != null && _currentTarget != target)
             {
-                ToggleOutline(_currentTarget, false);
+                ToggleLayer(_currentTarget.gameObject, false);
             }
 
             _currentTarget = target;
-            
-            ToggleOutline(_currentTarget, true);
-            
+
+            ToggleLayer(_currentTarget.gameObject, true);
+
             transform.position = target.position;
             onShow?.Invoke();
         }
@@ -27,14 +50,10 @@ namespace Gameplay
         {
             if (_currentTarget != null)
             {
-                ToggleOutline(_currentTarget, false);
+                ToggleLayer(_currentTarget.gameObject, false);
             }
-            _currentTarget = null;
-        }
 
-        private static void ToggleOutline(Component target, bool toggle)
-        {
-            target.gameObject.layer = LayerMask.NameToLayer(toggle ? "Outline" : "Default");
+            _currentTarget = null;
         }
     }
 }

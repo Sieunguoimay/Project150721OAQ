@@ -6,7 +6,7 @@ namespace Common.Curve.Editor
     [CustomEditor(typeof(BezierSplineCreator))]
     public class BezierSplineInspector : UnityEditor.Editor
     {
-        private ISplineCreator _spline;
+        protected ISplineCreator _spline;
         private Transform _handleTransform;
         private Quaternion _handleRotation;
 
@@ -16,6 +16,7 @@ namespace Common.Curve.Editor
         private const float DirectionScale = 0.5f;
         private const float HandleSize = 0.04f;
         private const float PickSize = 0.06f;
+        private bool _showDirection;
 
         private static readonly Color[] ModeColors =
         {
@@ -36,6 +37,8 @@ namespace Common.Curve.Editor
                 EditorUtility.SetDirty(_spline.SerializeObject);
                 _spline.SetClosed(closed);
             }
+            
+            _showDirection = GUILayout.Toggle(_showDirection, nameof(_showDirection));
 
             if (_selectedIndex >= 0 && _selectedIndex < _spline.SplineModifiable.ControlPoints.Count)
             {
@@ -76,9 +79,10 @@ namespace Common.Curve.Editor
             {
                 _selectedIndex = -1;
             }
+
         }
 
-        protected void OnSceneGUI()
+        protected virtual void OnSceneGUI()
         {
             _spline = target as ISplineCreator;
             _handleTransform = _spline.Transform;
@@ -101,7 +105,7 @@ namespace Common.Curve.Editor
                 p0 = p3;
             }
 
-            if (_selectedIndex >= 0 && _selectedIndex < _spline.SplineModifiable.ControlPoints.Count)
+            if (_showDirection)
             {
                 ShowDirections();
             }
