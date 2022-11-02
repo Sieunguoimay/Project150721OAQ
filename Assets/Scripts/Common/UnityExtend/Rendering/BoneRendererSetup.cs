@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
-namespace Common.Rendering
+namespace Common.UnityExtend.Rendering
 {
     public class BoneRendererSetup : MonoBehaviour
     {

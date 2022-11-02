@@ -20,7 +20,7 @@ Shader "Custom/Outline_9"
 
             #include "UnityCG.cginc"
 
-            #define NUMBER_OF_ITERATIONS 9
+            #define NUMBER_OF_ITERATIONS 5
 
             struct appdata
             {

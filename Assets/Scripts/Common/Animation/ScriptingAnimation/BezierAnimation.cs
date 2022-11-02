@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Common.Animation.ScriptingAnimation
 {
-    public class BezierAnimation : ScriptingAnimation, ISplineCreator
+    public class BezierAnimation : MovingAnimation, ISplineCreator
     {
         [SerializeField] private Vector3[] controlPoints;
         [SerializeField] private bool faceMoveDirection;
@@ -33,7 +33,7 @@ namespace Common.Animation.ScriptingAnimation
             var modes = new BezierPointMode[controlPoints.Length / 2];
             for (var i = 0; i < modes.Length; i++)
             {
-                modes[i] = BezierPointMode.Mirrored;
+                modes[i] = BezierPointMode.Free;
             }
 
             SplineModifiable.SetModesAndControlPoints(modes, controlPoints);
@@ -50,7 +50,7 @@ namespace Common.Animation.ScriptingAnimation
                 new Vector3(3f, 0f, 0f),
                 new Vector3(4f, 0f, 0f),
             };
-            var modes = new[] {BezierPointMode.Mirrored, BezierPointMode.Mirrored};
+            var modes = new[] {BezierPointMode.Free, BezierPointMode.Free};
             _splineModifiable = new BezierSplineModifiable(false);
             SplineModifiable.SetModesAndControlPoints(modes, controlPoints);
         }
@@ -58,7 +58,7 @@ namespace Common.Animation.ScriptingAnimation
 #endif
 
         public Transform Transform => transform;
-        public Object SerializeObject => this;
+        public Object SerializeObject => this; 
 
         public void SetClosed(bool close)
         {
@@ -66,7 +66,7 @@ namespace Common.Animation.ScriptingAnimation
 
         public void AddSegment()
         {
-            SplineModifiable.AddSegment(1, BezierPointMode.Mirrored);
+            SplineModifiable.AddSegment(1, BezierPointMode.Free);
             SaveToSerializedField();
 
             void SaveToSerializedField()

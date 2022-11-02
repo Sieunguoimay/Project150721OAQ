@@ -1296,6 +1296,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5214614559396334074}
     m_Modifications:
+    - target: {fileID: 6625677339552197788, guid: ce832bd4ea80ece4b9f8a111233c09d6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -75.17
+      objectReference: {fileID: 0}
     - target: {fileID: 6754906519833514505, guid: ce832bd4ea80ece4b9f8a111233c09d6, type: 3}
       propertyPath: m_Name
       value: MagicFlowerSpace

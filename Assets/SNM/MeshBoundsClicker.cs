@@ -6,6 +6,7 @@ namespace SNM
     public class MeshBoundsClicker : ABoundsClicker
     {
         private Renderer _renderer;
+
         public override Bounds Bounds
         {
             get
@@ -14,9 +15,10 @@ namespace SNM
                 {
                     if (_renderer == null)
                     {
-                        _renderer = GetComponent<MeshRenderer>();
+                        _renderer = GetComponent<Renderer>();
                     }
                 }
+
                 return _renderer.bounds;
             }
         }

@@ -7,28 +7,23 @@ namespace Common.Animation.ScriptingAnimation
     {
         [field: SerializeField] protected Transform Target { get; private set; }
         [SerializeField, Min(0f)] private float duration;
-        [SerializeField] private AnimationCurve curve;
+        [field:SerializeField] protected AnimationCurve Curve { get; private set; }
 
         private readonly ActivityQueue _activityQueue = new();
-        private IAnimationMover _mover;
 
         [ContextMenu("Play")]
         public virtual void Play()
         {
             _activityQueue.End();
-            var activity = new ActivityTimer(duration, OnTick, true);
-            _mover = GetMover(Target);
-            _activityQueue.Add(activity);
+            _activityQueue.Add(new ActivityTimer(duration, Tick, true));
             _activityQueue.Begin();
         }
 
-        protected abstract IAnimationMover GetMover(Transform target);
-
-        private void OnTick(float p)
+        private void Tick(float p)
         {
-            var e = Mathf.Max(curve.Evaluate(p), 0f);
-            _mover?.Move(e);
+            OnTick(Curve.Evaluate(p));
         }
+        protected abstract void OnTick(float p);
 
         private void Update()
         {
@@ -37,8 +32,30 @@ namespace Common.Animation.ScriptingAnimation
 
         public override Activity CreateActivity()
         {
+            return new ActivityTimer(duration, Tick, true);
+        }
+    }
+
+    public abstract class MovingAnimation : ScriptingAnimation
+    {
+        protected abstract IAnimationMover GetMover(Transform target);
+        private IAnimationMover _mover;
+        public override void Play()
+        {
+            base.Play();
             _mover = GetMover(Target);
-            return new ActivityTimer(duration, OnTick, true);
+        }
+
+        protected override void OnTick(float p)
+        {
+            _mover?.Move(Mathf.Max(p, 0f));
+        }
+
+        public override Activity CreateActivity()
+        {
+            _mover = GetMover(Target);
+
+            return base.CreateActivity();
         }
     }
 

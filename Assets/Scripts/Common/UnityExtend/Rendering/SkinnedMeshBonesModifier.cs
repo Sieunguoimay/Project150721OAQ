@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Common.Rendering
+namespace Common.UnityExtend.Rendering
 {
     public class SkinnedMeshBonesModifier : MonoBehaviour
     {

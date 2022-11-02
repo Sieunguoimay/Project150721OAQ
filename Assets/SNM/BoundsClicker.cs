@@ -47,7 +47,7 @@ namespace SNM
         private void OnDrawGizmos()
         {
             // Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.DrawWireCube(transform.position, Bounds.size);
+            Gizmos.DrawWireCube(Bounds.center, Bounds.size);
         }
 
         public void OnHit(Ray ray, float distance)

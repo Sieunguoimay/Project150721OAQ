@@ -2,7 +2,7 @@
 
 namespace Common.Animation.ScriptingAnimation
 {
-    public class LinearMoveAnimation : ScriptingAnimation, IAnimationMover
+    public class LinearMoveAnimation : MovingAnimation, IAnimationMover
     {
         [SerializeField] private Vector3[] points;
 
