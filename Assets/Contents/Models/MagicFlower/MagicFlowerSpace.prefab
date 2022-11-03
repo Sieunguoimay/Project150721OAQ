@@ -111,7 +111,19 @@ MonoBehaviour:
         m_CallState: 2
   <Exited>k__BackingField:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1253341266578782703}
+        m_TargetAssemblyTypeName: Gameplay.MagicFlower.MagicFlowerSpace, Assembly-CSharp
+        m_MethodName: Spawn
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   monoActivities:
   - {fileID: 264008245557855397}
   - {fileID: 1098494228139519935}
@@ -471,18 +483,18 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0
@@ -490,17 +502,14 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   controlPoints:
-  - {x: 0.06953438, y: 1.5893619, z: 0.0000001899898}
-  - {x: 0.40289482, y: 1.3746676, z: 0.241649}
-  - {x: 0.2346758, y: 1.3222971, z: 0.6777072}
-  - {x: 0.19312516, y: 0.93050444, z: 0.67770624}
-  - {x: 0.15157452, y: 0.5387118, z: 0.6777053}
-  - {x: 0.30401236, y: 0.4212894, z: 0.56640273}
-  - {x: 0.038009807, y: 0.3618492, z: 0.56640255}
-  - {x: -0.22799273, y: 0.30240896, z: 0.5664024}
-  - {x: -0.31116515, y: 0.11189926, z: 0.56640464}
-  - {x: -0.08155903, y: 0.07604009, z: 0.5664033}
-  faceMoveDirection: 1
+  - {x: 0.031026997, y: 1.5893619, z: -0.124106936}
+  - {x: 0.029118566, y: 1.7858318, z: -0.1324627}
+  - {x: 0.21452925, y: 1.8521578, z: 0.5310301}
+  - {x: 0.21912894, y: 1.4091446, z: 0.5794943}
+  - {x: 0.22372863, y: 0.96613145, z: 0.6279585}
+  - {x: 0.155034, y: 0.15962106, z: 0.75531447}
+  - {x: 0.04950641, y: 0.0017034411, z: 0.7978034}
+  faceMoveDirection: 0
   <VertexDistance>k__BackingField: 0.05
 --- !u!1 &1704687184708094457
 GameObject:
@@ -532,6 +541,7 @@ Transform:
   m_Children:
   - {fileID: 6053936603061161804}
   - {fileID: 3179734527095743490}
+  - {fileID: 2725064808610033805}
   m_Father: {fileID: 6754906519833514506}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -680,6 +690,53 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: -2.09, z: 0}
+--- !u!1 &7976885823245820263
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2725064808610033805}
+  - component: {fileID: 1253341266578782703}
+  m_Layer: 0
+  m_Name: Space
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2725064808610033805
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7976885823245820263}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.927}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6625677339552197788}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1253341266578782703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7976885823245820263}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01bb0772ca75bd84e89e50acde9a9b21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spacing: 0.25
+  tableSize: {x: 7, y: 2}
+  prefab: {fileID: 684175589365548168}
 --- !u!1001 &6623774474487526539
 PrefabInstance:
   m_ObjectHideFlags: 0

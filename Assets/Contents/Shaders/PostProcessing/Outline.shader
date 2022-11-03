@@ -66,7 +66,7 @@ Shader "Custom/Outline"
 
                 //and a final intensity that increments based on surrounding intensities.
                 float color_intensity_in_radius = 0.0;
-                
+
                 #if OUTLINE_12
                 const int number_of_iterations = 12;
                 #elif OUTLINE_9
@@ -74,7 +74,7 @@ Shader "Custom/Outline"
                 #elif OUTLINE_5
                 const int number_of_iterations = 5;
                 #endif
-                
+
                 //for every iteration we need to do horizontally
                 for (int k = 0; k < number_of_iterations; k += 1)
                 {

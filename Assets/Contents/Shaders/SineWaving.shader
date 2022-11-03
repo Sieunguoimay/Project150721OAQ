@@ -1,4 +1,4 @@
-Shader "Custom/WavingSurfaceShader"
+Shader "Custom/SineWaving"
 {
     Properties
     {
@@ -81,5 +81,4 @@ Shader "Custom/WavingSurfaceShader"
         ENDCG
     }
     FallBack "Diffuse"
-    CustomEditor "WavingMaterialEditor"
 }
