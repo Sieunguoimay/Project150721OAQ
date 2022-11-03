@@ -44,15 +44,13 @@ namespace Common.UnityExtend.Attribute
     [CustomPropertyDrawer(typeof(TypeConstraintAttribute), true)]
     public class TypeConstraintPropertyDrawer : PropertyDrawer
     {
-        private static readonly HashSet<string> FailedPropertyAssignments = new();
-
         private static void Draw(TypeConstraintAttribute typeConstraint, Rect position, SerializedProperty property)
         {
             EditorGUI.BeginChangeCheck();
 
             // Show property field. Tint it if the last attempted assignment was invalid
             var prevGuiColor = GUI.color;
-            if (FailedPropertyAssignments.Contains(property.propertyPath))
+            if (property.objectReferenceValue != null && typeConstraint.RequiredTypes.Any(constrainedType => !constrainedType.IsInstanceOfType(property.objectReferenceValue)))
                 GUI.color = Color.red;
 
             position.width -= 30;
@@ -65,25 +63,6 @@ namespace Common.UnityExtend.Attribute
             btnRect.width = 25;
             Menu(btnRect, property, typeConstraint.RequiredTypes);
 
-            // After an assignment, check for type validity and clear/flag if invalid
-            if (EditorGUI.EndChangeCheck())
-            {
-                var obj = property.objectReferenceValue;
-
-                if (obj != null)
-                {
-                    if (typeConstraint.RequiredTypes.Any(constrainedType => !constrainedType.IsInstanceOfType(obj)))
-                    {
-                        property.objectReferenceValue = null;
-                        FailedPropertyAssignments.Add(property.propertyPath);
-                    }
-                }
-
-                property.serializedObject.ApplyModifiedProperties();
-            }
-
-            if (property.objectReferenceValue != null)
-                FailedPropertyAssignments.Remove(property.propertyPath);
         }
 
         private static void Menu(Rect rect, SerializedProperty property, Type[] types)
@@ -104,7 +83,7 @@ namespace Common.UnityExtend.Attribute
                     return;
                 }
 
-                var candidates = types.SelectMany(i => go.GetComponentsInChildren(i, true)).ToArray();
+                var candidates = types.SelectMany(i => go.GetComponentsInChildren(i, true)).Distinct().ToArray();
                 var menu = new GenericMenu();
                 for (var i = 0; i < candidates.Length; i++)
                 {

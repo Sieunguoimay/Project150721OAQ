@@ -19,7 +19,7 @@ namespace Common.Animation.ScriptingAnimation.Editor
             {
                 _splineWidthDistance = new BezierSplineWithDistance(_spline.SplineModifiable,( (BezierAnimation) _spline).VertexDistance);
             }
-            GUILayout.Label($"{_splineWidthDistance.Vertices.Count}");
+            GUILayout.Label($"Vertex Num: {_splineWidthDistance.Vertices.Count}");
         }
 
         protected override void OnSceneGUI()

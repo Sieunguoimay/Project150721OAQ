@@ -10,6 +10,12 @@ namespace SNM
     {
         private readonly List<IRaycastTarget> _listeners = new();
         private Camera _camera;
+        private Camera _defaultCamera;
+
+        private void Start()
+        {
+            _defaultCamera = Camera.main;
+        }
 
         public void SetCamera(Camera cam)
         {
@@ -41,6 +47,11 @@ namespace SNM
 
         private void ProcessMouse(Vector3 position)
         {
+            if (_camera == null)
+            {
+                _camera = _defaultCamera;
+            }
+
             var ray = _camera.ScreenPointToRay(position);
 
             var minDistance = float.MaxValue;

@@ -4,9 +4,9 @@ namespace Common.Animation.ScriptingAnimation
 {
     public class AngleAnimation : ScriptingAnimation
     {
-        [SerializeField] private AnimationCurve curveX;
-        [SerializeField] private AnimationCurve curveY;
-        [SerializeField] private AnimationCurve curveZ;
+        public AnimationCurve curveX;
+        public AnimationCurve curveY;
+        public AnimationCurve curveZ;
 
         protected override void OnTick(float p)
         {

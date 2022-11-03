@@ -65,7 +65,7 @@ Material:
     m_Floats:
     - _Amount: 0.271
     - _Amplitude: 0.1
-    - _AmplitudeFactor: 0.086
+    - _AmplitudeFactor: 0.123
     - _AmplitudeX: 0.94
     - _AmplitudeY: 0
     - _AmplitudeZ: 0
@@ -85,7 +85,7 @@ Material:
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _Speed: 0.061
+    - _Speed: 0.037
     - _SrcBlend: 1
     - _ToggleAnim: 0
     - _UVSec: 0

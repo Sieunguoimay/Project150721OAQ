@@ -63,7 +63,7 @@ Material:
     - _Amount: 0.3
     - _Amplitude: 0.1
     - _AmplitudeX: 0
-    - _AmplitudeY: 0.2
+    - _AmplitudeY: 0.4
     - _AmplitudeZ: 0
     - _Anim: 1
     - _BumpScale: 1

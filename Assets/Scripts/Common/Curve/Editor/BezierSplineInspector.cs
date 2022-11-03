@@ -37,8 +37,8 @@ namespace Common.Curve.Editor
                 EditorUtility.SetDirty(_spline.SerializeObject);
                 _spline.SetClosed(closed);
             }
-            
-            _showDirection = GUILayout.Toggle(_showDirection, nameof(_showDirection));
+
+            _showDirection = EditorGUILayout.Toggle("Show Direction", _showDirection);
 
             if (_selectedIndex >= 0 && _selectedIndex < _spline.SplineModifiable.ControlPoints.Count)
             {
@@ -79,12 +79,13 @@ namespace Common.Curve.Editor
             {
                 _selectedIndex = -1;
             }
-
         }
 
         protected virtual void OnSceneGUI()
         {
             _spline = target as ISplineCreator;
+            if (_spline == null) return;
+            
             _handleTransform = _spline.Transform;
             _handleRotation = UnityEditor.Tools.pivotRotation == PivotRotation.Local
                 ? _handleTransform.rotation
