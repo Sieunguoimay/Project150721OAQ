@@ -103,7 +103,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AmplitudeFactor: 0.123
+    - _AmplitudeFactor: 0.25
     - _BumpScale: 1
     - _Clipping: 0
     - _Cutoff: 0.5

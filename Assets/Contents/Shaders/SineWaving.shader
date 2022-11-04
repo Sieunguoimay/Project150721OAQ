@@ -24,7 +24,7 @@ Shader "Custom/SineWaving"
 
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
-        #pragma surface surf Standard fullforwardshadows
+        #pragma surface surf Standard fullforwardshadows addshadow
         #pragma vertex vert
         #pragma multi_compile __ _ANIM_ON
 

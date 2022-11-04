@@ -10,7 +10,7 @@ namespace Common.UnityExtend.Rendering
         [SerializeField] private float value;
         private MaterialPropertyBlock _block;
 
-        private string[]
+        // private string[]
         
         private void Start()
         {

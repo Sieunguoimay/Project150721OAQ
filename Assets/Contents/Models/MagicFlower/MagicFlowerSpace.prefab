@@ -982,161 +982,24 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1585287710539944250, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1585287710539944250, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1585287710539944250, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Target
-      value: 
-      objectReference: {fileID: 1908083705364067586}
-    - target: {fileID: 1585287710539944250, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1585287710539944250, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: ShowDialog
-      objectReference: {fileID: 0}
-    - target: {fileID: 1585287710539944250, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: Gameplay.Dialog.DialogCaller, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 1585287710539944250, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgument
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1585287710539944250, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
     - target: {fileID: 2204706250620312887, guid: 48e6acbb90657804a89e557290a06192, type: 3}
       propertyPath: m_Name
       value: magic_flower_variant
-      objectReference: {fileID: 0}
-    - target: {fileID: 3021066874629112148, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3021066874629112148, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3021066874629112148, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Target
-      value: 
-      objectReference: {fileID: 3435857989345352258}
-    - target: {fileID: 3021066874629112148, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3021066874629112148, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: ShowDialog
-      objectReference: {fileID: 0}
-    - target: {fileID: 3021066874629112148, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: Gameplay.Dialog.DialogCaller, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 3021066874629112148, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgument
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 3021066874629112148, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 3100341222166008414, guid: 48e6acbb90657804a89e557290a06192, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0.8
       objectReference: {fileID: 0}
-    - target: {fileID: 6323538965517750513, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6323538965517750513, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6323538965517750513, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Target
-      value: 
-      objectReference: {fileID: 6241243525564478751}
-    - target: {fileID: 6323538965517750513, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6323538965517750513, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: ShowDialog
-      objectReference: {fileID: 0}
-    - target: {fileID: 6323538965517750513, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: Gameplay.Dialog.DialogCaller, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 6323538965517750513, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgument
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 6323538965517750513, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
     - target: {fileID: 8037068030689854894, guid: 48e6acbb90657804a89e557290a06192, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0.41
       objectReference: {fileID: 0}
+    - target: {fileID: 8148340322514330100, guid: 48e6acbb90657804a89e557290a06192, type: 3}
+      propertyPath: dialog
+      value: 
+      objectReference: {fileID: 2199908897553311243}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 48e6acbb90657804a89e557290a06192, type: 3}
---- !u!114 &331983637248482759 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6423627215577596530, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-  m_PrefabInstance: {fileID: 6754906519528595381}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be3eefa0bc7a42e9a2e4b98ebf270527, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!1 &462996531208861728 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6616591959027476373, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-  m_PrefabInstance: {fileID: 6754906519528595381}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1908083705364067586
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 462996531208861728}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5547ab91c6334f9cadde31c0f2efd467, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialog: {fileID: 2199908897553311243}
-  onClick:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4997547196572261388}
-        m_TargetAssemblyTypeName: Common.Animation.ScriptingAnimation.ScriptingAnimation,
-          Assembly-CSharp
-        m_MethodName: Play
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!4 &2993561168067692660 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8373735100951353281, guid: 48e6acbb90657804a89e557290a06192, type: 3}
@@ -1353,85 +1216,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!1 &4143323144800725070 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7223269961449912315, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-  m_PrefabInstance: {fileID: 6754906519528595381}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &3435857989345352258
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4143323144800725070}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5547ab91c6334f9cadde31c0f2efd467, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialog: {fileID: 2199908897553311243}
-  onClick:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8842312249801509986}
-        m_TargetAssemblyTypeName: Common.Animation.ScriptingAnimation.ScriptingAnimation,
-          Assembly-CSharp
-        m_MethodName: Play
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!114 &4997547196572261388 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1793810351381840825, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-  m_PrefabInstance: {fileID: 6754906519528595381}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be3eefa0bc7a42e9a2e4b98ebf270527, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!1 &5164871268548311531 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1878969427048375902, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-  m_PrefabInstance: {fileID: 6754906519528595381}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &6241243525564478751
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5164871268548311531}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5547ab91c6334f9cadde31c0f2efd467, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialog: {fileID: 2199908897553311243}
-  onClick:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 331983637248482759}
-        m_TargetAssemblyTypeName: Common.Animation.ScriptingAnimation.ScriptingAnimation,
-          Assembly-CSharp
-        m_MethodName: Play
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!4 &5218932801021548600 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1572706299487897485, guid: 48e6acbb90657804a89e557290a06192, type: 3}
@@ -1442,14 +1226,3 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2724849859471086393, guid: 48e6acbb90657804a89e557290a06192, type: 3}
   m_PrefabInstance: {fileID: 6754906519528595381}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8842312249801509986 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2812510698682831831, guid: 48e6acbb90657804a89e557290a06192, type: 3}
-  m_PrefabInstance: {fileID: 6754906519528595381}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be3eefa0bc7a42e9a2e4b98ebf270527, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
