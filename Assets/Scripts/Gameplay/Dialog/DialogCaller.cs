@@ -17,8 +17,11 @@ namespace Gameplay.Dialog
 
         private void OnClick()
         {
-            dialog.GetComponentInChildren<ABoundsClicker>().Clicked.RemoveListener(OnClick);
-            onClick?.Invoke();
+            if (dialog.CurrentTarget == transform)
+            {
+                dialog.GetComponentInChildren<ABoundsClicker>().Clicked.RemoveListener(OnClick);
+                onClick?.Invoke();
+            }
         }
     }
 }

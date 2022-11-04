@@ -30,18 +30,18 @@ namespace Gameplay.Dialog
     public class Dialog : LayerToggle
     {
         [field: SerializeField] public UnityEvent<Transform> OnShow { get; private set; }
-        private Transform _currentTarget;
+        public Transform CurrentTarget { get; private set; }
 
         public void Show(Transform target)
         {
-            if (_currentTarget != null && _currentTarget != target)
+            if (CurrentTarget != null && CurrentTarget != target)
             {
-                ToggleLayer(_currentTarget.gameObject, false);
+                ToggleLayer(CurrentTarget.gameObject, false);
             }
 
-            _currentTarget = target;
+            CurrentTarget = target;
 
-            ToggleLayer(_currentTarget.gameObject, true);
+            ToggleLayer(CurrentTarget.gameObject, true);
 
             transform.position = target.position;
             OnShow?.Invoke(target);
@@ -49,17 +49,17 @@ namespace Gameplay.Dialog
 
         public void HideTarget()
         {
-            _currentTarget.gameObject.SetActive(false);
+            // _currentTarget.gameObject.SetActive(false);
         }
 
         public void Hide()
         {
-            if (_currentTarget != null)
+            if (CurrentTarget != null)
             {
-                ToggleLayer(_currentTarget.gameObject, false);
+                ToggleLayer(CurrentTarget.gameObject, false);
             }
 
-            _currentTarget = null;
+            CurrentTarget = null;
         }
     }
 }

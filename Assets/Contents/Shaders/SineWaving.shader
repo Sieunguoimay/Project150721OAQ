@@ -13,6 +13,9 @@ Shader "Custom/SineWaving"
         _AmplitudeX ("AmplitudeX", Range(0,5)) = 0.0
         _AmplitudeY ("AmplitudeY", Range(0,5)) = 0.0
         _AmplitudeZ ("AmplitudeZ", Range(0,5)) = 0.0
+
+        _InitialPhase ("Initial Phase",Float) = 0.0
+
     }
     SubShader
     {
@@ -41,13 +44,14 @@ Shader "Custom/SineWaving"
         half _Glossiness;
         half _Metallic;
         fixed4 _Color;
-        
+
         #if _ANIM_ON
         half _Speed;
         half _Frequency;
         half _AmplitudeX;
         half _AmplitudeY;
         half _AmplitudeZ;
+        half _InitialPhase;
         #endif
         // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
         // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
@@ -61,7 +65,8 @@ Shader "Custom/SineWaving"
             UNITY_INITIALIZE_OUTPUT(Input, o);
             #if _ANIM_ON
             const float distance = (v.vertex.y * v.vertex.y + v.vertex.x * v.vertex.x + v.vertex.z * v.vertex.z);
-            const float c = cos((distance + _Time.y * _Speed) * _Frequency) * distance;
+            const float phase = (distance + _Time.y * _Speed) * _Frequency + _InitialPhase;
+            const float c = cos(phase) * distance;
             v.vertex.x += c * _AmplitudeX;
             v.vertex.y += c * _AmplitudeY;
             v.vertex.z += c * _AmplitudeZ;

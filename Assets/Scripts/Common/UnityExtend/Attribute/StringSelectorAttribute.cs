@@ -8,12 +8,14 @@ namespace Common.UnityExtend.Attribute
 {
     public class StringSelectorAttribute : PropertyAttribute
     {
-        public StringSelectorAttribute(string name)
+        public StringSelectorAttribute(string name, bool isProviderPropertyInBase = false)
         {
             ProviderPropertyName = name;
+            IsProviderPropertyInBase = isProviderPropertyInBase;
         }
 
         public string ProviderPropertyName { get; }
+        public bool IsProviderPropertyInBase { get; }
     }
 
 #if UNITY_EDITOR
@@ -58,6 +60,11 @@ namespace Common.UnityExtend.Attribute
 
         protected virtual IEnumerable<string> GetIds(SerializedProperty property, StringSelectorAttribute objectSelector)
         {
+            if (objectSelector.IsProviderPropertyInBase)
+            {
+                return ReflectionUtility.GetPropertyValue(property.serializedObject.targetObject, objectSelector.ProviderPropertyName) as IEnumerable<string>;
+            }
+
             return ReflectionUtility.GetSiblingProperty(property, objectSelector.ProviderPropertyName) as IEnumerable<string>;
         }
     }

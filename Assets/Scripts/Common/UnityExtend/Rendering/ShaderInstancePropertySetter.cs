@@ -1,17 +1,57 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Common.UnityExtend.Attribute;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Common.UnityExtend.Rendering
 {
+    public static class ShaderUtility
+    {
+        public static string[] GetShaderPropertyNames(Shader shader)
+        {
+            var propCount = shader.GetPropertyCount();
+            var propNames = new string[propCount];
+            for (var i = 0; i < propCount; i++)
+            {
+                propNames[i] = shader.GetPropertyName(i);
+            }
+
+            return propNames;
+        }
+
+        public static List<string> GetShaderPropertyNamesByType(Shader shader, params ShaderPropertyType[] types)
+        {
+            var propCount = shader.GetPropertyCount();
+            var propNames = new List<string>();
+            for (var i = 0; i < propCount; i++)
+            {
+                if (types.Contains(shader.GetPropertyType(i)))
+                {
+                    propNames.Add(shader.GetPropertyName(i));
+                }
+            }
+
+            return propNames;
+        }
+    }
+
     public class ShaderInstancePropertySetter : MonoBehaviour
     {
         [SerializeField] private MeshRenderer target;
-        [SerializeField] private string propName;
-        [SerializeField] private float value;
+        //
+        // [SerializeField, StringSelector(nameof(PropertyNames))]
+        // private string propName;
+        //
+        // [SerializeField] private float value;
+
+        [SerializeField] private Item[] items;
+
         private MaterialPropertyBlock _block;
 
-        // private string[]
-        
+        private List<string> PropertyNames => target ? ShaderUtility.GetShaderPropertyNamesByType(target.sharedMaterial.shader, ShaderPropertyType.Range, ShaderPropertyType.Float) : null;
+
         private void Start()
         {
             Set();
@@ -26,8 +66,21 @@ namespace Common.UnityExtend.Rendering
             }
 
             target.GetPropertyBlock(_block);
-            _block.SetFloat(propName, value);
+            foreach (var i in items)
+            {
+                _block.SetFloat(i.PropName, i.Value);
+            }
+
             target.SetPropertyBlock(_block);
+        }
+
+        [Serializable]
+        private class Item
+        {
+            [field: SerializeField, StringSelector(nameof(PropertyNames), true)]
+            public string PropName { get; private set; }
+
+            [field: SerializeField] public float Value { get; private set; }
         }
     }
 }
