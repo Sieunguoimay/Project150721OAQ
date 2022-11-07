@@ -3,6 +3,7 @@ using System.IO;
 using Framework.Entities;
 using Framework.Resolver;
 using Framework.Services;
+using Framework.Services.Data;
 using Gameplay.Entities;
 using UnityEngine;
 
@@ -11,19 +12,21 @@ namespace Framework
     public interface IInstaller
     {
         IResolver Resolver { get; }
+        bool Done { get; }
     }
 
     public class MonoInstaller : MonoBehaviour, IInstaller
     {
         [SerializeField] private LocalDataServiceAsset dataServiceAsset;
         [SerializeField] private string saveFolder = "SavedData";
-        
-        #if UNITY_EDITOR
+        [SerializeField,IdSelector(typeof(IGameContentData))] private string gameContentId;
+
+#if UNITY_EDITOR
         public string ProjectPath => Path.GetDirectoryName(Application.dataPath);
         public string SavedDataPath => Path.Combine(ProjectPath, saveFolder);
-        #else
-        #endif
-        
+#else
+#endif
+
         public static IInstaller Instance { get; private set; }
 
         private readonly IContainer _container = new Container();
@@ -42,7 +45,8 @@ namespace Framework
         {
             BindServices();
             LoadEntities();
-            FindObjectOfType<Launcher>().LoadGameScene();
+            FindObjectOfType<Launcher>()?.LoadGameScene();
+            Done = true;
         }
 
         private void OnDestroy()
@@ -83,13 +87,13 @@ namespace Framework
         private void LoadEntities()
         {
             _entityLoader.Inject(_container);
-            _entityLoader.CreateEntity<IGameContent, IGameContentData>("game_content");
+            _entityLoader.CreateEntity(gameContentId);
         }
 
         private void UnloadEntities()
         {
             SaveEntities();
-            _entityLoader.DestroyEntity<IGameContent>("game_content");
+            _entityLoader.DestroyEntity(_container.Resolve<IGameContent>(gameContentId));
         }
 
         private void SaveEntities()
@@ -98,5 +102,6 @@ namespace Framework
         }
 
         public IResolver Resolver => _container;
+        [field: NonSerialized] public bool Done { get; private set; } = false;
     }
 }

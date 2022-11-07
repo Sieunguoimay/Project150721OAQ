@@ -9,7 +9,7 @@ using UnityEngine.Playables;
 
 namespace Gameplay.BambooStick
 {
-    public class BambooFamilyManager : MonoBindingInjectable<BambooFamilyManager>
+    public class BambooFamilyManager : MonoInjectable<BambooFamilyManager>
     {
         [SerializeField] private BambooStickSpace[] bambooSticks;
         [SerializeField] private Transform[] bambooStickVisualTransforms;

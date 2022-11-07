@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace Framework.Resolver
@@ -28,27 +29,24 @@ namespace Framework.Resolver
 
         public void Bind<TType>(object target)
         {
-            var type = typeof(TType);
-            if (!_boundObjects.TryAdd(type, target))
-            {
-                Debug.LogError($"Type {type.FullName} has already been bound to {_boundObjects[type]}");
-            }
+            Bind(typeof(TType), target);
         }
 
 
         public void Bind<TType>(object target, string id)
         {
-            var type = typeof(TType);
-            if (!_boundObjectsWithId.TryAdd(new KeyWithId(type, id), target))
-            {
-                Debug.LogError($"Key {type.FullName} - {id} has already been bound to {_boundObjects[type]}");
-            }
+            Bind(typeof(TType), id, target);
         }
 
 
         public void Unbind<TType>()
         {
             var type = typeof(TType);
+            Unbind(type);
+        }
+
+        public void Unbind(Type type)
+        {
             var found = _boundObjects.ContainsKey(type);
             if (!found && !_boundObjects.Remove(type))
             {
@@ -59,6 +57,11 @@ namespace Framework.Resolver
         public void Unbind<TType>(string id)
         {
             var type = typeof(TType);
+            Unbind(type, id);
+        }
+
+        public void Unbind(Type type, string id)
+        {
             var found = _boundObjectsWithId.ContainsKey(new KeyWithId(type, id));
             if (!found && !_boundObjectsWithId.Remove(new KeyWithId(type, id)))
             {
@@ -88,6 +91,22 @@ namespace Framework.Resolver
 
             Debug.LogError($"Key {type.FullName} - {id} is not bound to any object");
             return default;
+        }
+
+        public void Bind(Type type, object target)
+        {
+            if (!_boundObjects.TryAdd(type, target))
+            {
+                Debug.LogError($"Type {type.FullName} has already been bound to {_boundObjects[type]}");
+            }
+        }
+
+        public void Bind(Type type, string id, object target)
+        {
+            if (!_boundObjectsWithId.TryAdd(new KeyWithId(type, id), target))
+            {
+                Debug.LogError($"Key {type.FullName} - {id} has already been bound to {_boundObjects[type]}");
+            }
         }
     }
 }

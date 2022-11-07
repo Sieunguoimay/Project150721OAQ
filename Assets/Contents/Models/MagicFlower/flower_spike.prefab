@@ -158,6 +158,7 @@ GameObject:
   - component: {fileID: 3959494617214496656}
   - component: {fileID: 6256701077193605854}
   - component: {fileID: 5955243257303247707}
+  - component: {fileID: 6832849747181209403}
   m_Layer: 0
   m_Name: blossom
   m_TagString: Untagged
@@ -235,6 +236,19 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 2570582846859840317}
+        m_TargetAssemblyTypeName: Gameplay.Entities.MagicFlower.MagicFlowerEntityViewSpike,
+          Assembly-CSharp
+        m_MethodName: GrantBlossom
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   monoActivities: []
 --- !u!114 &5955243257303247707
 MonoBehaviour:
@@ -249,6 +263,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <TargetState>k__BackingField: empty
+--- !u!114 &6832849747181209403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1792837611251527934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6eb3471c880a4f63bf9a7bf07f46191e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ifStatement:
+    fieldA:
+      dataSource: 3
+      sourceObject: {fileID: 8071117286669694972}
+      path: 
+      stringValue: 
+      numberValue: 0
+      boolValue: 0
+    compareOperator: 0
+    fieldB:
+      dataSource: 0
+      sourceObject: {fileID: 0}
+      path: 
+      stringValue: 
+      numberValue: 0
+      boolValue: 0
+  then:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &3353553232336319773
 GameObject:
   m_ObjectHideFlags: 0
@@ -558,6 +603,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   cycle: 4
   amplitude: 5
+  angle: 0
 --- !u!1 &5490617638832007068
 GameObject:
   m_ObjectHideFlags: 0
@@ -811,6 +857,18 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1976104774085780252}
+        m_TargetAssemblyTypeName: Gameplay.MagicFlower.WavingStickAnimation, Assembly-CSharp
+        m_MethodName: RandomizeSwayDirection
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1976104774085780252}
         m_TargetAssemblyTypeName: Common.Animation.ScriptingAnimation.ScriptingAnimation,
           Assembly-CSharp
         m_MethodName: Play
@@ -871,6 +929,18 @@ MonoBehaviour:
   onClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 1976104774085780252}
+        m_TargetAssemblyTypeName: Gameplay.MagicFlower.WavingStickAnimation, Assembly-CSharp
+        m_MethodName: RandomizeSwayDirection
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 1976104774085780252}
         m_TargetAssemblyTypeName: Common.Animation.ScriptingAnimation.ScriptingAnimation,
           Assembly-CSharp
@@ -938,6 +1008,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5724558040252425851}
+  - component: {fileID: 2570582846859840317}
   m_Layer: 0
   m_Name: flower_spike
   m_TagString: Untagged
@@ -963,6 +1034,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2570582846859840317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8071117286669694972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5f168f29e684667b0f9f2dbf7163ce9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entityId: magic_flower
+  blossomIndex: 0
 --- !u!1 &8197923066998207765
 GameObject:
   m_ObjectHideFlags: 0
@@ -973,6 +1058,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8550185942841890723}
   - component: {fileID: 4165334807105759169}
+  - component: {fileID: 7794105247901880241}
   m_Layer: 0
   m_Name: states
   m_TagString: Untagged
@@ -1011,6 +1097,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultStateIndex: 0
+--- !u!114 &7794105247901880241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8197923066998207765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sourceObject: {fileID: 2570582846859840317}
+  eventFilter: static
+  items:
+  - sourceObjectMethodName: 'get_ToBlossomDurationStep1(): Single'
+    targetObject: {fileID: 6964056268158935379}
+    targetMethodName: SetDuration(Single)
+  - sourceObjectMethodName: 'get_ToBlossomDurationStep2(): Single'
+    targetObject: {fileID: 2641433042094798711}
+    targetMethodName: SetDuration(Single)
 --- !u!1 &8520413455488790657
 GameObject:
   m_ObjectHideFlags: 0

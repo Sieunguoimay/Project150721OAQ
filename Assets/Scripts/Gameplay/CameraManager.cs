@@ -2,7 +2,7 @@
 
 namespace Gameplay
 {
-    public class CameraManager : MonoBindingInjectable<CameraManager>
+    public class CameraManager : MonoInjectable<CameraManager>
     {
         public Camera Camera => GetComponent<Camera>();
     }

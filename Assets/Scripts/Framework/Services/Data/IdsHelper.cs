@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 
-namespace Framework.Services.Editor
+namespace Framework.Services.Data
 {
 #if UNITY_EDITOR
     public static class IdsHelper

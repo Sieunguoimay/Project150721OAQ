@@ -3,21 +3,21 @@ using UnityEngine;
 
 namespace Gameplay
 {
-    public abstract class MonoBindingInjectable<TInjectable> : MonoBehaviour, IInjectable, IBinding
+    public abstract class MonoInjectable<TInjectable> : MonoBehaviour, ISelfBindingInjectable
     {
-        public void SelfBind(IBinder binder)
+        public void Bind(IBinder binder)
         {
             binder.Bind<TInjectable>(this);
         }
 
-        public void SelfUnbind(IBinder binder)
+        public void Unbind(IBinder binder)
         {
             binder.Unbind<TInjectable>();
         }
 
         public virtual void Inject(IResolver resolver)
         {
-            
+
         }
     }
 }

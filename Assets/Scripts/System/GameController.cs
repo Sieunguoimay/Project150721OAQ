@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using Framework;
 using Framework.Resolver;
 using Framework.Services;
@@ -15,13 +16,15 @@ namespace System
         private GameObject[] _spawnedParts;
 
         private IInjectable[] _injectables;
-        private IBinding[] _bindings;
+        private ISelfBindingInjectable[] _bindings;
 
         private IBinder _binder;
         private IResolver _resolver;
 
-        private void Start()
+        private IEnumerator Start()
         {
+            yield return new WaitUntil(() => MonoInstaller.Instance.Done);
+            
             _resolver = MonoInstaller.Instance.Resolver;
             _binder = _resolver.Resolve<IBinder>();
 
@@ -36,12 +39,12 @@ namespace System
         private void SpawnGame()
         {
             var allInjectables = new List<IInjectable>();
-            var allBindings = new List<IBinding>();
+            var allBindings = new List<ISelfBindingInjectable>();
 
             foreach (var t in objects)
             {
                 allInjectables.AddRange(t.GetComponentsInChildren<IInjectable>(true));
-                allBindings.AddRange(t.GetComponentsInChildren<IBinding>(true));
+                allBindings.AddRange(t.GetComponentsInChildren<ISelfBindingInjectable>(true));
             }
 
             _spawnedParts = new GameObject[prefabs.Length];
@@ -50,7 +53,7 @@ namespace System
             {
                 _spawnedParts[i] = Instantiate(prefabs[i]);
                 allInjectables.AddRange(_spawnedParts[i].GetComponentsInChildren<IInjectable>(true));
-                allBindings.AddRange(_spawnedParts[i].GetComponentsInChildren<IBinding>(true));
+                allBindings.AddRange(_spawnedParts[i].GetComponentsInChildren<ISelfBindingInjectable>(true));
             }
 
             _injectables = allInjectables.ToArray();
@@ -58,7 +61,7 @@ namespace System
 
             foreach (var b in allBindings)
             {
-                b.SelfBind(_binder);
+                b.Bind(_binder);
             }
 
             foreach (var injectable in _injectables)
@@ -71,7 +74,7 @@ namespace System
         {
             foreach (var b in _bindings)
             {
-                b.SelfUnbind(_binder);
+                b.Unbind(_binder);
             }
 
             foreach (var spawned in _spawnedParts)

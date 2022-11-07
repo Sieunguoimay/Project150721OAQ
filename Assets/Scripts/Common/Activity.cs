@@ -86,7 +86,7 @@ namespace Common
 
     public interface IActivityQueue
     {
-        IEnumerable<Activity> Activities { get; }
+        IReadOnlyCollection<Activity> Activities { get; }
         void Add(Activity activity);
     }
 
@@ -95,7 +95,7 @@ namespace Common
         private Activity _currentActivity;
 
         private readonly Queue<Activity> _activities = new();
-        public IEnumerable<Activity> Activities => _activities;
+        public IReadOnlyCollection<Activity> Activities => _activities;
 
         public void Add(Activity anim)
         {
@@ -151,6 +151,7 @@ namespace Common
                 a.End();
             }
 
+            _currentActivity = null;
             _activities.Clear();
         }
     }

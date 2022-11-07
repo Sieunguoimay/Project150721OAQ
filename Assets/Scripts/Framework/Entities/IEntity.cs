@@ -1,11 +1,13 @@
 ﻿using System;
 using Framework.Resolver;
 using Framework.Services;
+using Framework.Services.Data;
 using UnityEngine;
 
 namespace Framework.Entities
 {
-    public interface IEntity<out TData, out TSavedData> : IInjectable where TData : IEntityData where TSavedData : IEntitySavedData
+    public interface IEntity<out TData, out TSavedData> : IInjectable
+        where TData : IEntityData where TSavedData : IEntitySavedData
     {
         TData Data { get; }
         TSavedData SavedData { get; }
@@ -18,6 +20,7 @@ namespace Framework.Entities
     {
         string Id { get; }
         IEntity<IEntityData, IEntitySavedData> CreateEntity();
+        Type GetBindingType();
     }
 
     public interface IEntitySavedData
@@ -38,6 +41,11 @@ namespace Framework.Entities
         public IEntity<IEntityData, IEntitySavedData> CreateEntity()
         {
             return new BaseEntity<IEntityData, IEntitySavedData>(this, null);
+        }
+
+        public virtual Type GetBindingType()
+        {
+            return typeof(IEntityData);
         }
     }
 
@@ -74,9 +82,13 @@ namespace Framework.Entities
         }
     }
 
-    public class BaseEntity<TData, TSavedData> : IEntity<TData, TSavedData> where TData : IEntityData where TSavedData : IEntitySavedData
+    public class BaseEntity<TData, TSavedData> : IEntity<TData, TSavedData>
+        where TData : IEntityData
+        where TSavedData : IEntitySavedData
     {
         private ISavedDataService _savedDataService;
+        protected IResolver Resolver { get; private set; }
+
         public BaseEntity(TData data, TSavedData savedData)
         {
             Data = data;
@@ -85,6 +97,7 @@ namespace Framework.Entities
 
         public virtual void Inject(IResolver resolver)
         {
+            Resolver = resolver;
             _savedDataService = resolver.Resolve<ISavedDataService>();
         }
 

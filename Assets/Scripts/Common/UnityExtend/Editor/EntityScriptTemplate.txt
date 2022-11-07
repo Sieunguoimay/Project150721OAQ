@@ -1,0 +1,15 @@
+﻿using Framework.Entities;
+
+namespace #NAMESPACE#
+{
+    public interface I#SCRIPTNAME# : IEntity<I#SCRIPTNAME#Data, I#SCRIPTNAME#SavedData>
+    {
+    }
+
+    public class #SCRIPTNAME# : BaseEntity<I#SCRIPTNAME#Data, I#SCRIPTNAME#SavedData>, I#SCRIPTNAME#
+    {
+        public #SCRIPTNAME#(I#SCRIPTNAME#Data data, I#SCRIPTNAME#SavedData savedData) : base(data, savedData)
+        {
+        }
+    }
+}

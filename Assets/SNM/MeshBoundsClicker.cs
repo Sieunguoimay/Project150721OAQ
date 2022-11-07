@@ -11,12 +11,9 @@ namespace SNM
         {
             get
             {
-                if (!Application.isPlaying)
+                if (_renderer == null)
                 {
-                    if (_renderer == null)
-                    {
-                        _renderer = GetComponent<Renderer>();
-                    }
+                    _renderer = GetComponent<Renderer>();
                 }
 
                 return _renderer.bounds;

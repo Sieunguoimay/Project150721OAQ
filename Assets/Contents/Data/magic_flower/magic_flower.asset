@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 718d67f8b2a84ef4b07f40c47a6c0a45, type: 3}
-  m_Name: DroneManager
+  m_Script: {fileID: 11500000, guid: 815307b04437441cb455a948e1941d63, type: 3}
+  m_Name: magic_flower
   m_EditorClassIdentifier: 
-  configData:
-    dronePrefab: {fileID: 8468944458799233623, guid: fedfcce6a5e5a7341a45afae5d32ee6d, type: 3}
+  <Id>k__BackingField: magic_flower
+  <FlowerCount>k__BackingField: 3

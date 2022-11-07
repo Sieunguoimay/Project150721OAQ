@@ -1,4 +1,5 @@
-﻿using Common.DecisionMaking;
+﻿using System.Linq;
+using Common.DecisionMaking;
 using UnityEngine;
 
 namespace Common.Animation.ScriptingAnimation

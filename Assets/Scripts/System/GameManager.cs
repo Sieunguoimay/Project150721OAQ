@@ -1,6 +1,7 @@
 ﻿using Framework.Entities;
 using Framework.Resolver;
 using Framework.Services;
+using Framework.Services.Data;
 using Gameplay;
 using Gameplay.BambooStick;
 using Gameplay.Board;
@@ -11,7 +12,7 @@ using UnityEngine;
 
 namespace System
 {
-    public class GameManager : MonoBehaviour, IInjectable, IBinding
+    public class GameManager : MonoBehaviour, IInjectable, ISelfBindingInjectable
     {
         [SerializeField, IdSelector(typeof(ICurrencyProcessorData))]
         private string matchProcessorId;
@@ -27,13 +28,13 @@ namespace System
 
         private IResolver _resolver;
 
-        public void SelfBind(IBinder binder)
+        public void Bind(IBinder binder)
         {
             binder.Bind<GameFlowManager>(_gameFlowManager);
             binder.Bind<IMatchChooser>(_matchChooser);
         }
 
-        public void SelfUnbind(IBinder binder)
+        public void Unbind(IBinder binder)
         {
             binder.Unbind<GameFlowManager>();
             binder.Unbind<IMatchChooser>();

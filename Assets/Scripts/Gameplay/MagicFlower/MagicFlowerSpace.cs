@@ -43,6 +43,15 @@ namespace Gameplay.MagicFlower
             }
         }
 
+        public void SpawnRandom(int amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                _slotIndex = Random.Range(0, _availableSlots.Count);
+                Spawn();
+            }
+        }
+        
         public void PrepareLandingSpot(Transform startSpot)
         {
             TransformUtility.CopyWorldScale(prefab.transform, startSpot);

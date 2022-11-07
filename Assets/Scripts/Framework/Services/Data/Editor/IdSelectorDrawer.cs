@@ -2,7 +2,7 @@
 using Common.UnityExtend.Attribute;
 using UnityEditor;
 
-namespace Framework.Services.Editor
+namespace Framework.Services.Data.Editor
 {
 #if UNITY_EDITOR
 

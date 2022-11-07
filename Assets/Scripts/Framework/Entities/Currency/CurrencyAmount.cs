@@ -1,5 +1,6 @@
 ﻿using System;
 using Framework.Services;
+using Framework.Services.Data;
 using UnityEngine;
 
 namespace Framework.Entities.Currency

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Gameplay.Piece
 {
-    public class PieceManager : MonoBindingInjectable<PieceManager>
+    public class PieceManager : MonoInjectable<PieceManager>
     {
         [SerializeField] private Piece mandarinPrefab;
         [SerializeField] private Piece citizenPrefab;

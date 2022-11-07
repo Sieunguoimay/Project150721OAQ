@@ -488,6 +488,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6754906519833514506}
+  - component: {fileID: 1520294461941189649}
+  - component: {fileID: 3357858517453454024}
   m_Layer: 0
   m_Name: MagicFlowerSpace
   m_TagString: Untagged
@@ -514,6 +516,37 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: -2.09, z: 0}
+--- !u!114 &1520294461941189649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6754906519833514505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a73700d959d4ff6adb64a1901ba9891, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entityId: magic_flower
+--- !u!114 &3357858517453454024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6754906519833514505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sourceObject: {fileID: 1520294461941189649}
+  eventFilter: static
+  items:
+  - sourceObjectMethodName: 'get_CollectableFlowerCount(): Int32'
+    targetObject: {fileID: 1253341266578782703}
+    targetMethodName: SpawnRandom(Int32)
 --- !u!1 &7976885823245820263
 GameObject:
   m_ObjectHideFlags: 0

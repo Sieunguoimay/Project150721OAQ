@@ -12,6 +12,7 @@ namespace Framework.Entities
     {
         string[] CurrencyIds { get; }
         string MatchProcessorId { get; }
+        string[] EntityIds { get; }
     }
 
     public interface IGameContentSavedData : IEntitySavedData

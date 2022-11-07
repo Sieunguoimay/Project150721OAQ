@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
-    public class GameInteractManager : MonoBindingInjectable<GameInteractManager>
+    public class GameInteractManager : MonoInjectable<GameInteractManager>
     {
         [SerializeField] private TileChooser tileChooser;
         [SerializeField] private ActionChooser actionChooser;

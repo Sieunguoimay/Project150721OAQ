@@ -1,12 +1,14 @@
 ﻿using Framework.Resolver;
 using Framework.Services;
+using Framework.Services.Data;
 
 namespace Framework.Entities
 {
     public interface IEntityLoader : IInjectable
     {
-        void CreateEntity<TEntity, TEntityData>(string entityDataId) where TEntityData : IEntityData where TEntity : IEntity<IEntityData, IEntitySavedData>;
-        void DestroyEntity<TEntity>(string entityDataId) where TEntity : IEntity<IEntityData, IEntitySavedData>;
+        IEntity<IEntityData, IEntitySavedData> CreateEntity(string entityDataId);
+
+        void DestroyEntity(IEntity<IEntityData, IEntitySavedData> entity);
     }
 
     //Only for entity
@@ -23,23 +25,23 @@ namespace Framework.Entities
             _binder = resolver.Resolve<IBinder>();
         }
 
-        public void CreateEntity<TEntity, TEntityData>(string entityDataId) where TEntityData : IEntityData where TEntity : IEntity<IEntityData, IEntitySavedData>
+        public IEntity<IEntityData, IEntitySavedData> CreateEntity(string entityDataId)
         {
-            var entity = _dataService.Load<TEntityData>(entityDataId).CreateEntity();
+            var entityAsset = _dataService.Load<IEntityData>(entityDataId);
+            var entity = entityAsset.CreateEntity();
 
-            _binder.Bind<TEntity>(entity, entityDataId);
+            _binder.Bind(entityAsset.GetBindingType(), entityDataId, entity);
 
             entity.Inject(_resolver);
             entity.Initialize();
+            return entity;
         }
 
-        public void DestroyEntity<TEntity>(string entityDataId) where TEntity : IEntity<IEntityData, IEntitySavedData>
+        public void DestroyEntity(IEntity<IEntityData, IEntitySavedData> entity)
         {
-            var entity = _resolver.Resolve<TEntity>(entityDataId);
-
             entity.Terminate();
 
-            _binder.Unbind<TEntity>(entityDataId);
+            _binder.Unbind(entity.Data.GetBindingType(), entity.Data.Id);
         }
     }
 }

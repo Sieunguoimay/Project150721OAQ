@@ -17,5 +17,7 @@ namespace Common.DecisionMaking.Actions
 
             return _activity;
         }
+
+        public void SetDuration(float d) => duration = d;
     }
 }

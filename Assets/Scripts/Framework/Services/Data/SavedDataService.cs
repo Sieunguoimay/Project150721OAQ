@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEngine;
 
-namespace Framework.Services
+namespace Framework.Services.Data
 {
     public interface ISavedDataService
     {

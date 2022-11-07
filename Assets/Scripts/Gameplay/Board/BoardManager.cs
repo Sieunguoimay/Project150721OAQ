@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Gameplay.Board
 {
-    public class BoardManager : MonoBindingInjectable<BoardManager>
+    public class BoardManager : MonoInjectable<BoardManager>
     {
         [SerializeField] private MandarinTile mandarinTilePrefab;
         [SerializeField] private Tile citizenTilePrefab;

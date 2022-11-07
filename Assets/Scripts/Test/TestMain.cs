@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using Common.UnityExtend.Reflection;
 using InGame.Common;
 using UnityEngine;
+using UnityEngine.Events;
 using Random = UnityEngine.Random;
 
 namespace Test
 {
-    public class TestMain : MonoBehaviour
+    public class TestMain : MonoBehaviour, IDataBridgeTrigger
     {
         [SerializeField, Range(-360, 360)] private float localEulerAngleX;
         [SerializeField, Range(-360, 360)] private float localEulerAngleY;
@@ -20,7 +23,7 @@ namespace Test
         {
             // transform.localEulerAngles = new Vector3(localEulerAngleX, localEulerAngleY, localEulerAngleZ);
             // transform.rotation = ToQuaternion(Mathf.Deg2Rad * localEulerAngleX, Mathf.Deg2Rad * localEulerAngleY, Mathf.Deg2Rad * localEulerAngleZ);
-            transform.rotation= Quaternion.Euler(Vector3.right* localEulerAngleX);
+            transform.rotation = Quaternion.Euler(Vector3.right * localEulerAngleX);
         }
 
         // private PathMover _pathMover;
@@ -73,5 +76,26 @@ namespace Test
 
             return q;
         }
+
+        [field: System.NonSerialized] public UnityEvent<int> EventTrigger { get; private set; } = new();
+        public IReadOnlyList<string> Filters => new[] {"static", "progress", "state"};
+
+        [ContextMenu("Trigger a")]
+        private void TriggerA()
+        {
+            EventTrigger.Invoke(1);
+        }
+
+        public void A()
+        {
+        }
+
+        public void A(int a)
+        {
+            Debug.Log($"Well {a}");
+        }
+
+        public int B { get; } = 10;
+        public int BB { get; set; } = 100;
     }
 }

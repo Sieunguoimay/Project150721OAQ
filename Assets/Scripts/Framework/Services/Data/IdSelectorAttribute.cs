@@ -1,7 +1,7 @@
 ﻿using System;
 using Common.UnityExtend.Attribute;
 
-namespace Framework.Services
+namespace Framework.Services.Data
 {
     public class IdSelectorAttribute : StringSelectorAttribute
     {

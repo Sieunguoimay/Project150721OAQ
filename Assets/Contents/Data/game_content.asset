@@ -17,3 +17,5 @@ MonoBehaviour:
   - game_currency
   - piece_collection
   <MatchProcessorId>k__BackingField: match_processor_1
+  <EntityIds>k__BackingField:
+  - magic_flower
