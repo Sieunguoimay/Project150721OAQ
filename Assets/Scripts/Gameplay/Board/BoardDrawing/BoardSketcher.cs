@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Gameplay.Board.BoardDrawing
 {
-    public class BoardSketcher : MonoInjectable<BoardSketcher>
+    public class BoardSketcher : MonoSelfBindingInjectable<BoardSketcher>
     {
         [SerializeField] private VisualPen[] pens;
         [SerializeField] private DrawingSurface[] surfaces;

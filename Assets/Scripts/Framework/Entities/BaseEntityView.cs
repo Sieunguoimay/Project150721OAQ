@@ -10,7 +10,7 @@ using UnityEngine.Events;
 
 namespace Framework.Entities
 {
-    public class BaseEntityView<TEntity, TEntityData> : MonoInjectable<BaseEntityView<TEntity, TEntityData>>, IDataBridgeTrigger
+    public class BaseEntityView<TEntity, TEntityData> : MonoInjectable, IDataBridgeTrigger
         where TEntity : IEntity<IEntityData, IEntitySavedData> where TEntityData : IEntityData
     {
         [SerializeField]

@@ -62,6 +62,7 @@ namespace Gameplay.Entities.MagicFlower
         public void SetBlossomTimeStamp(int index, double timestamp)
         {
             blossomTimeStamps[index] = timestamp;
+            Debug.Log($"SetBlossomTimeStamp {index} {timestamp}");
             Save();
         }
 

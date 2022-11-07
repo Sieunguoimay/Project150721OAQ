@@ -65,11 +65,11 @@ namespace Common.UnityExtend.Attribute
                 !constrainedType.IsInstanceOfType(property.objectReferenceValue)))
                 GUI.color = Color.red;
 
-            var width = position.width-8;
+            var width = position.width - 8;
 
             if (typeConstraint.ShowConstraintType)
             {
-                position.width = width ;
+                position.width = width;
                 EditorGUI.PropertyField(position, property,
                     new GUIContent($"{property.displayName} ({typeConstraint.RequiredTypesLabel})"));
             }
@@ -79,7 +79,7 @@ namespace Common.UnityExtend.Attribute
                 EditorGUI.LabelField(position, new GUIContent($"{property.displayName}"));
 
                 position.x = width / 3;
-                position.width = width / 3 * 2 ;
+                position.width = width / 3 * 2;
                 EditorGUI.PropertyField(position, property, GUIContent.none);
             }
 
@@ -89,11 +89,11 @@ namespace Common.UnityExtend.Attribute
             btnRect.x = width + 2;
             btnRect.width = 25;
             Menu(btnRect, property,
-                go => typeConstraint.RequiredTypes.SelectMany(i => go.GetComponentsInChildren(i, true)).Distinct()
+                go => typeConstraint.RequiredTypes.SelectMany(i => go.GetComponentsInChildren(i, true).Select(c => c as UnityEngine.Object)).Distinct()
                     .ToArray(), true);
         }
 
-        public static void Menu(Rect rect, SerializedProperty property, Func<GameObject, Component[]> filter,
+        public static void Menu(Rect rect, SerializedProperty property, Func<GameObject, UnityEngine.Object[]> filter,
             bool showIndex)
         {
             var value = property.objectReferenceValue

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Gameplay
 {
-    public class PlayersManager : MonoInjectable<PlayersManager>
+    public class PlayersManager : MonoSelfBindingInjectable<PlayersManager>
     {
         [field: System.NonSerialized] public Player[] Players { get; private set; }
         private Player _mainPlayer;

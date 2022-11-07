@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Framework.Services.Data
@@ -76,5 +79,18 @@ namespace Framework.Services.Data
         {
             return Path.Combine(_path, $"{savedId}.json");
         }
+
+#if UNITY_EDITOR
+        [MenuItem("Data/Clear Saved Data")]
+        public static void ClearSavedData()
+        {
+            var files = Directory.GetFiles(Path.Combine(MonoInstaller.ProjectPath, "SavedData"));
+            foreach (var file in files)
+            {
+                File.Delete(file);
+                Console.WriteLine($"{file} is deleted.");
+            }
+        }
+#endif
     }
 }

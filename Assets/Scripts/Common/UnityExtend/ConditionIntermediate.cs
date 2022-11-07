@@ -24,25 +24,17 @@ namespace Common.UnityExtend
             {
                 var valueA = fieldA.GetValue();
                 var valueB = fieldB.GetValue();
-                var typeA = valueA.GetType();
-                var typeB = valueB.GetType();
-                if (typeA == typeB)
-                {
-                    return CompareTwoFieldOfSameType(valueA, valueB, typeA, compareOperator);
-                }
-
-                Debug.LogError("Comparing between two different type");
-                return false;
+                return CompareTwoFieldOfSameType(valueA, valueB, fieldA.GetResultType(), compareOperator);
             }
 
-            private static bool CompareTwoFieldOfSameType(object fieldA, object fieldB, Type type, CompareOperator compareOperator)
+            private static bool CompareTwoFieldOfSameType(object fieldA, object fieldB, FieldDataSourceType type, CompareOperator compareOperator)
             {
                 if (compareOperator == CompareOperator.Equal)
                 {
                     return fieldA.Equals(fieldB);
                 }
 
-                return type == typeof(double) && CompareTwoDouble((double) fieldA, (double) fieldB, compareOperator);
+                return type == FieldDataSourceType.Number && CompareTwoDouble((double)fieldA, (double) fieldB, compareOperator);
             }
 
             private static bool CompareTwoDouble(double a, double b, CompareOperator compareOperator)
@@ -83,7 +75,7 @@ namespace Common.UnityExtend
         {
             public FieldDataSourceType dataSource;
 
-            [ShowIf(nameof(dataSource), FieldDataSourceType.ObjectField), SerializeField]
+            [ShowIf(nameof(dataSource), FieldDataSourceType.ObjectField), SerializeField, UnityObjectSelector]
             private UnityEngine.Object sourceObject;
 
             [ShowIf(nameof(dataSource), FieldDataSourceType.ObjectField), SerializeField] [StringSelector(nameof(ObjectFields))]
@@ -113,6 +105,36 @@ namespace Common.UnityExtend
                     FieldDataSourceType.ObjectField => ReflectionUtility.GetPropertyOrFieldValue(sourceObject, path),
                     _ => null
                 };
+            }
+
+            public FieldDataSourceType GetResultType()
+            {
+                if (dataSource == FieldDataSourceType.ObjectField)
+                {
+                    return MapToTypeEnum(ReflectionUtility.GetPropertyOrFieldType(sourceObject, path));
+                }
+
+                return dataSource;
+            }
+
+            public static FieldDataSourceType MapToTypeEnum(Type type)
+            {
+                if (type == typeof(bool))
+                {
+                    return FieldDataSourceType.Bool;
+                }
+
+                if (type == typeof(double) || type == typeof(float) || type == typeof(int))
+                {
+                    return FieldDataSourceType.Number;
+                }
+
+                if (type == typeof(string))
+                {
+                    return FieldDataSourceType.Text;
+                }
+
+                return FieldDataSourceType.ObjectField;
             }
         }
 

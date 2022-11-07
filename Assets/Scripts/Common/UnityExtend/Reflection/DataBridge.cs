@@ -146,7 +146,7 @@ namespace Common.UnityExtend.Reflection
             {
                 if (EventFilters[i].Equals(eventFilter))
                 {
-                    _eventFilterMask = 2 ^ i; //1 2 4 8 16
+                    _eventFilterMask = (int) Mathf.Pow(2f, i); //1 2 4 8 16
                     break;
                 }
             }
@@ -159,7 +159,7 @@ namespace Common.UnityExtend.Reflection
 
         private void OnSourceTrigger(int mask)
         {
-            if ((_eventFilterMask & mask) == 0)
+            if ((_eventFilterMask & mask) != 0)
             {
                 Transfer();
             }
@@ -240,7 +240,7 @@ namespace Common.UnityExtend.Reflection
             var btnRect = position;
             btnRect.x += position.width + 2;
             btnRect.width = 25;
-            TypeConstraintPropertyDrawer.Menu(btnRect, targetObject, go => go.GetComponents<Component>(), false);
+            TypeConstraintPropertyDrawer.Menu(btnRect, targetObject, go => go.GetComponents<Component>().Select(c => c as Object).Concat(new[] {go}).ToArray(), false);
 
             btnRect.x += 27;
             btnRect.width = fullWidth / 3 * 2 - 27;

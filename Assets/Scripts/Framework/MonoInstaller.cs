@@ -22,7 +22,7 @@ namespace Framework
         [SerializeField,IdSelector(typeof(IGameContentData))] private string gameContentId;
 
 #if UNITY_EDITOR
-        public string ProjectPath => Path.GetDirectoryName(Application.dataPath);
+        public static string ProjectPath => Path.GetDirectoryName(Application.dataPath);
         public string SavedDataPath => Path.Combine(ProjectPath, saveFolder);
 #else
 #endif

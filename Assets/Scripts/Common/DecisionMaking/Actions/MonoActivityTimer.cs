@@ -18,6 +18,11 @@ namespace Common.DecisionMaking.Actions
             return _activity;
         }
 
-        public void SetDuration(float d) => duration = d;
+        public void SetDuration(float d)
+        {
+            Debug.Log($"SetDuration {d}");
+            _activity = null;
+            duration = d;
+        }
     }
 }

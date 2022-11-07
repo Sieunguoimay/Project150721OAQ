@@ -1,4 +1,5 @@
 ﻿using Framework.Entities;
+using Framework.Services;
 using UnityEngine;
 
 namespace Gameplay.Entities.MagicFlower
@@ -25,7 +26,7 @@ namespace Gameplay.Entities.MagicFlower
 
         public void GrantBlossom(int blossomIndex)
         {
-            SavedData.SetBlossomTimeStamp(blossomIndex, Time.time + Data.ToBlossomDuration);
+            SavedData.SetBlossomTimeStamp(blossomIndex, TimerService.GameTimeStampInSeconds + (long)Data.ToBlossomDuration);
             SavedData.SetCollectableFlowerCount(SavedData.CollectableFlowerCount + 1);
         }
 

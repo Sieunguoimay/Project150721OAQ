@@ -1,18 +1,35 @@
-﻿using UnityEngine;
+﻿using System;
+using Framework.Services;
+using UnityEngine;
+using UnityEngine.Events;
 
 namespace Gameplay.Entities.MagicFlower
 {
     public class MagicFlowerEntityViewSpike : MagicFlowerEntityView
     {
         [SerializeField] private int blossomIndex;
+        [SerializeField] private UnityEvent shouldChangeState;
+
+        protected override void SafeStart()
+        {
+            base.SafeStart();
+
+            if (BlossomRemainingDuration > 0)
+            {
+                EventTrigger?.Invoke(2);
+                shouldChangeState?.Invoke();
+            }
+
+            Debug.Log($"{blossomIndex}: {BlossomRemainingDuration} {ToBlossomDurationStep1} {ToBlossomDurationStep2} {Entity.SavedData.BlossomTimeStamps[blossomIndex]}");
+        }
 
         public float BlossomRemainingDuration =>
-            (float) (Entity.SavedData.BlossomTimeStamps[blossomIndex] - Time.time);
+            (float) Math.Max(Entity.SavedData.BlossomTimeStamps[blossomIndex] - TimerService.GameTimeStampInSeconds, 0);
 
         public float ToBlossomDurationStep1 =>
-            Mathf.Max(BlossomRemainingDuration / 2 - Entity.Data.ToBlossomDuration / 2, 0);
+            Mathf.Max(BlossomRemainingDuration - Entity.Data.ToBlossomDuration / 2, 0);
 
-        public float ToBlossomDurationStep2 => BlossomRemainingDuration - ToBlossomDurationStep1;
+        public float ToBlossomDurationStep2 => Mathf.Max(BlossomRemainingDuration - ToBlossomDurationStep1, 0);
 
         public void GrantBlossom() => GrantBlossom(blossomIndex);
     }
