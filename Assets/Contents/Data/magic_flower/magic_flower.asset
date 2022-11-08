@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Id>k__BackingField: magic_flower
   <FlowerCount>k__BackingField: 3
-  <ToBlossomDuration>k__BackingField: 10
+  <ToBlossomDuration>k__BackingField: 15
