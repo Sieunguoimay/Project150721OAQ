@@ -13,6 +13,11 @@ namespace System
             StartCoroutine(LoadScene(sceneName, OnLoadSceneDone));
         }
 
+        private void OnDestroy()
+        {
+            UnloadGameScene();
+        }
+        
         public void UnloadGameScene()
         {
             StartCoroutine(UnloadScene(sceneName, OnLoadSceneDone));

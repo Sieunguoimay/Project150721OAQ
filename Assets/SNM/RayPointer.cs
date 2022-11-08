@@ -1,20 +1,44 @@
 ﻿using System.Collections.Generic;
-using Common;
-using Gameplay;
-using TMPro.Examples;
 using UnityEngine;
 
 namespace SNM
 {
-    public class RayPointer : Singleton<RayPointer>
+    public class MonoRayPointer : MonoBehaviour
+    {
+        private RayPointer _rayPointer;
+
+        private void Start()
+        {
+            _rayPointer = RayPointer.Instance;
+            _rayPointer.SetCamera(Camera.main);
+        }
+
+        public void Update()
+        {
+            if (Input.GetMouseButtonUp(0))
+            {
+                _rayPointer.ProcessMouse(Input.mousePosition);
+            }
+        }
+    }
+
+    public class RayPointer
     {
         private readonly List<IRaycastTarget> _listeners = new();
         private Camera _camera;
         private Camera _defaultCamera;
+        private static RayPointer _instance;
 
-        private void Start()
+        public static RayPointer Instance
         {
-            _defaultCamera = Camera.main;
+            get
+            {
+                if (_instance != null) return _instance;
+
+                _instance = new RayPointer();
+                new GameObject(nameof(RayPointer)).AddComponent<MonoRayPointer>();
+                return _instance;
+            }
         }
 
         public void SetCamera(Camera cam)
@@ -22,7 +46,7 @@ namespace SNM
             _camera = cam;
         }
 
-        public void Reset()
+        public void Clear()
         {
             _listeners.Clear();
         }
@@ -37,15 +61,7 @@ namespace SNM
             _listeners.Remove(target);
         }
 
-        public void Update()
-        {
-            if (Input.GetMouseButtonUp(0))
-            {
-                ProcessMouse(Input.mousePosition);
-            }
-        }
-
-        private void ProcessMouse(Vector3 position)
+        public void ProcessMouse(Vector3 position)
         {
             if (_camera == null)
             {

@@ -19,8 +19,6 @@ namespace Gameplay.Entities.MagicFlower
                 EventTrigger?.Invoke(2);
                 shouldChangeState?.Invoke();
             }
-
-            Debug.Log($"{blossomIndex}: {BlossomRemainingDuration} {ToBlossomDurationStep1} {ToBlossomDurationStep2} {Entity.SavedData.BlossomTimeStamps[blossomIndex]}");
         }
 
         public float BlossomRemainingDuration =>
