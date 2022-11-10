@@ -15,7 +15,7 @@ namespace System
 
         private void OnDestroy()
         {
-            UnloadGameScene();
+            // UnloadGameScene();
         }
         
         public void UnloadGameScene()

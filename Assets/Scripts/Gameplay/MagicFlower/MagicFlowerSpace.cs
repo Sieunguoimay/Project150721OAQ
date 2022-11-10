@@ -51,7 +51,7 @@ namespace Gameplay.MagicFlower
                 Spawn();
             }
         }
-        
+
         public void PrepareLandingSpot(Transform startSpot)
         {
             TransformUtility.CopyWorldScale(prefab.transform, startSpot);
@@ -75,13 +75,18 @@ namespace Gameplay.MagicFlower
             spline.SetControlPoint(spline.ControlPoints.Count - 1, splineTransform.InverseTransformPoint(endPos));
             spline.SetControlPoint(0, splineTransform.InverseTransformPoint(startPos));
 
-            var localControlMidPoint = transform.InverseTransformPoint(splineTransform.TransformPoint(spline.ControlPoints[spline.ControlPoints.Count / 2]));
-            var localControlFirstPoint = transform.InverseTransformPoint(splineTransform.TransformPoint(spline.ControlPoints[0]));
+            var localControlMidPoint =
+                transform.InverseTransformPoint(
+                    splineTransform.TransformPoint(spline.ControlPoints[spline.ControlPoints.Count / 2]));
+            var localControlFirstPoint =
+                transform.InverseTransformPoint(splineTransform.TransformPoint(spline.ControlPoints[0]));
             var localStartPoint = transform.InverseTransformPoint(startPos);
             var localMidPos = transform.InverseTransformPoint((endPos + startPos) / 2);
-            var newLocalControlMidPoint = new Vector3(localMidPos.x, localStartPoint.y + (localControlMidPoint.y - localControlFirstPoint.y), localMidPos.z);
+            var newLocalControlMidPoint = new Vector3(localMidPos.x,
+                localStartPoint.y + (localControlMidPoint.y - localControlFirstPoint.y), localMidPos.z);
 
-            spline.SetControlPoint(spline.ControlPoints.Count / 2, splineTransform.InverseTransformPoint(transform.TransformPoint(newLocalControlMidPoint)));
+            spline.SetControlPoint(spline.ControlPoints.Count / 2,
+                splineTransform.InverseTransformPoint(transform.TransformPoint(newLocalControlMidPoint)));
 
             var keys = angleAnimation.curveX.keys;
             keys[^1].value = Random.Range(-20f, 20f);
@@ -95,10 +100,17 @@ namespace Gameplay.MagicFlower
 
         public void Spawn()
         {
-            Instantiate(prefab, transform).transform.position = GetCell(_availableSlots[_slotIndex].x, _availableSlots[_slotIndex].y);
+            var blossom = Instantiate(prefab, transform);
+            blossom.transform.position = GetCell(_availableSlots[_slotIndex].x, _availableSlots[_slotIndex].y);
             _availableSlots.RemoveAt(_slotIndex);
+            blossom.GetComponent<ABoundsClicker>().Clicked.AddListener(OnBlossomClicked);
         }
 
+        private void OnBlossomClicked(ABoundsClicker blossom)
+        {
+            blossom.gameObject.SetActive(false);
+        }
+        
         private Vector3 GetCell(int x, int y)
         {
             var left = -tableSize.x / 2f * spacing;

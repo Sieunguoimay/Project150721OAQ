@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Framework.Entities;
+using Framework.Entities.Currency;
+using Framework.Services.Data;
 using UnityEngine;
 
 namespace Gameplay.Entities.MagicFlower
@@ -19,6 +21,8 @@ namespace Gameplay.Entities.MagicFlower
 
     public interface IMagicFlowerData : IEntityData, IMagicFlowerUniqueData
     {
+        string PayoutCurrencyId { get; }
+        int PayoutAmountPerFlower { get; }
     }
 
     public interface IMagicFlowerSavedData : IEntitySavedData, IMagicFlowerUniqueSavedData
@@ -38,6 +42,8 @@ namespace Gameplay.Entities.MagicFlower
 
         [field: SerializeField] public int FlowerCount { get; private set; }
         [field: SerializeField] public float ToBlossomDuration { get; private set; }
+        [field: SerializeField,IdSelector(typeof(ICurrencyData))] public string PayoutCurrencyId { get; private set; }
+        [field: SerializeField, Min(0)] public int PayoutAmountPerFlower { get; private set; }
     }
 
     [Serializable]

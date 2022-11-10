@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace SNM
@@ -8,7 +9,7 @@ namespace SNM
         [SerializeField] private UnityEvent click;
         [SerializeField] private bool selfSetup = true;
 
-        public UnityEvent Clicked => click;
+        [field: NonSerialized] public UnityEvent<ABoundsClicker> Clicked { get; private set; } = new();
         public abstract Bounds Bounds { get; }
 
         private void OnEnable()
@@ -53,6 +54,7 @@ namespace SNM
         public void OnHit(Ray ray, float distance)
         {
             click?.Invoke();
+            Clicked?.Invoke(this);
         }
     }
 
