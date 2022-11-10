@@ -81,7 +81,7 @@ namespace Gameplay.GameInteract.Button
         }
 
         [ContextMenu("Click")]
-        public void Click()
+        public void Click(ABoundsClicker arg0)
         {
             HideAway(.05f);
             this.Delay(.2f, () => { Command?.Execute(); });

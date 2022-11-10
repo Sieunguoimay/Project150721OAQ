@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Common.Animation.ScriptingAnimation;
 using Common.Curve;
 using Common.Curve.PathCreator.Core.Runtime.Utility;
@@ -7,6 +8,7 @@ using Common.UnityExtend;
 using Common.UnityExtend.Attribute;
 using SNM;
 using UnityEngine;
+using UnityEngine.Events;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
@@ -22,10 +24,13 @@ namespace Gameplay.MagicFlower
         private Object bezierSpline;
 
         [SerializeField] private AngleAnimation angleAnimation;
+        [field:SerializeField]public UnityEvent OnCollectBlossom { get; private set; }
 
         private int _slotIndex;
 
         private readonly List<Vector2Int> _availableSlots = new();
+
+        private readonly Dictionary<GameObject, Vector2Int> _blossomMap = new();
 
         private void Start()
         {
@@ -102,15 +107,27 @@ namespace Gameplay.MagicFlower
         {
             var blossom = Instantiate(prefab, transform);
             blossom.transform.position = GetCell(_availableSlots[_slotIndex].x, _availableSlots[_slotIndex].y);
+            _blossomMap.Add(blossom, _availableSlots[_slotIndex]);
             _availableSlots.RemoveAt(_slotIndex);
             blossom.GetComponent<ABoundsClicker>().Clicked.AddListener(OnBlossomClicked);
         }
 
+        public void Collect(GameObject blossom)
+        {
+            if (_blossomMap.TryGetValue(blossom, out var slot))
+            {
+                _availableSlots.Add(slot);
+                Destroy(blossom);
+                OnCollectBlossom?.Invoke();
+            }
+        }
+
+
         private void OnBlossomClicked(ABoundsClicker blossom)
         {
-            blossom.gameObject.SetActive(false);
+            Collect(blossom.gameObject);
         }
-        
+
         private Vector3 GetCell(int x, int y)
         {
             var left = -tableSize.x / 2f * spacing;

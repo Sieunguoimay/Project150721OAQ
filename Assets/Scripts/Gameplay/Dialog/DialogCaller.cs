@@ -15,7 +15,7 @@ namespace Gameplay.Dialog
             dialog.GetComponentInChildren<ABoundsClicker>().Clicked.AddListener(OnClick);
         }
 
-        private void OnClick()
+        private void OnClick(ABoundsClicker arg0)
         {
             if (dialog.CurrentTarget == transform)
             {
