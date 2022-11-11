@@ -23,7 +23,7 @@ namespace Gameplay.Entities.MagicFlower
         {
             if (savedData.BlossomTimeStamps == null || savedData.BlossomTimeStamps.Count == 0)
             {
-                savedData.CreateBlossomTimestampsArray(data.FlowerCount);
+                savedData.CreateBlossomTimestampsArray(data.NumFlowers);
             }
         }
 

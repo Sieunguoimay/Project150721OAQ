@@ -23,3 +23,5 @@ MonoBehaviour:
     tilesPerGroup: 5
   - playerNum: 4
     tilesPerGroup: 5
+  - playerNum: 4
+    tilesPerGroup: 7

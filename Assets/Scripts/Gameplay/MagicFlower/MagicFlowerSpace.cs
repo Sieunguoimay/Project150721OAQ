@@ -32,6 +32,7 @@ namespace Gameplay.MagicFlower
 
         private readonly Dictionary<GameObject, Vector2Int> _blossomMap = new();
 
+        [field:NonSerialized] public Vector3 LastCollectedBlossomPosition { get; private set; }
         private void Start()
         {
             CreateSlots();
@@ -117,6 +118,7 @@ namespace Gameplay.MagicFlower
             if (_blossomMap.TryGetValue(blossom, out var slot))
             {
                 _availableSlots.Add(slot);
+                LastCollectedBlossomPosition = blossom.transform.position;
                 Destroy(blossom);
                 OnCollectBlossom?.Invoke();
             }

@@ -26,8 +26,12 @@ namespace Common.UnityExtend.Reflection
 
     public class DataBridge : MonoBehaviour
     {
+        [SerializeField] private bool useFreeObject = false;
+
         [SerializeField, TypeConstraint(false, typeof(IDataBridgeTrigger))]
         private Object sourceObject;
+
+        [SerializeField, UnityObjectSelector] private Object freeSourceObject;
 
         [SerializeField, StringSelector(nameof(EventFilters))]
         private string eventFilter;
@@ -39,7 +43,7 @@ namespace Common.UnityExtend.Reflection
         {
             get
             {
-                return sourceObject.GetType()
+                return SourceObject.GetType()
                     .GetMethods().Where(m => m.GetParameters().Length == 0 && m.ReturnType != typeof(void))
                     .Select(FormatGetMethodName);
             }
@@ -118,9 +122,12 @@ namespace Common.UnityExtend.Reflection
         }
 
         private IDataBridgeTrigger _source;
-        private IDataBridgeTrigger Source => _source ??= sourceObject as IDataBridgeTrigger;
+        private IDataBridgeTrigger Source => _source ??= SourceObject as IDataBridgeTrigger;
 
         public IReadOnlyList<string> EventFilters => Source?.Filters;
+
+        public Object SourceObject => freeSourceObject ? freeSourceObject : sourceObject;
+
         private int _eventFilterMask;
 
         private void OnValidate()
@@ -136,25 +143,31 @@ namespace Common.UnityExtend.Reflection
 
         private void OnEnable()
         {
-            Source.EventTrigger.AddListener(OnSourceTrigger);
             for (var i = 0; i < items.Length; i++)
             {
-                items[i].SetupReflection(sourceObject);
+                items[i].SetupReflection(SourceObject);
             }
 
-            for (var i = 0; i < EventFilters.Count; i++)
+            if (!useFreeObject)
             {
-                if (EventFilters[i].Equals(eventFilter))
+                Source.EventTrigger.AddListener(OnSourceTrigger);
+                for (var i = 0; i < EventFilters.Count; i++)
                 {
-                    _eventFilterMask = (int) Mathf.Pow(2f, i); //1 2 4 8 16
-                    break;
+                    if (EventFilters[i].Equals(eventFilter))
+                    {
+                        _eventFilterMask = (int) Mathf.Pow(2f, i); //1 2 4 8 16
+                        break;
+                    }
                 }
             }
         }
 
         private void OnDisable()
         {
-            Source.EventTrigger.RemoveListener(OnSourceTrigger);
+            if (!useFreeObject)
+            {
+                Source.EventTrigger.RemoveListener(OnSourceTrigger);
+            }
         }
 
         private void OnSourceTrigger(int mask)
@@ -170,7 +183,7 @@ namespace Common.UnityExtend.Reflection
         {
             for (var i = 0; i < items.Length; i++)
             {
-                items[i].Transfer(sourceObject);
+                items[i].Transfer(SourceObject);
             }
         }
 
@@ -191,23 +204,36 @@ namespace Common.UnityExtend.Reflection
     {
         private SerializedProperty _eventFilter;
         private SerializedProperty _sourceObject;
+        private SerializedProperty _useFreeObject;
+        private SerializedProperty _freeSourceObject;
         private SerializedProperty _items;
 
         private void OnEnable()
         {
             _eventFilter = serializedObject.FindProperty("eventFilter");
             _sourceObject = serializedObject.FindProperty("sourceObject");
+            _freeSourceObject = serializedObject.FindProperty("freeSourceObject");
+            _useFreeObject = serializedObject.FindProperty("useFreeObject");
             _items = serializedObject.FindProperty("items");
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            EditorGUILayout.BeginHorizontal();
-            var width = EditorGUIUtility.currentViewWidth - 40;
-            EditorGUILayout.PropertyField(_sourceObject, GUILayout.Width(width / 3 * 2));
-            EditorGUILayout.PropertyField(_eventFilter, GUIContent.none, GUILayout.Width(width / 3 * 1));
-            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.PropertyField(_useFreeObject);
+            if (_useFreeObject.boolValue)
+            {
+                EditorGUILayout.PropertyField(_freeSourceObject);
+            }
+            else
+            {
+                EditorGUILayout.BeginHorizontal();
+                var width = EditorGUIUtility.currentViewWidth - 40;
+                EditorGUILayout.PropertyField(_sourceObject, GUILayout.Width(width / 3 * 2));
+                EditorGUILayout.PropertyField(_eventFilter, GUIContent.none, GUILayout.Width(width / 3 * 1));
+                EditorGUILayout.EndHorizontal();
+            }
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PropertyField(_items);

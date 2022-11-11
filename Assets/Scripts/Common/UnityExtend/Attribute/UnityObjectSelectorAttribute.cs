@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace Common.UnityExtend.Attribute
 {
-    public class UnityObjectSelector : PropertyAttribute
+    public class UnityObjectSelectorAttribute : PropertyAttribute
     {
     }
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(UnityObjectSelector))]
+    [CustomPropertyDrawer(typeof(UnityObjectSelectorAttribute))]
     public class UnityObjectSelectorPropertyDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

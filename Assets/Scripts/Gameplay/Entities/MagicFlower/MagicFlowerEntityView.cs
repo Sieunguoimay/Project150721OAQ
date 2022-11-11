@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Framework.Entities;
-using UnityEngine;
 
 namespace Gameplay.Entities.MagicFlower
 {
@@ -13,8 +12,9 @@ namespace Gameplay.Entities.MagicFlower
             EventTrigger?.Invoke(1);
         }
 
-        public int FlowerCount => Entity.Data.FlowerCount;
+        public int NumFlowers => Entity.Data.NumFlowers;
         public float ToBlossomDuration => Entity.Data.ToBlossomDuration;
+        public int PayoutAmountPerFlower => Entity.Data.PayoutAmountPerFlower;
 
         public void GrantBlossom(int blossomIndex)
         {
