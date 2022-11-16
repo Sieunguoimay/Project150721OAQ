@@ -8,40 +8,10 @@ namespace Common.UnityExtend.Rendering
         [SerializeField] private Mesh mesh;
         [SerializeField] private Material material;
         [SerializeField] private Matrix4x4[] instances;
-        [SerializeField] private Bounds bounds;
-
-        private ComputeBuffer _argsBuffer;
-        private ComputeBuffer _matricesBuffer;
-
-        private void Start()
-        {
-            _argsBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
-            _argsBuffer.SetData(new uint[]
-            {
-                (uint) mesh.GetIndexCount(0), // triangle indices count per instance
-                (uint) instances.Length, // instance count
-                (uint) mesh.GetIndexStart(0), // start index location
-                (uint) mesh.GetBaseVertex(0), // base vertex location
-                0, // start instance location
-            });
-
-            _matricesBuffer = new ComputeBuffer(instances.Length, InstanceData.GetSize());
-            _matricesBuffer.SetData(instances);
-            material.SetBuffer("matricesBuffer", _matricesBuffer);
-        }
-
-        private void OnDestroy()
-        {
-            _matricesBuffer.Release();
-            _matricesBuffer = null;
-
-            _argsBuffer.Release();
-            _argsBuffer = null;
-        }
 
         private void Update()
         {
-            Graphics.DrawMeshInstancedIndirect(mesh, 0, material, bounds, _argsBuffer);
+            Graphics.DrawMeshInstanced(mesh, 0, material, instances);
         }
 
         [ContextMenu("To GameObject")]
@@ -53,8 +23,10 @@ namespace Common.UnityExtend.Rendering
             for (var i = 0; i < instances.Length; i++)
             {
                 var m = instances[i];
-                var t = new GameObject("").transform;
+                var t = new GameObject($"(Instance) ({i})").transform;
                 t.SetParent(transform);
+                t.gameObject.AddComponent<MeshFilter>().sharedMesh = mesh;
+                t.gameObject.AddComponent<MeshRenderer>().sharedMaterial = material;
 
                 // Extract new local position
                 t.localPosition = thisTransform.InverseTransformPoint(m.GetColumn(3));
@@ -80,9 +52,6 @@ namespace Common.UnityExtend.Rendering
             var transforms = GetComponentsInChildren<Transform>();
             var thisTransform = transform;
 
-            var minMaxX = new Vector2(float.MaxValue, float.MinValue);
-            var minMaxY = new Vector2(float.MaxValue, float.MinValue);
-            var minMaxZ = new Vector2(float.MaxValue, float.MinValue);
             instances = new Matrix4x4[transforms.Length - 1];
             var index = 0;
             for (var i = 0; i < transforms.Length; i++)
@@ -91,17 +60,8 @@ namespace Common.UnityExtend.Rendering
                 if (t != thisTransform)
                 {
                     instances[index++] = t.localToWorldMatrix;
-                    minMaxX = new Vector2(Mathf.Min(t.position.x, minMaxX.x), Mathf.Max(t.position.x, minMaxX.y));
-                    minMaxY = new Vector2(Mathf.Min(t.position.y, minMaxX.x), Mathf.Max(t.position.y, minMaxX.y));
-                    minMaxZ = new Vector2(Mathf.Min(t.position.z, minMaxX.x), Mathf.Max(t.position.z, minMaxX.y));
                 }
             }
-
-            bounds = new Bounds(
-                new Vector3((minMaxX.x + minMaxX.y) / 2f, (minMaxY.x + minMaxY.y) / 2f, (minMaxZ.x + minMaxZ.y) / 2f),
-                new Vector3(Mathf.Max(1f, (minMaxX.y - minMaxX.x) / 2f),
-                    Mathf.Max(1f, (minMaxY.y - minMaxY.x) / 2f),
-                    Mathf.Max(1f, (minMaxZ.y - minMaxZ.x) / 2f)));
         }
 
         [ContextMenu("Clear Children GameObjects")]
