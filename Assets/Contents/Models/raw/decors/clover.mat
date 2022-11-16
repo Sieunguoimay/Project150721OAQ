@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: clover
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 4800000, guid: 30aaafc6c52c461f8a8d8adbccb42792, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _RECEIVE_SHADOWS
@@ -78,6 +78,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NoiseTex:
+        m_Texture: {fileID: 2800000, guid: f1130fef523f4fb4c962d3d86d529554, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _NormalMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -100,6 +104,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AmplitudeFactor: 0.792
     - _BumpScale: 1
     - _Clipping: 0
     - _Cutoff: 0.5
@@ -119,6 +124,7 @@ Material:
     - _MaskMapToggle: 0
     - _Metallic: 0
     - _Mode: 0
+    - _NoiseWindowFactor: 0.01
     - _NormalMapToggle: 0
     - _NormalScale: 1
     - _Occlusion: 1
@@ -131,6 +137,7 @@ Material:
     - _Smoothness: 0.1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
+    - _Speed: 0.011
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
