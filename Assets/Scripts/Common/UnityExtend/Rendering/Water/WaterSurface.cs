@@ -41,6 +41,7 @@ namespace Common.UnityExtend.Rendering.Water
         private static readonly int RefType = Shader.PropertyToID("_RefType");
 
         private Renderer _renderer;
+        private static readonly int MainLightDirection = Shader.PropertyToID("_MainLightDirection");
         private Renderer Renderer => _renderer ??= GetComponent<Renderer>();
 
         private void OnWillRenderObject()
@@ -86,10 +87,12 @@ namespace Common.UnityExtend.Rendering.Water
 
             _refType = (float) refType;
             var projmtx = CoreTool.UV_Tex2DProj2Tex2D(transform, cam);
+            var sunMatrix = RenderSettings.sun.transform.localToWorldMatrix;
             foreach (var mat in materials)
             {
                 mat.SetMatrix(ProjMatrix, projmtx);
                 mat.SetFloat(RefType, _refType);
+                mat.SetMatrix(MainLightDirection, sunMatrix);
             }
 
             if (disablePixelLights)
@@ -100,7 +103,8 @@ namespace Common.UnityExtend.Rendering.Water
 
         private void DrawReflectionRenderTexture(Camera cam)
         {
-            CreateObjects(cam, ref _reflectionRenderTex, ref _reflectionCamera);
+            CreateRenderTexture(ref _reflectionRenderTex);
+            CreateObjects(cam, ref _reflectionCamera);
             CoreTool.CloneCameraModes(cam, _reflectionCamera);
 
             var thisTransform = transform;
@@ -124,52 +128,55 @@ namespace Common.UnityExtend.Rendering.Water
 
             _reflectionCamera.projectionMatrix = projection;
             _reflectionCamera.cullingMask = ~(1 << 4) & layers.value; // never render water layer
-            _reflectionCamera.targetTexture = _reflectionRenderTex;
+            _reflectionCamera.SetTargetBuffers(_reflectionRenderTex.colorBuffer, _reflectionRenderTex.depthBuffer);
+            // _reflectionCamera.targetTexture = _reflectionRenderTex;
 
             var reflectionCameraTransform = _reflectionCamera.transform;
             var euler = cam.transform.eulerAngles;
 
             reflectionCameraTransform.position = reflection.MultiplyPoint(oldPos);
             reflectionCameraTransform.eulerAngles = new Vector3(0, euler.y, euler.z);
-            
+
             GL.invertCulling = true;
             _reflectionCamera.Render();
             GL.invertCulling = false;
-            
+
             _reflectionCamera.transform.position = oldPos;
         }
 
         private void DrawRefractionRenderTexture(Camera cam)
         {
-            CreateObjects(cam, ref _refractionRenderTex, ref _refractionCamera);
+            CreateRenderTexture(ref _refractionRenderTex);
+            CreateObjects(cam, ref _refractionCamera);
             CoreTool.CloneCameraModes(cam, _refractionCamera);
 
             var thisTransform = transform;
             var pos = thisTransform.position;
             var normal = thisTransform.up;
-            
+
             var projection = cam.worldToCameraMatrix;
             projection *= Matrix4x4.Scale(new Vector3(1, Mathf.Clamp(1 - refractionAngle, 0.001f, 1), 1));
             _refractionCamera.worldToCameraMatrix = projection;
-            
+
             var clipPlane = CoreTool.CameraSpacePlane(_refractionCamera, pos, -normal, 1.0f, 0);
-            
+
             // projection[2] = clipPlane.x + projection[3]; //x
             // projection[6] = clipPlane.y + projection[7]; //y
             // projection[10] = clipPlane.z + projection[11]; //z
             // projection[14] = clipPlane.w + projection[15]; //w
-            
+
             // projection = CoreTool.CalculateObliqueMatrix(projection, clipPlane, -1);
-            
+
             _refractionCamera.projectionMatrix = _refractionCamera.CalculateObliqueMatrix(clipPlane);
             _refractionCamera.cullingMask = ~(1 << 4) & layers.value; // never render water layer
-            _refractionCamera.targetTexture = _refractionRenderTex;
+            _refractionCamera.SetTargetBuffers(_refractionRenderTex.colorBuffer, _refractionRenderTex.depthBuffer);
+            // _refractionCamera.targetTexture = _refractionRenderTex;
 
             var mainCamTransform = cam.transform;
             var refractionCameraTransform = _refractionCamera.transform;
             refractionCameraTransform.position = mainCamTransform.position;
             refractionCameraTransform.eulerAngles = mainCamTransform.eulerAngles;
-            
+
             _refractionCamera.Render();
         }
 
@@ -200,14 +207,14 @@ namespace Common.UnityExtend.Rendering.Water
             }
         }
 
-        private void CreateObjects(Camera srcCam, ref RenderTexture renderTex, ref Camera destCam)
+        private void CreateRenderTexture(ref RenderTexture renderTex)
         {
             // Reflection render texture
             if (!renderTex || _oldTexSize != texSize)
             {
                 if (renderTex)
                     DestroyImmediate(renderTex);
-                renderTex = new RenderTexture(texSize, texSize, 0);
+                renderTex = new RenderTexture(texSize, texSize, 24);
                 renderTex.name = "__RefRenderTexture" + renderTex.GetInstanceID();
                 renderTex.isPowerOfTwo = true;
                 renderTex.hideFlags = HideFlags.DontSave;
@@ -215,7 +222,10 @@ namespace Common.UnityExtend.Rendering.Water
                 renderTex.anisoLevel = 0;
                 _oldTexSize = texSize;
             }
+        }
 
+        private void CreateObjects(Camera srcCam, ref Camera destCam)
+        {
             if (!destCam) // catch both not-in-dictionary and in-dictionary-but-deleted-GO
             {
                 var go = new GameObject("__RefCamera for " + srcCam.GetInstanceID(), typeof(Camera), typeof(Skybox));
