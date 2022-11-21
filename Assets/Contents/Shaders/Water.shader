@@ -3,7 +3,9 @@ Shader "Custom/Water"
     Properties
     {
         _Color ("Color", Color) = (1,1,1,1)
-        _MainTex ("Albedo (RGB)", 2D) = "white" {}
+        _MainTex ("Abedo (RGB)", 2D) = "white" {}
+        _ReflectionTex ("Reflection (RGB)", 2D) = "white" {}
+        _RefractionTex ("Refraction (RGB)", 2D) = "white" {}
         _NormalMap ("Normal (RGB)", 2D) = "white" {}
         _FlowMap ("Flow (RGB)", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
@@ -36,17 +38,21 @@ Shader "Custom/Water"
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
         #pragma surface surf Standard alpha finalcolor:ResetAlpha//fullforwardshadows
+        #pragma vertex vert
         #pragma multi_compile __ _ABSORPTION_ON
 
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
 
+        sampler2D _ReflectionTex;
+        sampler2D _RefractionTex;
         sampler2D _MainTex;
 
         struct Input
         {
             float2 uv_MainTex;
             float4 screenPos;
+            float4 refparam; //r:fresnel,g:none,b:none,a:none
         };
 
         half _Glossiness;
@@ -70,25 +76,6 @@ Shader "Custom/Water"
         float _Tiling, _TilingModulated, _Speed, _FlowStrength, _GridResolution;
         float _HeightScale, _HeightScaleModulated;
 
-        float3 ColorBelowWaterAbsorb(float4 screenPos)
-        {
-            float2 uv = screenPos.xy / screenPos.w;
-            if (_CameraDepthTexture_TexelSize.y < 0)
-            {
-                uv.y = 1 - uv.y;
-            }
-            const float background_depth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
-            const float surface_depth = UNITY_Z_0_FAR_FROM_CLIPSPACE(screenPos.z);
-            const float depthValue = (background_depth - surface_depth);
-
-            const float absorptionValue = 1.0 - exp2(-_AbsorptionStrength * depthValue);
-            const float3 absorptionColor = float3(1, 1, 1) - _Color.rgb;
-            const float3 subtractiveColor = absorptionColor * absorptionValue;
-            const float3 backgroundColor = tex2D(_WaterBackground, uv).rgb;
-
-            return backgroundColor - subtractiveColor;
-        }
-
         float2 AlignWithGrabTexel(float2 uv)
         {
             #if UNITY_UV_STARTS_AT_TOP
@@ -103,7 +90,36 @@ Shader "Custom/Water"
                 abs(_CameraDepthTexture_TexelSize.xy);
         }
 
-        float3 ColorBelowWater(float4 screenPos, float3 tangentSpaceNormal)
+        // float3 ColorBelowWaterAbsorb(float4 screenPos, float3 tangentSpaceNormal)
+        // {
+        //     float2 uvOffset = tangentSpaceNormal.xy * _RefractionStrength;
+        //     uvOffset.y *=
+        //         _CameraDepthTexture_TexelSize.z * abs(_CameraDepthTexture_TexelSize.y);
+        //     float2 uv = AlignWithGrabTexel((screenPos.xy + uvOffset) / screenPos.w);
+        //     if (_CameraDepthTexture_TexelSize.y < 0)
+        //     {
+        //         uv.y = 1 - uv.y;
+        //     }
+        //     const float background_depth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
+        //     const float surface_depth = UNITY_Z_0_FAR_FROM_CLIPSPACE(screenPos.z);
+        //     const float depthValue = (background_depth - surface_depth);
+        //
+        //     const float absorptionValue = 1.0 - exp2(-_AbsorptionStrength * depthValue);
+        //     const float3 absorptionColor = float3(1, 1, 1) - _Color.rgb;
+        //     const float3 subtractiveColor = absorptionColor * absorptionValue;
+        //     const float3 backgroundColor = tex2D(_WaterBackground, uv).rgb;
+        //
+        //     return backgroundColor - subtractiveColor;
+        // }
+
+        // float3 SampleWaterColor(float2 uv, float fresnel)
+        // {
+        //     half4 flecol = tex2D(_ReflectionTex, uv);
+        //     half4 fracol = tex2D(_RefractionTex, uv);
+        //     return flecol;//lerp(flecol, fracol, .5);
+        // }
+
+        float3 ColorBelowWater(float4 screenPos, float3 tangentSpaceNormal, float fresnel)
         {
             float2 uvOffset = tangentSpaceNormal.xy * _RefractionStrength;
             uvOffset.y *=
@@ -112,7 +128,7 @@ Shader "Custom/Water"
 
             float backgroundDepth =
                 LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
-            float surfaceDepth = UNITY_Z_0_FAR_FROM_CLIPSPACE(screenPos.z);
+            const float surfaceDepth = UNITY_Z_0_FAR_FROM_CLIPSPACE(screenPos.z);
             float depthDifference = backgroundDepth - surfaceDepth;
 
             uvOffset *= saturate(depthDifference);
@@ -121,9 +137,14 @@ Shader "Custom/Water"
                 LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
             depthDifference = backgroundDepth - surfaceDepth;
 
-            float3 backgroundColor = tex2D(_WaterBackground, uv).rgb;
+            half4 flecol = tex2D(_ReflectionTex, uv);
+            half4 fracol = tex2D(_RefractionTex, uv);
+
+            float3 backgroundColor = fracol;
             float fogFactor = exp2(-_AbsorptionStrength * depthDifference);
-            return lerp(_Color.rgb, backgroundColor, fogFactor);
+            backgroundColor = lerp(_Color.rgb, backgroundColor, fogFactor);
+
+            return lerp(fracol, flecol, fresnel);
         }
 
         float3 UnpackDerivativeHeight(float4 textureData)
@@ -164,12 +185,23 @@ Shader "Custom/Water"
             return dh;
         }
 
+        void vert(inout appdata_full v, out Input o)
+        {
+            UNITY_INITIALIZE_OUTPUT(Input, o);
+            float3 r = normalize(ObjSpaceViewDir(v.vertex));
+
+            float d = saturate(dot(r, normalize(v.normal))); //r+(1-r)*pow(d,5)				
+            o.refparam = float4(d, 0, 0, 0);
+        }
+
         void surf(Input IN, inout SurfaceOutputStandard o)
         {
             // Albedo comes from a texture tinted by color
-            // fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
             // o.Albedo = c.rgb;
             float time = _Time.y * _Speed;
+
+            #if _ABSORPTION_ON
+
             float2 uv = IN.uv_MainTex;
             float3 dhA = FlowCell(uv, float2(0, 0), time);
             float3 dhB = FlowCell(uv, float2(1, 0), time);
@@ -181,13 +213,17 @@ Shader "Custom/Water"
             float wC = (1 - t.x) * t.y;
             float wD = t.x * t.y;
             float3 dh = dhA * wA + dhB * wB + dhC * wC + dhD * wD;
-            o.Normal = normalize(float3(-dh.xy, 1));
+            o.Normal = normalize(float3(-dh.xy, 1)); //
 
-            #if _ABSORPTION_ON
-            o.Albedo = ColorBelowWaterAbsorb(IN.screenPos); // + _Color.rgb;
             #else
-            o.Emission = ColorBelowWater(IN.screenPos, o.Normal); // + _Color.rgb;
+
+            fixed4 c = tex2D(_NormalMap, IN.uv_MainTex - time);
+            o.Normal = normalize(c.rgb); //normalize(float3(-dh.xy, 1)); //
+
             #endif
+
+            o.Albedo = ColorBelowWater(IN.screenPos, o.Normal, IN.refparam.r); // + _Color.rgb;
+
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;

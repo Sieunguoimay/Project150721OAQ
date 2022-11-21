@@ -18,9 +18,10 @@ namespace Common.UnityExtend.PostProcessing
     [CustomPropertyDrawer(typeof(LayerSelectorAttribute))]
     public class LayerSelectorDrawer : StringSelectorDrawer
     {
-        protected override IEnumerable<string> GetIds(SerializedProperty property, StringSelectorAttribute objectSelector)
+        protected override IEnumerable<string> GetIds(SerializedProperty property,
+            StringSelectorAttribute objectSelector)
         {
-            return  Enumerable.Range(0, 31).Select(LayerMask.LayerToName).Where(l => !string.IsNullOrEmpty(l));
+            return Enumerable.Range(0, 31).Select(LayerMask.LayerToName).Where(l => !string.IsNullOrEmpty(l));
         }
     }
 #endif
@@ -28,8 +29,7 @@ namespace Common.UnityExtend.PostProcessing
     {
         [SerializeField] private Shader outline;
 
-        [SerializeField, LayerSelector]
-        private string layerMask = "Outline";
+        [SerializeField, LayerSelector] private string layerMask = "Outline";
 
         [SerializeField, StringSelector(nameof(Keywords))]
         private string outlineSizeKeyword;
@@ -48,6 +48,7 @@ namespace Common.UnityExtend.PostProcessing
             _outlineMaterial.EnableKeyword(outlineSizeKeyword);
 
             _outlineCamera = new GameObject("OutlineCamera").AddComponent<Camera>();
+            _outlineCamera.gameObject.hideFlags = HideFlags.HideAndDontSave;
             _mask = 1 << LayerMask.NameToLayer(layerMask);
         }
 

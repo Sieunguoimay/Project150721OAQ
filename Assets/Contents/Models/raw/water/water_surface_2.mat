@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: water_surface
-  m_Shader: {fileID: 4800000, guid: 63a53c9e8a3388b4d9852b21d8c52ae3, type: 3}
+  m_Name: water_surface_2
+  m_Shader: {fileID: 4800000, guid: dfe7489bc89f46629285b6113375f784, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _AXISFORU_Z_Y
@@ -83,7 +83,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _FlowMap:
-        m_Texture: {fileID: 2800000, guid: f1130fef523f4fb4c962d3d86d529554, type: 3}
+        m_Texture: {fileID: 2800000, guid: 369b7b9e29feb0d4bb1a824bb8202ec2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _FrontTex:
@@ -111,7 +111,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: f1130fef523f4fb4c962d3d86d529554, type: 3}
+        m_Texture: {fileID: 2800000, guid: ca1d0cb511ad5754fb65f46b9077ca48, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalTex:
@@ -153,7 +153,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Absorption: 0
-    - _AbsorptionStrength: 0.187
+    - _AbsorptionStrength: 0.225
     - _Ambient: 0.096
     - _AmplitudeFactor: 0.5
     - _AxisForU: 5
@@ -176,14 +176,14 @@ Material:
     - _DuDvScale: 0.02
     - _ExtraHeight: 1
     - _FlowOffset: 0
-    - _FlowStrength: 0.2
+    - _FlowStrength: 0.5
     - _Fresnel: 0.879
     - _GlossMapScale: 1
     - _Glossiness: 0.641
     - _GlossyReflections: 1
-    - _GridResolution: 1.99
-    - _HeightScale: 0.1
-    - _HeightScaleModulated: 0
+    - _GridResolution: 2
+    - _HeightScale: 1
+    - _HeightScaleModulated: 1
     - _Index: 0
     - _Intensity: 3
     - _LightIntensity: 1
@@ -214,11 +214,11 @@ Material:
     - _Specular: 0.912
     - _SpecularHighlights: 1
     - _SpecularPower: 31.7
-    - _Speed: 0.1
+    - _Speed: 0.5
     - _SplitRGB: 10
     - _SrcBlend: 1
-    - _Tiling: 10
-    - _TilingModulated: 50
+    - _Tiling: 2
+    - _TilingModulated: 10
     - _UJump: 0.25
     - _UVScale: 1
     - _UVSec: 0
