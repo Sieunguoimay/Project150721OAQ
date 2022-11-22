@@ -186,8 +186,9 @@ Shader "Custom/Water"
             #if _DEBUG_DEPTH_ON
             return waterDepth;
             #else
-            return lerp(_Color.rgb, lerp(flecol, fracol, pow(fresnel, _FresnelFactor)), depthFator) + caustics.rgb *
-                (1-depthFator);
+            // return lerp(_Color.rgb, lerp(flecol, fracol, pow(fresnel, _FresnelFactor)), depthFator) + caustics.rgb *
+            //     (1-depthFator);
+            return lerp(_Color.rgb, lerp(flecol, fracol, _FresnelFactor), depthFator) + caustics.rgb * (1 - depthFator);
             #endif
         }
 
