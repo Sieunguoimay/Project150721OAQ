@@ -48,7 +48,7 @@ namespace Common.UnityExtend.PostProcessing
             _outlineMaterial.EnableKeyword(outlineSizeKeyword);
 
             _outlineCamera = new GameObject("OutlineCamera").AddComponent<Camera>();
-            _outlineCamera.gameObject.hideFlags = HideFlags.HideAndDontSave;
+            // _outlineCamera.gameObject.hideFlags = HideFlags.HideAndDontSave;
             _mask = 1 << LayerMask.NameToLayer(layerMask);
         }
 

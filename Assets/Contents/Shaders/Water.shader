@@ -13,19 +13,22 @@ Shader "Custom/Water"
         _ReflectionTex ("Reflection (RGB)", 2D) = "white" {}
         _RefractionTex ("Refraction (RGB)", 2D) = "white" {}
         _NormalMap ("Normal (RGB)", 2D) = "white" {}
-        _FlowMap ("Flow (RGB)", 2D) = "white" {}
+        //        _FlowMap ("Flow (RGB)", 2D) = "white" {}
         _CausticsTex ("Caustics (RGB)", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
-        _MaxDepth("Max Depth", Range(0,30)) = 9.3
-        _MinDepth("Min Depth", Range(0,10)) = 9.3
+        _MaxDepth("Max Depth", Range(0,30)) = 7
+        _MinDepth("Min Depth", Range(0,10)) = 0
         [Toggle]_Debug_Depth("Toggle Debug Depth",Float) = 0
         [Toggle]_Debug_Normal_Map("Toggle Normal Map",Float) = 0
         [Toggle]_Caustics_Chromatic("Toggle Caustics Chromatic",Float) = 0
-        _FresnelFactor("Fresnel Factor", Range(0,5)) = 1
+        _UnderWaterFresnelFactor("Under Water Fresnel Factor", Float) = 5
+        _AboveWaterFresnelFactor("Above Water Fresnel Factor", Float) = 50
 
         _Speed ("Speed", Float) = 1
         _Tiling ("Tiling", Float) = 1
+        _NormalStrength ("Normal Strength", Range(0,1)) = 1
+
         _CausticsTiling ("CausticsTiling", Float) = 1
         _CausticsStrength ("CausticsStrength", Float) = 1
         _CausticsSplit ("CausticsSplit", Range(0,0.5)) = 0.004
@@ -90,27 +93,13 @@ Shader "Custom/Water"
         float4 _CameraDepthTexture_TexelSize;
         // sampler2D _WaterBackground;
         float _MaxDepth, _MinDepth;
-        float _FresnelFactor;
+        float _UnderWaterFresnelFactor, _AboveWaterFresnelFactor;
         sampler2D _NormalMap;
-        sampler2D _FlowMap;
+        // sampler2D _FlowMap;
 
-        float _Tiling, _Speed; //, _TilingModulated,  _FlowStrength, _GridResolution;
+        float _Tiling, _Speed, _NormalStrength;
         float _CausticsTiling, _CausticsStrength, _CausticsSplit;
-        // float _HeightScale, _HeightScaleModulated;
 
-        // float2 AlignWithGrabTexel(float2 uv)
-        // {
-        //     #if UNITY_UV_STARTS_AT_TOP
-        //     if (_CameraDepthTexture_TexelSize.y < 0)
-        //     {
-        //         uv.y = 1 - uv.y;
-        //     }
-        //     #endif
-        //
-        //     return
-        //         (floor(uv * _CameraDepthTexture_TexelSize.zw) + 0.5) *
-        //         abs(_CameraDepthTexture_TexelSize.xy);
-        // }
         half4x4 _MainLightDirection;
 
         half2 Panner(half2 uv, half speed, half tiling)
@@ -131,45 +120,10 @@ Shader "Custom/Water"
             return half3(r, g, b);
         }
         #endif
-        float3 ColorBelowWater(float4 screenPos, float3 tangentSpaceNormal, float fresnel, float3 worldPos)
+
+        float3 Caustics(float backgroundDepth, float waterDepth, float3 worldPos)
         {
-            float2 uvOffset = tangentSpaceNormal.xz; //* _RefractionStrength;
-            uvOffset.y *=
-                _CameraDepthTexture_TexelSize.z * abs(_CameraDepthTexture_TexelSize.y);
-            float2 uv = (screenPos.xy + uvOffset) / screenPos.w;
-
-
-            float backgroundDepth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv)); //
-            const float surfaceDepth = UNITY_Z_0_FAR_FROM_CLIPSPACE(screenPos.z);
-            float depthDifference = backgroundDepth - surfaceDepth;
-
-            //
-            // uvOffset *= saturate(depthDifference);
-            // uv = AlignWithGrabTexel((screenPos.xy + uvOffset) / screenPos.w);
-            // backgroundDepth =
-            //     LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
-            // depthDifference = backgroundDepth - surfaceDepth;
-
-
-            // float3 backgroundColor = fracol;
-
-            // float fogFactor = easeOutCubic(exp2(-depthDifference * _AbsorptionStrength));
-            // backgroundColor = lerp(_Color.rgb, backgroundColor, fogFactor);
-            float waterDepth = saturate((depthDifference - _MinDepth) / (_MaxDepth - _MinDepth));
-
-            uv = (screenPos.xy + uvOffset * waterDepth) / screenPos.w;
-
-            half4 flecol = tex2D(_ReflectionTex, uv);
-            half4 fracol = tex2D(_RefractionTex, uv);
-
-            backgroundDepth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv)); //
-            depthDifference = backgroundDepth - surfaceDepth;
-
-            float depthFator = saturate(exp2(-depthDifference * _Color.a));
-
             float3 positionWS = _WorldSpaceCameraPos + backgroundDepth * normalize(worldPos.xyz - _WorldSpaceCameraPos);
-            // float3 positionOS = mul(unity_WorldToObject, positionWS);
-            // float boundingBoxMask = all(step(positionOS, 0.5) * (1 - step(positionOS, -0.5)));
             half2 causticsUV = mul(positionWS, _MainLightDirection).xy;
             half2 movingCausticsUV1 = Panner(causticsUV, .75 * _Speed, 1 / _CausticsTiling);
             half2 movingCausticsUV2 = Panner(causticsUV, _Speed, -1 / _CausticsTiling);
@@ -181,14 +135,42 @@ Shader "Custom/Water"
             float3 caustics1 = tex2D(_CausticsTex, movingCausticsUV1);
             float3 caustics2 = tex2D(_CausticsTex, movingCausticsUV2);
             #endif
-            half3 caustics = min(caustics1, caustics2) * _CausticsStrength;
+            return min(caustics1, caustics2) * _CausticsStrength;
+        }
+
+        float3 ColorBelowWater(float4 screenPos, float3 tangentSpaceNormal, float fresnel, float3 worldPos)
+        {
+            float2 uvOffset = tangentSpaceNormal.xz; //* _RefractionStrength;
+            uvOffset.y *=
+                _CameraDepthTexture_TexelSize.z * abs(_CameraDepthTexture_TexelSize.y);
+            float2 uv = (screenPos.xy + uvOffset) / screenPos.w;
+
+            float backgroundDepth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
+            const float surfaceDepth = UNITY_Z_0_FAR_FROM_CLIPSPACE(screenPos.z);
+            float depthDifference = backgroundDepth - surfaceDepth;
+
+            float waterDepth = saturate((depthDifference - _MinDepth) / (_MaxDepth - _MinDepth));
+
+            uv = (screenPos.xy + uvOffset * waterDepth) / screenPos.w;
+
+            half4 flecol = tex2D(_ReflectionTex, uv);
+            half4 fracol = tex2D(_RefractionTex, uv);
+
+            backgroundDepth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
+            depthDifference = backgroundDepth - surfaceDepth;
+
+            float depthFator = saturate(exp2(-depthDifference * _Color.a));
+            const float3 caustics = Caustics(backgroundDepth, waterDepth, worldPos);
 
             #if _DEBUG_DEPTH_ON
             return waterDepth;
             #else
-            // return lerp(_Color.rgb, lerp(flecol, fracol, pow(fresnel, _FresnelFactor)), depthFator) + caustics.rgb *
-            //     (1-depthFator);
-            return lerp(_Color.rgb, lerp(flecol, fracol, _FresnelFactor), depthFator) + caustics.rgb * (1 - depthFator);
+            const float3 black = float3(0, 0, 0);
+            float3 underWaterColor = lerp(
+                black, lerp(_Color.rgb, fracol, depthFator) + caustics.rgb * depthFator * waterDepth * 2,
+                pow(fresnel, _UnderWaterFresnelFactor));
+            float3 aboveWaterColor = lerp(flecol, black, pow(fresnel, _AboveWaterFresnelFactor));
+            return lerp(underWaterColor, aboveWaterColor, .5);
             #endif
         }
 
@@ -259,15 +241,13 @@ Shader "Custom/Water"
             // float wD = t.x * t.y;
             // float3 dh = dhA * wA + dhB * wB + dhC * wC + dhD * wD;
             // o.Normal = normalize(float3(-dh.xy, 1)); //
-            // 
-            // float3 caustics = tex2D(_CausticsTex, IN.uv_MainTex);
+
             #if _DEBUG_NORMAL_MAP_ON
-            fixed4 c = tex2D(_NormalMap, IN.uv_MainTex * _Tiling - time);
-            o.Normal = normalize(c.rgb);
+            o.Normal =normalize(float3(tex2D(_NormalMap, IN.uv_MainTex * _Tiling - time).xy, _NormalStrength));// tex2D(_NormalMap, IN.uv_MainTex * _Tiling - time);
             #endif
 
             o.Albedo = ColorBelowWater(IN.screenPos, o.Normal, IN.refparam.r, IN.worldPos);
-            // + caustics; // * _Color; // + _Color.rgb;
+
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
