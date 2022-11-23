@@ -11,6 +11,7 @@ namespace Gameplay.MagicFlower
     {
         [SerializeField] private ParticleSystem ps;
         [SerializeField] private ParticleSystem collisionPs;
+        [SerializeField] private UnityEvent onCollided;
 
         private Vector3 _position;
         private UnityObjectPooling<ParticleSystem> _pool;
@@ -33,6 +34,7 @@ namespace Gameplay.MagicFlower
         {
             collisionPs.transform.position = arg0.intersection;
             collisionPs.Emit(Random.Range(2, 3));
+            onCollided?.Invoke();
         }
 
         public void Emit(int count)

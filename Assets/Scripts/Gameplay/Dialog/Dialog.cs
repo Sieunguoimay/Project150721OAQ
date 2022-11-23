@@ -47,11 +47,6 @@ namespace Gameplay.Dialog
             OnShow?.Invoke(target);
         }
 
-        public void HideTarget()
-        {
-            // _currentTarget.gameObject.SetActive(false);
-        }
-
         public void Hide()
         {
             if (CurrentTarget != null)

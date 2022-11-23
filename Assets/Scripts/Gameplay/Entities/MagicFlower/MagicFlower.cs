@@ -35,20 +35,19 @@ namespace Gameplay.Entities.MagicFlower
 
         public void GrantBlossom(int blossomIndex)
         {
-            SavedData.SetBlossomTimeStamp(blossomIndex,
-                TimerService.GameTimeStampInSeconds + (long) Data.ToBlossomDuration);
-            SavedData.SetCollectableFlowerCount(SavedData.CollectableFlowerCount + 1);
+            SavedData.SetBlossomTimeStamp(blossomIndex, TimerService.GameTimeStampInSeconds + (long) Data.ToBlossomDuration);
+            SavedData.SetCollectablePayoutAmount(SavedData.CollectablePayoutAmount + Data.PayoutAmountPerFlower);
         }
 
         public void Collect()
         {
-            if (SavedData.CollectableFlowerCount <= 0)
+            if (SavedData.CollectablePayoutAmount <= 0)
             {
                 Debug.LogError("Not synchronized with view");
                 return;
             }
 
-            SavedData.SetCollectableFlowerCount(SavedData.CollectableFlowerCount - 1);
+            SavedData.SetCollectablePayoutAmount(Mathf.Max(SavedData.CollectablePayoutAmount - Data.PayoutAmountPerFlower, 0));
             PayoutCurrency.Add(Data.PayoutAmountPerFlower);
         }
 

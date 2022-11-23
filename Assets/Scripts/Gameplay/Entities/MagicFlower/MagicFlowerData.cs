@@ -16,7 +16,7 @@ namespace Gameplay.Entities.MagicFlower
 
     public interface IMagicFlowerUniqueSavedData
     {
-        int CollectableFlowerCount { get; }
+        int CollectablePayoutAmount { get; }
         IReadOnlyList<double> BlossomTimeStamps { get; }
     }
 
@@ -27,7 +27,7 @@ namespace Gameplay.Entities.MagicFlower
 
     public interface IMagicFlowerSavedData : IEntitySavedData, IMagicFlowerUniqueSavedData
     {
-        void SetCollectableFlowerCount(int count);
+        void SetCollectablePayoutAmount(int count);
         void SetBlossomTimeStamp(int index, double timestamp);
         void CreateBlossomTimestampsArray(int count);
     }
@@ -56,15 +56,15 @@ namespace Gameplay.Entities.MagicFlower
         {
         }
 
-        [field: SerializeField] public int CollectableFlowerCount { get; private set; }
+        [field: SerializeField] public int CollectablePayoutAmount { get; private set; }
 
         public IReadOnlyList<double> BlossomTimeStamps => blossomTimeStamps;
 
         [SerializeField] private double[] blossomTimeStamps;
 
-        public void SetCollectableFlowerCount(int count)
+        public void SetCollectablePayoutAmount(int count)
         {
-            CollectableFlowerCount = count;
+            CollectablePayoutAmount = count;
             Save();
         }
 

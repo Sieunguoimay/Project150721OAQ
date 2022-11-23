@@ -153,6 +153,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f97a6eb7ad84314a93da52cc0021393, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stateConstraint: 0
+  <CurrentState>k__BackingField: 
   <TargetState>k__BackingField: hidden
 --- !u!1 &684175589365548168
 GameObject:
@@ -446,6 +448,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f97a6eb7ad84314a93da52cc0021393, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stateConstraint: 0
+  <CurrentState>k__BackingField: 
   <TargetState>k__BackingField: falling
 --- !u!1 &6689938434287414289
 GameObject:
@@ -550,6 +554,50 @@ MonoBehaviour:
   - sourceObjectMethodName: 'get_CollectableFlowerCount(): Int32'
     targetObject: {fileID: 1253341266578782703}
     targetMethodName: SpawnRandom(Int32)
+--- !u!1 &7038780993930413501
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5649201561535695889}
+  - component: {fileID: 2658155704234856459}
+  m_Layer: 0
+  m_Name: TransactionQueue
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5649201561535695889
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7038780993930413501}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2725064808610033805}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2658155704234856459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7038780993930413501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8645fc747df40719f21e4f392132f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7976885823245820263
 GameObject:
   m_ObjectHideFlags: 0
@@ -580,7 +628,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0.927}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5649201561535695889}
   m_Father: {fileID: 6625677339552197788}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -604,19 +653,6 @@ MonoBehaviour:
   <OnCollectBlossom>k__BackingField:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1520294461941189649}
-        m_TargetAssemblyTypeName: Gameplay.Entities.MagicFlower.MagicFlowerEntityView,
-          Assembly-CSharp
-        m_MethodName: Collect
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 9096739133053775978}
         m_TargetAssemblyTypeName: Common.UnityExtend.Reflection.DataBridge, Assembly-CSharp
         m_MethodName: Transfer
@@ -661,6 +697,9 @@ MonoBehaviour:
   - sourceObjectMethodName: 'get_PayoutAmountPerFlower(): Int32'
     targetObject: {fileID: 3130755098099318123}
     targetMethodName: Emit(Int32)
+  - sourceObjectMethodName: 'CreateTransactions(): ITransaction[]'
+    targetObject: {fileID: 2658155704234856459}
+    targetMethodName: Send(ITransaction[])
 --- !u!114 &9096739133053775978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -857,6 +896,34 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 6754906519833514506}
     m_Modifications:
+    - target: {fileID: 908898755527384819, guid: 9406cfc31eaee2041ad96ac01be83d1a, type: 3}
+      propertyPath: onCollided.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 908898755527384819, guid: 9406cfc31eaee2041ad96ac01be83d1a, type: 3}
+      propertyPath: onCollided.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 908898755527384819, guid: 9406cfc31eaee2041ad96ac01be83d1a, type: 3}
+      propertyPath: onCollided.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2658155704234856459}
+    - target: {fileID: 908898755527384819, guid: 9406cfc31eaee2041ad96ac01be83d1a, type: 3}
+      propertyPath: onCollided.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 908898755527384819, guid: 9406cfc31eaee2041ad96ac01be83d1a, type: 3}
+      propertyPath: onCollided.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: TakeOutTransaction
+      objectReference: {fileID: 0}
+    - target: {fileID: 908898755527384819, guid: 9406cfc31eaee2041ad96ac01be83d1a, type: 3}
+      propertyPath: onCollided.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Common.Transaction.MonoTransactionQueue, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 908898755527384819, guid: 9406cfc31eaee2041ad96ac01be83d1a, type: 3}
+      propertyPath: onCollided.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 2051500672372256175, guid: 9406cfc31eaee2041ad96ac01be83d1a, type: 3}
       propertyPath: m_Name
       value: PetalParticleSystem

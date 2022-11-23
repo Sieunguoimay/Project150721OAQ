@@ -5,7 +5,8 @@ namespace Common.DecisionMaking
     public class StateMachine
     {
         private IState[] _states;
-        private int _currentState = -1;
+
+        public int CurrentState { get; private set; } = -1;
 
         public void SetStates(IState[] states, int defaultState = 0)
         {
@@ -21,14 +22,14 @@ namespace Common.DecisionMaking
                 return;
             }
 
-            var prevState = _currentState;
-            _currentState = stateIndex;
+            var prevState = CurrentState;
+            CurrentState = stateIndex;
             if (prevState >= 0)
             {
                 _states[prevState].Exit();
             }
 
-            _states[_currentState].Enter();
+            _states[CurrentState].Enter();
         }
     }
 

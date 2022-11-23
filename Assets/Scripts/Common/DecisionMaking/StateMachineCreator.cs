@@ -34,7 +34,7 @@ namespace Common.DecisionMaking
         {
             foreach (var tr in _stateTransitions)
             {
-                tr.Setup(_stateMachine, GetIndex(tr.TargetState));
+                tr.Setup(_stateMachine, GetIndex(tr.TargetState), GetIndex(tr.CurrentState));
             }
         }
 

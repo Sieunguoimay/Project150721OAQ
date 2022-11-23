@@ -55,6 +55,11 @@ namespace Framework
             UnbindServices();
         }
 
+        private void OnApplicationQuit()
+        {
+            SaveEntities();
+        }
+
         private void OnApplicationFocus(bool hasFocus)
         {
             if (hasFocus)
