@@ -24,7 +24,6 @@ namespace Common.UnityExtend.ParticleSystem
         private void OnParticleCollision(GameObject other)
         {
             var numCollisionEvents = ParticleSystem.GetCollisionEvents(other, _collisionEvents);
-
             var i = 0;
             while (i < numCollisionEvents)
             {

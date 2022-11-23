@@ -1,31 +1,48 @@
-﻿using Common.UnityExtend;
+﻿using System;
+using Common.UnityExtend;
 using Common.UnityExtend.ParticleSystem;
 using UnityEngine;
 using UnityEngine.Events;
+using Random = UnityEngine.Random;
 
 namespace Gameplay.MagicFlower
 {
-
     public class PetalParticleSystem : MonoBehaviour
     {
         [SerializeField] private ParticleSystem ps;
-
-        public UnityEvent<ParticleCollisionEvent> Collided => ps.GetComponent<ParticleSystemCollide>()?.Collided;
-
-        // private ParticleSystemForceField _forceField;
+        [SerializeField] private ParticleSystem collisionPs;
 
         private Vector3 _position;
         private UnityObjectPooling<ParticleSystem> _pool;
 
         private void Start()
         {
-            // _forceField = ps.externalForces.GetInfluence(0);
             _pool = new UnityObjectPooling<ParticleSystem>(transform, ps, p => !p.isPlaying);
+        }
+
+        private void OnDestroy()
+        {
+            foreach (var p in _pool.Items)
+            {
+                var collidedEvent = p.GetComponent<ParticleSystemCollide>()?.Collided;
+                collidedEvent?.RemoveListener(OnCollided);
+            }
+        }
+
+        private void OnCollided(ParticleCollisionEvent arg0)
+        {
+            collisionPs.transform.position = arg0.intersection;
+            collisionPs.Emit(Random.Range(2, 3));
         }
 
         public void Emit(int count)
         {
             var p = _pool.GetFromPool();
+
+            var collidedEvent = p.GetComponent<ParticleSystemCollide>()?.Collided;
+            collidedEvent?.RemoveListener(OnCollided);
+            collidedEvent?.AddListener(OnCollided);
+
             p.transform.position = _position;
             p.Emit(count);
         }
@@ -34,21 +51,5 @@ namespace Gameplay.MagicFlower
         {
             _position = pos;
         }
-
-        // public void SetColliderPosition(Vector3 pos)
-        // {
-        //     var forceField = ps.externalForces.GetInfluence(0);
-        //     forceField.transform.position = pos;
-        //     UpdateForceField();
-        // }
-
-        // public void UpdateForceField()
-        // {
-        //     var forceFieldTransform = _forceField.transform;
-        //     var diff = ps.transform.position - forceFieldTransform.position;
-        //     var plane = ps.collision.GetPlane(0);
-        //     plane.up = diff.normalized;
-        //     _forceField.endRange = diff.magnitude + 5f;
-        // }
     }
 }
