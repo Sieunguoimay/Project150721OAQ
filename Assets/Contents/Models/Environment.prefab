@@ -369,7 +369,7 @@ MonoBehaviour:
   disablePixelLights: 0
   layers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 1024
   texSize: 512
   refType: 0
   reflectClipPlaneOffset: 0
