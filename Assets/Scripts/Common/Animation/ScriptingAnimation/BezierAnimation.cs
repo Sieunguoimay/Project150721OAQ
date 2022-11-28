@@ -9,6 +9,7 @@ namespace Common.Animation.ScriptingAnimation
     {
         [SerializeField] private Vector3[] controlPoints;
         [SerializeField] private bool faceMoveDirection;
+        [field: SerializeField] public bool WorldSpace { get; private set; }
         [field: SerializeField, Min(0.01f)] public float VertexDistance { get; private set; } = 0.1f;
 
         public BezierSplineModifiable SplineModifiable
@@ -25,6 +26,8 @@ namespace Common.Animation.ScriptingAnimation
         }
 
         private BezierSplineModifiable _splineModifiable;
+
+        private IAnimationMover _mover;
 
         private void OnValidate()
         {
@@ -78,27 +81,42 @@ namespace Common.Animation.ScriptingAnimation
 
         protected override IAnimationMover GetMover(Transform target)
         {
-            return new BezierMoverByDistance(this, target, SplineModifiable);
+            if (_mover == null)
+            {
+                _mover = new BezierMoverByDistance(this, target, SplineModifiable);
+            }
+
+            return _mover;
         }
 
         private class BezierMoverByDistance : BaseAnimationMover
         {
             private readonly BezierAnimation _animation;
             private readonly BezierSplineWithDistance _splineWithDistance;
+            private readonly Vector3 _positionOrigin;
+            private readonly Quaternion _rotationOrigin;
 
             public BezierMoverByDistance(BezierAnimation animation, Transform target, BezierSpline spline) : base(target)
             {
                 _animation = animation;
                 _splineWithDistance = new BezierSplineWithDistance(spline, animation.VertexDistance);
+                _positionOrigin = _animation.transform.position;
+                _rotationOrigin = _animation.transform.rotation;
             }
 
             public sealed override void Move(float progress)
             {
                 var t = _splineWithDistance.GetTAtDistance(progress * _splineWithDistance.ArcLength);
-                Target.position = _animation.transform.TransformPoint(_splineWithDistance.Spline.GetPoint(t));
-                if (_animation.faceMoveDirection)
+                Target.position = _animation.WorldSpace
+                    ? _positionOrigin + _splineWithDistance.Spline.GetPoint(t)
+                    : _animation.transform.TransformPoint(_splineWithDistance.Spline.GetPoint(t));
+
+                if (_animation.faceMoveDirection)  
                 {
-                    Target.rotation = Quaternion.LookRotation(_animation.transform.TransformDirection(_splineWithDistance.Spline.GetVelocity(t)), Vector3.right);
+                    Target.rotation = Quaternion.LookRotation(
+                        _animation.WorldSpace
+                            ? _rotationOrigin * _splineWithDistance.Spline.GetVelocity(t)
+                            : _animation.transform.TransformDirection(_splineWithDistance.Spline.GetVelocity(t)), Vector3.right);
                 }
             }
         }

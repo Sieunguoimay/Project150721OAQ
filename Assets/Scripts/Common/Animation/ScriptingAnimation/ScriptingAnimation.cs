@@ -8,27 +8,30 @@ namespace Common.Animation.ScriptingAnimation
     {
         [field: SerializeField] protected Transform Target { get; private set; }
         [SerializeField, Min(0f)] private float duration;
-        [field:SerializeField] protected AnimationCurve Curve { get; private set; }
+        [field: SerializeField] protected AnimationCurve Curve { get; private set; }
 
-        private readonly ActivityQueue _activityQueue = new();
+        public float Duration => duration;
+
+        [field: System.NonSerialized] public ActivityQueue ActivityQueue { get; } = new();
 
         [ContextMenu("Play")]
         public virtual void Play()
         {
-            _activityQueue.End();
-            _activityQueue.Add(new ActivityTimer(duration, Tick, true));
-            _activityQueue.Begin();
+            ActivityQueue.End();
+            ActivityQueue.Add(new ActivityTimer(duration, Tick, true));
+            ActivityQueue.Begin();
         }
 
-        private void Tick(float p)
+        public void Tick(float p)
         {
             OnTick(Curve.Evaluate(p));
         }
+
         protected abstract void OnTick(float p);
 
         private void Update()
         {
-            _activityQueue.Update(Time.deltaTime);
+            ActivityQueue.Update(Time.deltaTime);
         }
 
         public override Activity CreateActivity()
@@ -41,6 +44,7 @@ namespace Common.Animation.ScriptingAnimation
     {
         protected abstract IAnimationMover GetMover(Transform target);
         private IAnimationMover _mover;
+
         public override void Play()
         {
             base.Play();

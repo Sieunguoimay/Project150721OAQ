@@ -9,10 +9,11 @@ namespace Common.DecisionMaking.Actions
     public class StateTransition : MonoActivity
     {
         [SerializeField] private bool stateConstraint;
+        [field: ShowIf(nameof(stateConstraint), true)]
 #if UNITY_EDITOR
         [field: StringSelector(nameof(StateNames))]
 #endif
-        [field: SerializeField, ShowIf(nameof(stateConstraint), true)]
+        [field: SerializeField]
         public string CurrentState { get; private set; }
 
 #if UNITY_EDITOR
@@ -32,6 +33,7 @@ namespace Common.DecisionMaking.Actions
             _constraintStateIndex = constraintStateIndex;
         }
 
+        [ContextMenu("Transition")]
         public void Transition()
         {
             if (!stateConstraint || stateConstraint && _stateMachine.CurrentState == _constraintStateIndex)

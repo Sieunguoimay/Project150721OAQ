@@ -17,7 +17,7 @@ namespace Common.Curve
     {
         BezierSplineModifiable SplineModifiable { get; }
         Transform Transform { get; }
-        UnityEngine.Object SerializeObject { get; }
+        Object SerializeObject { get; }
         void SetClosed(bool close);
         void AddSegment();
     }

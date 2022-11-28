@@ -14,9 +14,10 @@ namespace Common.UnityExtend.Attribute
         public string ProviderPropertyName { get; }
         public object Value { get; }
     }
+    
 #if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(ShowIfAttribute))]
-    public class ShowIfAttributePropertyDrawer : PropertyDrawer
+    public class ShowIfDrawer : PropertyDrawer
     {
         private bool _toggled;
 
