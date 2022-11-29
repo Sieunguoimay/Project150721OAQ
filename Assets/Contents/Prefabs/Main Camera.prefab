@@ -234,9 +234,9 @@ MonoBehaviour:
     m_RotationOrder: 4
   controlPoints:
   - {x: 0, y: 0, z: 0}
-  - {x: 10.304537, y: 0, z: 0}
-  - {x: 11.962324, y: -4.2381535, z: 3.9521413}
-  - {x: 17.792068, y: -4.2381535, z: 3.9521413}
+  - {x: 6.6400433, y: 0, z: 0}
+  - {x: 5.745366, y: -2.026344, z: 1.8895961}
+  - {x: 10.092159, y: -2.026344, z: 1.8895961}
   faceMoveDirection: 0
   <WorldSpace>k__BackingField: 1
   <VertexDistance>k__BackingField: 0.1
