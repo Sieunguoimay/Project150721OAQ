@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 1}
-  m_SkyboxMaterial: {fileID: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 45a173fc4f5838640ba4511a5ae328da, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -340,6 +340,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: b759eae0492791e44be2510126aecff5, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 73065d52ac119f54ba8d82ce88b7fa31, type: 2}
     - target: {fileID: 919132149155446097, guid: b759eae0492791e44be2510126aecff5, type: 3}
       propertyPath: m_Name
       value: huge_tree
@@ -1288,10 +1292,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Environment
       objectReference: {fileID: 0}
-    - target: {fileID: 1396097034152937368, guid: 4aef1705c5e370e479601e1c52f56b53, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5214614559396334074, guid: 4aef1705c5e370e479601e1c52f56b53, type: 3}
       propertyPath: m_RootOrder
       value: 4
@@ -1816,7 +1816,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4127524836746934882, guid: 89922d5c8962a6444a5db0318772f00a, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4500318555447245280, guid: 89922d5c8962a6444a5db0318772f00a, type: 3}
       propertyPath: m_IsActive

@@ -2,6 +2,7 @@
 using System.Linq;
 using Common;
 using Common.Curve.Mover;
+using Common.Tools.MeshSaver;
 using Gameplay.Piece.Activities;
 using SNM;
 using Timeline;
@@ -18,8 +19,20 @@ namespace Gameplay.BambooStick
         public PlayableDirector timeline2;
         public Transform start;
         public BambooStickPathPlan pathPlan;
+        public GameObject activeOnStop;
+        public MultipleMeshProvider activeOnMove;
 
         private Action _handler;
+
+        private void Start()
+        {
+            foreach (var r in activeOnMove.Renderers)
+            {
+                r.gameObject.SetActive(false);
+            }
+
+            activeOnStop.SetActive(true);
+        }
 
         public float GetMoverSpeed()
         {
@@ -38,12 +51,24 @@ namespace Gameplay.BambooStick
             timeline.Play();
             timeline.stopped -= TimelineStopped;
             timeline.stopped += TimelineStopped;
+            foreach (var r in activeOnMove.Renderers)
+            {
+                r.gameObject.SetActive(true);
+            }
+
+            activeOnStop.SetActive(false);
         }
 
         private void TimelineStopped(PlayableDirector obj)
         {
             timeline.stopped -= TimelineStopped;
             _handler?.Invoke();
+            foreach (var r in activeOnMove.Renderers)
+            {
+                r.gameObject.SetActive(false);
+            }
+
+            activeOnStop.SetActive(true);
         }
     }
 }

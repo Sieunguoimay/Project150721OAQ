@@ -7,12 +7,11 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: WaterSurface
-  m_Shader: {fileID: 4800000, guid: 63a53c9e8a3388b4d9852b21d8c52ae3, type: 3}
-  m_ValidKeywords:
-  - _DEBUG_NORMAL_MAP_ON
+  m_Name: Skybox
+  m_Shader: {fileID: 103, guid: 0000000000000000f000000000000000, type: 0}
+  m_ValidKeywords: []
   m_InvalidKeywords:
-  - _DEBUGDEPTH_ON
+  - _SUNDISK_HIGH_QUALITY
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -24,10 +23,6 @@ Material:
     m_TexEnvs:
     - _BumpMap:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _CausticsTex:
-        m_Texture: {fileID: 2800000, guid: cc06f2c90b363444bb90b430668110b3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -46,20 +41,12 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _FlowMap:
-        m_Texture: {fileID: 2800000, guid: 369b7b9e29feb0d4bb1a824bb8202ec2, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: ca1d0cb511ad5754fb65f46b9077ca48, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -70,61 +57,38 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _ReflectionTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _RefractionTex:
+    - _Tex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _: 0
-    - _AboveWaterFresnelFactor: 10
-    - _Absorption: 0
-    - _AbsorptionStrength: 1.079
+    - _AtmosphereThickness: 1
     - _BumpScale: 1
-    - _CausticsChromatic: 0
-    - _CausticsSplit: 0.004
-    - _CausticsStrength: 5
-    - _CausticsTiling: 9
-    - _Caustics_Chromatic: 0
     - _Cutoff: 0.5
-    - _DebugDepth: 1
-    - _Debug_Depth: 0
-    - _Debug_Normal_Map: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _FlowStrength: 2
-    - _FresnelFactor: 50
+    - _Exposure: 1.3
     - _GlossMapScale: 1
-    - _Glossiness: 0.676
+    - _Glossiness: 0
     - _GlossyReflections: 1
-    - _GridResolution: 2
-    - _HeightScale: 1
-    - _HeightScaleModulated: 1
-    - _MaxDepth: 7.1
     - _Metallic: 0
-    - _MinDepth: 0
     - _Mode: 0
-    - _NormalStrength: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RefractionStrength: 0.314
+    - _Rotation: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _Speed: 0.1
     - _SrcBlend: 1
-    - _Tiling: 3
-    - _TilingModulated: 5
+    - _SunDisk: 2
+    - _SunSize: 0.04
+    - _SunSizeConvergence: 5
     - _UVSec: 0
-    - _UnderWaterFresnelFactor: 1
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0, g: 0.78266287, b: 1, a: 0.0627451}
+    - _Color: {r: 0.2584905, g: 0.8389899, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FresnelFactor: {r: 5, g: 50, b: 0, a: 0}
-    - _RefColor: {r: 1, g: 1, b: 1, a: 1}
-    - _UnderWaterFresnelFactor: {r: 1, g: 1, b: 0, a: 0}
+    - _GroundColor: {r: 0.36899996, g: 0.34899998, b: 0.34099993, a: 1}
+    - _SkyTint: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _Tint: {r: 0.23474543, g: 0.6842826, b: 0.7924528, a: 1}
   m_BuildTextureStacks: []

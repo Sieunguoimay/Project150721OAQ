@@ -1,12 +1,13 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace Common.UnityExtend.Editor
+namespace Framework.Entities.Editor
 {
     public class EntityScriptCreator : EditorWindow
     {
+        private const string TemplatePath = "Assets/Scripts/Framework/Entities/Editor"; //Copy and paste it here
+
         [MenuItem("Assets/Create/Entity/Entity Script", priority = 1)]
         public static void Open()
         {
@@ -54,10 +55,10 @@ namespace Common.UnityExtend.Editor
             return CreateWithTemplate("EntityScriptTemplate", physicalPath, nameSpace, _entityName,
                        $"{_entityName}.cs") &&
                    CreateWithTemplate("EntityDataScriptTemplate", physicalPath, nameSpace, _entityName,
-                       $"{_entityName}Data.cs")&&
+                       $"{_entityName}Data.cs") &&
                    CreateWithTemplate("EntityViewScriptTemplate", physicalPath, nameSpace, _entityName,
                        $"{_entityName}View.cs");
-            
+
             // var entityFileContent = CreateScriptFile("EntityScriptTemplate", _entityName, nameSpace);
             // var entityFilePath = Path.Combine(physicalPath, $"{_entityName}.cs");
             //
@@ -83,7 +84,6 @@ namespace Common.UnityExtend.Editor
             // {
             //     return false;
             // }
-
         }
 
         private static bool CreateWithTemplate(string templateName, string physicalPath, string nameSpace,
@@ -132,7 +132,7 @@ namespace Common.UnityExtend.Editor
         private static string CreateScriptFile(string templateName, string entityName, string nameSpace)
         {
             var str = File.ReadAllText(Path.Combine(Path.GetDirectoryName(Application.dataPath) ?? string.Empty,
-                $"Assets/Scripts/Common/UnityExtend/Editor/{templateName}.txt"));
+                $"{TemplatePath}/{templateName}.txt"));
             return str.Replace("#SCRIPTNAME#", entityName).Replace("#NAMESPACE#", nameSpace);
         }
     }

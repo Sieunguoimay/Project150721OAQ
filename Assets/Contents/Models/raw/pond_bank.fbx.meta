@@ -2,7 +2,10 @@ fileFormatVersion: 2
 guid: 0e151b99c01aeae4a97485ac21ce24e6
 ModelImporter:
   serializedVersion: 21300
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      74: 6612261742539265139
+    second: pond_bank_optimized|pond_bank.001Action
   externalObjects: {}
   materials:
     materialImportMode: 2

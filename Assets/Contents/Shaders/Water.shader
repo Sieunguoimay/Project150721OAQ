@@ -138,7 +138,8 @@ Shader "Custom/Water"
             return min(caustics1, caustics2) * _CausticsStrength;
         }
 
-        float3 ColorBelowWater(float4 screenPos, float3 tangentSpaceNormal, float fresnel, float3 worldPos)
+        float3 WaterColor(float4 screenPos, float3 tangentSpaceNormal, float fresnel, float3 worldPos,
+                          out float3 underWaterColor)
         {
             float2 uvOffset = tangentSpaceNormal.xz; //* _RefractionStrength;
             uvOffset.y *=
@@ -163,14 +164,18 @@ Shader "Custom/Water"
             const float3 caustics = Caustics(backgroundDepth, waterDepth, worldPos);
 
             #if _DEBUG_DEPTH_ON
+            underWaterColor = waterDepth;
             return waterDepth;
             #else
-            const float3 black = float3(0, 0, 0);
-            float3 underWaterColor = lerp(
-                black, lerp(_Color.rgb, fracol, depthFator) + caustics.rgb * depthFator * waterDepth * 2,
-                pow(fresnel, _UnderWaterFresnelFactor));
-            float3 aboveWaterColor = lerp(flecol, black, pow(fresnel, _AboveWaterFresnelFactor));
-            return lerp(underWaterColor, aboveWaterColor, .5);
+            // const float3 black = float3(.5, .5, .5);
+            // float3 underWaterColor = lerp(
+            //     black, lerp(_Color.rgb, fracol, depthFator) + caustics.rgb * depthFator * waterDepth * 2,
+            //     pow(fresnel, _UnderWaterFresnelFactor));
+            // float3 aboveWaterColor = lerp(flecol, black, pow(fresnel, _AboveWaterFresnelFactor));
+            // return lerp(underWaterColor, aboveWaterColor, .5);
+            underWaterColor = lerp(_Color.rgb, fracol, depthFator) + caustics.rgb * depthFator * waterDepth * 2;
+            return lerp(flecol, underWaterColor,
+                        pow(fresnel, _AboveWaterFresnelFactor));
             #endif
         }
 
@@ -241,13 +246,19 @@ Shader "Custom/Water"
             // float wD = t.x * t.y;
             // float3 dh = dhA * wA + dhB * wB + dhC * wC + dhD * wD;
             // o.Normal = normalize(float3(-dh.xy, 1)); //
-
             #if _DEBUG_NORMAL_MAP_ON
-            o.Normal =normalize(float3(tex2D(_NormalMap, IN.uv_MainTex * _Tiling - time).xy, _NormalStrength));// tex2D(_NormalMap, IN.uv_MainTex * _Tiling - time);
+            // o.Normal =normalize(float3(tex2D(_NormalMap, IN.uv_MainTex * _Tiling - time).xy, _NormalStrength));// tex2D(_NormalMap, IN.uv_MainTex * _Tiling - time);
+            // float3 normal = normalize(lerp(float3(0.5, 0.5, 1),
+            //                                tex2D(_NormalMap, IN.uv_MainTex * _Tiling - time),
+            //                                _NormalStrength));
+            // o.Normal = normal;//UnpackNormal(half4(normal, 0));
+            o.Normal = tex2D(_NormalMap, IN.uv_MainTex * _Tiling - time);
             #endif
-
-            o.Albedo = ColorBelowWater(IN.screenPos, o.Normal, IN.refparam.r, IN.worldPos);
-
+            float3 underWaterColor;
+            float3 color = WaterColor(IN.screenPos, o.Normal, IN.refparam.r, IN.worldPos, underWaterColor);
+            // o.Albedo = color;
+            o.Emission = lerp(underWaterColor * 0.8, color,
+                              1 - saturate(dot(o.Normal, _WorldSpaceLightPos0)));
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
