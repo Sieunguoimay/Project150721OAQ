@@ -8,6 +8,7 @@
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
         [Header(Waving)]
+        [Toggle]_Waving ("Waving Toggle", Float) = 0.0
         _Speed ("Speed", Range(0,1)) = 0.0
         _NoiseWindowFactor ("Noise Window Factor", Range(0,1)) = 0.01
         _AmplitudeFactor ("Amplitude Factor", Range(0,1)) = 0.5
@@ -23,7 +24,8 @@
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
         #pragma surface surf Standard fullforwardshadows addshadow
-        #pragma vertex vert 
+        #pragma vertex vert
+        #pragma multi_compile __ _WAVING_ON
 
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
@@ -53,6 +55,7 @@
 
         void vert(inout appdata_full v, out Input o)
         {
+            #if _WAVING_ON
             float objectWorldPos = mul(unity_ObjectToWorld, float4(0, 0, 0, 1)).x;
             const float waving_factor = distance(v.vertex, float4(0, 0, 0, 1));
             v.vertex.z += _AmplitudeFactor*waving_factor * (tex2Dlod(
@@ -61,6 +64,7 @@
             v.vertex.x += _AmplitudeFactor*waving_factor * (tex2Dlod(
                     _NoiseTex, float4(_Time.y * _Speed + waving_factor * _NoiseWindowFactor, objectWorldPos, 0, 0))
                 .r - 0.25);
+            #endif
 
             UNITY_INITIALIZE_OUTPUT(Input, o);
         }

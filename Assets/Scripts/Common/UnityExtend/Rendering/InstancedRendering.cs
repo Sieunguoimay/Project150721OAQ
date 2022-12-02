@@ -8,6 +8,7 @@ namespace Common.UnityExtend.Rendering
         [SerializeField] private Mesh mesh;
         [SerializeField] private Material material;
         [SerializeField] private Matrix4x4[] instances;
+        [SerializeField, HideInInspector] private bool editing;
 
         private void Update()
         {
@@ -17,6 +18,7 @@ namespace Common.UnityExtend.Rendering
         [ContextMenu("To GameObject")]
         private void ToGameObject()
         {
+            editing = true;
             ClearChildrenGameObjects();
             var thisTransform = transform;
 
@@ -49,6 +51,8 @@ namespace Common.UnityExtend.Rendering
         [ContextMenu("From GameObject")]
         private void FromGameObject()
         {
+            if (!editing) return;
+
             var transforms = GetComponentsInChildren<Transform>();
             var thisTransform = transform;
 
@@ -67,6 +71,8 @@ namespace Common.UnityExtend.Rendering
         [ContextMenu("Clear Children GameObjects")]
         private void ClearChildrenGameObjects()
         {
+            editing = false;
+
             var transforms = GetComponentsInChildren<Transform>();
             var thisTransform = transform;
             for (var i = 0; i < transforms.Length; i++)
