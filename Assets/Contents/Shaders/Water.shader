@@ -174,6 +174,7 @@ Shader "Custom/Water"
             // float3 aboveWaterColor = lerp(flecol, black, pow(fresnel, _AboveWaterFresnelFactor));
             // return lerp(underWaterColor, aboveWaterColor, .5);
             underWaterColor = lerp(_Color.rgb, fracol, depthFator) + caustics.rgb * depthFator * waterDepth * 2;
+            return underWaterColor;
             return lerp(flecol, underWaterColor,
                         pow(fresnel, _AboveWaterFresnelFactor));
             #endif

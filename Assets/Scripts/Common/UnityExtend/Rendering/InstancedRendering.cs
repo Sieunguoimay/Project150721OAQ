@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Common.UnityExtend.Rendering
 {
@@ -12,7 +13,7 @@ namespace Common.UnityExtend.Rendering
 
         private void Update()
         {
-            Graphics.DrawMeshInstanced(mesh, 0, material, instances);
+            Graphics.DrawMeshInstanced(mesh, 0, material, instances, instances.Length, (MaterialPropertyBlock) null, ShadowCastingMode.On, true, gameObject.layer, (Camera) null, LightProbeUsage.BlendProbes, (LightProbeProxyVolume) null);
         }
 
         [ContextMenu("To GameObject")]
