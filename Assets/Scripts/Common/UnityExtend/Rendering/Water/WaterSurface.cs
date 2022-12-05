@@ -7,7 +7,7 @@ namespace Common.UnityExtend.Rendering.Water
     /// 水面
     /// </summary>
     [AddComponentMenu("GameCore/Effect/Water/Water (Base)")]
-    [ExecuteInEditMode]
+    // [ExecuteInEditMode]
     public class WaterSurface : MonoBehaviour
     {
         public enum FlageWaterRefType

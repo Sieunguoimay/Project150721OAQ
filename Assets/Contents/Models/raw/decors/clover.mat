@@ -9,7 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: clover
   m_Shader: {fileID: 4800000, guid: 30aaafc6c52c461f8a8d8adbccb42792, type: 3}
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _WAVING_ON
   m_InvalidKeywords:
   - _RECEIVE_SHADOWS
   - _SHADOWS_ON
@@ -140,7 +141,7 @@ Material:
     - _Speed: 0.011
     - _SrcBlend: 1
     - _UVSec: 0
-    - _Waving: 0
+    - _Waving: 1
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}

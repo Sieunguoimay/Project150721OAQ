@@ -8,7 +8,7 @@ namespace Common.UnityExtend.Rendering
         [SerializeField] private Mesh mesh;
         [SerializeField] private Material material;
         [SerializeField] private Matrix4x4[] instances;
-        [SerializeField, HideInInspector] private bool editing;
+        [SerializeField] private bool editing;
 
         private void Update()
         {
@@ -51,7 +51,11 @@ namespace Common.UnityExtend.Rendering
         [ContextMenu("From GameObject")]
         private void FromGameObject()
         {
-            if (!editing) return;
+            if (!editing)
+            {
+                Debug.LogError("Failed to save to gameObject");
+                return;
+            }
 
             var transforms = GetComponentsInChildren<Transform>();
             var thisTransform = transform;

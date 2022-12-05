@@ -11,6 +11,7 @@ namespace Common.Tools.Polygon
         [SerializeField] private MeshFilter meshFilter;
         [SerializeField] private string savePath = "Assets/GeneratedMesh/";
         [SerializeField] private string meshName = "Untitled";
+        [SerializeField] private bool noFaces = false;
 
         private Mesh _mesh;
 
@@ -43,13 +44,18 @@ namespace Common.Tools.Polygon
                 meshFilter.mesh = _mesh = new UnityEngine.Mesh();
                 _mesh.name = meshName;
 
-                var ps = points.Select(t => vg.Transform.TransformPoint(t.localPosition)).ToList();
-
-                var tris = PolygonTriangulate.Triangulate(ps.Select(vertex => new Vector2(vertex.x, vertex.z)).ToArray());
-
-                for (var i = 0; i < tris.Length; i++)
+                var ps = points
+                    .Select(t => transform.InverseTransformPoint(vg.Transform.TransformPoint(t.localPosition)))
+                    .ToList();
+                if (!noFaces)
                 {
-                    triangles.Add(offset + tris[i]);
+                    var tris = PolygonTriangulate.Triangulate(
+                        ps.Select(vertex => new Vector2(vertex.x, vertex.z)).ToArray());
+
+                    for (var i = 0; i < tris.Length; i++)
+                    {
+                        triangles.Add(offset + tris[i]);
+                    }
                 }
 
                 vertices = vertices.Concat(ps);
@@ -57,7 +63,10 @@ namespace Common.Tools.Polygon
             }
 
             _mesh.vertices = vertices.ToArray();
-            _mesh.triangles = triangles.ToArray();
+            if (!noFaces)
+            {
+                _mesh.triangles = triangles.ToArray();
+            }
         }
 
 #if UNITY_EDITOR
@@ -92,6 +101,7 @@ namespace Common.Tools.Polygon
                     DrawString($"{i}", points[i].position, Color.cyan);
                 }
 
+                if (noFaces) continue;
                 Gizmos.DrawLine(points[0].position, points[points.Length - 1].position);
                 DrawString($"{points.Length - 1}", points[points.Length - 1].position, Color.cyan);
             }
