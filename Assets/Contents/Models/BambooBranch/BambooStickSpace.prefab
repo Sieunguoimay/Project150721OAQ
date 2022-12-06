@@ -136,7 +136,6 @@ GameObject:
   - component: {fileID: 7116952560555570014}
   - component: {fileID: 7884169721868529183}
   - component: {fileID: 4984721140297347279}
-  - component: {fileID: 4291882254659987603}
   m_Layer: 0
   m_Name: Static
   m_TagString: Untagged
@@ -209,19 +208,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &4291882254659987603
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5671317843080482682}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: -0.000000088475645}
 --- !u!1 &6355048304972677958
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,6 +375,18 @@ PrefabInstance:
     - target: {fileID: 5627999791151368957, guid: 814ea5592efaedd4c9d3f51bf3053222, type: 3}
       propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 8348238817051730411, guid: 814ea5592efaedd4c9d3f51bf3053222, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8348238817051730411, guid: 814ea5592efaedd4c9d3f51bf3053222, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8348238817051730411, guid: 814ea5592efaedd4c9d3f51bf3053222, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 814ea5592efaedd4c9d3f51bf3053222, type: 3}
