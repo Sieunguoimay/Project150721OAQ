@@ -1,20 +1,21 @@
 ﻿using UnityEngine;
 
-namespace Common.Animation.ScriptingAnimation
+namespace Common.Animation.ScriptingAnimation.ShortAnimations
 {
     public class AngleAnimation : ScriptingAnimation
     {
-        public AnimationCurve curveX;
-        public AnimationCurve curveY;
-        public AnimationCurve curveZ;
+        public AnimationCurve[] curves;
 
         protected override void OnTick(float p)
         {
             var euler = Target.localEulerAngles;
-            euler.x = curveX.Evaluate(p);
-            euler.y = curveY.Evaluate(p);
-            euler.z = curveZ.Evaluate(p);
+            for (var i = 0; i < 3; i++)
+            {
+                euler[i] = curves[i].Evaluate(p);
+            }
+
             Target.localEulerAngles = euler;
         }
+
     }
 }

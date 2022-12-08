@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common.Animation.ScriptingAnimation;
+using Common.Animation.ScriptingAnimation.ShortAnimations;
 using Common.Curve;
 using Common.Curve.PathCreator.Core.Runtime.Utility;
 using Common.UnityExtend;
@@ -94,14 +95,14 @@ namespace Gameplay.MagicFlower
             spline.SetControlPoint(spline.ControlPoints.Count / 2,
                 splineTransform.InverseTransformPoint(transform.TransformPoint(newLocalControlMidPoint)));
 
-            var keys = angleAnimation.curveX.keys;
+            var keys = angleAnimation.curves[0].keys;
             keys[^1].value = Random.Range(-20f, 20f);
             keys[^1].inTangent = 0f;
-            angleAnimation.curveX.keys = keys;
+            angleAnimation.curves[0].keys = keys;
 
-            keys = angleAnimation.curveY.keys;
+            keys = angleAnimation.curves[1].keys;
             keys[^1].value += Random.Range(0f, 180f);
-            angleAnimation.curveY.keys = keys;
+            angleAnimation.curves[1].keys = keys;
         }
 
         public void Spawn()

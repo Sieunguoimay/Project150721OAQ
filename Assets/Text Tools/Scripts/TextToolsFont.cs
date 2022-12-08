@@ -352,17 +352,17 @@ namespace texttools
 		[SerializeField]
 		List<TextToolsKerningPair> kerningPairList = null;
 
-		[FormerlySerializedAs("faceMaterial")]
-		[SerializeField]
-		Material faceMaterial = null;
+		// [FormerlySerializedAs("faceMaterial")]
+		// [SerializeField]
+		// Material faceMaterial = null;
 
-		[FormerlySerializedAs("sideMaterial")]
-		[SerializeField]
-		Material sideMaterial = null;
+		// [FormerlySerializedAs("sideMaterial")]
+		// [SerializeField]
+		// Material sideMaterial = null;
 
-		[FormerlySerializedAs("outlineMaterial")]
-		[SerializeField]
-		Material outlineMaterial = null;
+		// [FormerlySerializedAs("outlineMaterial")]
+		// [SerializeField]
+		// Material outlineMaterial = null;
 
 		[FormerlySerializedAs("wordSpace")]
 		[SerializeField]
@@ -461,9 +461,9 @@ namespace texttools
         List<TextToolsCharacterRange> oldCharacterRangeList = new List<TextToolsCharacterRange>();
         ModelImporterMeshCompression  oldMeshCompression;
         TextToolsJoin                 oldOutlineJoin;
-        Material                      oldFaceMaterial;
-        Material                      oldSideMaterial;
-        Material                      oldOutlineMaterial;
+        // Material                      oldFaceMaterial;
+        // Material                      oldSideMaterial;
+        // Material                      oldOutlineMaterial;
         Color32                       oldTopLeftColor;
         Color32                       oldTopRightColor;
         Color32                       oldBottomLeftColor;
@@ -488,57 +488,57 @@ namespace texttools
 		Dictionary<uint, Vector2>       kerningPairMap = null;
 		Material[]                      materials      = null;
 		
-
-
-		public Material[] Materials
-		{
-			get 
-			{
-				if(null == materials)
-				{
-					int count = 1;
-
-					if(outlineWidth > 0.00001f && outlineMaterial != faceMaterial)
-						++count;
-
-					if(extrude > 0.000001f && sideMaterial != faceMaterial)
-					{
-						if(outlineWidth > 0.00001f)
-						{
-							if(sideMaterial != outlineMaterial)
-								++count;
-						}
-						else 
-						{
-							++count;
-						}
-					}
-
-					materials = new Material[count];
-					count     = 0;
-
-					if(outlineWidth > 0.000001f && outlineMaterial != faceMaterial)
-						materials[count++] = outlineMaterial;
-
-					materials[count] = faceMaterial;
-
-					if(extrude > 0.000001f && sideMaterial != faceMaterial)
-					{
-						if(outlineWidth > 0.00001f)
-						{
-							if(sideMaterial != outlineMaterial)
-								materials[++count] = sideMaterial;
-						}
-						else
-						{
-							materials[++count] = sideMaterial;
-						}
-					}
-				}
-
-				return materials; 
-			}
-		}
+		//
+		//
+		// public Material[] Materials
+		// {
+		// 	get 
+		// 	{
+		// 		if(null == materials)
+		// 		{
+		// 			int count = 1;
+		//
+		// 			if(outlineWidth > 0.00001f && outlineMaterial != faceMaterial)
+		// 				++count;
+		//
+		// 			if(extrude > 0.000001f && sideMaterial != faceMaterial)
+		// 			{
+		// 				if(outlineWidth > 0.00001f)
+		// 				{
+		// 					if(sideMaterial != outlineMaterial)
+		// 						++count;
+		// 				}
+		// 				else 
+		// 				{
+		// 					++count;
+		// 				}
+		// 			}
+		//
+		// 			materials = new Material[count];
+		// 			count     = 0;
+		//
+		// 			if(outlineWidth > 0.000001f && outlineMaterial != faceMaterial)
+		// 				materials[count++] = outlineMaterial;
+		//
+		// 			materials[count] = faceMaterial;
+		//
+		// 			if(extrude > 0.000001f && sideMaterial != faceMaterial)
+		// 			{
+		// 				if(outlineWidth > 0.00001f)
+		// 				{
+		// 					if(sideMaterial != outlineMaterial)
+		// 						materials[++count] = sideMaterial;
+		// 				}
+		// 				else
+		// 				{
+		// 					materials[++count] = sideMaterial;
+		// 				}
+		// 			}
+		// 		}
+		//
+		// 		return materials; 
+		// 	}
+		// }
 
 		public int UnitsPerEm
 		{
@@ -675,7 +675,9 @@ namespace texttools
 			}
 		}
 
-        public void CreateSnapshot()
+		public List<TextToolsGlyph> GlyphList => glyphList;
+
+		public void CreateSnapshot()
         {
             if(snapShot)
                 return;
@@ -685,9 +687,9 @@ namespace texttools
 
             oldMeshCompression  = meshCompression;
             oldOutlineJoin      = outlineJoin;
-            oldFaceMaterial     = faceMaterial;
-            oldSideMaterial     = sideMaterial;
-            oldOutlineMaterial  = outlineMaterial;
+            // oldFaceMaterial     = faceMaterial;
+            // oldSideMaterial     = sideMaterial;
+            // oldOutlineMaterial  = outlineMaterial;
             oldTopLeftColor     = topLeftColor;
             oldTopRightColor    = topRightColor;
             oldBottomLeftColor  = bottomLeftColor;
@@ -714,9 +716,9 @@ namespace texttools
 
             meshCompression  = oldMeshCompression;
             outlineJoin      = oldOutlineJoin;
-            faceMaterial     = oldFaceMaterial;
-            sideMaterial     = oldSideMaterial;
-            outlineMaterial  = oldOutlineMaterial;
+            // faceMaterial     = oldFaceMaterial;
+            // sideMaterial     = oldSideMaterial;
+            // outlineMaterial  = oldOutlineMaterial;
             topLeftColor     = oldTopLeftColor;
             topRightColor    = oldTopRightColor;
             bottomLeftColor  = oldBottomLeftColor;
@@ -800,7 +802,7 @@ namespace texttools
 					for(char i=r.begin; i<=r.end; ++i)
 					{
 						if(!glyphMap.ContainsKey(i))
-							create(this, i, faceMaterial, sideMaterial, outlineMaterial, topLeftColor, topRightColor, bottomLeftColor, bottomRightColor, outlineJoin, miterLimit, outlineWidth, extrude, curveQuality, bevelSegments, useTangents, useColors, uvCorrection);
+							create(this, i, null, null, null, topLeftColor, topRightColor, bottomLeftColor, bottomRightColor, outlineJoin, miterLimit, outlineWidth, extrude, curveQuality, bevelSegments, useTangents, useColors, uvCorrection);
 					}
 				}
 				else
@@ -808,13 +810,13 @@ namespace texttools
 					for(int i=0; i<r.custom.Length; ++i)
 					{
 						if(!glyphMap.ContainsKey(r.custom[i]))
-							create(this, r.custom[i], faceMaterial, sideMaterial, outlineMaterial, topLeftColor, topRightColor, bottomLeftColor, bottomRightColor, outlineJoin, miterLimit, outlineWidth, extrude, curveQuality, bevelSegments, useTangents, useColors, uvCorrection);
+							create(this, r.custom[i], null, null, null, topLeftColor, topRightColor, bottomLeftColor, bottomRightColor, outlineJoin, miterLimit, outlineWidth, extrude, curveQuality, bevelSegments, useTangents, useColors, uvCorrection);
 					}
 				}
 			}
 
 			if(!glyphMap.ContainsKey((char)missingGlyph))
-				create(this, (char)missingGlyph, faceMaterial, sideMaterial, outlineMaterial, topLeftColor, topRightColor, bottomLeftColor, bottomRightColor, outlineJoin, miterLimit, outlineWidth, extrude, curveQuality, bevelSegments, useTangents, useColors, uvCorrection);
+				create(this, (char)missingGlyph, null, null, null, topLeftColor, topRightColor, bottomLeftColor, bottomRightColor, outlineJoin, miterLimit, outlineWidth, extrude, curveQuality, bevelSegments, useTangents, useColors, uvCorrection);
 
 			kerning(kerningPairMap, kerningPairList);
 			

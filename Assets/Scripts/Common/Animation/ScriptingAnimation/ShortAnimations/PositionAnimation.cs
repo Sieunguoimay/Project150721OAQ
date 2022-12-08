@@ -4,16 +4,15 @@ namespace Common.Animation.ScriptingAnimation
 {
     public class PositionAnimation:ScriptingAnimation
     {
-        [SerializeField] private AnimationCurve curveX;
-        [SerializeField] private AnimationCurve curveY;
-        [SerializeField] private AnimationCurve curveZ;
+        [SerializeField] private AnimationCurve[] curves;
 
         protected override void OnTick(float p)
         {
             var pos = Target.localPosition;
-            pos.x = curveX.Evaluate(p);
-            pos.y = curveY.Evaluate(p);
-            pos.z = curveZ.Evaluate(p);
+            for (var i = 0; i < 3; i++)
+            {
+                pos[i] = curves[i].Evaluate(p);
+            }
             Target.localPosition = pos;
         }
     }
