@@ -372,9 +372,6 @@ MonoBehaviour:
     advance: {x: 501, y: 1089}
     id: 57
   kerningPairList: []
-  faceMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-  sideMaterial: {fileID: 0}
-  outlineMaterial: {fileID: 0}
   wordSpace: {x: 200, y: 1089}
   lineSpace: {x: 1089, y: 1357}
   extrude: 0

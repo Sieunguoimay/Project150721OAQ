@@ -6,6 +6,7 @@
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
+using Text3D.Scripts;
 
 
 namespace texttools
@@ -518,7 +519,7 @@ namespace texttools
             }
         }
 
-        static void Join(Path path, List<int> indices, Color32 color, Point c, Point p, Point n, TextToolsJoin join, float limit, int begin)
+        static void Join(Path path, List<int> indices, Color32 color, Point c, Point p, Point n, Text3DJoin join, float limit, int begin)
         {
             Vector2 n1 = new Vector2(c.y - p.y, p.x - c.x);
             Vector2 n2 = new Vector2(n.y - c.y, c.x - n.x);
@@ -535,41 +536,36 @@ namespace texttools
 
             if (cross > 0.00001f)
                 Miter(path, indices, color, c, p, n, n1, n2, inner, begin, c.join);
-            else if (c.join && TextToolsJoin.Bevel == join)
+            else if (c.join && Text3DJoin.Bevel == join)
                 Bevel(path, indices, color, c, n, n1, n2, begin);
-            else if (c.join && TextToolsJoin.Round == join)
+            else if (c.join && Text3DJoin.Round == join)
                 Round(path, indices, color, c, n, n1, n2, begin);
             else if (cross < -0.00001f)
                 Miter(path, indices, color, c, p, n, n1, n2, limit, begin, c.join);
         }
 
-        static void Outline(Material material, Path path, Path result, Color32 color, TextToolsJoin join, int segments, float depth, float width, float limit)
+        static void Outline(Material material, Path path, Path result, Color32 color, Text3DJoin join, int segments, float depth, float width, float limit)
         {
             if (width < 0.000001f)
                 return;
 
-            Vector2 v = Vector2.zero;
-            Vector4 t = Vector4.zero;
+            var v = Vector2.zero;
+            var t = Vector4.zero;
             int count;
-            int prev;
-            int next;
-            int begin;
-            int offset = positionList.Count;
-            int index = GetMaterialIndex(material);
-            float length = 0.0f;
-            bool bevel = segments > 0;
+            var index = GetMaterialIndex(material);
+            var bevel = segments > 0;
 
             if (segments < 1)
                 segments = 1;
 
-            float a = 1.5707963f / segments;
+            var a = 1.5707963f / segments;
 
             numSegments = segments;
             outlineWidth = width;
 
             if (numSegments > 1)
             {
-                for (int i = 0; i <= numSegments; ++i)
+                for (var i = 0; i <= numSegments; ++i)
                 {
                     mulPositionList.Add(new Vector3(Mathf.Sin(a * i), Mathf.Sin(a * i), (1.0f - Mathf.Cos(a * i)) * outlineWidth));
                     mulNormalList.Add(new Vector3(Mathf.Sin(a * i), Mathf.Sin(a * i), -Mathf.Cos(a * i) * outlineWidth));
@@ -592,24 +588,24 @@ namespace texttools
                 mulNormalList.Add(new Vector3(0.70710678f, 0.70710678f, -0.70710678f * outlineWidth));
             }
 
-            foreach (SubPath sp in path.subPathList)
+            foreach (var sp in path.subPathList)
             {
                 count = sp.points.Length;
-                begin = positionList.Count;
+                var begin = positionList.Count;
                 contourLength = 0.0f;
 
-                for (int i = 0; i < count; ++i)
+                for (var i = 0; i < count; ++i)
                 {
-                    prev = (i - 1 + count) % count;
-                    next = (i + 1) % count;
+                    var prev = (i - 1 + count) % count;
+                    var next = (i + 1) % count;
 
                     Join(result, indexList[index], color, sp.points[i], sp.points[prev], sp.points[next], join, limit, (0 == next ? begin : -1));
                 }
 
-                length = Vector3.Distance(positionList[begin + numSegments], positionList[positionList.Count - 1]);
+                var length = Vector3.Distance(positionList[begin + numSegments], positionList[positionList.Count - 1]);
                 contourLength += length;
 
-                for (int i = 0; i <= numSegments; ++i)
+                for (var i = 0; i <= numSegments; ++i)
                 {
                     v = uv0List[begin + i];
                     v.y = contourLength;
@@ -632,7 +628,7 @@ namespace texttools
                     uv3List[uv3List.Count - 1 - numSegments + i] = v;
                 }
 
-                for (int i = begin; i < uv0List.Count; ++i)
+                for (var i = begin; i < uv0List.Count; ++i)
                 {
                     v = uv0List[i];
                     v.y /= contourLength;
@@ -646,7 +642,7 @@ namespace texttools
 
             count = indexList[index].Count;
 
-            for (int i = 0; i < count; i += 3)
+            for (var i = 0; i < count; i += 3)
             {
                 indexList[index].Add(indexList[index][i + 0] + positionList.Count);
                 indexList[index].Add(indexList[index][i + 2] + positionList.Count);
@@ -655,7 +651,7 @@ namespace texttools
 
             count = positionList.Count;
 
-            for (int i = 0; i < count; ++i)
+            for (var i = 0; i < count; ++i)
             {
                 t.Set(positionList[i].x, positionList[i].y, depth - positionList[i].z, 0.0f);
                 positionList.Add(t);
@@ -675,15 +671,15 @@ namespace texttools
             }
         }
 
-        public static void CreateGlyph(TextToolsFont asset, char c, Material face, Material side, Material outline, Color32 tl, Color32 tr, Color32 bl, Color32 br, TextToolsJoin join, float limit, float width, float extrude, float quality, int segments, bool tangents, bool colors, bool correction)
+        public static void CreateGlyph(Text3DFont asset, char c, Material face, Material side, Material outline, Color32 tl, Color32 tr, Color32 bl, Color32 br, Text3DJoin join, float limit, float width, float extrude, float quality, int segments, bool tangents, bool colors, bool correction)
         {
-            var glyph = new TextToolsGlyph();
+            var glyph = new Text3DGlyph();
             Path[] path = {new(), new(), new()};
             Path.approximationScale = quality * quality;
             var size = Vector2.zero;
-            bool bevel = width > 0.000001f && segments > 0;
-            int ind = width > 0.000001f ? 2 : 1;
-            float depth = bevel ? extrude + width + width : extrude;
+            var bevel = width > 0.000001f && segments > 0;
+            var ind = width > 0.000001f ? 2 : 1;
+            var depth = bevel ? extrude + width + width : extrude;
 
             if (!TextToolsLoader.LoadGlyph(c, ref path[0], ref glyph.advance))
                 return;
@@ -697,19 +693,20 @@ namespace texttools
             SetColors(path[ind], tl, tr, bl, br);
 
             glyph.id = c;
-            glyph.mesh = new Mesh();
+            glyph.mesh = new Mesh
+            {
+                name = asset.name.Trim() + "_" + (int) c + "_" + c,
+                vertices = positionList.ToArray(),
+                normals = normalList.ToArray(),
+                uv = uv0List.ToArray(),
+                uv2 = correction ? uv2List.ToArray() : null,
+                uv3 = correction ? uv3List.ToArray() : null,
+                colors32 = colors ? colorList.ToArray() : null,
+                tangents = tangents ? tangentList.ToArray() : null,
+                subMeshCount = materialList.Count
+            };
 
-            glyph.mesh.name = (int) c + "_" + c + "_" + asset.name.Trim();
-            glyph.mesh.vertices = positionList.ToArray();
-            glyph.mesh.normals = normalList.ToArray();
-            glyph.mesh.uv = uv0List.ToArray();
-            glyph.mesh.uv2 = correction ? uv2List.ToArray() : null;
-            glyph.mesh.uv3 = correction ? uv3List.ToArray() : null;
-            glyph.mesh.colors32 = colors ? colorList.ToArray() : null;
-            glyph.mesh.tangents = tangents ? tangentList.ToArray() : null;
-            glyph.mesh.subMeshCount = materialList.Count;
-
-            for (int i = 0; i < materialList.Count; ++i)
+            for (var i = 0; i < materialList.Count; ++i)
                 glyph.mesh.SetTriangles(indexList[i].ToArray(), i);
 
             glyph.mesh.RecalculateBounds();

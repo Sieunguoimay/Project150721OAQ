@@ -8,6 +8,7 @@ using UnityEngine;
 using System;
 using System.IO; 
 using System.Collections.Generic;
+using Text3D.Scripts;
 
 
 namespace texttools
@@ -1274,7 +1275,7 @@ namespace texttools
 			return LoadTTFGlyph(g, c, null, ref path);
 		}
 
-		public static void LoadKerningPairs(Dictionary<uint, Vector2> map, List<TextToolsKerningPair> list)
+		public static void LoadKerningPairs(Dictionary<uint, Vector2> map, List<Text3DKerningPair> list)
 		{
 			if(0 == kern || 0 == numKerningTables || indices.Count < 2 || characters.Count < 2)
 				return;
@@ -1334,7 +1335,7 @@ namespace texttools
 						key = (uint)(characters[j]<<16)|(uint)characters[i];
 
 						map.Add(key, value);
-						list.Add(new TextToolsKerningPair(characters[i], characters[j], value));
+						list.Add(new Text3DKerningPair(characters[i], characters[j], value));
 					}
 				}
 			}
