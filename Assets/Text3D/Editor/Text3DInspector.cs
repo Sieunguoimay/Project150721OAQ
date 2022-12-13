@@ -7,7 +7,7 @@ namespace Text3D.Editor
     [CustomEditor(typeof(Text3D.Scripts.Text3D))]
     public class Text3DInspector : UnityEditor.Editor
     {
-        private static bool _contentShow;
+        private static bool _contentShow = true;
 
         private SerializedProperty _sourceFont;
         private SerializedProperty _inputText;

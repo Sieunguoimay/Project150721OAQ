@@ -9,7 +9,8 @@ namespace Common.DecisionMaking.Actions
     public class StateTransition : MonoActivity
     {
         [SerializeField] private bool stateConstraint;
-        [field: ShowIf(nameof(stateConstraint), true)]
+
+        [field: ShowIf(nameof(stateConstraint), true, nameof(OnCurrentStateShowIfChanged))]
 #if UNITY_EDITOR
         [field: StringSelector(nameof(StateNames))]
 #endif
@@ -55,10 +56,18 @@ namespace Common.DecisionMaking.Actions
                 _stateMachineCreator = GetComponentInParent<StateMachineCreator>();
             }
 
-            return _stateMachineCreator.States.Select(s => s.StateName);
+            return _stateMachineCreator.GetComponentsInChildren<ActionState>().Select(s => s.StateName);
         }
 
         public IEnumerable<string> StateNames => GetStates();
+
+        public void OnCurrentStateShowIfChanged(bool status)
+        {
+            if (status && string.IsNullOrEmpty(CurrentState))
+            {
+                CurrentState = GetComponent<ActionState>()?.StateName ?? "";
+            }
+        }
 #endif
     }
 }

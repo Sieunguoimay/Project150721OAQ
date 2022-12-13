@@ -83,6 +83,12 @@ namespace Common.UnityExtend
                 }
             }
         }
+        public static MethodInfo GetMethodInfo(Type type, string methodName)
+        {
+            return type.GetMethod(methodName,
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
+                BindingFlags.IgnoreCase);
+        }
 
         public static object GetPropertyOrFieldValue(object src, string propName)
         {

@@ -23,11 +23,12 @@ namespace Text3D.Scripts
     }
 
     [ExecuteInEditMode]
+    [SelectionBase]
     public class Text3D : MonoBehaviour
     {
         [SerializeField] private Text3DFont sourceFont = null;
         [SerializeField] [TextArea(3, 5)] private string inputText = "";
-        [SerializeField] private int fontSize = 1;
+        [SerializeField] private float fontSize = 1;
         [SerializeField] private float characterSpace;
         [SerializeField] private float wordSpace;
         [SerializeField] private float lineSpace;
@@ -36,6 +37,7 @@ namespace Text3D.Scripts
         [SerializeField] private Material material;
         [SerializeField] private bool receiveShadows = true;
         [SerializeField] private ShadowCastingMode castShadows = ShadowCastingMode.On;
+        [field: SerializeField] public bool IsStaticMeshActive { get; private set; }
 #if UNITY_EDITOR
         public Text3DFont SourceFont => sourceFont;
 #endif
@@ -51,7 +53,70 @@ namespace Text3D.Scripts
             }
         }
 
+#if UNITY_EDITOR
+        [ContextMenu(nameof(ToggleStaticMesh))]
+        public void ToggleStaticMesh()
+        {
+            SetActiveStaticMesh(!IsStaticMeshActive);
+        }
+#endif
+
+        public void SetActiveStaticMesh(bool staticMesh)
+        {
+            if (IsStaticMeshActive != staticMesh)
+            {
+                if (staticMesh)
+                {
+                    ConvertToStaticMesh();
+                }
+                else
+                {
+                    GenerateText(true);
+                }
+            }
+        }
+
+        private void ConvertToStaticMesh()
+        {
+            IsStaticMeshActive = true;
+            var meshCombineInstances = new CombineInstance[_characterRenderers.Count];
+            for (var i = 0; i < _characterRenderers.Count; i++)
+            {
+                meshCombineInstances[i] = new CombineInstance
+                {
+                    mesh = _characterRenderers[i].MeshFilter.sharedMesh,
+                    transform = transform.worldToLocalMatrix * _characterRenderers[i].transform.localToWorldMatrix,
+                };
+                _characterRenderers[i].gameObject.SetActive(false);
+            }
+
+            var mf = gameObject.GetComponent<MeshFilter>();
+            mf = mf ? mf : gameObject.AddComponent<MeshFilter>();
+            (mf.sharedMesh ??= new Mesh()).CombineMeshes(meshCombineInstances);
+
+            var mr = gameObject.GetComponent<MeshRenderer>();
+            mr = mr ? mr : gameObject.AddComponent<MeshRenderer>();
+            mr.sharedMaterial = material;
+            mr.enabled = true;
+        }
+
+        private void RevertStaticMesh()
+        {
+            IsStaticMeshActive = false;
+            var mr = gameObject.GetComponent<MeshRenderer>();
+            if (mr)
+            {
+                mr.enabled = false;
+            }
+        }
+
         public void GenerateText(bool clear)
+        {
+            RevertStaticMesh();
+            GenerateTextInternal(clear);
+        }
+
+        private void GenerateTextInternal(bool clear)
         {
             if (clear)
             {
@@ -66,7 +131,7 @@ namespace Text3D.Scripts
 
             var it = 0;
             var count = 0;
-            var fSize = fontSize / (float) sourceFont.UnitsPerEm;
+            var fSize = fontSize / sourceFont.UnitsPerEm;
             var wSpace = sourceFont.WordSpace.x * fSize + wordSpace;
             var lSpace = sourceFont.LineSpace.x * fSize + lineSpace;
             var pos = new Vector3(0, -lSpace);
