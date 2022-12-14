@@ -7,6 +7,7 @@ Shader "Custom/Blend2Textures"
         _SecondTex ("Second Albedo (RGB)", 2D) = "white" {}
         _Blend ("Blend", Range(0,1)) = 1
         _NormalTex ("Normal Map (RGB)", 2D) = "white" {}
+        _SecondNormalTex ("Second Normal Map (RGB)", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
     }
@@ -28,6 +29,7 @@ Shader "Custom/Blend2Textures"
         sampler2D _MainTex;
         sampler2D _SecondTex;
         sampler2D _NormalTex;
+        sampler2D _SecondNormalTex;
 
         struct Input
         {
@@ -56,7 +58,8 @@ Shader "Custom/Blend2Textures"
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
             o.Alpha = c.a;
-            o.Normal = UnpackNormal(tex2D(_NormalTex, IN.uv_MainTex));
+            o.Normal = lerp(UnpackNormal(tex2D(_NormalTex, IN.uv_MainTex)),
+                            UnpackNormal(tex2D(_SecondNormalTex, IN.uv_MainTex)), _Blend);
         }
         ENDCG
     }
