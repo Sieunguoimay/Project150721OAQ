@@ -13,12 +13,7 @@ namespace Common.DecisionMaking.Actions
 
         public override Activity CreateActivity()
         {
-            if (_activity == null)
-            {
-                _activity = new ActivityTimer(duration, p => onProgress?.Invoke(p),true);
-            }
-
-            return _activity;
+            return _activity ??= new ActivityTimer(duration, p => onProgress?.Invoke(p), true);
         }
 
         public void SetDuration(float d)
