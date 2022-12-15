@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Common.UnityExtend.Attribute;
 using Common.UnityExtend.Reflection;
@@ -20,26 +21,27 @@ namespace Framework.Entities
         private string entityId;
 
         protected TEntity Entity { get; private set; }
-        private bool _injected;
 
         public override void Inject(IResolver resolver)
         {
             Entity = resolver.Resolve<TEntity>(entityId);
             base.Inject(resolver);
-            _injected = true;
         }
 #if UNITY_EDITOR
         public IEnumerable<string> Ids => IdsHelper.GetIds(typeof(TEntityData));
 #endif
+        protected override void SetupInternal()
+        {
+        }
+
         private IEnumerator Start()
         {
-            yield return new WaitUntil(() => _injected);
+            yield return new WaitUntil(() => Entity != null);
             SafeStart();
         }
 
         protected virtual void SafeStart()
         {
-            
         }
         
         [field: System.NonSerialized] public UnityEvent<int> EventTrigger { get; private set; } = new();

@@ -57,7 +57,7 @@ namespace Framework.Entities.Editor
                    CreateWithTemplate("EntityDataScriptTemplate", physicalPath, nameSpace, _entityName,
                        $"{_entityName}Data.cs") &&
                    CreateWithTemplate("EntityViewScriptTemplate", physicalPath, nameSpace, _entityName,
-                       $"{_entityName}View.cs");
+                       $"{_entityName}EntityView.cs");
 
             // var entityFileContent = CreateScriptFile("EntityScriptTemplate", _entityName, nameSpace);
             // var entityFilePath = Path.Combine(physicalPath, $"{_entityName}.cs");

@@ -10,16 +10,19 @@ namespace Gameplay.Entities
     [CreateAssetMenu(menuName = "Entity/GameContentData")]
     public class GameContentData : EntityAsset<IGameContent>, IGameContentData
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         [field: SerializeField, IdSelector(typeof(ICurrencyData))]
         public string[] CurrencyIds { get; private set; }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         [field: SerializeField, IdSelector(typeof(ICurrencyProcessorData))]
         public string MatchProcessorId { get; private set; }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         [field: SerializeField, IdSelector(typeof(IEntityData))]
         public string[] EntityIds { get; private set; }
 
-        public override IEntity<IEntityData, IEntitySavedData> CreateEntity()
+        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {
             return new GameContent(this, null);
         }

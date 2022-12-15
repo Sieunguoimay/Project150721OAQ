@@ -25,6 +25,11 @@ namespace Gameplay.Dialog
                 target.layer = LayerMask.NameToLayer(toggle ? selectedLayer : defaultLayer);
             }
         }
+
+        public void ToggleSelf(bool toggle)
+        {
+            ToggleLayer(gameObject, toggle);
+        }
     }
 
     public class Dialog : LayerToggle

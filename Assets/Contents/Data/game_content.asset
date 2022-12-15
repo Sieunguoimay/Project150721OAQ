@@ -19,3 +19,8 @@ MonoBehaviour:
   <MatchProcessorId>k__BackingField: match_processor_1
   <EntityIds>k__BackingField:
   - magic_flower
+  - stage_1
+  - stage_2
+  - stage_3
+  - stage_4
+  - stage_5

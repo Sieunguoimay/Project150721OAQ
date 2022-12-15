@@ -35,6 +35,9 @@ namespace SNM
 
         public void SetInteractable(bool interactable)
         {
+            
+            if (gameObject.scene.buildIndex == 0) return;
+
             if (interactable)
             {
                 RayPointer.Instance.Register(this);

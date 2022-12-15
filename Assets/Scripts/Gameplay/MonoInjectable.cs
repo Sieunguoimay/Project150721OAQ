@@ -8,6 +8,16 @@ namespace Gameplay
         public virtual void Inject(IResolver resolver)
         {
         }
+
+        public void Setup()
+        {
+            SetupInternal();
+        }
+
+        protected virtual void SetupInternal()
+        {
+            
+        }
     }
 
     public abstract class MonoSelfBindingInjectable<TInjectable> : MonoInjectable, ISelfBindingInjectable

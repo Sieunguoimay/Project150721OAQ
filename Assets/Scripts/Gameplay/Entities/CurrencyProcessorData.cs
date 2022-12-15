@@ -12,7 +12,7 @@ namespace Gameplay.Entities
         [field: SerializeField] public CurrencyAmount[] Inputs { get; private set; }
         [field: SerializeField] public CurrencyAmount[] Outputs { get; private set; }
 
-        public override IEntity<IEntityData,IEntitySavedData> CreateEntity()
+        protected override IEntity<IEntityData,IEntitySavedData> CreateEntityInternal()
         {
             return new CurrencyProcessor(this, null);
         }

@@ -13,9 +13,9 @@ namespace #NAMESPACE#
     }
 
     [CreateAssetMenu(menuName = "Entity/#SCRIPTNAME#Data")]
-    public class #SCRIPTNAME#Data : EntityAsset<#SCRIPTNAME#>, I#SCRIPTNAME#Data
+    public class #SCRIPTNAME#Data : EntityAsset<I#SCRIPTNAME#>, I#SCRIPTNAME#Data
     {
-        public override IEntity<IEntityData, IEntitySavedData> CreateEntity()
+        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {
             return new #SCRIPTNAME#(this, new #SCRIPTNAME#SavedData(Id));
         }

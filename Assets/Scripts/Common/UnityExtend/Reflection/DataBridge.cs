@@ -86,7 +86,14 @@ namespace Common.UnityExtend.Reflection
             {
                 SetupReflection(sourceObject);
 
-                _targetMethodInfo.Invoke(targetObject, new[] {_sourceMethodInfo.Invoke(sourceObject, new object[0])});
+                if (_targetMethodInfo.GetParameters().Length > 0)
+                {
+                    _targetMethodInfo.Invoke(targetObject, new[] {_sourceMethodInfo.Invoke(sourceObject, new object[0])});
+                }
+                else
+                {
+                    _targetMethodInfo.Invoke(targetObject,new object[0]);
+                }
             }
 
 

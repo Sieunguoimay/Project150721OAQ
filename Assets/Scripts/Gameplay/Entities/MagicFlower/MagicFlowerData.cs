@@ -35,7 +35,7 @@ namespace Gameplay.Entities.MagicFlower
     [CreateAssetMenu(menuName = "Entity/MagicFlowerData")]
     public class MagicFlowerData : EntityAsset<IMagicFlower>, IMagicFlowerData
     {
-        public override IEntity<IEntityData, IEntitySavedData> CreateEntity()
+        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {
             return new MagicFlower(this, new MagicFlowerSavedData(Id));
         }

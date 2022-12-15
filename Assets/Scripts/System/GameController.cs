@@ -15,7 +15,7 @@ namespace System
 
         private GameObject[] _spawnedParts;
 
-        private IInjectable[] _injectables;
+        private MonoInjectable[] _monoInjectables;
         private ISelfBindingInjectable[] _bindings;
 
         private IBinder _binder;
@@ -38,12 +38,12 @@ namespace System
 
         private void SpawnGame()
         {
-            var allInjectables = new List<IInjectable>();
+            var allInjectables = new List<MonoInjectable>();
             var allBindings = new List<ISelfBindingInjectable>();
 
             foreach (var t in objects)
             {
-                allInjectables.AddRange(t.GetComponentsInChildren<IInjectable>(true));
+                allInjectables.AddRange(t.GetComponentsInChildren<MonoInjectable>(true));
                 allBindings.AddRange(t.GetComponentsInChildren<ISelfBindingInjectable>(true));
             }
 
@@ -52,11 +52,11 @@ namespace System
             for (var i = 0; i < prefabs.Length; i++)
             {
                 _spawnedParts[i] = Instantiate(prefabs[i]);
-                allInjectables.AddRange(_spawnedParts[i].GetComponentsInChildren<IInjectable>(true));
+                allInjectables.AddRange(_spawnedParts[i].GetComponentsInChildren<MonoInjectable>(true));
                 allBindings.AddRange(_spawnedParts[i].GetComponentsInChildren<ISelfBindingInjectable>(true));
             }
 
-            _injectables = allInjectables.ToArray();
+            _monoInjectables = allInjectables.ToArray();
             _bindings = allBindings.ToArray();
 
             foreach (var b in allBindings)
@@ -64,9 +64,13 @@ namespace System
                 b.Bind(_binder);
             }
 
-            foreach (var injectable in _injectables)
+            foreach (var injectable in _monoInjectables)
             {
                 injectable.Inject(_resolver);
+            }
+            foreach (var injectable in _monoInjectables)
+            {
+                injectable.Setup();
             }
         }
 

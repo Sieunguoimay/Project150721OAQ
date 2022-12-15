@@ -10,7 +10,7 @@ namespace Gameplay.Entities
     {
         [field: SerializeField] public double InitialAmount { get; private set; }
 
-        public override IEntity<IEntityData, IEntitySavedData> CreateEntity()
+        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {
             return new Currency(this, new CurrencySavedData(Id));
         }
