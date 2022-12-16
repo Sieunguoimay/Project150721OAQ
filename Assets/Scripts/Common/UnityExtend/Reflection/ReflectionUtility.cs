@@ -5,12 +5,39 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using Object = System.Object;
 
-namespace Common.UnityExtend
+namespace Common.UnityExtend.Reflection
 {
     public static class ReflectionUtility
     {
+        public static object GetObjectAtPath(object obj, IEnumerable<string> path)
+        {
+            if (obj == null) return null;
+
+            var finalObj = obj;
+            foreach (var t in path)
+            {
+                finalObj = GetPropertyOrFieldValue(finalObj, t);
+                if (finalObj == null) return null;
+            }
+
+            return finalObj;
+        }
+
+        public static Type GetTypeAtPath(Type obj, IEnumerable<string> path)
+        {
+            if (obj == null) return null;
+
+            var finalObj = obj;
+            foreach (var t in path)
+            {
+                finalObj = GetPropertyOrFieldType(finalObj, t);
+                if (finalObj == null) return null;
+            }
+
+            return finalObj;
+        }
+
         public static object GetSiblingProperty(SerializedProperty property, string name)
         {
             return GetPropertyOrFieldValue(GetParent(property), name);
@@ -43,10 +70,10 @@ namespace Common.UnityExtend
             if (source == null)
                 return null;
             var type = source.GetType();
-            var f = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            var f = type.GetField(name, FieldFlags);
             if (f == null)
             {
-                var p = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                var p = type.GetProperty(name, PropertyFlags);
                 if (p == null)
                     return null;
                 return p.GetValue(source, null);
@@ -83,34 +110,40 @@ namespace Common.UnityExtend
                 }
             }
         }
+
         public static MethodInfo GetMethodInfo(Type type, string methodName)
         {
-            return type.GetMethod(methodName,
-                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
-                BindingFlags.IgnoreCase);
+            return type.GetMethod(methodName,MethodFlags);
         }
 
         public static object GetPropertyOrFieldValue(object src, string propName)
         {
             var type = src.GetType();
-            var prop = type.GetProperty(propName,
-                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
-                BindingFlags.IgnoreCase);
-            var field = type.GetField(propName,
-                BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+            var prop = type.GetProperty(propName, PropertyFlags);
+            var field = type.GetField(propName, FieldFlags);
             return prop == null ? field?.GetValue(src) : prop.GetValue(src, null);
         }
 
-        public static Type GetPropertyOrFieldType(object src, string propName)
+        public static Type GetPropertyOrFieldType(Type type, string propName)
         {
-            var type = src.GetType();
-            var prop = type.GetProperty(propName,
-                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
-                BindingFlags.IgnoreCase);
-            var field = type.GetField(propName,
-                BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+            var prop = type.GetProperty(propName, PropertyFlags);
+            var field = type.GetField(propName, FieldFlags);
             return prop == null ? field?.FieldType : prop.PropertyType;
         }
+
+        public static IEnumerable<Type> GetPropertyOrFieldTypes(Type type)
+        {
+            var prop = type.GetProperties(PropertyFlags);
+            return prop.Length == 0 ? type.GetFields(FieldFlags)?.Select(f => f.FieldType) : prop.Select(f => f.PropertyType);
+        }
+
+        public static BindingFlags PropertyFlags => BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
+                                                    BindingFlags.IgnoreCase;
+
+        public static BindingFlags FieldFlags => BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
+
+        public static BindingFlags MethodFlags => BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
+                                                  BindingFlags.IgnoreCase;
 
         public static IEnumerable<Type> GetInterfaces(object obj)
         {

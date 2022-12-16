@@ -92,7 +92,7 @@ namespace Common.UnityExtend.Reflection
                 }
                 else
                 {
-                    _targetMethodInfo.Invoke(targetObject,new object[0]);
+                    _targetMethodInfo.Invoke(targetObject, new object[0]);
                 }
             }
 
@@ -199,9 +199,14 @@ namespace Common.UnityExtend.Reflection
             return $"{p.Name}(): {p.ReturnType.Name}";
         }
 
-        private static string FormatSetMethodName(MethodBase p)
+        public static string FormatSetMethodName(MethodBase p)
         {
             return $"{p.Name}({p.GetParameters().FirstOrDefault()?.ParameterType.Name})";
+        }
+
+        public static MethodInfo GetMethodInfo(Type type, string formattedName)
+        {
+            return type.GetMethod(formattedName.Split('(').FirstOrDefault() ?? string.Empty, ReflectionUtility.MethodFlags);
         }
     }
 #if UNITY_EDITOR

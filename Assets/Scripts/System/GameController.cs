@@ -24,7 +24,7 @@ namespace System
         private IEnumerator Start()
         {
             yield return new WaitUntil(() => MonoInstaller.Instance.Done);
-            
+
             _resolver = MonoInstaller.Instance.Resolver;
             _binder = _resolver.Resolve<IBinder>();
 
@@ -51,7 +51,9 @@ namespace System
 
             for (var i = 0; i < prefabs.Length; i++)
             {
+                prefabs[i].gameObject.SetActive(false);
                 _spawnedParts[i] = Instantiate(prefabs[i]);
+                prefabs[i].gameObject.SetActive(true);
                 allInjectables.AddRange(_spawnedParts[i].GetComponentsInChildren<MonoInjectable>(true));
                 allBindings.AddRange(_spawnedParts[i].GetComponentsInChildren<ISelfBindingInjectable>(true));
             }
@@ -68,9 +70,15 @@ namespace System
             {
                 injectable.Inject(_resolver);
             }
+
             foreach (var injectable in _monoInjectables)
             {
                 injectable.Setup();
+            }
+
+            foreach (var s in _spawnedParts)
+            {
+                s.gameObject.SetActive(true);
             }
         }
 

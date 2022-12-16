@@ -20,7 +20,7 @@ namespace Framework.Entities
 #endif
         private string entityId;
 
-        protected TEntity Entity { get; private set; }
+        public TEntity Entity { get; private set; }
 
         public override void Inject(IResolver resolver)
         {

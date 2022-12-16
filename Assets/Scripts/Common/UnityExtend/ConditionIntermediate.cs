@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common.UnityExtend.Attribute;
+using Common.UnityExtend.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -111,7 +112,7 @@ namespace Common.UnityExtend
             {
                 if (dataSource == FieldDataSourceType.ObjectField)
                 {
-                    return MapToTypeEnum(ReflectionUtility.GetPropertyOrFieldType(sourceObject, path));
+                    return MapToTypeEnum(ReflectionUtility.GetPropertyOrFieldType(sourceObject.GetType(), path));
                 }
 
                 return dataSource;

@@ -37,9 +37,10 @@ namespace Common.DecisionMaking.Actions
         [ContextMenu("Transition")]
         public void Transition()
         {
-            if (!stateConstraint || stateConstraint && _stateMachine.CurrentState == _constraintStateIndex)
-                _stateMachine.ChangeState(_index);
-        }
+            if (stateConstraint && (!stateConstraint || _stateMachine.CurrentState != _constraintStateIndex)) return;
+
+            _stateMachine.ChangeState(_index);
+        } 
 
         public override Activity CreateActivity()
         {

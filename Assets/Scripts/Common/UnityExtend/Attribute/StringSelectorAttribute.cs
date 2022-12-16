@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Common.UnityExtend.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -29,7 +30,6 @@ namespace Common.UnityExtend.Attribute
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             if (attribute is not StringSelectorAttribute objectSelector) return;
-
             position = EditorGUI.PrefixLabel(position, label);
 
             if (property.propertyType == SerializedPropertyType.String)
@@ -70,6 +70,7 @@ namespace Common.UnityExtend.Attribute
                     var id = ids[i];
                     _menu.AddItem(new GUIContent(id), property.intValue == i, data =>
                     {
+                        property.serializedObject.Update();
                         property.intValue = Array.IndexOf(ids, (string) data);
                         property.serializedObject.ApplyModifiedProperties();
                     }, id);
@@ -102,6 +103,7 @@ namespace Common.UnityExtend.Attribute
                 {
                     _menu.AddItem(new GUIContent(id), property.stringValue == id, data =>
                     {
+                        property.serializedObject.Update();
                         property.stringValue = (string) data;
                         property.serializedObject.ApplyModifiedProperties();
                     }, id);
