@@ -153,5 +153,14 @@ namespace Common.UnityExtend
         {
             Debug.Log(ifStatement.IsTrue());
         }
+
+        public void OnEventA()
+        {
+            Debug.Log("OnEventA");
+        }
+        public void OnEventB(object sender, EventArgs args)
+        {
+            Debug.Log("OnEventB");
+        }
     }
 }

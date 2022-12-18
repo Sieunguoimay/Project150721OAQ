@@ -71,8 +71,13 @@ namespace Common.UnityExtend
             }
         }
 
-        private Type EventProviderType => string.IsNullOrEmpty(path) ? sourceObject.GetType() : ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), path.Split('.'));
-        private object EventProviderObject => string.IsNullOrEmpty(path) ? sourceObject : ReflectionUtility.GetObjectAtPath(sourceObject, path.Split('.'));
+        private Type EventProviderType => string.IsNullOrEmpty(path)
+            ? sourceObject.GetType()
+            : ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), path.Split('.'));
+
+        private object EventProviderObject => string.IsNullOrEmpty(path)
+            ? sourceObject
+            : ReflectionUtility.GetObjectAtPath(sourceObject, path.Split('.'));
 
         [System.Serializable]
         public class EventHandlerItem
@@ -90,7 +95,8 @@ namespace Common.UnityExtend
 
             public static string FormatEventName(EventInfo eventInfo)
             {
-                return $"{eventInfo.Name}({string.Join(",", eventInfo.EventHandlerType.GenericTypeArguments.Select(arg => arg.Name))})";
+                return
+                    $"{eventInfo.Name}({string.Join(",", eventInfo.EventHandlerType.GenericTypeArguments.Select(arg => arg.Name))})";
             }
 
             public static string ExtractEventName(string formattedName)
@@ -104,40 +110,17 @@ namespace Common.UnityExtend
                 var evInfo = obj.GetType().GetEvent(RuntimeEventName);
                 foreach (var item in methodItems)
                 {
-                    evInfo.AddEventHandler(obj, CreateMethod(item.MethodInfo));//Delegate.CreateDelegate(evInfo.EventHandlerType, ));
+                    evInfo.AddEventHandler(obj, item.CreateDelegate(evInfo.EventHandlerType));
                 }
             }
 
-            static Delegate CreateMethod(MethodInfo method)
-            {
-                if (method == null)
-                {
-                    throw new ArgumentNullException("method");
-                }
-
-                if (!method.IsStatic)
-                {
-                    throw new ArgumentException("The provided method must be static.", "method");
-                }
-
-                if (method.IsGenericMethod)
-                {
-                    throw new ArgumentException("The provided method must not be generic.", "method");
-                }
-
-                var parameters = method.GetParameters()
-                    .Select(p => Expression.Parameter(p.ParameterType, p.Name))
-                    .ToArray();
-                var call = Expression.Call(null, method, parameters);
-                return Expression.Lambda(call, parameters).Compile();
-            }
             public void Unsubscribe(object obj)
             {
                 if (methodItems.Length == 0) return;
                 var evInfo = obj.GetType().GetEvent(RuntimeEventName);
                 foreach (var item in methodItems)
                 {
-                    evInfo.RemoveEventHandler(obj, Delegate.CreateDelegate(evInfo.EventHandlerType, item.MethodInfo));
+                    evInfo.RemoveEventHandler(obj, item.Handler);
                 }
             }
         }
@@ -150,8 +133,40 @@ namespace Common.UnityExtend
             [SerializeField, StringSelector(nameof(MethodNames))]
             public string methodName;
 
-            public IEnumerable<string> MethodNames => targetObject.GetType().GetMethods(ReflectionUtility.MethodFlags).Where(m => m.ReturnType == typeof(void)).Select(DataBridge.FormatSetMethodName);
-            public MethodInfo MethodInfo => targetObject ? DataBridge.GetMethodInfo(targetObject.GetType(), methodName) : null;
+            public IEnumerable<string> MethodNames => targetObject.GetType().GetMethods(ReflectionUtility.MethodFlags)
+                .Where(m => m.ReturnType == typeof(void)).Select(DataBridge.FormatSetMethodName);
+
+            public MethodInfo MethodInfo =>
+                targetObject ? DataBridge.GetMethodInfo(targetObject.GetType(), methodName) : null;
+
+            public Delegate Handler { get; private set; }
+
+            public Delegate CreateDelegate(Type handlerType)
+            {
+                var prams = MethodInfo.GetParameters();
+                if (prams.Length == 0)
+                {
+                    var methodCallExpression = Expression.Call(Expression.Constant(targetObject), MethodInfo, null);
+                    if (handlerType == typeof(EventHandler))
+                    {
+                        Handler = Expression
+                            .Lambda<Action<object, EventArgs>>(methodCallExpression, Expression.Parameter(typeof(object)), Expression.Parameter(typeof(EventArgs)))
+                            .Compile();
+                    }
+                    else
+                    {
+                        var lambdaParamExpressions = handlerType.GetGenericArguments().Select(Expression.Parameter);
+                        Handler = Expression.Lambda(handlerType, methodCallExpression, lambdaParamExpressions)
+                            .Compile();
+                    }
+                }
+                else
+                {
+                    Handler = Delegate.CreateDelegate(handlerType, targetObject, MethodInfo);
+                }
+
+                return Handler;
+            }
         }
 
         public bool ValidateEventHandlerItems()
@@ -193,6 +208,19 @@ namespace Common.UnityExtend
                 item.Unsubscribe(EventProviderObject);
             }
         }
+
+        [ContextMenu("RaiseEvent")]
+        public void RaiseEvent()
+        {
+            EventA?.Invoke();
+            EventB?.Invoke(this, EventArgs.Empty);
+            // EventB?.Invoke(1);
+        }
+
+        public event Action EventA;
+
+        // public event Action<int> EventB;
+        public event EventHandler EventB;
     }
 
 #if UNITY_EDITOR
@@ -225,7 +253,8 @@ namespace Common.UnityExtend
 
             for (int i = 0; i < items.arraySize; i++)
             {
-                EditorGUILayout.PropertyField(items.GetArrayElementAtIndex(i).FindPropertyRelative("methodItems"), new GUIContent(items.GetArrayElementAtIndex(i).FindPropertyRelative("eventName").stringValue));
+                EditorGUILayout.PropertyField(items.GetArrayElementAtIndex(i).FindPropertyRelative("methodItems"),
+                    new GUIContent(items.GetArrayElementAtIndex(i).FindPropertyRelative("eventName").stringValue));
             }
 
             serializedObject.ApplyModifiedProperties();

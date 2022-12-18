@@ -201,7 +201,7 @@ namespace Common.UnityExtend.Reflection
 
         public static string FormatSetMethodName(MethodBase p)
         {
-            return $"{p.Name}({p.GetParameters().FirstOrDefault()?.ParameterType.Name})";
+            return $"{p.Name}({string.Join(',',p.GetParameters().Select(pi=>pi.ParameterType.Name))})";
         }
 
         public static MethodInfo GetMethodInfo(Type type, string formattedName)

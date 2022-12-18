@@ -5770,13 +5770,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sourceObject: {fileID: 6645642497990244696}
-  path: Entity
+  sourceObject: {fileID: 4562952832646107962}
+  path: 
   items:
-  - eventName: Unlocked(IStage)
+  - eventName: EventA()
     methodItems:
-    - targetObject: {fileID: 4562952832646107962}
-      methodName: OnValidate()
+    - targetObject: {fileID: 1579813788652245493}
+      methodName: OnEventA()
+  - eventName: EventB(Int32)
+    methodItems:
+    - targetObject: {fileID: 1579813788652245493}
+      methodName: OnEventA()
 --- !u!1 &6708307923204869686
 GameObject:
   m_ObjectHideFlags: 0
