@@ -8,16 +8,32 @@ using UnityEngine;
 
 namespace Common.UnityExtend.Attribute
 {
-    public class StringSelectorAttribute : PropertyAttribute
+    public class BaseSelectorAttribute : PropertyAttribute
     {
-        public StringSelectorAttribute(string name, bool isProviderPropertyInBase = false)
+        private readonly string _providerVariableName;
+        private readonly bool _isProviderPropertyInBase;
+
+        protected BaseSelectorAttribute(string name, bool isProviderPropertyInBase = false)
         {
-            ProviderPropertyName = name;
-            IsProviderPropertyInBase = isProviderPropertyInBase;
+            _providerVariableName = name;
+            _isProviderPropertyInBase = isProviderPropertyInBase;
         }
 
-        public string ProviderPropertyName { get; }
-        public bool IsProviderPropertyInBase { get; }
+        public object GetData(SerializedProperty property)
+        {
+            var providerObject = _isProviderPropertyInBase
+                ? property.serializedObject.targetObject
+                : ReflectionUtility.GetObjectToWhichPropertyBelong(property);
+            return ReflectionUtility.GetDataFromMember(providerObject, _providerVariableName, false);
+        }
+    }
+
+    public class StringSelectorAttribute : BaseSelectorAttribute
+    {
+        public StringSelectorAttribute(string name, bool isProviderPropertyInBase = false) : base(name,
+            isProviderPropertyInBase)
+        {
+        }
     }
 
 #if UNITY_EDITOR
@@ -116,14 +132,7 @@ namespace Common.UnityExtend.Attribute
         protected virtual IEnumerable<string> GetIds(SerializedProperty property,
             StringSelectorAttribute objectSelector)
         {
-            if (objectSelector.IsProviderPropertyInBase)
-            {
-                return ReflectionUtility.GetPropertyValue(property.serializedObject.targetObject,
-                    objectSelector.ProviderPropertyName) as IEnumerable<string>;
-            }
-
-            return ReflectionUtility.GetSiblingProperty(property, objectSelector.ProviderPropertyName) as
-                IEnumerable<string>;
+            return objectSelector.GetData(property) as IEnumerable<string>;
         }
     }
 #endif

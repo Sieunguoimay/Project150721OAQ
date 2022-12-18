@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 
 namespace Test
 {
-    public class TestMain : MonoBehaviour, IDataBridgeTrigger
+    public class TestMain : MonoBehaviour
     {
         [SerializeField, Range(-360, 360)] private float localEulerAngleX;
         [SerializeField, Range(-360, 360)] private float localEulerAngleY;

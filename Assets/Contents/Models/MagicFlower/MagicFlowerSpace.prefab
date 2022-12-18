@@ -495,6 +495,7 @@ GameObject:
   - component: {fileID: 6754906519833514506}
   - component: {fileID: 1520294461941189649}
   - component: {fileID: 3357858517453454024}
+  - component: {fileID: 2259980097047793886}
   m_Layer: 0
   m_Name: MagicFlowerSpace
   m_TagString: Untagged
@@ -547,14 +548,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useFreeObject: 0
   sourceObject: {fileID: 1520294461941189649}
-  freeSourceObject: {fileID: 0}
-  eventFilter: static
   items:
   - sourceObjectMethodName: 'get_CollectableFlowerCount(): Int32'
     targetObject: {fileID: 1253341266578782703}
-    targetMethodName: SpawnRandom(Int32)
+    targetMethodName: 'SpawnRandom(Int32): Void'
+--- !u!114 &2259980097047793886
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6754906519833514505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sourceObject: {fileID: 1520294461941189649}
+  path: 'Entity: IMagicFlower'
+  items:
+  - eventName: GrantedBlossom(EventArgs)
+    methodItems:
+    - targetObject: {fileID: 3357858517453454024}
+      methodName: 'Transfer(): Void'
 --- !u!1 &7038780993930413501
 GameObject:
   m_ObjectHideFlags: 0
@@ -690,17 +707,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useFreeObject: 1
   sourceObject: {fileID: 1520294461941189649}
-  freeSourceObject: {fileID: 1520294461941189649}
-  eventFilter: static
   items:
   - sourceObjectMethodName: 'get_PayoutAmountPerFlower(): Int32'
     targetObject: {fileID: 3130755098099318123}
-    targetMethodName: Emit(Int32)
+    targetMethodName: 'Emit(Int32): Void'
   - sourceObjectMethodName: 'CreateTransactions(): ITransaction[]'
     targetObject: {fileID: 2658155704234856459}
-    targetMethodName: Send(ITransaction[])
+    targetMethodName: 'Send(ITransaction[]): Void'
 --- !u!114 &9096739133053775978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -713,14 +727,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useFreeObject: 1
-  sourceObject: {fileID: 0}
-  freeSourceObject: {fileID: 1253341266578782703}
-  eventFilter: 
+  sourceObject: {fileID: 1253341266578782703}
   items:
   - sourceObjectMethodName: 'get_LastCollectedBlossomPosition(): Vector3'
     targetObject: {fileID: 3130755098099318123}
-    targetMethodName: SetEmitPosition(Vector3)
+    targetMethodName: 'SetEmitPosition(Vector3): Void'
 --- !u!1 &8411878958738429206
 GameObject:
   m_ObjectHideFlags: 0
@@ -787,105 +798,6 @@ MonoBehaviour:
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  curveX:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 115.91111
-      outSlope: 115.91111
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.17254601
-      value: 20
-      inSlope: 15.696297
-      outSlope: 15.696297
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.58665645
-      value: -15
-      inSlope: -3.706749
-      outSlope: -3.706749
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.84604293
-      value: 5
-      inSlope: -42.638958
-      outSlope: -42.638958
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: -20
-      inSlope: -162.38293
-      outSlope: -162.38293
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  curveY:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 840
-      outSlope: 840
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 840
-      inSlope: 840
-      outSlope: 840
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  curveZ:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -1458,132 +1370,6 @@ MonoBehaviour:
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  curveX:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 66.47412
-      outSlope: 66.47412
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.27737707
-    - serializedVersion: 3
-      time: 0.20366363
-      value: 5.9782786
-      inSlope: -3.7993596
-      outSlope: -3.7993596
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.27953732
-    - serializedVersion: 3
-      time: 0.4606448
-      value: -3.7379591
-      inSlope: -0.000097299875
-      outSlope: -0.000097299875
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.30424827
-    - serializedVersion: 3
-      time: 0.6539355
-      value: 1.366941
-      inSlope: 0.13238113
-      outSlope: 0.13238113
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.40480977
-    - serializedVersion: 3
-      time: 0.8031675
-      value: -1.7549452
-      inSlope: -1.0869125
-      outSlope: -1.0869125
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.50427234
-    - serializedVersion: 3
-      time: 0.89524513
-      value: 0.8919536
-      inSlope: 4.3526173
-      outSlope: 4.3526173
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.43792054
-    - serializedVersion: 3
-      time: 0.95987886
-      value: -0.20456403
-      inSlope: -0.85036296
-      outSlope: -0.85036296
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 1
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 5.09866
-      outSlope: 5.09866
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  curveY:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  curveZ:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

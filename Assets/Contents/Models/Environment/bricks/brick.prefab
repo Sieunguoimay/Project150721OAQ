@@ -5655,9 +5655,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2629727574049435407}
   - component: {fileID: 6645642497990244696}
-  - component: {fileID: 5089451127948803605}
   - component: {fileID: 1579813788652245493}
-  - component: {fileID: 4562952832646107962}
+  - component: {fileID: 8202769882500034429}
   m_Layer: 0
   m_Name: Data
   m_TagString: Untagged
@@ -5694,26 +5693,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entityId: stage_1
---- !u!114 &5089451127948803605
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6347508097548575377}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  useFreeObject: 0
-  sourceObject: {fileID: 6645642497990244696}
-  freeSourceObject: {fileID: 0}
-  eventFilter: state
-  items:
-  - sourceObjectMethodName: 'get_IsUnlocked(): Boolean'
-    targetObject: {fileID: 1579813788652245493}
-    targetMethodName: Trigger()
 --- !u!114 &1579813788652245493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5758,7 +5737,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &4562952832646107962
+--- !u!114 &8202769882500034429
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5770,17 +5749,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sourceObject: {fileID: 4562952832646107962}
-  path: 
+  sourceObject: {fileID: 6645642497990244696}
+  path: 'Entity: IStage'
   items:
-  - eventName: EventA()
+  - eventName: Unlocked(IStage)
     methodItems:
     - targetObject: {fileID: 1579813788652245493}
-      methodName: OnEventA()
-  - eventName: EventB(Int32)
-    methodItems:
-    - targetObject: {fileID: 1579813788652245493}
-      methodName: OnEventA()
+      methodName: 'Trigger(): Void'
 --- !u!1 &6708307923204869686
 GameObject:
   m_ObjectHideFlags: 0

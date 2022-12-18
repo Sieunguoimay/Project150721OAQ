@@ -8,18 +8,6 @@ namespace Gameplay.Entities.MagicFlower
     public class MagicFlowerEntityViewSpike : MagicFlowerEntityView
     {
         [SerializeField] private int blossomIndex;
-        [SerializeField] private UnityEvent shouldChangeState;
-
-        protected override void SafeStart()
-        {
-            base.SafeStart();
-
-            if (BlossomRemainingDuration > 0)
-            {
-                EventTrigger?.Invoke(2);
-                shouldChangeState?.Invoke();
-            }
-        }
 
         public float BlossomRemainingDuration =>
             (float) Math.Max(Entity.SavedData.BlossomTimeStamps[blossomIndex] - TimerService.GameTimeStampInSeconds, 0);

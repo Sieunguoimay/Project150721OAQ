@@ -41,7 +41,7 @@ namespace Common.UnityExtend.Attribute
                 _toggled = toggled;
                 if (!string.IsNullOrEmpty(att.SiblingCallbackName))
                 {
-                    var parent = ReflectionUtility.GetParent(property);
+                    var parent = ReflectionUtility.GetObjectToWhichPropertyBelong(property);
                     var callback = ReflectionUtility.GetMethodInfo(parent.GetType(), att.SiblingCallbackName);
                     callback?.Invoke(parent, new object[] {_toggled});
                 }

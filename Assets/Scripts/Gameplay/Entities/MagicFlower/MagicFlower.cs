@@ -1,4 +1,5 @@
-﻿using Framework.Entities;
+﻿using System;
+using Framework.Entities;
 using Framework.Entities.Currency;
 using Framework.Resolver;
 using Framework.Services;
@@ -15,6 +16,7 @@ namespace Gameplay.Entities.MagicFlower
     public interface IMagicFlower : IEntity<IMagicFlowerData, IMagicFlowerSavedData>, IMagicFlowerUnique
     {
         ICurrency PayoutCurrency { get; }
+        event Action<EventArgs> GrantedBlossom;
     }
 
     public class MagicFlower : BaseEntity<IMagicFlowerData, IMagicFlowerSavedData>, IMagicFlower
@@ -37,6 +39,7 @@ namespace Gameplay.Entities.MagicFlower
         {
             SavedData.SetBlossomTimeStamp(blossomIndex, TimerService.GameTimeStampInSeconds + (long) Data.ToBlossomDuration);
             SavedData.SetCollectablePayoutAmount(SavedData.CollectablePayoutAmount + Data.PayoutAmountPerFlower);
+            GrantedBlossom?.Invoke(EventArgs.Empty);
         }
 
         public void Collect()
@@ -50,6 +53,8 @@ namespace Gameplay.Entities.MagicFlower
             SavedData.SetCollectablePayoutAmount(Mathf.Max(SavedData.CollectablePayoutAmount - Data.PayoutAmountPerFlower, 0));
             PayoutCurrency.Add(Data.PayoutAmountPerFlower);
         }
+
+        public event Action<EventArgs> GrantedBlossom;
 
         public ICurrency PayoutCurrency { get; private set; }
     }

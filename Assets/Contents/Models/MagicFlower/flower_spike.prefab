@@ -248,6 +248,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f97a6eb7ad84314a93da52cc0021393, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stateConstraint: 0
+  <CurrentState>k__BackingField: 
   <TargetState>k__BackingField: empty
 --- !u!1 &3353553232336319773
 GameObject:
@@ -294,6 +296,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   duration: 5
+  onProgress:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4034044155153146947
 GameObject:
   m_ObjectHideFlags: 0
@@ -395,6 +400,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f97a6eb7ad84314a93da52cc0021393, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stateConstraint: 0
+  <CurrentState>k__BackingField: 
   <TargetState>k__BackingField: buds
 --- !u!1 &5136862965708737380
 GameObject:
@@ -677,6 +684,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f97a6eb7ad84314a93da52cc0021393, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stateConstraint: 0
+  <CurrentState>k__BackingField: 
   <TargetState>k__BackingField: blossom
 --- !u!1 &5993613649629420446
 GameObject:
@@ -1016,22 +1025,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   entityId: magic_flower
   blossomIndex: 0
-  shouldChangeState:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5955243257303247707}
-        m_TargetAssemblyTypeName: Common.DecisionMaking.Actions.StateTransition,
-          Assembly-CSharp
-        m_MethodName: Transition
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!1 &8197923066998207765
 GameObject:
   m_ObjectHideFlags: 0
@@ -1043,6 +1036,7 @@ GameObject:
   - component: {fileID: 8550185942841890723}
   - component: {fileID: 4165334807105759169}
   - component: {fileID: 7794105247901880241}
+  - component: {fileID: 3530896135137191369}
   m_Layer: 0
   m_Name: states
   m_TagString: Untagged
@@ -1094,14 +1088,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sourceObject: {fileID: 2570582846859840317}
-  eventFilter: state
   items:
   - sourceObjectMethodName: 'get_ToBlossomDurationStep1(): Single'
     targetObject: {fileID: 6964056268158935379}
-    targetMethodName: SetDuration(Single)
+    targetMethodName: 'SetDuration(Single): Void'
   - sourceObjectMethodName: 'get_ToBlossomDurationStep2(): Single'
     targetObject: {fileID: 2641433042094798711}
-    targetMethodName: SetDuration(Single)
+    targetMethodName: 'SetDuration(Single): Void'
+--- !u!114 &3530896135137191369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8197923066998207765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sourceObject: {fileID: 2570582846859840317}
+  path: 'Entity: IMagicFlower'
+  items:
+  - eventName: GrantedBlossom(EventArgs)
+    methodItems:
+    - targetObject: {fileID: 7794105247901880241}
+      methodName: 'Transfer(): Void'
+    - targetObject: {fileID: 5955243257303247707}
+      methodName: 'Transition(): Void'
 --- !u!1 &8520413455488790657
 GameObject:
   m_ObjectHideFlags: 0
@@ -1147,3 +1161,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   duration: 5
+  onProgress:
+    m_PersistentCalls:
+      m_Calls: []

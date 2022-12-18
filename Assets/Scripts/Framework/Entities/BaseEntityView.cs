@@ -11,7 +11,7 @@ using UnityEngine.Events;
 
 namespace Framework.Entities
 {
-    public class BaseEntityView<TEntity, TEntityData> : MonoInjectable, IDataBridgeTrigger
+    public class BaseEntityView<TEntity, TEntityData> : MonoInjectable
         where TEntity : IEntity<IEntityData, IEntitySavedData> where TEntityData : IEntityData
     {
         [SerializeField]

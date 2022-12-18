@@ -8,16 +8,16 @@ using UnityEngine;
 
 namespace Common.UnityExtend.Attribute
 {
-    public class PathSelectorAttribute : PropertyAttribute
+    public class PathSelectorAttribute : BaseSelectorAttribute
     {
-        public PathSelectorAttribute(string objectPropertyName, bool isProviderPropertyInBase = false)
-        {
-            ObjectPropertyName = objectPropertyName;
-            IsProviderPropertyInBase = isProviderPropertyInBase;
-        }
+        public bool IsGetPath { get; }
 
-        public string ObjectPropertyName { get; }
-        public bool IsProviderPropertyInBase { get; }
+        public PathSelectorAttribute(string objectPropertyName, bool isGetPath = true,
+            bool isProviderPropertyInBase = false) : base(
+            objectPropertyName, isProviderPropertyInBase)
+        {
+            IsGetPath = isGetPath;
+        }
     }
 
 #if UNITY_EDITOR
@@ -38,12 +38,11 @@ namespace Common.UnityExtend.Attribute
             {
                 if (!CreateMenuWithStringProperty(position, property, objectSelector)) return;
             }
-            else
-            {
-            }
 
             _menu?.ShowAsContext();
         }
+
+        private bool _changed;
 
         private bool CreateMenuWithStringProperty(Rect position, SerializedProperty property,
             PathSelectorAttribute objectSelector)
@@ -51,7 +50,8 @@ namespace Common.UnityExtend.Attribute
             position.width = 100;
 
             var path = string.IsNullOrEmpty(property.stringValue) ? new string[0] : property.stringValue.Split('.');
-            var rootType = GetSiblingObject(property, objectSelector).GetType();
+            var rootType = GetSiblingObject(property, objectSelector)?.GetType();
+            if (rootType == null) return false;
             var open = false;
             for (var i = 0; i < path.Length; i++)
             {
@@ -62,37 +62,39 @@ namespace Common.UnityExtend.Attribute
                     rootType = ReflectionUtility.GetPropertyOrFieldType(rootType, path[i - 1]);
                 }
 
-                var openWindow =
-                    EditorGUI.DropdownButton(position, new GUIContent(p), FocusType.Keyboard);
+                var openWindow = EditorGUI.DropdownButton(position,
+                    new GUIContent(ReflectionUtility.FormatName.Extract(p)), FocusType.Keyboard);
                 position.x += 102;
 
-                if (!openWindow)
+                if (!openWindow) continue;
+                if (rootType == null) continue;
+
+                _menu = new GenericMenu();
+
+                var ids = GetIds(rootType, objectSelector.IsGetPath);
+
+                if (ids == null) continue;
+
+                foreach (var id in ids)
                 {
-                    continue;
-                }
-
-                if (rootType != null)
-                {
-                    _menu = new GenericMenu();
-
-
-                    var ids = GetIds(rootType);
-
-                    if (ids == null) continue;
-
-                    foreach (var id in ids)
+                    var i1 = i;
+                    _menu.AddItem(new GUIContent(id), property.stringValue == id, data =>
                     {
-                        var i1 = i;
-                        _menu.AddItem(new GUIContent(id), property.stringValue == id, data =>
-                        {
-                            path[i1] = (string) data;
-                            property.stringValue = string.Join('.', path);
-                            property.serializedObject.ApplyModifiedProperties();
-                        }, id);
-                    }
-
-                    open = true;
+                        path[i1] = (string) data;
+                        property.serializedObject.Update();
+                        property.stringValue = string.Join('.', path);
+                        property.serializedObject.ApplyModifiedProperties();
+                        _changed = true;
+                    }, id);
                 }
+
+                open = true;
+            }
+
+            if (_changed)
+            {
+                _changed = false;
+                GUI.changed = true;
             }
 
             position.width = 25;
@@ -102,6 +104,7 @@ namespace Common.UnityExtend.Attribute
                 var remove = GUI.Button(position, "-");
                 if (remove)
                 {
+                    property.serializedObject.Update();
                     property.stringValue = string.Join('.', path.Where((_, index) => index != path.Length - 1));
                     property.serializedObject.ApplyModifiedProperties();
                 }
@@ -112,7 +115,10 @@ namespace Common.UnityExtend.Attribute
             var add = GUI.Button(position, "+");
             if (add)
             {
-                property.stringValue = string.IsNullOrEmpty(property.stringValue) ? "null" : string.Concat(property.stringValue, ".");
+                property.serializedObject.Update();
+                property.stringValue = string.IsNullOrEmpty(property.stringValue)
+                    ? "null"
+                    : string.Concat(property.stringValue, ".");
                 property.serializedObject.ApplyModifiedProperties();
             }
 
@@ -122,15 +128,20 @@ namespace Common.UnityExtend.Attribute
         protected virtual object GetSiblingObject(SerializedProperty property,
             PathSelectorAttribute objectSelector)
         {
-            return objectSelector.IsProviderPropertyInBase
-                ? ReflectionUtility.GetPropertyValue(property.serializedObject.targetObject,
-                    objectSelector.ObjectPropertyName)
-                : ReflectionUtility.GetSiblingProperty(property, objectSelector.ObjectPropertyName);
+            return objectSelector.GetData(property);
         }
 
-        private static IEnumerable<string> GetIds(IReflect type)
+        private static IEnumerable<string> GetIds(IReflect type, bool isGetPath)
         {
-            return type.GetFields(ReflectionUtility.FieldFlags).Select(t => t.Name).Concat(type.GetProperties(ReflectionUtility.PropertyFlags).Select(p => p.Name));
+            return new string[0]
+                    .Concat(type.GetMethods(ReflectionUtility.MethodFlags).Where(m =>
+                            !isGetPath || m.GetParameters().Length == 0 && m.ReturnType != typeof(void))
+                        .Select(ReflectionUtility.FormatName.FormatMethodName))
+                    .Concat(type.GetProperties(ReflectionUtility.PropertyFlags)
+                        .Select(ReflectionUtility.FormatName.FormatPropertyName))
+                    .Concat(type.GetFields(ReflectionUtility.FieldFlags)
+                        .Select(ReflectionUtility.FormatName.FormatFieldName))
+                ;
         }
     }
 #endif

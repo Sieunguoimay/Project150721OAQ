@@ -21,71 +21,27 @@ namespace Common.UnityExtend
         [SerializeField, PathSelector(nameof(sourceObject))]
         private string path;
 
-        [SerializeField] private EventHandlerItem[] items;
+        [SerializeField] private EventItem[] items;
 
-        private void OnValidate()
-        {
-            var events = EventProviderType?.GetEvents();
-            if (events == null)
-            {
-                items = new EventHandlerItem[0];
-                return;
-            }
+        private Type GetEventProviderType() => sourceObject == null
+            ? null
+            : string.IsNullOrEmpty(path)
+                ? sourceObject.GetType()
+                : ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), path.Split('.'), true);
 
-            items ??= new EventHandlerItem[events.Length];
-
-            if (items.Length != events.Length)
-            {
-                Array.Resize(ref items, events.Length);
-            }
-
-            for (var i = 0; i < events.Length; i++)
-            {
-                if (items[i] == null)
-                {
-                    items[i] = new EventHandlerItem();
-                    items[i].UpdateEventName(events[i]);
-                }
-                else
-                {
-                    items[i].UpdateEventName(events[i]);
-                }
-            }
-        }
-
-
-        [ContextMenu("LogEvents")]
-        public void LogEvents()
-        {
-            if (EventProviderType != null)
-            {
-                var events = EventProviderType.GetEvents();
-                foreach (var e in events)
-                {
-                    Debug.Log(e.EventHandlerType.GenericTypeArguments.First().Name);
-                }
-            }
-            else
-            {
-                Debug.Log("Not found");
-            }
-        }
-
-        private Type EventProviderType => string.IsNullOrEmpty(path)
-            ? sourceObject.GetType()
-            : ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), path.Split('.'));
-
-        private object EventProviderObject => string.IsNullOrEmpty(path)
-            ? sourceObject
-            : ReflectionUtility.GetObjectAtPath(sourceObject, path.Split('.'));
+        private object GetEventProviderObject() =>
+            string.IsNullOrEmpty(path)
+                ? sourceObject
+                : ReflectionUtility.ExecutePathOfObject(sourceObject, path.Split('.'), true);
 
         [System.Serializable]
-        public class EventHandlerItem
+        public class EventItem
         {
             [SerializeField, HideInInspector] private string eventName;
 
-            [field: SerializeField] public MethodItem[] methodItems = new MethodItem[0];
+            [field: SerializeField] public EventHandlerItem[] methodItems = new EventHandlerItem[0];
 
+            private readonly List<Delegate> _cachedRuntimeDelegates = new();
             public string RuntimeEventName => ExtractEventName(eventName);
 
             public void UpdateEventName(EventInfo eventInfo)
@@ -110,7 +66,10 @@ namespace Common.UnityExtend
                 var evInfo = obj.GetType().GetEvent(RuntimeEventName);
                 foreach (var item in methodItems)
                 {
-                    evInfo.AddEventHandler(obj, item.CreateDelegate(evInfo.EventHandlerType));
+                    var runtimeDelegate = item.CreateDelegate(evInfo.EventHandlerType);
+                    if (runtimeDelegate == null) continue;
+                    evInfo.AddEventHandler(obj, runtimeDelegate);
+                    _cachedRuntimeDelegates.Add(runtimeDelegate);
                 }
             }
 
@@ -118,61 +77,97 @@ namespace Common.UnityExtend
             {
                 if (methodItems.Length == 0) return;
                 var evInfo = obj.GetType().GetEvent(RuntimeEventName);
-                foreach (var item in methodItems)
+
+                foreach (var d in _cachedRuntimeDelegates)
                 {
-                    evInfo.RemoveEventHandler(obj, item.Handler);
+                    evInfo.RemoveEventHandler(obj, d);
                 }
+
+                _cachedRuntimeDelegates.Clear();
             }
         }
 
         [Serializable]
-        public class MethodItem
+        public class EventHandlerItem
         {
             [SerializeField, UnityObjectSelector] private Object targetObject;
 
-            [SerializeField, StringSelector(nameof(MethodNames))]
+            [SerializeField, StringSelector(nameof(GetMethodNames))]
             public string methodName;
 
-            public IEnumerable<string> MethodNames => targetObject.GetType().GetMethods(ReflectionUtility.MethodFlags)
-                .Where(m => m.ReturnType == typeof(void)).Select(DataBridge.FormatSetMethodName);
+            public IEnumerable<string> GetMethodNames() =>
+                targetObject.GetType().GetMethods(ReflectionUtility.MethodFlags)
+                    .Where(m => m.ReturnType == typeof(void)).Select(ReflectionUtility.FormatName.FormatMethodName);
 
             public MethodInfo MethodInfo =>
                 targetObject ? DataBridge.GetMethodInfo(targetObject.GetType(), methodName) : null;
 
-            public Delegate Handler { get; private set; }
+            public Delegate RuntimeHandler { get; private set; }
 
             public Delegate CreateDelegate(Type handlerType)
             {
+                if (MethodInfo == null) return null;
                 var prams = MethodInfo.GetParameters();
                 if (prams.Length == 0)
                 {
                     var methodCallExpression = Expression.Call(Expression.Constant(targetObject), MethodInfo, null);
                     if (handlerType == typeof(EventHandler))
                     {
-                        Handler = Expression
-                            .Lambda<Action<object, EventArgs>>(methodCallExpression, Expression.Parameter(typeof(object)), Expression.Parameter(typeof(EventArgs)))
-                            .Compile();
+                        RuntimeHandler = new EventHandler(Expression
+                            .Lambda<Action<object, EventArgs>>(methodCallExpression,
+                                Expression.Parameter(typeof(object)), Expression.Parameter(typeof(EventArgs)))
+                            .Compile());
                     }
                     else
                     {
                         var lambdaParamExpressions = handlerType.GetGenericArguments().Select(Expression.Parameter);
-                        Handler = Expression.Lambda(handlerType, methodCallExpression, lambdaParamExpressions)
+                        RuntimeHandler = Expression.Lambda(handlerType, methodCallExpression, lambdaParamExpressions)
                             .Compile();
                     }
                 }
                 else
                 {
-                    Handler = Delegate.CreateDelegate(handlerType, targetObject, MethodInfo);
+                    RuntimeHandler = Delegate.CreateDelegate(handlerType, targetObject, MethodInfo);
                 }
 
-                return Handler;
+                return RuntimeHandler;
+            }
+        }
+#if UNITY_EDITOR
+        public void UpdateEventItems()
+        {
+            var events = GetEventProviderType()?.GetEvents();
+            if (events == null || events.Length == 0)
+            {
+                items = new EventItem[0];
+                return;
+            }
+
+            items ??= new EventItem[events.Length];
+
+            if (items.Length != events.Length)
+            {
+                Array.Resize(ref items, events.Length);
+            }
+
+            for (var i = 0; i < events.Length; i++)
+            {
+                if (items[i] == null)
+                {
+                    items[i] = new EventItem();
+                    items[i].UpdateEventName(events[i]);
+                }
+                else
+                {
+                    items[i].UpdateEventName(events[i]);
+                }
             }
         }
 
         public bool ValidateEventHandlerItems()
         {
-            var providerType = EventProviderType;
-
+            var providerType = GetEventProviderType();
+            if (providerType == null) return true;
             foreach (var item in items)
             {
                 if (item == null) continue;
@@ -182,10 +177,11 @@ namespace Common.UnityExtend
 
                     var argTypes = providerType.GetEvent(item.RuntimeEventName).EventHandlerType.GetGenericArguments();
                     var methodParameters = mItem.MethodInfo.GetParameters();
+                    if (methodParameters.Length <= 0) continue;
                     if (argTypes.Length != methodParameters.Length) return false;
-                    for (var i = 0; i < argTypes.Length; i++)
+                    if (argTypes.Where((t, i) => !methodParameters[i].ParameterType.IsAssignableFrom(t)).Any())
                     {
-                        if (!methodParameters[i].ParameterType.IsAssignableFrom(argTypes[i])) return false;
+                        return false;
                     }
                 }
             }
@@ -193,11 +189,20 @@ namespace Common.UnityExtend
             return true;
         }
 
+        public void RefreshSubscription()
+        {
+            foreach (var item in items)
+            {
+                item.Unsubscribe(GetEventProviderObject());
+                item.Subscribe(GetEventProviderObject());
+            }
+        }
+#endif
         private void OnEnable()
         {
             foreach (var item in items)
             {
-                item.Subscribe(EventProviderObject);
+                item.Subscribe(GetEventProviderObject());
             }
         }
 
@@ -205,22 +210,9 @@ namespace Common.UnityExtend
         {
             foreach (var item in items)
             {
-                item.Unsubscribe(EventProviderObject);
+                item.Unsubscribe(GetEventProviderObject());
             }
         }
-
-        [ContextMenu("RaiseEvent")]
-        public void RaiseEvent()
-        {
-            EventA?.Invoke();
-            EventB?.Invoke(this, EventArgs.Empty);
-            // EventB?.Invoke(1);
-        }
-
-        public event Action EventA;
-
-        // public event Action<int> EventB;
-        public event EventHandler EventB;
     }
 
 #if UNITY_EDITOR
@@ -228,6 +220,7 @@ namespace Common.UnityExtend
     public class EventSubscriptionEditor : Editor
     {
         private bool _error = false;
+        private bool _anythingChanged = true;
 
         private void OnEnable()
         {
@@ -251,6 +244,15 @@ namespace Common.UnityExtend
             EditorGUILayout.PropertyField(sourceObject);
             EditorGUILayout.PropertyField(path);
 
+            serializedObject.ApplyModifiedProperties();
+            if (EditorGUI.EndChangeCheck())
+            {
+                es.UpdateEventItems();
+                _anythingChanged = true;
+            }
+
+            EditorGUI.BeginChangeCheck();
+
             for (int i = 0; i < items.arraySize; i++)
             {
                 EditorGUILayout.PropertyField(items.GetArrayElementAtIndex(i).FindPropertyRelative("methodItems"),
@@ -262,12 +264,28 @@ namespace Common.UnityExtend
             // base.OnInspectorGUI();
             if (EditorGUI.EndChangeCheck())
             {
-                _error = !((EventSubscription) target).ValidateEventHandlerItems();
+                _anythingChanged = true;
             }
 
-            if (GUILayout.Button("Validate"))
+            try
+            {
+                if (GUILayout.Button("Validate"))
+                {
+                    _anythingChanged = true;
+                }
+            }
+            catch (Exception)
+            {
+                //
+            }
+
+            if (_anythingChanged)
             {
                 _error = !((EventSubscription) target).ValidateEventHandlerItems();
+                if (Application.isPlaying)
+                {
+                    es.RefreshSubscription();
+                }
             }
 
             if (_error)
