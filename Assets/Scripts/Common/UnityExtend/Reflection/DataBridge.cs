@@ -19,15 +19,6 @@ namespace Common.UnityExtend.Reflection
 
         [SerializeField] private MethodPairItem[] items;
 
-// #if UNITY_EDITOR
-//
-//         public IEnumerable<string> GetSourceMethodNames()
-//         {
-//             return sourceObject.GetType()
-//                 .GetMethods().Where(m => m.GetParameters().Length == 0 && m.ReturnType != typeof(void))
-//                 .Select(FormatGetMethodName);
-//         }
-// #endif
         [Serializable]
         public class MethodPairItem
         {
@@ -74,14 +65,12 @@ namespace Common.UnityExtend.Reflection
             {
                 if (_targetMethodInfo != null && _sourceMethodInfo != null) return;
 
-                _targetMethodInfo = targetObject.GetType()
-                    .GetMethod(ReflectionUtility.FormatName.ExtractMethodName(targetMethodName),
-                        ReflectionUtility.MethodFlags);
+                _targetMethodInfo = targetObject.GetType().GetMethods(ReflectionUtility.MethodFlags)
+                    .FirstOrDefault(mi => ReflectionUtility.FormatName.FormatMethodName(mi).Equals(targetMethodName));
                 // _sourceMethodInfo = sourceObject.GetType().GetMethod(ReflectionUtility.FormatName.ExtractMethodName(sourceObjectMethodName),
                 //     ReflectionUtility.MethodFlags);
                 _sourceMethodInfo =
                     ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), sourceObjectMethodName.Split('.'), true);
-
                 if (_targetMethodInfo == null || _sourceMethodInfo == null)
                 {
                     Debug.LogError("Methods not found");

@@ -36,16 +36,14 @@ namespace Common.UnityExtend.Attribute
                 EditorGUI.PropertyField(position, property, label, true);
             }
 
-            if (_toggled != toggled)
-            {
-                _toggled = toggled;
-                if (!string.IsNullOrEmpty(att.SiblingCallbackName))
-                {
-                    var parent = ReflectionUtility.GetObjectToWhichPropertyBelong(property);
-                    var callback = ReflectionUtility.GetMethodInfo(parent.GetType(), att.SiblingCallbackName);
-                    callback?.Invoke(parent, new object[] {_toggled});
-                }
-            }
+            if (_toggled == toggled) return;
+            _toggled = toggled;
+            
+            if (string.IsNullOrEmpty(att.SiblingCallbackName)) return;
+            
+            var parent = ReflectionUtility.GetObjectToWhichPropertyBelong(property);
+            var callback = parent.GetType().GetMethod(att.SiblingCallbackName, ReflectionUtility.MethodFlags);
+            callback?.Invoke(parent, new object[] {_toggled});
         }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)

@@ -59,7 +59,7 @@ namespace Common.UnityExtend.Attribute
 
                 if (i > 0)
                 {
-                    rootType = ReflectionUtility.GetPropertyOrFieldType(rootType, path[i - 1]);
+                    rootType = ReflectionUtility.GetReturnTypeOfMember(rootType, path[i - 1], true);
                 }
 
                 var openWindow = EditorGUI.DropdownButton(position,
@@ -131,16 +131,17 @@ namespace Common.UnityExtend.Attribute
             return objectSelector.GetData(property);
         }
 
-        private static IEnumerable<string> GetIds(IReflect type, bool isGetPath)
+        private static IEnumerable<string> GetIds(Type type, bool isGetPath)
         {
+            var methods = ReflectionUtility.GetAllMethods(type);
+            var props = ReflectionUtility.GetAllProperties(type);
+            var fields = ReflectionUtility.GetAllFields(type);
             return new string[0]
-                    .Concat(type.GetMethods(ReflectionUtility.MethodFlags).Where(m =>
+                    .Concat(methods.Where(m => !m.Name.StartsWith("get_")).Where(m =>
                             !isGetPath || m.GetParameters().Length == 0 && m.ReturnType != typeof(void))
                         .Select(ReflectionUtility.FormatName.FormatMethodName))
-                    .Concat(type.GetProperties(ReflectionUtility.PropertyFlags)
-                        .Select(ReflectionUtility.FormatName.FormatPropertyName))
-                    .Concat(type.GetFields(ReflectionUtility.FieldFlags)
-                        .Select(ReflectionUtility.FormatName.FormatFieldName))
+                    .Concat(props.Select(ReflectionUtility.FormatName.FormatPropertyName))
+                    .Concat(fields.Select(ReflectionUtility.FormatName.FormatFieldName))
                 ;
         }
     }

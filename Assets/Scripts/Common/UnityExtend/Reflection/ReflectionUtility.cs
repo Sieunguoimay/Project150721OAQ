@@ -40,7 +40,11 @@ namespace Common.UnityExtend.Reflection
 
         public static object GetSiblingProperty(SerializedProperty property, string name)
         {
-            return GetPropertyOrFieldValue(GetObjectToWhichPropertyBelong(property), name);
+            var src = GetObjectToWhichPropertyBelong(property);
+            var type = src.GetType();
+            var prop = type.GetProperty(name, PropertyFlags);
+            var field = type.GetField(name, FieldFlags);
+            return prop == null ? field?.GetValue(src) : prop.GetValue(src, null);
         }
 
         public static object GetObjectToWhichPropertyBelong(SerializedProperty prop)
@@ -70,11 +74,11 @@ namespace Common.UnityExtend.Reflection
         {
             if (source == null) return null;
             var type = source.GetType();
-            var f = type.GetField(isNameFormatted ? FormatName.ExtractFieldName(name) : name, FieldFlags);
+            var f = GetFieldInfo(type, name, isNameFormatted);
             if (f != null) return f.GetValue(source);
-            var p = type.GetProperty(isNameFormatted ? FormatName.ExtractFieldName(name) : name, PropertyFlags);
+            var p = GetPropertyInfo(type, name, isNameFormatted);
             if (p != null) return p.GetValue(source, null);
-            var mi = type.GetMethod(isNameFormatted ? FormatName.ExtractMethodName(name) : name, MethodFlags);
+            var mi = GetMethodInfo(type, name, isNameFormatted);
             if (mi != null && mi.GetParameters().Length == 0) return mi.Invoke(source, null);
             return null;
         }
@@ -82,13 +86,29 @@ namespace Common.UnityExtend.Reflection
         public static Type GetReturnTypeOfMember(Type type, string name, bool isNameFormatted)
         {
             if (type == null) return null;
-            var f = type.GetField(isNameFormatted ? FormatName.ExtractFieldName(name) : name, FieldFlags);
+            var f = GetFieldInfo(type, name, isNameFormatted);
             if (f != null) return f.FieldType;
-            var p = type.GetProperty(isNameFormatted ? FormatName.ExtractFieldName(name) : name, PropertyFlags);
+            var p = GetPropertyInfo(type, name, isNameFormatted);
             if (p != null) return p.PropertyType;
-            var mi = type.GetMethod(isNameFormatted ? FormatName.ExtractMethodName(name) : name, MethodFlags);
+            var mi = GetMethodInfo(type, name, isNameFormatted);
             if (mi != null) return mi.ReturnType;
             return null;
+        }
+        public static FieldInfo GetFieldInfo(Type type, string name, bool isNameFormatted)
+        {
+            return GetAllFields(type).FirstOrDefault(
+                m => isNameFormatted ? FormatName.FormatFieldName(m).Equals(name) : m.Name.Equals(name));
+        }
+        public static PropertyInfo GetPropertyInfo(Type type, string name, bool isNameFormatted)
+        {
+            return GetAllProperties(type).FirstOrDefault(
+                m => isNameFormatted ? FormatName.FormatPropertyName(m).Equals(name) : m.Name.Equals(name));
+        }
+
+        public static MethodInfo GetMethodInfo(Type type, string name, bool isNameFormatted)
+        {
+            return GetAllMethods(type).FirstOrDefault(
+                m => isNameFormatted ? FormatName.FormatMethodName(m).Equals(name) : m.Name.Equals(name));
         }
 
         private static object GetValueOfElement(IEnumerable enumerable, int index)
@@ -99,18 +119,6 @@ namespace Common.UnityExtend.Reflection
             return enm.Current;
         }
 
-        public static MethodInfo GetMethodInfo(Type type, string methodName)
-        {
-            return type.GetMethod(methodName, MethodFlags);
-        }
-
-        public static object GetPropertyOrFieldValue(object src, string propName)
-        {
-            var type = src.GetType();
-            var prop = type.GetProperty(propName, PropertyFlags);
-            var field = type.GetField(propName, FieldFlags);
-            return prop == null ? field?.GetValue(src) : prop.GetValue(src, null);
-        }
 
         public static Type GetPropertyOrFieldType(Type type, string propName)
         {
@@ -136,9 +144,9 @@ namespace Common.UnityExtend.Reflection
 
         public static BindingFlags MethodFlags =>
             BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
-            BindingFlags.IgnoreCase;
+            BindingFlags.IgnoreCase | BindingFlags.DeclaredOnly;
 
-        public static IEnumerable<Type> GetInterfaces(object obj)
+        public static IEnumerable<Type> GetAllInterfaces(object obj)
         {
             if (obj is GameObject go)
             {
@@ -149,6 +157,63 @@ namespace Common.UnityExtend.Reflection
             }
 
             return obj.GetType().GetInterfaces().Concat(new[] {obj.GetType()});
+        }
+
+        public static IEnumerable<MethodInfo> GetAllMethods(Type type)
+        {
+            foreach (var method in type.GetMethods(MethodFlags))
+            {
+                yield return method;
+            }
+
+            if (!type.IsInterface) yield break;
+            {
+                foreach (var i in type.GetInterfaces())
+                {
+                    foreach (var method in GetAllMethods(i))
+                    {
+                        yield return method;
+                    }
+                }
+            }
+        }
+
+        public static IEnumerable<PropertyInfo> GetAllProperties(Type type)
+        {
+            foreach (var method in type.GetProperties(PropertyFlags))
+            {
+                yield return method;
+            }
+
+            if (!type.IsInterface) yield break;
+            {
+                foreach (var i in type.GetInterfaces())
+                {
+                    foreach (var method in GetAllProperties(i))
+                    {
+                        yield return method;
+                    }
+                }
+            }
+        }
+
+        public static IEnumerable<FieldInfo> GetAllFields(Type type)
+        {
+            foreach (var method in type.GetFields(FieldFlags))
+            {
+                yield return method;
+            }
+
+            if (!type.IsInterface) yield break;
+            {
+                foreach (var i in type.GetInterfaces())
+                {
+                    foreach (var method in GetAllFields(i))
+                    {
+                        yield return method;
+                    }
+                }
+            }
         }
 
         public static class FormatName

@@ -13,7 +13,6 @@ namespace Common.UnityExtend.Attribute
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            // base.OnGUI(position, property, label);
             var fullWidth = position.width;
             position.width = fullWidth - 27;
             EditorGUI.PropertyField(position, property, label);

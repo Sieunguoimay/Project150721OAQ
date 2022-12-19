@@ -5384,10 +5384,10 @@ MonoBehaviour:
   click:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1215629017163420312}
+      - m_Target: {fileID: 6347508097548575377}
         m_TargetAssemblyTypeName: Common.DecisionMaking.Actions.StateTransition,
           Assembly-CSharp
-        m_MethodName: Transition
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5585,7 +5585,7 @@ MonoBehaviour:
     fieldA:
       dataSource: 3
       sourceObject: {fileID: 6645642497990244696}
-      path: IsUnlocked
+      path: 'IsUnlocked: Boolean'
       stringValue: 
       numberValue: 0
       boolValue: 0
@@ -5709,7 +5709,7 @@ MonoBehaviour:
     fieldA:
       dataSource: 3
       sourceObject: {fileID: 6645642497990244696}
-      path: IsUnlocked
+      path: 'Entity: IStage.SavedData: IStageSavedData.IsUnlocked: Boolean'
       stringValue: 
       numberValue: 0
       boolValue: 0

@@ -28,14 +28,16 @@ namespace Common.UnityExtend
                 return CompareTwoFieldOfSameType(valueA, valueB, fieldA.GetResultType(), compareOperator);
             }
 
-            private static bool CompareTwoFieldOfSameType(object fieldA, object fieldB, FieldDataSourceType type, CompareOperator compareOperator)
+            private static bool CompareTwoFieldOfSameType(object fieldA, object fieldB, FieldDataSourceType type,
+                CompareOperator compareOperator)
             {
                 if (compareOperator == CompareOperator.Equal)
                 {
                     return fieldA.Equals(fieldB);
                 }
 
-                return type == FieldDataSourceType.Number && CompareTwoDouble((double)fieldA, (double) fieldB, compareOperator);
+                return type == FieldDataSourceType.Number &&
+                       CompareTwoDouble((double) fieldA, (double) fieldB, compareOperator);
             }
 
             private static bool CompareTwoDouble(double a, double b, CompareOperator compareOperator)
@@ -79,7 +81,8 @@ namespace Common.UnityExtend
             [ShowIf(nameof(dataSource), FieldDataSourceType.ObjectField), SerializeField, UnityObjectSelector]
             private UnityEngine.Object sourceObject;
 
-            [ShowIf(nameof(dataSource), FieldDataSourceType.ObjectField), SerializeField] [StringSelector(nameof(ObjectFields))]
+            [ShowIf(nameof(dataSource), FieldDataSourceType.ObjectField), SerializeField]
+            [PathSelector(nameof(sourceObject))]
             private string path;
 
             [ShowIf(nameof(dataSource), FieldDataSourceType.Text), SerializeField]
@@ -91,11 +94,6 @@ namespace Common.UnityExtend
             [ShowIf(nameof(dataSource), FieldDataSourceType.Bool), SerializeField]
             private bool boolValue;
 
-            public IEnumerable<string> ObjectFields
-            {
-                get { return sourceObject.GetType().GetProperties().Select(p => p.Name); }
-            }
-
             public object GetValue()
             {
                 return dataSource switch
@@ -103,19 +101,17 @@ namespace Common.UnityExtend
                     FieldDataSourceType.Bool => boolValue,
                     FieldDataSourceType.Text => stringValue,
                     FieldDataSourceType.Number => numberValue,
-                    FieldDataSourceType.ObjectField => ReflectionUtility.GetPropertyOrFieldValue(sourceObject, path),
+                    FieldDataSourceType.ObjectField => ReflectionUtility.ExecutePathOfObject(sourceObject,
+                        path.Split('.'), true),
                     _ => null
                 };
             }
 
             public FieldDataSourceType GetResultType()
             {
-                if (dataSource == FieldDataSourceType.ObjectField)
-                {
-                    return MapToTypeEnum(ReflectionUtility.GetPropertyOrFieldType(sourceObject.GetType(), path));
-                }
-
-                return dataSource;
+                return dataSource == FieldDataSourceType.ObjectField
+                    ? MapToTypeEnum(ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), path.Split('.'), true))
+                    : dataSource;
             }
 
             public static FieldDataSourceType MapToTypeEnum(Type type)
@@ -158,6 +154,7 @@ namespace Common.UnityExtend
         {
             Debug.Log("OnEventA");
         }
+
         public void OnEventB(object sender, EventArgs args)
         {
             Debug.Log("OnEventB");

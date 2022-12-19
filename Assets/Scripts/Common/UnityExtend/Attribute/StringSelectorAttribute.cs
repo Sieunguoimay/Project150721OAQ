@@ -107,23 +107,21 @@ namespace Common.UnityExtend.Attribute
                 return false;
             }
 
-            if (_menu == null)
+            if (_menu != null) return true;
+            _menu = new GenericMenu();
+
+            var ids = GetIds(property, objectSelector);
+
+            if (ids == null) return false;
+
+            foreach (var id in ids)
             {
-                _menu = new GenericMenu();
-
-                var ids = GetIds(property, objectSelector);
-
-                if (ids == null) return false;
-
-                foreach (var id in ids)
+                _menu.AddItem(new GUIContent(id), property.stringValue == id, data =>
                 {
-                    _menu.AddItem(new GUIContent(id), property.stringValue == id, data =>
-                    {
-                        property.serializedObject.Update();
-                        property.stringValue = (string) data;
-                        property.serializedObject.ApplyModifiedProperties();
-                    }, id);
-                }
+                    property.serializedObject.Update();
+                    property.stringValue = (string) data;
+                    property.serializedObject.ApplyModifiedProperties();
+                }, id);
             }
 
             return true;
