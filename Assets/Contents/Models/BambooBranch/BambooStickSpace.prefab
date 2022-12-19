@@ -475,6 +475,9 @@ MonoBehaviour:
   ifStatement:
     fieldA:
       dataSource: 3
+      pathSelector:
+        sourceObject: {fileID: 5983454113372052464}
+        path: 'Finished: Boolean'
       sourceObject: {fileID: 5983454113372052464}
       path: Finished
       stringValue: b
@@ -483,6 +486,9 @@ MonoBehaviour:
     compareOperator: 0
     fieldB:
       dataSource: 0
+      pathSelector:
+        sourceObject: {fileID: 0}
+        path: 
       sourceObject: {fileID: 0}
       path: 
       stringValue: 0

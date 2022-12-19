@@ -13,6 +13,7 @@ namespace Common.UnityExtend
     {
         [SerializeField] private IfStatement ifStatement;
         [SerializeField] private UnityEvent then;
+        [SerializeField] private UnityEvent elseWise;
 
         [Serializable]
         private class IfStatement
@@ -33,7 +34,7 @@ namespace Common.UnityExtend
             {
                 if (compareOperator == CompareOperator.Equal)
                 {
-                    return fieldA.Equals(fieldB);
+                    return fieldA?.Equals(fieldB) ?? false;
                 }
 
                 return type == FieldDataSourceType.Number &&
@@ -78,12 +79,8 @@ namespace Common.UnityExtend
         {
             public FieldDataSourceType dataSource;
 
-            [ShowIf(nameof(dataSource), FieldDataSourceType.ObjectField), SerializeField, UnityObjectSelector]
-            private UnityEngine.Object sourceObject;
-
-            [ShowIf(nameof(dataSource), FieldDataSourceType.ObjectField), SerializeField]
-            [PathSelector(nameof(sourceObject))]
-            private string path;
+            [ShowIf(nameof(dataSource), FieldDataSourceType.ObjectField)] [SerializeField]
+            private UnityObjectPathSelector pathSelector;
 
             [ShowIf(nameof(dataSource), FieldDataSourceType.Text), SerializeField]
             private string stringValue;
@@ -94,6 +91,15 @@ namespace Common.UnityExtend
             [ShowIf(nameof(dataSource), FieldDataSourceType.Bool), SerializeField]
             private bool boolValue;
 
+            private UnityObjectPathSelector PathSelector
+            {
+                get
+                {
+                    if (pathSelector.Executor == null) pathSelector.Setup();
+                    return pathSelector;
+                }
+            }
+
             public object GetValue()
             {
                 return dataSource switch
@@ -101,8 +107,9 @@ namespace Common.UnityExtend
                     FieldDataSourceType.Bool => boolValue,
                     FieldDataSourceType.Text => stringValue,
                     FieldDataSourceType.Number => numberValue,
-                    FieldDataSourceType.ObjectField => ReflectionUtility.ExecutePathOfObject(sourceObject,
-                        path.Split('.'), true),
+                    FieldDataSourceType.ObjectField => PathSelector.Executor.ExecutePath(),
+                    // ReflectionUtility.ExecutePathOfObject(sourceObject,
+                    //     path.Split('.'), true),
                     _ => null
                 };
             }
@@ -110,7 +117,7 @@ namespace Common.UnityExtend
             public FieldDataSourceType GetResultType()
             {
                 return dataSource == FieldDataSourceType.ObjectField
-                    ? MapToTypeEnum(ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), path.Split('.'), true))
+                    ? MapToTypeEnum(PathSelector.Executor.LastMemberType)
                     : dataSource;
             }
 
@@ -142,22 +149,10 @@ namespace Common.UnityExtend
             {
                 then?.Invoke();
             }
-        }
-
-        [ContextMenu("Test")]
-        private void Test()
-        {
-            Debug.Log(ifStatement.IsTrue());
-        }
-
-        public void OnEventA()
-        {
-            Debug.Log("OnEventA");
-        }
-
-        public void OnEventB(object sender, EventArgs args)
-        {
-            Debug.Log("OnEventB");
+            else
+            {
+                elseWise?.Invoke();
+            }
         }
     }
 }

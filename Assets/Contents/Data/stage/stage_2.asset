@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: stage_2
   m_EditorClassIdentifier: 
   <Id>k__BackingField: stage_2
-  <IsPreUnlocked>k__BackingField: 0
+  <IsAvailableInAdvanced>k__BackingField: 0

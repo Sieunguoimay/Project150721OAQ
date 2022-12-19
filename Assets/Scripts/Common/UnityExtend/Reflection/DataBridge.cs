@@ -8,7 +8,6 @@ using Common.UnityExtend.Attribute;
 using UnityEditor;
 #endif
 using UnityEngine;
-using UnityEngine.Events;
 using Object = UnityEngine.Object;
 
 namespace Common.UnityExtend.Reflection
@@ -45,19 +44,20 @@ namespace Common.UnityExtend.Reflection
             [SerializeField]
             private string targetMethodName;
 
+            [SerializeField] private FormatType formatType;
+
             private MethodInfo _targetMethodInfo;
             private Type _sourceMethodInfo;
             private int _numMethodParameters = 0;
+
+            private UnityObjectPathSelector.PathExecutor _sourcePathExecutor = new();
 
             public void Transfer(Object sourceObject)
             {
                 SetupReflection(sourceObject);
 
                 _targetMethodInfo.Invoke(targetObject, _numMethodParameters == 1
-                    ? new[]
-                    {
-                        ReflectionUtility.ExecutePathOfObject(sourceObject, sourceObjectMethodName.Split('.'), true)
-                    }
+                    ? new[] {Format(_sourcePathExecutor.ExecutePath())}
                     : new object[0]);
             }
 
@@ -65,12 +65,11 @@ namespace Common.UnityExtend.Reflection
             {
                 if (_targetMethodInfo != null && _sourceMethodInfo != null) return;
 
-                _targetMethodInfo = targetObject.GetType().GetMethods(ReflectionUtility.MethodFlags)
-                    .FirstOrDefault(mi => ReflectionUtility.FormatName.FormatMethodName(mi).Equals(targetMethodName));
-                // _sourceMethodInfo = sourceObject.GetType().GetMethod(ReflectionUtility.FormatName.ExtractMethodName(sourceObjectMethodName),
-                //     ReflectionUtility.MethodFlags);
-                _sourceMethodInfo =
-                    ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), sourceObjectMethodName.Split('.'), true);
+                _targetMethodInfo = ReflectionUtility.GetMethodInfo(targetObject.GetType(), targetMethodName, true);
+                _sourceMethodInfo = ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), sourceObjectMethodName.Split('.'), true);
+
+                _sourcePathExecutor.Setup(sourceObjectMethodName, sourceObject);
+
                 if (_targetMethodInfo == null || _sourceMethodInfo == null)
                 {
                     Debug.LogError("Methods not found");
@@ -92,10 +91,34 @@ namespace Common.UnityExtend.Reflection
                 _targetMethodInfo = null;
                 _sourceMethodInfo = null;
             }
+
+            public object Format(object input)
+            {
+                return formatType switch
+                {
+                    FormatType.None => input,
+                    FormatType.Float => input,
+                    FormatType.Int => input,
+                    FormatType.Double => input,
+                    FormatType.Bool => input,
+                    FormatType.NotBool => !(bool) input,
+                    FormatType.String => input.ToString(),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+            }
         }
 
-
-        private int _eventFilterMask;
+        [Serializable]
+        public enum FormatType
+        {
+            None,
+            Float,
+            Int,
+            Double,
+            Bool,
+            NotBool,
+            String
+        }
 
         private void OnValidate()
         {
@@ -122,12 +145,6 @@ namespace Common.UnityExtend.Reflection
                 t.Transfer(sourceObject);
             }
         }
-
-        public static MethodInfo GetMethodInfo(Type type, string formattedName)
-        {
-            return type.GetMethod(formattedName.Split('(').FirstOrDefault() ?? string.Empty,
-                ReflectionUtility.MethodFlags);
-        }
     }
 #if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(DataBridge.MethodPairItem))]
@@ -139,6 +156,7 @@ namespace Common.UnityExtend.Reflection
             var sourceObjectMethodName = property.FindPropertyRelative("sourceObjectMethodName");
             var targetObject = property.FindPropertyRelative("targetObject");
             var targetMethodName = property.FindPropertyRelative("targetMethodName");
+            var formatType = property.FindPropertyRelative("formatType");
 
             var fullWidth = position.width;
             var fullHeight = position.height;
@@ -146,8 +164,14 @@ namespace Common.UnityExtend.Reflection
             position.width = fullWidth / 3 + 27;
             EditorGUI.PropertyField(position, sourceObjectMethodName, GUIContent.none);
 
-            position.y += position.height;
+            //Formatter
+            const float w = 70;
+            position.x += fullWidth - w + 1;
+            position.width = w;
+            EditorGUI.PropertyField(position, formatType, GUIContent.none);
+            position.x -= fullWidth - w + 1;
 
+            position.y += position.height;
             position.width = fullWidth / 3;
             EditorGUI.PropertyField(position, targetObject, GUIContent.none);
 
@@ -160,6 +184,7 @@ namespace Common.UnityExtend.Reflection
             btnRect.x += 27;
             btnRect.width = fullWidth / 3 * 2 - 27;
             EditorGUI.PropertyField(btnRect, targetMethodName, GUIContent.none);
+
             EditorGUI.EndProperty();
         }
 

@@ -6,6 +6,9 @@ namespace Gameplay.Entities.Stage
 {
     public class StageEntityView : BaseEntityView<IStage, IStageData>
     {
-        public bool IsUnlocked => Entity.SavedData.IsUnlocked;
+        public void OnClicked()
+        {
+            Entity.Unlock();
+        }
     }
 }

@@ -31,9 +31,9 @@ namespace Common.UnityExtend.Attribute
         {
             if (attribute is not PathSelectorAttribute objectSelector) return;
 
-            position.width = 50;
-            EditorGUI.PrefixLabel(position, label);
-            position.x = position.width;
+            // position.width = 50;
+            position = EditorGUI.PrefixLabel(position, label);
+            // position.x += 50;
             if (property.propertyType == SerializedPropertyType.String)
             {
                 if (!CreateMenuWithStringProperty(position, property, objectSelector)) return;

@@ -5,6 +5,8 @@ namespace Gameplay.Entities.Stage
 {
     public interface IStage : IEntity<IStageData, IStageSavedData>
     {
+        void SetToAvailable();
+        event Action<EventArgs> AvailableSet;
         void Unlock();
         event Action<IStage> Unlocked;
     }
@@ -24,14 +26,24 @@ namespace Gameplay.Entities.Stage
 
         private void SetupPreData()
         {
-            if (!SavedData.IsUnlocked && Data.IsPreUnlocked)
+            if (!SavedData.IsAvailable && Data.IsAvailableInAdvanced)
             {
-                SavedData.SetUnlock(true);
+                SavedData.SetAvailable(true);
             }
         }
+
+        public void SetToAvailable()
+        {
+            if (SavedData.IsAvailable) return;
+            SavedData.SetAvailable(true);
+            AvailableSet?.Invoke(EventArgs.Empty);
+        }
+
+        public event Action<EventArgs> AvailableSet;
+
         public void Unlock()
         {
-            if (SavedData.IsUnlocked) return;
+            if (!SavedData.IsAvailable || SavedData.IsUnlocked) return;
             SavedData.SetUnlock(true);
             Unlocked?.Invoke(this);
         }

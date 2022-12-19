@@ -6,12 +6,14 @@ namespace Gameplay.Entities.Stage
 {
     public interface IStageData : IEntityData
     {
-        bool IsPreUnlocked { get; }
+        bool IsAvailableInAdvanced { get; }
     }
 
     public interface IStageSavedData : IEntitySavedData
     {
+        bool IsAvailable { get; }
         bool IsUnlocked { get; }
+        void SetAvailable(bool state);
         void SetUnlock(bool state);
     }
 
@@ -23,10 +25,16 @@ namespace Gameplay.Entities.Stage
             return new Stage(this, new StageSavedData(Id));
         }
 
-        [field: SerializeField] public bool IsPreUnlocked { get; private set; }
+        [field: SerializeField] public bool IsAvailableInAdvanced { get; private set; }
 
 #if UNITY_EDITOR
-        [ContextMenu("Unlock")]
+        [ContextMenu(nameof(SetToAvailable))]
+        private void SetToAvailable()
+        {
+            DebugEntity?.SetToAvailable();
+        }
+
+        [ContextMenu(nameof(Unlock))]
         private void Unlock()
         {
             DebugEntity?.Unlock();
@@ -41,7 +49,14 @@ namespace Gameplay.Entities.Stage
         {
         }
 
+        [field: SerializeField] public bool IsAvailable { get; private set; }
         [field: SerializeField] public bool IsUnlocked { get; private set; }
+
+        public void SetAvailable(bool state)
+        {
+            IsAvailable = state;
+            Save();
+        }
 
         public void SetUnlock(bool state)
         {

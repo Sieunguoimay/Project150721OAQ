@@ -6,7 +6,8 @@ namespace Common.DecisionMaking
     {
         private IState[] _states;
 
-        public int CurrentState { get; private set; } = -1;
+        public int CurrentStateIndex { get; private set; } = -1;
+        public IState CurrentState => _states[CurrentStateIndex];
 
         public void SetStates(IState[] states, int defaultState = 0)
         {
@@ -22,14 +23,14 @@ namespace Common.DecisionMaking
                 return;
             }
 
-            var prevState = CurrentState;
-            CurrentState = stateIndex;
+            var prevState = CurrentStateIndex;
+            CurrentStateIndex = stateIndex;
             if (prevState >= 0)
             {
                 _states[prevState].Exit();
             }
 
-            _states[CurrentState].Enter();
+            _states[CurrentStateIndex].Enter();
         }
     }
 

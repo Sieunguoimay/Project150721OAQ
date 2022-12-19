@@ -21,6 +21,8 @@ namespace Common.UnityExtend
         [SerializeField, PathSelector(nameof(sourceObject))]
         private string path;
 
+        [SerializeField] private bool extraEvents;
+
         [SerializeField] private EventItem[] items;
 
         private Type GetEventProviderType() => sourceObject == null
@@ -42,9 +44,9 @@ namespace Common.UnityExtend
             [field: SerializeField] public EventHandlerItem[] methodItems = new EventHandlerItem[0];
 
             private readonly List<Delegate> _cachedRuntimeDelegates = new();
-            public string RuntimeEventName => ExtractEventName(eventName);
+            public string EventName => eventName;
 
-            public void UpdateEventName(EventInfo eventInfo)
+            public void UpdateEventIdentity(EventInfo eventInfo)
             {
                 eventName = FormatEventName(eventInfo);
             }
@@ -63,7 +65,7 @@ namespace Common.UnityExtend
             public void Subscribe(object obj)
             {
                 if (methodItems.Length == 0) return;
-                var evInfo = obj.GetType().GetEvent(RuntimeEventName);
+                var evInfo = GetEventInfo(obj.GetType());
                 foreach (var item in methodItems)
                 {
                     var runtimeDelegate = item.CreateDelegate(evInfo.EventHandlerType);
@@ -76,7 +78,7 @@ namespace Common.UnityExtend
             public void Unsubscribe(object obj)
             {
                 if (methodItems.Length == 0) return;
-                var evInfo = obj.GetType().GetEvent(RuntimeEventName);
+                var evInfo = GetEventInfo(obj.GetType());
 
                 foreach (var d in _cachedRuntimeDelegates)
                 {
@@ -84,6 +86,11 @@ namespace Common.UnityExtend
                 }
 
                 _cachedRuntimeDelegates.Clear();
+            }
+
+            public EventInfo GetEventInfo(Type type)
+            {
+                return type.GetEvents().FirstOrDefault(ei => FormatEventName(ei).Equals(eventName));
             }
         }
 
@@ -100,7 +107,7 @@ namespace Common.UnityExtend
                     .Where(m => m.ReturnType == typeof(void)).Select(ReflectionUtility.FormatName.FormatMethodName);
 
             public MethodInfo MethodInfo =>
-                targetObject ? DataBridge.GetMethodInfo(targetObject.GetType(), methodName) : null;
+                targetObject ? ReflectionUtility.GetMethodInfo(targetObject.GetType(), methodName,true) : null;
 
             public Delegate RuntimeHandler { get; private set; }
 
@@ -133,35 +140,57 @@ namespace Common.UnityExtend
                 return RuntimeHandler;
             }
         }
+
+        #region ExtraEvents
+
+        public event Action ThisEnabled;
+        public event Action ThisDisabled;
+
+        private IEnumerable<EventInfo> GetExtraEvents()
+        {
+            var type = GetType();
+            return new[] {type.GetEvent(nameof(ThisEnabled)), type.GetEvent(nameof(ThisDisabled))};
+        }
+
+        private static bool IsExtraEventItem(EventItem ei)
+        {
+            return EventItem.ExtractEventName(ei.EventName).StartsWith("This");
+        }
+
+        #endregion
+
 #if UNITY_EDITOR
+        [ContextMenu("UpdateEventItems")]
         public void UpdateEventItems()
         {
-            var events = GetEventProviderType()?.GetEvents();
+            var events = GetEventProviderType()?.GetEvents().Concat(extraEvents ? GetExtraEvents() : new EventInfo[0]).ToArray();
+
             if (events == null || events.Length == 0)
             {
                 items = new EventItem[0];
                 return;
             }
 
-            items ??= new EventItem[events.Length];
+            if (items != null && items.Length == events.Length) return;
 
-            if (items.Length != events.Length)
-            {
-                Array.Resize(ref items, events.Length);
-            }
+            var newItems = new EventItem[events.Length];
 
             for (var i = 0; i < events.Length; i++)
             {
-                if (items[i] == null)
+                var n = EventItem.FormatEventName(events[i]);
+                var item = items?.FirstOrDefault(it => it.EventName.Equals(n));
+                if (item != null)
                 {
-                    items[i] = new EventItem();
-                    items[i].UpdateEventName(events[i]);
+                    newItems[i] = item;
                 }
                 else
                 {
-                    items[i].UpdateEventName(events[i]);
+                    newItems[i] = new EventItem();
+                    newItems[i].UpdateEventIdentity(events[i]);
                 }
             }
+
+            items = newItems;
         }
 
         public bool ValidateEventHandlerItems()
@@ -171,11 +200,13 @@ namespace Common.UnityExtend
             foreach (var item in items)
             {
                 if (item == null) continue;
+                var pType = IsExtraEventItem(item) ? GetType() : providerType;
+
                 foreach (var mItem in item.methodItems)
                 {
                     if (mItem.MethodInfo == null) return false;
 
-                    var argTypes = providerType.GetEvent(item.RuntimeEventName).EventHandlerType.GetGenericArguments();
+                    var argTypes = item.GetEventInfo(pType).EventHandlerType.GetGenericArguments();
                     var methodParameters = mItem.MethodInfo.GetParameters();
                     if (methodParameters.Length <= 0) continue;
                     if (argTypes.Length != methodParameters.Length) return false;
@@ -191,27 +222,38 @@ namespace Common.UnityExtend
 
         public void RefreshSubscription()
         {
+            var providerObject = GetEventProviderObject();
             foreach (var item in items)
             {
-                item.Unsubscribe(GetEventProviderObject());
-                item.Subscribe(GetEventProviderObject());
+                var obj = IsExtraEventItem(item) ? this : providerObject;
+                item.Unsubscribe(obj);
+                item.Subscribe(obj);
             }
         }
 #endif
+
         private void OnEnable()
         {
+            var providerObject = GetEventProviderObject();
             foreach (var item in items)
             {
-                item.Subscribe(GetEventProviderObject());
+                var obj = IsExtraEventItem(item) ? this : providerObject;
+                item.Subscribe(obj);
             }
+
+            ThisEnabled?.Invoke();
         }
 
         private void OnDisable()
         {
+            var providerObject = GetEventProviderObject();
             foreach (var item in items)
             {
-                item.Unsubscribe(GetEventProviderObject());
+                var obj = IsExtraEventItem(item) ? this : providerObject;
+                item.Unsubscribe(obj);
             }
+
+            ThisDisabled?.Invoke();
         }
     }
 
@@ -236,6 +278,7 @@ namespace Common.UnityExtend
 
             var sourceObject = serializedObject.FindProperty("sourceObject");
             var path = serializedObject.FindProperty("path");
+            var extraEvents = serializedObject.FindProperty("extraEvents");
             var items = serializedObject.FindProperty("items");
 
             EditorGUI.BeginChangeCheck();
@@ -243,6 +286,7 @@ namespace Common.UnityExtend
 
             EditorGUILayout.PropertyField(sourceObject);
             EditorGUILayout.PropertyField(path);
+            EditorGUILayout.PropertyField(extraEvents);
 
             serializedObject.ApplyModifiedProperties();
             if (EditorGUI.EndChangeCheck())

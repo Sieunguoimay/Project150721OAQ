@@ -14,15 +14,15 @@ namespace Common.DecisionMaking
     {
         [SerializeField] private int defaultStateIndex = 0;
 
-        private readonly StateMachine _stateMachine = new();
-
         private StateTransition[] _stateTransitions;
         private ActionState[] _states;
 
         public IEnumerable<ActionState> States => _states ??= GetComponentsInChildren<ActionState>();
         private IEnumerable<StateTransition> StateTransitions => _stateTransitions ??= GetComponentsInChildren<StateTransition>();
 
-        private void Start()
+        [field: System.NonSerialized] public StateMachine StateMachine { get; } = new();
+
+        private void Awake()
         {
             SetupTransitions();
             CreateFromScript();
@@ -30,14 +30,14 @@ namespace Common.DecisionMaking
 
         public void CreateFromScript()
         {
-            _stateMachine.SetStates(States.Select(s => s as IState).ToArray(), defaultStateIndex);
+            StateMachine.SetStates(States.Select(s => s as IState).ToArray(), defaultStateIndex);
         }
 
         private void SetupTransitions()
         {
             foreach (var tr in StateTransitions)
             {
-                tr.Setup(_stateMachine, GetIndex(tr.TargetState), GetIndex(tr.CurrentState));
+                tr.Setup(StateMachine, GetIndex(tr.TargetState), GetIndex(tr.CurrentState));
             }
         }
 

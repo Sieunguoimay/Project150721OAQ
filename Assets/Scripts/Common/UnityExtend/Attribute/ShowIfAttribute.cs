@@ -23,6 +23,7 @@ namespace Common.UnityExtend.Attribute
     public class ShowIfDrawer : PropertyDrawer
     {
         private bool _toggled;
+        private float _height = 16;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -31,16 +32,21 @@ namespace Common.UnityExtend.Attribute
 
             var toggled = value.Equals(att.Value);
 
+            // EditorGUI.BeginProperty(position, label, property);
             if (toggled)
             {
-                EditorGUI.PropertyField(position, property, label, true);
+                var t = label.text;
+                _height = EditorGUI.GetPropertyHeight(property, label, true);
+                EditorGUI.PropertyField(position, property, new GUIContent(t), true);
             }
+
+            // EditorGUI.EndProperty();
 
             if (_toggled == toggled) return;
             _toggled = toggled;
-            
+
             if (string.IsNullOrEmpty(att.SiblingCallbackName)) return;
-            
+
             var parent = ReflectionUtility.GetObjectToWhichPropertyBelong(property);
             var callback = parent.GetType().GetMethod(att.SiblingCallbackName, ReflectionUtility.MethodFlags);
             callback?.Invoke(parent, new object[] {_toggled});
@@ -48,7 +54,7 @@ namespace Common.UnityExtend.Attribute
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return _toggled ? base.GetPropertyHeight(property, label) : 0;
+            return _toggled ? _height : 0;
         }
     }
 #endif

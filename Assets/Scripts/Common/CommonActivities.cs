@@ -87,4 +87,89 @@ namespace Common
             }
         }
     }
+
+    public class FloatRunnerActivity : Activity
+    {
+        private readonly float _beginValue;
+        private readonly float _endValue;
+        private readonly float _speed;
+        private readonly LoopType _loopType;
+        private readonly Action<float> _onValueProgress;
+
+        private float _value;
+        private float _sign;
+
+        public FloatRunnerActivity(float beginValue, float endValue, float speed, LoopType loopType, Action<float> onValueProgress)
+        {
+            _beginValue = beginValue;
+            _endValue = endValue;
+            _speed = speed;
+            _loopType = loopType;
+            _onValueProgress = onValueProgress;
+
+            _sign = Mathf.Sign(_endValue - _beginValue);
+        }
+
+        public override void Begin()
+        {
+            base.Begin();
+            _onValueProgress?.Invoke(_value = _beginValue);
+        }
+
+        public override void Update(float deltaTime)
+        {
+            _value += deltaTime * _speed * _sign;
+            switch (_loopType)
+            {
+                case LoopType.None:
+                    if (_sign > 0 && _value >= _endValue)
+                    {
+                        _onValueProgress?.Invoke(_value);
+                        MarkAsDone();
+                        return;
+                    }
+
+                    if (_sign < 0 && _value <= _endValue)
+                    {
+                        _onValueProgress?.Invoke(_value);
+                        MarkAsDone();
+                        return;
+                    }
+
+                    break;
+                case LoopType.PingPong:
+                {
+                    if (_value >= _endValue)
+                    {
+                        _sign *= -1;
+                        _value = _endValue;
+                    }
+                    else if (_value <= _beginValue)
+                    {
+                        _sign *= -1;
+                        _value = _beginValue;
+                    }
+
+                    break;
+                }    
+                case LoopType.Restart:
+                {
+                    if (_value >= _endValue) _value = _beginValue;
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            _onValueProgress?.Invoke(_value);
+        }
+
+        [Serializable]
+        public enum LoopType
+        {
+            None,
+            Restart,
+            PingPong
+        }
+    }
 }
