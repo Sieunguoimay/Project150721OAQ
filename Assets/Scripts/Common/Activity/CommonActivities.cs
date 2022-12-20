@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Common
+namespace Common.Activity
 {
     public class ActivityDelay : Activity
     {
@@ -24,7 +24,7 @@ namespace Common
             Time += deltaTime;
             if (Time >= Duration)
             {
-                MarkAsDone();
+                End();
             }
         }
     }
@@ -52,7 +52,7 @@ namespace Common
             if (Time >= Duration)
             {
                 _onTick?.Invoke(_progress ? 1f : Duration);
-                MarkAsDone();
+                End();
             }
             else
             {
@@ -83,7 +83,7 @@ namespace Common
             base.Update(deltaTime);
             if (!Inactive && (_onUpdate?.Invoke() ?? false))
             {
-                MarkAsDone();
+                End();
             }
         }
     }
@@ -125,14 +125,14 @@ namespace Common
                     if (_sign > 0 && _value >= _endValue)
                     {
                         _onValueProgress?.Invoke(_value);
-                        MarkAsDone();
+                        End();
                         return;
                     }
 
                     if (_sign < 0 && _value <= _endValue)
                     {
                         _onValueProgress?.Invoke(_value);
-                        MarkAsDone();
+                        End();
                         return;
                     }
 

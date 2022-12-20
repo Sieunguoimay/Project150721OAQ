@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Common.Activity;
 using Common.UnityExtend.Attribute;
 using Gameplay.Piece.Activities;
 using UnityEngine;
@@ -42,7 +43,7 @@ namespace Common.DecisionMaking.Actions
             _stateMachine.ChangeState(_index);
         } 
 
-        public override Activity CreateActivity()
+        public override Activity.Activity CreateActivity()
         {
             return new ActivityCallback(Transition);
         }

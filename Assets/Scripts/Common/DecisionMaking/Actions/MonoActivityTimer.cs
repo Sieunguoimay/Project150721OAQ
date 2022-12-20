@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Activity;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -9,9 +10,9 @@ namespace Common.DecisionMaking.Actions
         [SerializeField] private float duration;
         [SerializeField] private UnityEventFloat onProgress;
 
-        private Activity _activity;
+        private Activity.Activity _activity;
 
-        public override Activity CreateActivity()
+        public override Activity.Activity CreateActivity()
         {
             return _activity ??= new ActivityTimer(duration, p => onProgress?.Invoke(p), true);
         }

@@ -1,4 +1,5 @@
-﻿using Common.DecisionMaking;
+﻿using Common.Activity;
+using Common.DecisionMaking;
 using UnityEngine;
 
 namespace Common.Animation.ScriptingAnimation.Helpers
@@ -15,7 +16,7 @@ namespace Common.Animation.ScriptingAnimation.Helpers
             scriptingAnimation.ActivityQueue.Begin();
         }
 
-        public override Activity CreateActivity()
+        public override Activity.Activity CreateActivity()
         {
             return new ActivityTimer(scriptingAnimation.Duration, Tick, true);
         }

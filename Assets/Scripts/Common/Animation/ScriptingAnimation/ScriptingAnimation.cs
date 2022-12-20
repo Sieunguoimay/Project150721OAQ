@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Common.Activity;
 using Common.DecisionMaking;
 using UnityEngine;
 
@@ -17,7 +18,11 @@ namespace Common.Animation.ScriptingAnimation
         [ContextMenu("Play")]
         public virtual void Play()
         {
-            ActivityQueue.End();
+            if (!ActivityQueue.Inactive)
+            {
+                ActivityQueue.End();
+            }
+
             ActivityQueue.Add(new ActivityTimer(duration, Tick, true));
             ActivityQueue.Begin();
         }
@@ -34,7 +39,7 @@ namespace Common.Animation.ScriptingAnimation
             ActivityQueue.Update(Time.deltaTime);
         }
 
-        public override Activity CreateActivity()
+        public override Activity.Activity CreateActivity()
         {
             return new ActivityTimer(duration, Tick, true);
         }
@@ -56,7 +61,7 @@ namespace Common.Animation.ScriptingAnimation
             _mover?.Move(Mathf.Max(p, 0f));
         }
 
-        public override Activity CreateActivity()
+        public override Activity.Activity CreateActivity()
         {
             _mover = GetMover(Target);
 

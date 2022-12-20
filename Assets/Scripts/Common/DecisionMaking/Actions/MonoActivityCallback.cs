@@ -1,4 +1,5 @@
-﻿using Gameplay.Piece.Activities;
+﻿using Common.Activity;
+using Gameplay.Piece.Activities;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -8,7 +9,7 @@ namespace Common.DecisionMaking.Actions
     {
         [SerializeField] private UnityEvent callback;
 
-        public override Activity CreateActivity()
+        public override Activity.Activity CreateActivity()
         {
             return new ActivityCallback(() => callback?.Invoke());
         }

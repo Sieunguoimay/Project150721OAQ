@@ -46,7 +46,7 @@ namespace Contents.Shaders.SupportScripts
                 }
             }
 
-            _meshRenderer.sharedMaterial.SetFloat(_propertyID, value);
+            _meshRenderer.material.SetFloat(_propertyID, value);
         }
     }
 }

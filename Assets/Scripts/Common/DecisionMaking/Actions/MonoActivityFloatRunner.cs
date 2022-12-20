@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Common.Activity;
+using UnityEngine;
 
 namespace Common.DecisionMaking.Actions
 {
@@ -10,7 +11,7 @@ namespace Common.DecisionMaking.Actions
         [SerializeField] private FloatRunnerActivity.LoopType loopType = FloatRunnerActivity.LoopType.None;
         [SerializeField] private MonoActivityTimer.UnityEventFloat onProgress;
 
-        public override Activity CreateActivity()
+        public override Activity.Activity CreateActivity()
         {
             return new FloatRunnerActivity(beginValue, endValue, speed, loopType, OnProgress);
         }

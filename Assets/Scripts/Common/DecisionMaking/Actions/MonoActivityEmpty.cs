@@ -1,17 +1,18 @@
-﻿namespace Common.DecisionMaking.Actions
+﻿using Common.Activity;
+
+namespace Common.DecisionMaking.Actions
 {
     public class MonoActivityEmpty : MonoActivity
     {
-        private readonly Activity _activity = new();
+        private readonly Activity.Activity _activity = new();
 
         public void End()
         {
-            _activity.MarkAsDone();
+            _activity.End();
         }
 
-        public override Activity CreateActivity()
+        public override Activity.Activity CreateActivity()
         {
-            _activity.MarkAsDone();
             return _activity;
         }
     }

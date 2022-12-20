@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Activity;
 using Common.Algorithm;
 using Common.Curve;
 using DG.Tweening;
@@ -159,7 +160,7 @@ namespace Common.DrawLine
             ActivityQueue.Update(Time.deltaTime);
         }
 
-        private class ActivityDrawing : Activity
+        private class ActivityDrawing : Activity.Activity
         {
             private readonly DrawingPen _pen;
             private readonly DrawUnit[] _drawUnits;
@@ -218,7 +219,7 @@ namespace Common.DrawLine
 
                 if (_distance >= _totalLength)
                 {
-                    MarkAsDone();
+                    End();
                 }
             }
         }

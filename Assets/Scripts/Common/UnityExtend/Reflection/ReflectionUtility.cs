@@ -43,7 +43,8 @@ namespace Common.UnityExtend.Reflection
             var src = GetObjectToWhichPropertyBelong(property);
             var type = src.GetType();
             var prop = type.GetProperty(name, PropertyFlags);
-            var field = type.GetField(name, FieldFlags);
+            var field = GetFieldInfo(type, name, false);
+            // var field = type.GetField(name, FieldFlags);
             return prop == null ? field?.GetValue(src) : prop.GetValue(src, null);
         }
 
@@ -94,11 +95,13 @@ namespace Common.UnityExtend.Reflection
             if (mi != null) return mi.ReturnType;
             return null;
         }
+
         public static FieldInfo GetFieldInfo(Type type, string name, bool isNameFormatted)
         {
             return GetAllFields(type).FirstOrDefault(
                 m => isNameFormatted ? FormatName.FormatFieldName(m).Equals(name) : m.Name.Equals(name));
         }
+
         public static PropertyInfo GetPropertyInfo(Type type, string name, bool isNameFormatted)
         {
             return GetAllProperties(type).FirstOrDefault(
@@ -150,10 +153,7 @@ namespace Common.UnityExtend.Reflection
         {
             if (obj is GameObject go)
             {
-                return go.GetComponents<Component>().SelectMany(c =>
-                {
-                    return c.GetType().GetInterfaces().Concat(new[] {c.GetType()});
-                }).Concat(new[] {go.GetType()});
+                return go.GetComponents<Component>().SelectMany(c => { return c.GetType().GetInterfaces().Concat(new[] {c.GetType()}); }).Concat(new[] {go.GetType()});
             }
 
             return obj.GetType().GetInterfaces().Concat(new[] {obj.GetType()});
@@ -199,7 +199,8 @@ namespace Common.UnityExtend.Reflection
 
         public static IEnumerable<FieldInfo> GetAllFields(Type type)
         {
-            foreach (var method in type.GetFields(FieldFlags))
+            var fieldInfos = type.GetFields(FieldFlags);
+            foreach (var method in fieldInfos)
             {
                 yield return method;
             }

@@ -2,20 +2,17 @@
 
 namespace Common.Animation.ScriptingAnimation.ShortAnimations
 {
-    public class AngleAnimation : ScriptingAnimation
+    public class AngleAnimation : Curve3FloatAnimation
     {
-        public AnimationCurve[] curves;
-
         protected override void OnTick(float p)
         {
-            var euler = Target.localEulerAngles;
+            var euler = Vector3.zero;
             for (var i = 0; i < 3; i++)
             {
-                euler[i] = curves[i].Evaluate(p);
+                euler[i] = Evaluate(i, p);
             }
 
             Target.localEulerAngles = euler;
         }
-
     }
 }

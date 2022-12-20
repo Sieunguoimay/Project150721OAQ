@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Common;
+using Common.Activity;
 using UnityEngine;
 
 namespace Gameplay.Piece.Activities
@@ -54,10 +55,6 @@ namespace Gameplay.Piece.Activities
             {
                 CancelMove();
             }
-        }
-
-        public override void End()
-        {
         }
 
         public void SetOthers(ActivityFlocking[] others)

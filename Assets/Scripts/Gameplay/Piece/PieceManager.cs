@@ -1,5 +1,6 @@
 ﻿using System;
 using Common;
+using Common.Activity;
 using Gameplay.Piece.Activities;
 using UnityEngine;
 
@@ -16,7 +17,6 @@ namespace Gameplay.Piece
         {
             foreach (var p in Pieces)
             {
-                p.ActivityQueue.MarkAsDone();
                 p.ActivityQueue.End();
             }
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Common;
+using Common.Activity;
 using DG.Tweening;
 using SNM.Easings;
 using Timeline;
@@ -39,7 +40,7 @@ namespace Gameplay.Piece.Activities
         private float _time;
         protected float Duration { get; set; }
 
-        public StraightMove(Transform transform, Vector3 target, float duration, IEasing ease) : base(ease)
+        protected StraightMove(Transform transform, Vector3 target, float duration, IEasing ease) : base(ease)
         {
             Transform = transform;
             Target = target;
@@ -66,7 +67,7 @@ namespace Gameplay.Piece.Activities
 
             if (_time >= Duration)
             {
-                MarkAsDone();
+                End();
             }
         }
 
@@ -189,10 +190,6 @@ namespace Gameplay.Piece.Activities
             }
         }
 
-        public override void End()
-        {
-        }
-
         public float GetJumpDistance(float movingSpeed) => _duration * movingSpeed;
 
         public class InputData
@@ -300,7 +297,7 @@ namespace Gameplay.Piece.Activities
             var euler = Quaternion.LookRotation(_targetPos - _transform.position).eulerAngles;
             var targetEuler = _transform.eulerAngles;
             targetEuler.y = euler.y;
-            _transform.transform.DORotate(targetEuler, _duration).SetLink(_transform.gameObject).OnComplete(MarkAsDone);
+            _transform.transform.DORotate(targetEuler, _duration).SetLink(_transform.gameObject).OnComplete(End);
         }
     }
 
@@ -317,7 +314,7 @@ namespace Gameplay.Piece.Activities
         {
             base.Begin();
             _callback?.Invoke();
-            MarkAsDone();
+            End();
         }
     }
 
@@ -427,7 +424,7 @@ namespace Gameplay.Piece.Activities
 
             if (info.normalizedTime >= 1f)
             {
-                MarkAsDone();
+                End();
             }
         }
     }

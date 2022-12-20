@@ -95,14 +95,14 @@ namespace Gameplay.MagicFlower
             spline.SetControlPoint(spline.ControlPoints.Count / 2,
                 splineTransform.InverseTransformPoint(transform.TransformPoint(newLocalControlMidPoint)));
 
-            var keys = angleAnimation.curves[0].keys;
+            var keys = angleAnimation.GetCurve(0).keys;
             keys[^1].value = Random.Range(-20f, 20f);
             keys[^1].inTangent = 0f;
-            angleAnimation.curves[0].keys = keys;
+            angleAnimation.GetCurve(0).keys = keys;
 
-            keys = angleAnimation.curves[1].keys;
+            keys = angleAnimation.GetCurve(1).keys;
             keys[^1].value += Random.Range(0f, 180f);
-            angleAnimation.curves[1].keys = keys;
+            angleAnimation.GetCurve(1).keys = keys;
         }
 
         public void Spawn()

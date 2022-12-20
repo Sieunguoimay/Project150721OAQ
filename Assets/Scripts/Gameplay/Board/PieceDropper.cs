@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common;
+using Common.Activity;
 using Gameplay.Piece;
 using Gameplay.Piece.Activities;
 using UnityEngine;
@@ -132,7 +133,7 @@ namespace Gameplay.Board
             {
                 base.Begin();
                 _callback?.Invoke(_tile);
-                MarkAsDone();
+                End();
             }
         }
     }
