@@ -101,6 +101,10 @@ MonoBehaviour:
     targetObject: {fileID: 2272791787547539404}
     targetMethodName: 'SetActive(Boolean): Void'
     formatType: 0
+  - sourceObjectMethodName: 'AnyStageSelected: Boolean'
+    targetObject: {fileID: 6279741400933025842}
+    targetMethodName: 'SetActive(Boolean): Void'
+    formatType: 0
 --- !u!111 &6279741400933025842
 Animation:
   m_ObjectHideFlags: 0
@@ -113,6 +117,7 @@ Animation:
   m_Animation: {fileID: 7400000, guid: 7a645ace1dc80ed4fa6a9db5634e36fe, type: 2}
   m_Animations:
   - {fileID: 7400000, guid: 7a645ace1dc80ed4fa6a9db5634e36fe, type: 2}
+  - {fileID: 7400000, guid: a59c8e43434270842a2e625b0e99f52b, type: 2}
   m_WrapMode: 0
   m_PlayAutomatically: 0
   m_AnimatePhysics: 0
@@ -209,6 +214,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   anim: {fileID: 6279741400933025842}
+  animationName: 
 --- !u!1 &4633800850551436949
 GameObject:
   m_ObjectHideFlags: 0
