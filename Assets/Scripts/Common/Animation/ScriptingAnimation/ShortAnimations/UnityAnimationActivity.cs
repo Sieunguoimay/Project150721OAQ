@@ -7,7 +7,7 @@ namespace Common.Animation.ScriptingAnimation.ShortAnimations
     public class UnityAnimationActivity : MonoActivity
     {
         [SerializeField] private UnityEngine.Animation anim;
-        [SerializeField] private string animationName;
+        [SerializeField] private AnimationClip clip;
         private UnityEngine.Animation Animation => anim;
 
         public override Activity.Activity CreateActivity()
@@ -15,16 +15,20 @@ namespace Common.Animation.ScriptingAnimation.ShortAnimations
             return new Lambda(OnBegin, OnUpdate);
         }
 
-        private void OnBegin()
+        public void Play()
         {
-            if (string.IsNullOrEmpty(animationName))
+            if (clip == null)
             {
                 Animation.Play();
             }
             else
             {
-                Animation.Play(animationName);
+                Animation.Play(clip.name);
             }
+        }
+        private void OnBegin()
+        {
+            Play();
         }
 
         private bool OnUpdate()

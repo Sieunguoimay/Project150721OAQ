@@ -1,5 +1,107 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &823473608527517039
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5746897023217035984}
+  - component: {fileID: 762406867988671313}
+  - component: {fileID: 5605431169130995589}
+  - component: {fileID: 7640144786567347893}
+  m_Layer: 0
+  m_Name: disappear
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5746897023217035984
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823473608527517039}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.47812313, y: -0.044311047, z: 0.4622521}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6048141505249746448}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &762406867988671313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823473608527517039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ed72912558a46f9bd96d185daf59a1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  anim: {fileID: 6279741400933025842}
+  clip: {fileID: 7400000, guid: a59c8e43434270842a2e625b0e99f52b, type: 2}
+--- !u!114 &5605431169130995589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823473608527517039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fca955e72eb4e0b9f77aebf951479d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  monoActivities:
+  - {fileID: 762406867988671313}
+  - {fileID: 7640144786567347893}
+--- !u!114 &7640144786567347893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823473608527517039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6e0583df10f4bfaae9ebf8318d09c6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  callback:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6267455474943034393}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 2272791787547539404}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1127747903096587479
 GameObject:
   m_ObjectHideFlags: 0
@@ -11,7 +113,6 @@ GameObject:
   - component: {fileID: 2490410637897212428}
   - component: {fileID: 1732845382351416717}
   - component: {fileID: 1004994341623987105}
-  - component: {fileID: 8107189668990626118}
   - component: {fileID: 6279741400933025842}
   m_Layer: 0
   m_Name: play_button
@@ -69,42 +170,12 @@ MonoBehaviour:
   items:
   - eventName: Selected(EventArgs)
     methodItems:
-    - targetObject: {fileID: 8107189668990626118}
-      methodName: 'Transfer(): Void'
-    - targetObject: {fileID: 4969001456093572928}
-      methodName: 'Begin(): Void'
+    - targetObject: {fileID: 4843719479694198081}
+      methodName: 'Trigger(): Void'
   - eventName: ThisEnabled()
-    methodItems:
-    - targetObject: {fileID: 8107189668990626118}
-      methodName: 'Transfer(): Void'
+    methodItems: []
   - eventName: ThisDisabled()
     methodItems: []
---- !u!114 &8107189668990626118
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1127747903096587479}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sourceObject: {fileID: 1732845382351416717}
-  items:
-  - sourceObjectMethodName: 'AnyStageSelected: Boolean'
-    targetObject: {fileID: 6267455474943034393}
-    targetMethodName: 'SetActive(Boolean): Void'
-    formatType: 0
-  - sourceObjectMethodName: 'AnyStageSelected: Boolean'
-    targetObject: {fileID: 2272791787547539404}
-    targetMethodName: 'SetActive(Boolean): Void'
-    formatType: 0
-  - sourceObjectMethodName: 'AnyStageSelected: Boolean'
-    targetObject: {fileID: 6279741400933025842}
-    targetMethodName: 'SetActive(Boolean): Void'
-    formatType: 0
 --- !u!111 &6279741400933025842
 Animation:
   m_ObjectHideFlags: 0
@@ -131,7 +202,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6048141505249746448}
-  - component: {fileID: 4969001456093572928}
+  - component: {fileID: 4843719479694198081}
   m_Layer: 0
   m_Name: show_play_button_animation
   m_TagString: Untagged
@@ -152,10 +223,11 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7281862781986126871}
+  - {fileID: 5746897023217035984}
   m_Father: {fileID: 5577019158374509206}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4969001456093572928
+--- !u!114 &4843719479694198081
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -164,11 +236,82 @@ MonoBehaviour:
   m_GameObject: {fileID: 3516461878864128858}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0fca955e72eb4e0b9f77aebf951479d0, type: 3}
+  m_Script: {fileID: 11500000, guid: 6eb3471c880a4f63bf9a7bf07f46191e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  monoActivities:
-  - {fileID: 243949887148083210}
+  ifStatement:
+    fieldA:
+      dataSource: 3
+      pathSelector:
+        sourceObject: {fileID: 1732845382351416717}
+        path: 'AnyStageSelected: Boolean'
+      stringValue: 
+      numberValue: 0
+      boolValue: 0
+    compareOperator: 0
+    fieldB:
+      dataSource: 0
+      pathSelector:
+        sourceObject: {fileID: 0}
+        path: 
+      stringValue: 
+      numberValue: 0
+      boolValue: 1
+  then:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6267455474943034393}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 2272791787547539404}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 243949887148083210}
+        m_TargetAssemblyTypeName: Common.Animation.ScriptingAnimation.ShortAnimations.UnityAnimationActivity,
+          Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  elseWise:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5605431169130995589}
+        m_TargetAssemblyTypeName: Common.Activity.MonoActivityQueue, Assembly-CSharp
+        m_MethodName: Begin
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &4235553808963084203
 GameObject:
   m_ObjectHideFlags: 0
@@ -214,7 +357,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   anim: {fileID: 6279741400933025842}
-  animationName: 
+  clip: {fileID: 7400000, guid: 7a645ace1dc80ed4fa6a9db5634e36fe, type: 2}
 --- !u!1 &4633800850551436949
 GameObject:
   m_ObjectHideFlags: 0
@@ -397,69 +540,33 @@ PrefabInstance:
       propertyPath: m_Name
       value: on_tree_button
       objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: duration
-      value: 0.15
+    - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
+      propertyPath: click.m_PersistentCalls.m_Calls.Array.size
+      value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[1].time
-      value: 0.47985676
-      objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[2].time
+    - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
+      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[1].value
-      value: 0.9078369
+    - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
+      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1732845382351416717}
+    - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
+      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[2].value
-      value: 1
+    - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
+      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: Unselect
       objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[0].inSlope
-      value: -0.19206375
+    - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
+      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: Gameplay.Entities.Stage.StageSelector.StageSelectorEntityView, Assembly-CSharp
       objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[1].inSlope
-      value: -0.0074379295
-      objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[2].inSlope
-      value: 0.17718789
-      objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[0].outSlope
-      value: -0.19206375
-      objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[1].inWeight
-      value: 0.33333334
-      objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[1].outSlope
-      value: -0.0074379295
-      objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[2].outSlope
-      value: 0.17718789
-      objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[0].outWeight
-      value: 0.33333334
-      objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[1].outWeight
-      value: 0.33333334
-      objectReference: {fileID: 0}
-    - target: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-      propertyPath: curves.Array.data[0].m_Curve.Array.data[2].outWeight
-      value: 0
+    - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
+      propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
@@ -473,42 +580,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1938529037248997670, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
   m_PrefabInstance: {fileID: 391142421283708650}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3838414519518525247 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3470397752811842005, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-  m_PrefabInstance: {fileID: 391142421283708650}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5773473917389091182}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4740f73a201d4de081f4e74dc6e88405, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!1 &5773473917389091182 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6157232155845341060, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-  m_PrefabInstance: {fileID: 391142421283708650}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2604634158129272546
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5773473917389091182}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sourceObject: {fileID: 3838414519518525247}
-  path: 'ActivityQueue: ActivityQueue'
-  extraEvents: 0
-  items:
-  - eventName: Done(EventArgs)
-    methodItems:
-    - targetObject: {fileID: 1732845382351416717}
-      methodName: 'Unselect(): Void'
 --- !u!1001 &5484663544082279743
 PrefabInstance:
   m_ObjectHideFlags: 0
