@@ -25,7 +25,7 @@ namespace Gameplay.MagicFlower
         private Object bezierSpline;
 
         [SerializeField] private AngleAnimation angleAnimation;
-        [field:SerializeField]public UnityEvent OnCollectBlossom { get; private set; }
+        [field: SerializeField] public UnityEvent OnCollectBlossom { get; private set; }
 
         private int _slotIndex;
 
@@ -33,7 +33,8 @@ namespace Gameplay.MagicFlower
 
         private readonly Dictionary<GameObject, Vector2Int> _blossomMap = new();
 
-        [field:NonSerialized] public Vector3 LastCollectedBlossomPosition { get; private set; }
+        [field: NonSerialized] public Vector3 LastCollectedBlossomPosition { get; private set; }
+
         private void Start()
         {
             CreateSlots();
@@ -111,7 +112,7 @@ namespace Gameplay.MagicFlower
             blossom.transform.position = GetCell(_availableSlots[_slotIndex].x, _availableSlots[_slotIndex].y);
             _blossomMap.Add(blossom, _availableSlots[_slotIndex]);
             _availableSlots.RemoveAt(_slotIndex);
-            blossom.GetComponent<ABoundsClicker>().Clicked.AddListener(OnBlossomClicked);
+            blossom.GetComponent<ABoundsClicker>().Clicked += OnBlossomClicked;
         }
 
         public void Collect(GameObject blossom)
@@ -126,9 +127,9 @@ namespace Gameplay.MagicFlower
         }
 
 
-        private void OnBlossomClicked(ABoundsClicker blossom)
+        private void OnBlossomClicked(EventArgs eventArgs)
         {
-            Collect(blossom.gameObject);
+            Collect((eventArgs as ABoundsClicker.ClickedEventArgs)?.Sender.gameObject);
         }
 
         private Vector3 GetCell(int x, int y)

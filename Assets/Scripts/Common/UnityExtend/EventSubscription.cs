@@ -25,16 +25,21 @@ namespace Common.UnityExtend
 
         [SerializeField] private EventItem[] items;
 
+        [SerializeField] private bool useSameTypeSourceObjects;
+
+        [SerializeField, UnityObjectSelector] private Object[] sameTypeSourceObjects;
+        private IEnumerable<Object> SameTypeSourceObjects => useSameTypeSourceObjects ? sameTypeSourceObjects.Concat(new[] {sourceObject}) : new[] {sourceObject};
+
         private Type GetEventProviderType() => sourceObject == null
             ? null
             : string.IsNullOrEmpty(path)
                 ? sourceObject.GetType()
                 : ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), path.Split('.'), true);
 
-        private object GetEventProviderObject() =>
+        private object GetEventProviderObject(object rootObject) =>
             string.IsNullOrEmpty(path)
-                ? sourceObject
-                : ReflectionUtility.ExecutePathOfObject(sourceObject, path.Split('.'), true);
+                ? rootObject
+                : ReflectionUtility.ExecutePathOfObject(rootObject, path.Split('.'), true);
 
         [System.Serializable]
         public class EventItem
@@ -107,7 +112,7 @@ namespace Common.UnityExtend
                     .Where(m => m.ReturnType == typeof(void)).Select(ReflectionUtility.FormatName.FormatMethodName);
 
             public MethodInfo MethodInfo =>
-                targetObject ? ReflectionUtility.GetMethodInfo(targetObject.GetType(), methodName,true) : null;
+                targetObject ? ReflectionUtility.GetMethodInfo(targetObject.GetType(), methodName, true) : null;
 
             public Delegate RuntimeHandler { get; private set; }
 
@@ -222,23 +227,34 @@ namespace Common.UnityExtend
 
         public void RefreshSubscription()
         {
-            var providerObject = GetEventProviderObject();
-            foreach (var item in items)
+            foreach (var rootObject in SameTypeSourceObjects)
             {
-                var obj = IsExtraEventItem(item) ? this : providerObject;
-                item.Unsubscribe(obj);
-                item.Subscribe(obj);
+                var providerObject = GetEventProviderObject(rootObject);
+                foreach (var item in items)
+                {
+                    var obj = IsExtraEventItem(item) ? this : providerObject;
+                    item.Unsubscribe(obj);
+                    item.Subscribe(obj);
+                }
             }
+        }
+
+        public bool ValidateSameTypeSourceObjects()
+        {
+            return !sourceObject || (SameTypeSourceObjects?.All(rootObject => rootObject.GetType() == sourceObject.GetType()) ?? true);
         }
 #endif
 
         private void OnEnable()
         {
-            var providerObject = GetEventProviderObject();
-            foreach (var item in items)
+            foreach (var rootObject in SameTypeSourceObjects)
             {
-                var obj = IsExtraEventItem(item) ? this : providerObject;
-                item.Subscribe(obj);
+                var providerObject = GetEventProviderObject(rootObject);
+                foreach (var item in items)
+                {
+                    var obj = IsExtraEventItem(item) ? this : providerObject;
+                    item.Subscribe(obj);
+                }
             }
 
             ThisEnabled?.Invoke();
@@ -246,11 +262,14 @@ namespace Common.UnityExtend
 
         private void OnDisable()
         {
-            var providerObject = GetEventProviderObject();
-            foreach (var item in items)
+            foreach (var rootObject in SameTypeSourceObjects)
             {
-                var obj = IsExtraEventItem(item) ? this : providerObject;
-                item.Unsubscribe(obj);
+                var providerObject = GetEventProviderObject(rootObject);
+                foreach (var item in items)
+                {
+                    var obj = IsExtraEventItem(item) ? this : providerObject;
+                    item.Unsubscribe(obj);
+                }
             }
 
             ThisDisabled?.Invoke();
@@ -263,10 +282,23 @@ namespace Common.UnityExtend
     {
         private bool _error = false;
         private bool _anythingChanged = true;
+        private SerializedProperty _sourceObject;
+        private SerializedProperty _path;
+        private SerializedProperty _extraEvents;
+        private SerializedProperty _sameTypeSourceObjects;
+        private SerializedProperty _useSameTypeSourceObjects;
+        private SerializedProperty _items;
 
         private void OnEnable()
         {
             _error = !((EventSubscription) target).ValidateEventHandlerItems();
+
+            _sourceObject = serializedObject.FindProperty("sourceObject");
+            _path = serializedObject.FindProperty("path");
+            _extraEvents = serializedObject.FindProperty("extraEvents");
+            _useSameTypeSourceObjects = serializedObject.FindProperty("useSameTypeSourceObjects");
+            _sameTypeSourceObjects = serializedObject.FindProperty("sameTypeSourceObjects");
+            _items = serializedObject.FindProperty("items");
         }
 
         public override void OnInspectorGUI()
@@ -276,31 +308,45 @@ namespace Common.UnityExtend
             EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour(es), typeof(EventSubscription), false);
             GUI.enabled = true;
 
-            var sourceObject = serializedObject.FindProperty("sourceObject");
-            var path = serializedObject.FindProperty("path");
-            var extraEvents = serializedObject.FindProperty("extraEvents");
-            var items = serializedObject.FindProperty("items");
 
-            EditorGUI.BeginChangeCheck();
             serializedObject.Update();
+            EditorGUI.BeginChangeCheck();
 
-            EditorGUILayout.PropertyField(sourceObject);
-            EditorGUILayout.PropertyField(path);
-            EditorGUILayout.PropertyField(extraEvents);
+            EditorGUILayout.PropertyField(_sourceObject);
+            EditorGUILayout.PropertyField(_path);
+            EditorGUILayout.PropertyField(_extraEvents);
+
+            // if (EditorGUI.EndChangeCheck())
+            // {
+            //     es.UpdateEventItems();
+            //     _anythingChanged = true;
+            // }
+
+            EditorGUILayout.PropertyField(_useSameTypeSourceObjects);
+
+            if (_useSameTypeSourceObjects.boolValue)
+            {
+                EditorGUI.BeginChangeCheck();
+                EditorGUILayout.PropertyField(_sameTypeSourceObjects);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    _error = !es.ValidateSameTypeSourceObjects();
+                }
+            }
 
             serializedObject.ApplyModifiedProperties();
             if (EditorGUI.EndChangeCheck())
             {
-                es.UpdateEventItems();
                 _anythingChanged = true;
+                return;
             }
 
             EditorGUI.BeginChangeCheck();
 
-            for (int i = 0; i < items.arraySize; i++)
+
+            for (var i = 0; i < _items.arraySize; i++)
             {
-                EditorGUILayout.PropertyField(items.GetArrayElementAtIndex(i).FindPropertyRelative("methodItems"),
-                    new GUIContent(items.GetArrayElementAtIndex(i).FindPropertyRelative("eventName").stringValue));
+                EditorGUILayout.PropertyField(_items.GetArrayElementAtIndex(i).FindPropertyRelative("methodItems"), new GUIContent(_items.GetArrayElementAtIndex(i).FindPropertyRelative("eventName").stringValue));
             }
 
             serializedObject.ApplyModifiedProperties();
@@ -309,6 +355,7 @@ namespace Common.UnityExtend
             if (EditorGUI.EndChangeCheck())
             {
                 _anythingChanged = true;
+                return;
             }
 
             try
@@ -325,7 +372,10 @@ namespace Common.UnityExtend
 
             if (_anythingChanged)
             {
-                _error = !((EventSubscription) target).ValidateEventHandlerItems();
+                _anythingChanged = false;
+                es.UpdateEventItems();
+                _error = !es.ValidateEventHandlerItems();
+                _error |= !es.ValidateSameTypeSourceObjects();
                 if (Application.isPlaying)
                 {
                     es.RefreshSubscription();

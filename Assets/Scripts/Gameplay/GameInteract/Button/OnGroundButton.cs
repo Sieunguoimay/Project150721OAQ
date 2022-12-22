@@ -46,7 +46,7 @@ namespace Gameplay.GameInteract.Button
         {
             Active = false;
             visual.gameObject.SetActive(Active);
-            visual.Clicked.AddListener(Click);
+            visual.Clicked += OnClicked;
         }
 
         public void SetCommand(ICommand command)
@@ -81,7 +81,7 @@ namespace Gameplay.GameInteract.Button
         }
 
         [ContextMenu("Click")]
-        public void Click(ABoundsClicker arg0)
+        public void OnClicked(EventArgs eventArgs)
         {
             HideAway(.05f);
             this.Delay(.2f, () => { Command?.Execute(); });

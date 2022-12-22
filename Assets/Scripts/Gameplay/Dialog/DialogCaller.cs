@@ -1,4 +1,5 @@
-﻿using SNM;
+﻿using System;
+using SNM;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,14 +13,14 @@ namespace Gameplay.Dialog
         public void ShowDialog()
         {
             dialog.Show(transform);
-            dialog.GetComponentInChildren<ABoundsClicker>().Clicked.AddListener(OnClick);
+            dialog.GetComponentInChildren<ABoundsClicker>().Clicked += OnClick;
         }
 
-        private void OnClick(ABoundsClicker arg0)
+        private void OnClick(EventArgs eventArgs)
         {
             if (dialog.CurrentTarget == transform)
             {
-                dialog.GetComponentInChildren<ABoundsClicker>().Clicked.RemoveListener(OnClick);
+                dialog.GetComponentInChildren<ABoundsClicker>().Clicked -= OnClick;
                 onClick?.Invoke();
             }
         }

@@ -9,8 +9,16 @@ namespace SNM
         [SerializeField] private UnityEvent click;
         [SerializeField] private bool selfSetup = true;
 
-        [field: NonSerialized] public UnityEvent<ABoundsClicker> Clicked { get; private set; } = new();
+        // [field: NonSerialized] public UnityEvent<ABoundsClicker> Clicked { get; private set; } = new();
+        public event Action<EventArgs> Clicked;
         public abstract Bounds Bounds { get; }
+
+        public class ClickedEventArgs : EventArgs
+        {
+            public MonoBehaviour Sender;
+        }
+
+        private ClickedEventArgs _clickedEventArgs;
 
         private void OnEnable()
         {
@@ -27,6 +35,7 @@ namespace SNM
 
         protected virtual void InnerSetup()
         {
+            _clickedEventArgs = new ClickedEventArgs {Sender = this};
             if (selfSetup)
             {
                 SetInteractable(true);
@@ -35,7 +44,6 @@ namespace SNM
 
         public void SetInteractable(bool interactable)
         {
-            
             if (gameObject.scene.buildIndex == 0) return;
 
             if (interactable)
@@ -57,7 +65,7 @@ namespace SNM
         public void OnHit(Ray ray, float distance)
         {
             click?.Invoke();
-            Clicked?.Invoke(this);
+            Clicked?.Invoke(_clickedEventArgs);
         }
     }
 

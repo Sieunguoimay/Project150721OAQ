@@ -59,7 +59,9 @@ namespace Common.Tools.MeshSaver
 
             if (renderer is SkinnedMeshRenderer smr)
             {
-                return smr.sharedMesh;
+                var mesh = new Mesh();
+                smr.BakeMesh(mesh);
+                return mesh;
             }
 
             Debug.LogError($"This type of renderer is Not supported yet. Provide it here. {renderer.gameObject.name}");
