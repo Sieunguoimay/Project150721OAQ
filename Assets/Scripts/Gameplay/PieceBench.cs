@@ -19,7 +19,7 @@ namespace Gameplay
             _perRow = perRow;
         }
 
-        public PosAndRot GetPosAndRot(int index)
+        public void GetPosAndRot(int index, out Vector3 pos, out Quaternion rot)
         {
             var t = transform;
             var rotation1 = t.rotation;
@@ -29,7 +29,8 @@ namespace Gameplay
             var y = index / _perRow;
             var offsetX = _spacing * x;
             var offsetY = _spacing * y;
-            return new PosAndRot(t.position + dirX * offsetX + dirY * offsetY, rotation1);
+            pos = t.position + dirX * offsetX + dirY * offsetY;
+            rot = rotation1;
         }
     }
 }

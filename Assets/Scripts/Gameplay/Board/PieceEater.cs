@@ -15,6 +15,7 @@ namespace Gameplay.Board
         private Coroutine _coroutine;
         private bool _forward;
         private Action _done;
+
         public void SetBoard(Board board)
         {
             _board = board;
@@ -37,7 +38,8 @@ namespace Gameplay.Board
 
         public void EatRecursively(Tile tile)
         {
-            var eatable = tile.Pieces.Count == 0 && tile is not MandarinTile && _board.GetSuccessTile(tile, _forward).Pieces.Count > 0;
+            var eatable = tile.Pieces.Count == 0 && tile is not MandarinTile &&
+                          _board.GetSuccessTile(tile, _forward).Pieces.Count > 0;
             if (eatable)
             {
                 var successTile = _board.GetSuccessTile(tile, _forward);
@@ -65,7 +67,8 @@ namespace Gameplay.Board
             var startIndex = _bench.Pieces.Count;
             for (var i = 0; i < n; i++)
             {
-                positions[i] = _bench.GetPosAndRot(startIndex + i).Position;
+                _bench.GetPosAndRot(startIndex + i, out var pos, out var rot);
+                positions[i] = pos;
                 centerPoint += positions[i];
                 _bench.Pieces.Add(pieces[i]);
             }

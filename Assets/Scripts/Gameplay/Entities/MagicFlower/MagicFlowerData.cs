@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Common.UnityExtend.Attribute;
 using Framework.Entities;
 using Framework.Entities.Currency;
 using Framework.Services.Data;
+using Gameplay.Entities.Stage;
 using UnityEngine;
 
 namespace Gameplay.Entities.MagicFlower
@@ -47,6 +49,8 @@ namespace Gameplay.Entities.MagicFlower
         public string PayoutCurrencyId { get; private set; }
 
         [field: SerializeField, Min(0)] public int PayoutAmountPerFlower { get; private set; }
+        [SerializeField, ChildAsset] private StageData Test2;
+
     }
 
     [Serializable]

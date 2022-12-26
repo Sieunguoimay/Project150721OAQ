@@ -60,7 +60,7 @@ namespace Framework.Entities
             this.id = id;
         }
 
-        public void Load(ISavedDataService savedDataService)
+        public virtual void Load(ISavedDataService savedDataService)
         {
             _savedDataService = savedDataService;
             _savedDataService.Load(id, this);
@@ -68,7 +68,7 @@ namespace Framework.Entities
             // JsonUtility.FromJsonOverwrite(json, this);
         }
 
-        public void Save()
+        public virtual void Save()
         {
             if (_savedDataService == null)
             {

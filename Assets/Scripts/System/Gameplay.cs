@@ -2,7 +2,6 @@
 using System.Linq;
 using Common;
 using Common.Activity;
-using Framework.Resolver;
 using Gameplay;
 using Gameplay.Board;
 using Gameplay.Entities;
@@ -14,7 +13,12 @@ using UnityEngine;
 
 namespace System
 {
-    public class Gameplay
+    public interface IGameplay
+    {
+        void StartNewMatch();
+    }
+
+    public class Gameplay : IGameplay
     {
         private readonly PieceDropper _dropper = new();
         private readonly PieceEater _eater = new();
@@ -24,7 +28,7 @@ namespace System
         private PieceManager _pieceManager;
         private GameInteractManager _interact;
 
-        private PerMatchData _perMatchData;
+        // private PerMatchData _perMatchData;
         private Player CurrentPlayer { get; set; }
 
         private bool IsGameOver { get; set; }
@@ -32,12 +36,10 @@ namespace System
         private Coroutine _coroutine;
 
         public ActivityQueue ActivityQueue { get; } = new();
-        private IResolver _resolver;
 
         public void Setup(PlayersManager playersManager, Board board, PieceManager pieceManager,
-            GameInteractManager interactManager, IResolver resolver)
+            GameInteractManager interactManager)
         {
-            _resolver = resolver;
             _board = board;
             _playersManager = playersManager;
             _pieceManager = pieceManager;
@@ -62,7 +64,7 @@ namespace System
         {
             IsPlaying = true;
             ChangePlayer();
-            _perMatchData = new PerMatchData(_playersManager.Players.Length);
+            // _perMatchData = new PerMatchData(_playersManager.Players.Length);
             // foreach (var score in _perMatchData.PlayerScores)
             // {
             //     score.Inject(_resolver);
@@ -70,7 +72,8 @@ namespace System
 
             _pieceManager.ReleasePieces(() =>
             {
-                _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index], new MoveCommand(this), new MoveCommand(this));
+                _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index], new MoveCommand(this),
+                    new MoveCommand(this));
                 _interact.ShowTileChooser();
             }, _board);
         }
@@ -117,7 +120,8 @@ namespace System
                 _gameplay._dropper.SetMoveStartPoint(Array.IndexOf(_gameplay._board.Tiles, tile), forward);
                 _gameplay._dropper.DropTillDawn(lastTile =>
                 {
-                    _gameplay._eater.SetUpForEating(_gameplay.CurrentPlayer.PieceBench, forward, _gameplay.MakeDecision);
+                    _gameplay._eater.SetUpForEating(_gameplay.CurrentPlayer.PieceBench, forward,
+                        _gameplay.MakeDecision);
                     _gameplay._eater.EatRecursively(_gameplay._board.GetSuccessTile(lastTile, forward));
                 });
             }
@@ -149,13 +153,15 @@ namespace System
                 _dropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tileGroup.MandarinTile), true);
                 _dropper.DropOnce(_ =>
                 {
-                    _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index], new MoveCommand(this), new MoveCommand(this));
+                    _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index], new MoveCommand(this),
+                        new MoveCommand(this));
                     _interact.ShowTileChooser();
                 });
                 return;
             }
 
-            _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index], new MoveCommand(this), new MoveCommand(this));
+            _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index], new MoveCommand(this),
+                new MoveCommand(this));
             _interact.ShowTileChooser();
         }
 
@@ -181,10 +187,10 @@ namespace System
 
                 var sum = _playersManager.Players[i].PieceBench.Pieces.Sum(p => p is Citizen ? 1 : 10);
 
-                _perMatchData.SetPlayerScore(i, sum);
+                // _perMatchData.SetPlayerScore(i, sum);
             }
 
-            TellWinner(_perMatchData.PlayerScores);
+            // TellWinner(_perMatchData.PlayerScores);
         }
 
         private static void TellWinner(IReadOnlyList<Currency> scores)

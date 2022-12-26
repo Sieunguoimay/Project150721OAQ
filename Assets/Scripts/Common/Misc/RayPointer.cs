@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace SNM
+namespace Common.Misc
 {
     public class MonoRayPointer : MonoBehaviour
     {
@@ -26,7 +26,6 @@ namespace SNM
     {
         private readonly List<IRaycastTarget> _listeners = new();
         private Camera _camera;
-        private Camera _defaultCamera;
         private static RayPointer _instance;
 
         public static RayPointer Instance
@@ -63,11 +62,6 @@ namespace SNM
 
         public void ProcessMouse(Vector3 position)
         {
-            if (_camera == null)
-            {
-                _camera = _defaultCamera;
-            }
-
             var ray = _camera.ScreenPointToRay(position);
 
             var minDistance = float.MaxValue;

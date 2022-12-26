@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace SNM
+namespace Common.Misc
 {
     [RequireComponent(typeof(Renderer))]
     public class MeshBoundsClicker : ABoundsClicker

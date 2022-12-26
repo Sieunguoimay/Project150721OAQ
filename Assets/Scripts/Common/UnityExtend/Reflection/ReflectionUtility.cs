@@ -42,10 +42,17 @@ namespace Common.UnityExtend.Reflection
         {
             var src = GetObjectToWhichPropertyBelong(property);
             var type = src.GetType();
-            var prop = type.GetProperty(name, PropertyFlags);
+            var prop = GetPropertyInfo(type, name, false);
             var field = GetFieldInfo(type, name, false);
-            // var field = type.GetField(name, FieldFlags);
             return prop == null ? field?.GetValue(src) : prop.GetValue(src, null);
+        }
+        public static Type GetSiblingPropertyType(SerializedProperty property, string name)
+        {
+            var src = GetObjectToWhichPropertyBelong(property);
+            var type = src.GetType();
+            var prop = GetPropertyInfo(type, name, false);
+            var field = GetFieldInfo(type, name, false);
+            return prop == null ? field?.FieldType : prop.PropertyType;
         }
 
         public static object GetObjectToWhichPropertyBelong(SerializedProperty prop)
@@ -153,7 +160,10 @@ namespace Common.UnityExtend.Reflection
         {
             if (obj is GameObject go)
             {
-                return go.GetComponents<Component>().SelectMany(c => { return c.GetType().GetInterfaces().Concat(new[] {c.GetType()}); }).Concat(new[] {go.GetType()});
+                return go.GetComponents<Component>().SelectMany(c =>
+                {
+                    return c.GetType().GetInterfaces().Concat(new[] {c.GetType()});
+                }).Concat(new[] {go.GetType()});
             }
 
             return obj.GetType().GetInterfaces().Concat(new[] {obj.GetType()});

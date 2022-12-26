@@ -1,15 +1,15 @@
 ﻿using System;
+using SNM;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace SNM
+namespace Common.Misc
 {
     public abstract class ABoundsClicker : MonoBehaviour, RayPointer.IRaycastTarget
     {
         [SerializeField] private UnityEvent click;
         [SerializeField] private bool selfSetup = true;
 
-        // [field: NonSerialized] public UnityEvent<ABoundsClicker> Clicked { get; private set; } = new();
         public event Action<EventArgs> Clicked;
         public abstract Bounds Bounds { get; }
 

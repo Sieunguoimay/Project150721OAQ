@@ -1,4 +1,5 @@
 ﻿using System;
+using Framework.Resolver;
 using UnityEngine;
 
 namespace Gameplay
@@ -7,7 +8,6 @@ namespace Gameplay
     {
         private Camera _camera = null;
         public Camera Camera => _camera ? _camera : _camera = GetComponent<Camera>();
-
         private void OnDrawGizmos()
         {
             var plane = new Plane(Vector3.up, Vector3.zero);

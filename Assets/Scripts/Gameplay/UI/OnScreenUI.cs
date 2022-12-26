@@ -10,16 +10,15 @@ using UnityEngine;
 
 namespace Gameplay.UI
 {
+    [Obsolete]
     public class OnScreenUI : MonoBehaviour, IInjectable
     {
         [SerializeField] private TextMeshProUGUI text;
-        private GameFlowManager _flowManager;
         private IResolver _resolver;
 
         public void Inject(IResolver resolver)
         {
             _resolver = resolver;
-            _flowManager = resolver.Resolve<GameFlowManager>();
             OnStateChanged();
             var gameCurrency = resolver.Resolve<ICurrency>("game_currency");
             resolver.Resolve<IMessageService>().Register<ICurrencyChangeMessage, ICurrency>(OnReceiveMessage, gameCurrency);
@@ -39,9 +38,13 @@ namespace Gameplay.UI
             }
         }
 
-        public void OnFirstTap() => _flowManager.StartGame();
-        public void OnReplayButtonClicked() => _flowManager.OnReplayMatch();
-        public void OnHomeButtonClicked() => _flowManager.OnResetGame();
+        public void OnReplayButtonClicked()
+        {
+        }
+
+        public void OnHomeButtonClicked()
+        {
+        }
 #if UNITY_EDITOR
         [ContextMenu("Test")]
         void Test()

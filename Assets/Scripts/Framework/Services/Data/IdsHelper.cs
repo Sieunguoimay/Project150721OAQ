@@ -36,18 +36,44 @@ namespace Framework.Services.Data
         [MenuItem("Tools/IdsHelper/Force Update Ids")]
         public static void ForceUpdateIds()
         {
+            UpdateIdsEasyWay();
+        }
+
+        private static void UpdateIdsEasyWay()
+        {
+            _ids = new Dictionary<Type, List<string>>();
+
+            var containerGuid = AssetDatabase.FindAssets($"t: {typeof(LocalDataServiceAsset).FullName}")
+                .FirstOrDefault();
+            if (containerGuid != null)
+            {
+                var containerAsset = AssetDatabase.LoadAssetAtPath<LocalDataServiceAsset>(
+                    AssetDatabase.GUIDToAssetPath(containerGuid));
+                var groups = containerAsset.Assets.SelectMany(a => a.GetType().GetInterfaces().Select(i => (i, a.Id)))
+                    .GroupBy(d => d.i);
+                foreach (var a in groups)
+                {
+                    _ids.Add(a.Key, a.Select(b => b.Id).ToList());
+                }
+            }
+        }
+
+        private static void UpdateIdsToughWay()
+        {
             var validTypes = Assembly
                 .GetAssembly(typeof(DataAsset))
                 .GetTypes()
-                .Where(t => t.IsSubclassOf(typeof(DataAsset))).SelectMany(t=>t.GetInterfaces()).Distinct();
+                .Where(t => t.IsSubclassOf(typeof(DataAsset))).SelectMany(t => t.GetInterfaces()).Distinct();
             var assetGuids = AssetDatabase.FindAssets($"t: {typeof(DataAsset).FullName}");
-            var assets = assetGuids.Select(s => AssetDatabase.LoadAssetAtPath<DataAsset>(AssetDatabase.GUIDToAssetPath(s))).ToList();
+            var assets = assetGuids
+                .Select(s => AssetDatabase.LoadAssetAtPath<DataAsset>(AssetDatabase.GUIDToAssetPath(s))).ToList();
 
             _ids = new Dictionary<Type, List<string>>();
-            
+
             foreach (var validType in validTypes)
             {
-                _ids.Add(validType, assets.Where(a => validType.IsInstanceOfType(a)).Select(asset => asset.Id).ToList());
+                _ids.Add(validType,
+                    assets.Where(a => validType.IsInstanceOfType(a)).Select(asset => asset.Id).ToList());
             }
         }
     }
