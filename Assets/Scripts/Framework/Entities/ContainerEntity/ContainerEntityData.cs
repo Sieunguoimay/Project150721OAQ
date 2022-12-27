@@ -21,11 +21,8 @@ namespace Framework.Entities.ContainerEntity
     [CreateAssetMenu(menuName = "Entity/ContainerEntityData")]
     public class ContainerEntityData : EntityAsset<IContainerEntity>, IContainerEntityData
     {
-        [SerializeField, TypeConstraint(typeof(IEntityData))]
+        [SerializeField, ChildAsset(false), TypeConstraint(typeof(IEntityData))]
         private DataAsset[] componentAssets;
-
-        [SerializeField, ChildAsset] private int Test;
-        [SerializeField, ChildAsset] private MagicFlowerData Test2;
 
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {

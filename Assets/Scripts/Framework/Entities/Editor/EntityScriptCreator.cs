@@ -15,12 +15,11 @@ namespace Framework.Entities.Editor
             window._path = AssetDatabase.GetAssetPath(Selection.activeObject);
             window.maxSize = new Vector2(350, 200);
             window.Show();
-
-            // Debug.Log($"{window._path}");
         }
 
         private string _path;
         private string _entityName;
+        private bool _useManualView;
 
         private void OnGUI()
         {
@@ -28,6 +27,7 @@ namespace Framework.Entities.Editor
             GUI.SetNextControlName(nameof(EntityScriptCreator));
             _entityName = EditorGUILayout.TextField("Entity Name", _entityName);
             EditorGUI.FocusTextInControl(nameof(EntityScriptCreator));
+            _useManualView = EditorGUILayout.Toggle("Create Manual View", _useManualView);
             if (GUILayout.Button("Create"))
             {
                 if (Create())
@@ -51,13 +51,20 @@ namespace Framework.Entities.Editor
             }
 
             var nameSpace = CreateNameSpace(Path.Combine(_path, _entityName));
+            var result = true;
+            if (_useManualView)
+            {
+                result = CreateWithTemplate("EntityManualViewScriptTemplate", physicalPath, nameSpace, _entityName,
+                    $"{_entityName}EntityManualView.cs");
+            }
 
-            return CreateWithTemplate("EntityScriptTemplate", physicalPath, nameSpace, _entityName,
-                       $"{_entityName}.cs") &&
-                   CreateWithTemplate("EntityDataScriptTemplate", physicalPath, nameSpace, _entityName,
-                       $"{_entityName}Data.cs") &&
-                   CreateWithTemplate("EntityViewScriptTemplate", physicalPath, nameSpace, _entityName,
-                       $"{_entityName}EntityView.cs");
+            var result2 = CreateWithTemplate("EntityScriptTemplate", physicalPath, nameSpace, _entityName,
+                              $"{_entityName}.cs") &&
+                          CreateWithTemplate("EntityDataScriptTemplate", physicalPath, nameSpace, _entityName,
+                              $"{_entityName}Data.cs") &&
+                          CreateWithTemplate("EntityViewScriptTemplate", physicalPath, nameSpace, _entityName,
+                              $"{_entityName}EntityView.cs");
+            return result && result2;
 
             // var entityFileContent = CreateScriptFile("EntityScriptTemplate", _entityName, nameSpace);
             // var entityFilePath = Path.Combine(physicalPath, $"{_entityName}.cs");

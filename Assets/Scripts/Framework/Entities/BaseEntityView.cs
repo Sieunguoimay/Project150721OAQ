@@ -11,9 +11,12 @@ using UnityEngine.Events;
 
 namespace Framework.Entities
 {
-    public class BaseEntityView<TEntity, TEntityData> : MonoInjectable
+    public class BaseEntityView<TEntity, TEntityData> : MonoInjectable, IEntityView<TEntity>
         where TEntity : IEntity<IEntityData, IEntitySavedData> where TEntityData : IEntityData
     {
+#if UNITY_EDITOR
+        public IEnumerable<string> Ids => IdsHelper.GetIds(typeof(TEntityData));
+#endif
         [SerializeField]
 #if UNITY_EDITOR
         [StringSelector(nameof(Ids))]
@@ -27,9 +30,7 @@ namespace Framework.Entities
             Entity = resolver.Resolve<TEntity>(entityId);
             base.Inject(resolver);
         }
-#if UNITY_EDITOR
-        public IEnumerable<string> Ids => IdsHelper.GetIds(typeof(TEntityData));
-#endif
+
         protected override void SetupInternal()
         {
         }
@@ -43,8 +44,5 @@ namespace Framework.Entities
         protected virtual void SafeStart()
         {
         }
-        
-        [field: System.NonSerialized] public UnityEvent<int> EventTrigger { get; private set; } = new();
-        public IReadOnlyList<string> Filters => new[] {"static", "state", "progress"};
     }
 }

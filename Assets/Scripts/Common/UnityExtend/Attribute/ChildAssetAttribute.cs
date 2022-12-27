@@ -9,6 +9,12 @@ namespace Common.UnityExtend.Attribute
 {
     public class ChildAssetAttribute : PropertyAttribute
     {
+        public ChildAssetAttribute(bool drawCreateChildAsset = true)
+        {
+            DrawCreateChildAsset = drawCreateChildAsset;
+        }
+
+        [field: System.NonSerialized] public bool DrawCreateChildAsset { get; }
     }
 #if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(ChildAssetAttribute))]
@@ -16,44 +22,49 @@ namespace Common.UnityExtend.Attribute
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            position.width -= 44;
+            var drawCreateChildAsset = (attribute as ChildAssetAttribute)?.DrawCreateChildAsset ?? false;
+            position.width -= 44 / (float)(drawCreateChildAsset ? 1 : 2);
             EditorGUI.PropertyField(position, property, label);
+
+            if (drawCreateChildAsset)
+            {
+                position.x += position.width + 2;
+                position.width = 20;
+
+                if (GUI.Button(position, "..."))
+                {
+                    ShowMenu(new (string, GenericMenu.MenuFunction)[]
+                    {
+                        ("Create child asset", () => CreateChildAsset(property)),
+                    });
+                }
+            }
 
             position.x += position.width + 2;
             position.width = 20;
-            
-            if (GUI.Button(position, "..."))
-            {
-                ShowMenu(new (string, GenericMenu.MenuFunction)[]
-                {
-                    ("Create child asset", () => CreateChildAsset(property)),
-                });
-            }
-            
-            position.x += position.width + 2;
-            position.width = 20;
-            
+
             if (GUI.Button(position, "~"))
             {
                 Debug.Log("Open window");
-                ChildAssetManagerWindow.Open();//property.serializedObject.targetObject);
+                ChildAssetManagerWindow.Open(); //property.serializedObject.targetObject);
             }
         }
 
         private static void CreateChildAsset(SerializedProperty property)
         {
             if (property.propertyType != SerializedPropertyType.ObjectReference) return;
-            
+
             var type = ReflectionUtility.GetSiblingPropertyType(property, property.name);
             var instance = ScriptableObject.CreateInstance(type);
             instance.name = type.Name;
-                
-            AssetDatabase.AddObjectToAsset(instance, AssetDatabase.GetAssetPath(property.serializedObject.targetObject));
+
+            AssetDatabase.AddObjectToAsset(instance,
+                AssetDatabase.GetAssetPath(property.serializedObject.targetObject));
 
             property.serializedObject.Update();
             property.objectReferenceValue = instance;
             property.serializedObject.ApplyModifiedProperties();
-                
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
