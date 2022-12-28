@@ -2,14 +2,17 @@ using Framework.Entities;
 
 namespace Framework.Entities.ContainerEntity
 {
-    public interface IContainerEntity : IEntity<IContainerEntityData, IContainerEntitySavedData>
+    public interface IContainerEntity<out TData, out TSavedData> : IEntity<TData, TSavedData>
+        where TData : IContainerEntityData where TSavedData : IContainerEntitySavedData
     {
-        IEntity<IEntityData,IEntitySavedData>[] Components { get; }
+        IEntity<IEntityData, IEntitySavedData>[] Components { get; }
     }
 
-    public class ContainerEntity : BaseEntity<IContainerEntityData, IContainerEntitySavedData>, IContainerEntity
+    public class ContainerEntity<TData, TSavedData> : BaseEntity<TData, TSavedData>, IContainerEntity<TData, TSavedData>
+        where TData : IContainerEntityData where TSavedData : IContainerEntitySavedData
     {
-        public ContainerEntity(IContainerEntityData data, IContainerEntitySavedData savedData, IEntity<IEntityData, IEntitySavedData>[] components) : base(data, savedData)
+        public ContainerEntity(TData data, TSavedData savedData,
+            IEntity<IEntityData, IEntitySavedData>[] components) : base(data, savedData)
         {
             Components = components;
         }

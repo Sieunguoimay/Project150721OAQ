@@ -1,9 +1,10 @@
 using System;
 using Framework.Entities;
+using Framework.Entities.ContainerEntity;
 
 namespace Gameplay.Entities.Stage
 {
-    public interface IStage : IEntity<IStageData, IStageSavedData>
+    public interface IStage :  IContainerEntity<IStageData, IStageSavedData>
     {
         void SetToAvailable();
         event Action<EventArgs> AvailableSet;
@@ -11,9 +12,10 @@ namespace Gameplay.Entities.Stage
         event Action<IStage> Unlocked;
     }
 
-    public class Stage : BaseEntity<IStageData, IStageSavedData>, IStage
+    public class Stage : ContainerEntity<IStageData, IStageSavedData>, IStage
     {
-        public Stage(IStageData data, IStageSavedData savedData) : base(data, savedData)
+        public Stage(IStageData data, IStageSavedData savedData, IEntity<IEntityData, IEntitySavedData>[] components) :
+            base(data, savedData, components)
         {
         }
 

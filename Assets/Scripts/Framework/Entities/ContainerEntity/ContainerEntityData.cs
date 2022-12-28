@@ -18,13 +18,14 @@ namespace Framework.Entities.ContainerEntity
         IEntitySavedData[] GetComponentSavedDataItems();
     }
 
-    [CreateAssetMenu(menuName = "Entity/ContainerEntityData")]
-    public class ContainerEntityData : EntityAsset<IContainerEntity>, IContainerEntityData
+    // [CreateAssetMenu(menuName = "Entity/ContainerEntityData")]
+    public abstract class ContainerEntityData<TEntity> : EntityAsset<TEntity>, IContainerEntityData
+        where TEntity : class, IContainerEntity<IContainerEntityData, IContainerEntitySavedData>
     {
         [SerializeField, ChildAsset(false), TypeConstraint(typeof(IEntityData))]
         private DataAsset[] componentAssets;
 
-        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
+        protected IEntity<IEntityData, IEntitySavedData>[] GetEntityItems()
         {
             var dataItems = GetComponentDataItems();
             var items = new IEntity<IEntityData, IEntitySavedData>[dataItems.Length];
@@ -33,9 +34,14 @@ namespace Framework.Entities.ContainerEntity
                 items[i] = dataItems[i].CreateEntity();
             }
 
-            var savedData = new ContainerEntitySavedData(Id, items.Select(i => i.SavedData).ToArray());
-            return new ContainerEntity(this, savedData, items);
+            return items;
         }
+        // protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
+        // {
+        //     var items = GetEntityItems();
+        //     var savedData = new ContainerEntitySavedData(Id, items.Select(i => i.SavedData).ToArray());
+        //     return new ContainerEntity<,>(this, savedData, items);
+        // }
 
         public IEntityData[] GetComponentDataItems() => componentAssets.Select(d => d as IEntityData).ToArray();
     }

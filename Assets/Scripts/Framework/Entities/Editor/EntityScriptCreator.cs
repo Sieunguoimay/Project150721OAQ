@@ -19,7 +19,8 @@ namespace Framework.Entities.Editor
 
         private string _path;
         private string _entityName;
-        private bool _useManualView;
+        private bool _createManualView;
+        private bool _createInjectableView;
 
         private void OnGUI()
         {
@@ -27,7 +28,8 @@ namespace Framework.Entities.Editor
             GUI.SetNextControlName(nameof(EntityScriptCreator));
             _entityName = EditorGUILayout.TextField("Entity Name", _entityName);
             EditorGUI.FocusTextInControl(nameof(EntityScriptCreator));
-            _useManualView = EditorGUILayout.Toggle("Create Manual View", _useManualView);
+            _createInjectableView = EditorGUILayout.Toggle("Create Injectable View", _createInjectableView);
+            _createManualView = EditorGUILayout.Toggle("Create Manual View", _createManualView);
             if (GUILayout.Button("Create"))
             {
                 if (Create())
@@ -52,7 +54,7 @@ namespace Framework.Entities.Editor
 
             var nameSpace = CreateNameSpace(Path.Combine(_path, _entityName));
             var result = true;
-            if (_useManualView)
+            if (_createManualView)
             {
                 result = CreateWithTemplate("EntityManualViewScriptTemplate", physicalPath, nameSpace, _entityName,
                     $"{_entityName}EntityManualView.cs");
@@ -61,10 +63,16 @@ namespace Framework.Entities.Editor
             var result2 = CreateWithTemplate("EntityScriptTemplate", physicalPath, nameSpace, _entityName,
                               $"{_entityName}.cs") &&
                           CreateWithTemplate("EntityDataScriptTemplate", physicalPath, nameSpace, _entityName,
-                              $"{_entityName}Data.cs") &&
-                          CreateWithTemplate("EntityViewScriptTemplate", physicalPath, nameSpace, _entityName,
-                              $"{_entityName}EntityView.cs");
-            return result && result2;
+                              $"{_entityName}Data.cs");
+
+            var result3 = true;
+            if (_createInjectableView)
+            {
+                result3 = CreateWithTemplate("EntityViewScriptTemplate", physicalPath, nameSpace, _entityName,
+                    $"{_entityName}EntityView.cs");
+            }
+
+            return result && result2 && result3;
 
             // var entityFileContent = CreateScriptFile("EntityScriptTemplate", _entityName, nameSpace);
             // var entityFilePath = Path.Combine(physicalPath, $"{_entityName}.cs");
