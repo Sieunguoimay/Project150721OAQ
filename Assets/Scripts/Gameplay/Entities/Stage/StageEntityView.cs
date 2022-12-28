@@ -1,10 +1,8 @@
-using System;
-using Framework.Entities;
-using Framework.Resolver;
+using Framework.Entities.ContainerEntity;
 
 namespace Gameplay.Entities.Stage
 {
-    public class StageEntityView : BaseEntityView<IStage, IStageData>
+    public class StageEntityView : ContainerEntityView<IStage, IStageData>
     {
         public void OnClicked()
         {

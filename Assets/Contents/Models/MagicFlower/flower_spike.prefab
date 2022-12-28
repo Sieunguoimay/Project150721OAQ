@@ -192,6 +192,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aed29f2de0044e499531777b31f2c091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  monoActivities: []
   <StateName>k__BackingField: blossom
   <Entered>k__BackingField:
     m_PersistentCalls:
@@ -235,7 +236,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  monoActivities: []
 --- !u!114 &5955243257303247707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -378,6 +378,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aed29f2de0044e499531777b31f2c091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  monoActivities:
+  - {fileID: 6964056268158935379}
+  - {fileID: 5939065352771656717}
   <StateName>k__BackingField: empty
   <Entered>k__BackingField:
     m_PersistentCalls:
@@ -385,9 +388,6 @@ MonoBehaviour:
   <Exited>k__BackingField:
     m_PersistentCalls:
       m_Calls: []
-  monoActivities:
-  - {fileID: 6964056268158935379}
-  - {fileID: 5939065352771656717}
 --- !u!114 &5939065352771656717
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -612,6 +612,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aed29f2de0044e499531777b31f2c091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  monoActivities:
+  - {fileID: 2641433042094798711}
+  - {fileID: 1702480972452499376}
   <StateName>k__BackingField: buds
   <Entered>k__BackingField:
     m_PersistentCalls:
@@ -669,9 +672,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  monoActivities:
-  - {fileID: 2641433042094798711}
-  - {fileID: 1702480972452499376}
 --- !u!114 &1702480972452499376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1088,13 +1088,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sourceObject: {fileID: 2570582846859840317}
+  path: 
+  eventItemList:
+    eventItems:
+    - eventName: ThisEnabled()
+    - eventName: ThisDisabled()
   items:
   - sourceObjectMethodName: 'get_ToBlossomDurationStep1(): Single'
     targetObject: {fileID: 6964056268158935379}
     targetMethodName: 'SetDuration(Single): Void'
+    formatType: 0
   - sourceObjectMethodName: 'get_ToBlossomDurationStep2(): Single'
     targetObject: {fileID: 2641433042094798711}
     targetMethodName: 'SetDuration(Single): Void'
+    formatType: 0
 --- !u!114 &3530896135137191369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1109,6 +1116,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sourceObject: {fileID: 2570582846859840317}
   path: 'Entity: IMagicFlower'
+  extraEvents: 0
   items:
   - eventName: GrantedBlossom(EventArgs)
     methodItems:
@@ -1116,6 +1124,16 @@ MonoBehaviour:
       methodName: 'Transfer(): Void'
     - targetObject: {fileID: 5955243257303247707}
       methodName: 'Transition(): Void'
+  itemList:
+    eventItems:
+    - eventName: GrantedBlossom(EventArgs)
+      methodItems:
+      - targetObject: {fileID: 7794105247901880241}
+        methodName: 'Transfer(): Void'
+      - targetObject: {fileID: 5955243257303247707}
+        methodName: 'Transition(): Void'
+  useSameTypeSourceObjects: 0
+  sameTypeSourceObjects: []
 --- !u!1 &8520413455488790657
 GameObject:
   m_ObjectHideFlags: 0

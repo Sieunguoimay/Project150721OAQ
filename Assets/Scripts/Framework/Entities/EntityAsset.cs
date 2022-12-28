@@ -15,7 +15,7 @@ namespace Framework.Entities
             return entity;
         }
 
-        public Type GetBindingType()
+        public Type GetEntityType()
         {
             return typeof(TEntity);
         }

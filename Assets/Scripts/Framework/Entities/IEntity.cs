@@ -20,7 +20,7 @@ namespace Framework.Entities
     {
         string Id { get; }
         IEntity<IEntityData, IEntitySavedData> CreateEntity();
-        Type GetBindingType();
+        Type GetEntityType();
     }
 
     public interface IEntitySavedData
@@ -43,7 +43,7 @@ namespace Framework.Entities
             return new BaseEntity<IEntityData, IEntitySavedData>(this, null);
         }
 
-        public virtual Type GetBindingType()
+        public virtual Type GetEntityType()
         {
             return typeof(IEntityData);
         }

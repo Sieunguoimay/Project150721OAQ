@@ -23,6 +23,8 @@ namespace Framework.Entities
 #endif
         private string entityId;
 
+        protected string EntityId => entityId;
+
         public TEntity Entity { get; private set; }
 
         public override void Inject(IResolver resolver)

@@ -30,7 +30,7 @@ namespace Framework.Entities
             var entityAsset = _dataService.Load<IEntityData>(entityDataId);
             var entity = entityAsset.CreateEntity();
 
-            _binder.Bind(entityAsset.GetBindingType(), entityDataId, entity);
+            _binder.Bind(entityAsset.GetEntityType(), entityDataId, entity);
 
             entity.Inject(_resolver);
             entity.Initialize();
@@ -41,7 +41,7 @@ namespace Framework.Entities
         {
             entity.Terminate();
 
-            _binder.Unbind(entity.Data.GetBindingType(), entity.Data.Id);
+            _binder.Unbind(entity.Data.GetEntityType(), entity.Data.Id);
         }
     }
 }

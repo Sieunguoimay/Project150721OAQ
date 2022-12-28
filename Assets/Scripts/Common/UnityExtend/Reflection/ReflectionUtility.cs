@@ -46,6 +46,7 @@ namespace Common.UnityExtend.Reflection
             var field = GetFieldInfo(type, name, false);
             return prop == null ? field?.GetValue(src) : prop.GetValue(src, null);
         }
+
         public static Type GetSiblingPropertyType(SerializedProperty property, string name)
         {
             var src = GetObjectToWhichPropertyBelong(property);
@@ -105,20 +106,32 @@ namespace Common.UnityExtend.Reflection
 
         public static FieldInfo GetFieldInfo(Type type, string name, bool isNameFormatted)
         {
-            return GetAllFields(type).FirstOrDefault(
+            var fields = GetAllFields(type);
+            return fields.FirstOrDefault(
                 m => isNameFormatted ? FormatName.FormatFieldName(m).Equals(name) : m.Name.Equals(name));
         }
 
         public static PropertyInfo GetPropertyInfo(Type type, string name, bool isNameFormatted)
         {
-            return GetAllProperties(type).FirstOrDefault(
-                m => isNameFormatted ? FormatName.FormatPropertyName(m).Equals(name) : m.Name.Equals(name));
+            var props = GetAllProperties(type);
+            var prop= props.FirstOrDefault(
+                m =>
+                {
+                    if (isNameFormatted)
+                    {
+                        var a = FormatName.FormatPropertyName(m);
+                        return a.Equals(name);
+                    }
+
+                    return m.Name.Equals(name);
+                });
+            return prop;
         }
 
         public static MethodInfo GetMethodInfo(Type type, string name, bool isNameFormatted)
         {
-            return GetAllMethods(type).FirstOrDefault(
-                m => isNameFormatted ? FormatName.FormatMethodName(m).Equals(name) : m.Name.Equals(name));
+            var methods = GetAllMethods(type);
+            return methods.FirstOrDefault(m => isNameFormatted ? FormatName.FormatMethodName(m).Equals(name) : m.Name.Equals(name));
         }
 
         private static object GetValueOfElement(IEnumerable enumerable, int index)
@@ -149,21 +162,19 @@ namespace Common.UnityExtend.Reflection
             BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
             BindingFlags.IgnoreCase;
 
-        public static BindingFlags FieldFlags => BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance |
-                                                 BindingFlags.Static;
+        public static BindingFlags FieldFlags =>
+            BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
+            BindingFlags.IgnoreCase;
 
         public static BindingFlags MethodFlags =>
             BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
-            BindingFlags.IgnoreCase | BindingFlags.DeclaredOnly;
+            BindingFlags.IgnoreCase;
 
         public static IEnumerable<Type> GetAllInterfaces(object obj)
         {
             if (obj is GameObject go)
             {
-                return go.GetComponents<Component>().SelectMany(c =>
-                {
-                    return c.GetType().GetInterfaces().Concat(new[] {c.GetType()});
-                }).Concat(new[] {go.GetType()});
+                return go.GetComponents<Component>().SelectMany(c => { return c.GetType().GetInterfaces().Concat(new[] {c.GetType()}); }).Concat(new[] {go.GetType()});
             }
 
             return obj.GetType().GetInterfaces().Concat(new[] {obj.GetType()});
@@ -171,7 +182,15 @@ namespace Common.UnityExtend.Reflection
 
         public static IEnumerable<MethodInfo> GetAllMethods(Type type)
         {
-            foreach (var method in type.GetMethods(MethodFlags))
+            var t = type;
+            IEnumerable<MethodInfo> methInfos = t.GetMethods(MethodFlags);
+            while (t.BaseType != null)
+            {
+                t = t.BaseType;
+                methInfos = methInfos.Concat(t.GetMethods(MethodFlags));
+            }
+
+            foreach (var method in methInfos)
             {
                 yield return method;
             }
@@ -190,7 +209,15 @@ namespace Common.UnityExtend.Reflection
 
         public static IEnumerable<PropertyInfo> GetAllProperties(Type type)
         {
-            foreach (var method in type.GetProperties(PropertyFlags))
+            var t = type;
+            IEnumerable<PropertyInfo> propInfos = t.GetProperties(PropertyFlags);
+            while (t.BaseType != null)
+            {
+                t = t.BaseType;
+                propInfos = propInfos.Concat(t.GetProperties(PropertyFlags));
+            }
+
+            foreach (var method in propInfos)
             {
                 yield return method;
             }
@@ -209,7 +236,14 @@ namespace Common.UnityExtend.Reflection
 
         public static IEnumerable<FieldInfo> GetAllFields(Type type)
         {
-            var fieldInfos = type.GetFields(FieldFlags);
+            var t = type;
+            IEnumerable<FieldInfo> fieldInfos = t.GetFields(FieldFlags);
+            while (t.BaseType != null)
+            {
+                t = t.BaseType;
+                fieldInfos = fieldInfos.Concat(t.GetFields(FieldFlags));
+            }
+
             foreach (var method in fieldInfos)
             {
                 yield return method;

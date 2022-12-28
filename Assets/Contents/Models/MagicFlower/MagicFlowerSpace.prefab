@@ -94,6 +94,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aed29f2de0044e499531777b31f2c091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  monoActivities:
+  - {fileID: 264008245557855397}
+  - {fileID: 1098494228139519935}
   <StateName>k__BackingField: falling
   <Entered>k__BackingField:
     m_PersistentCalls:
@@ -138,9 +141,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  monoActivities:
-  - {fileID: 264008245557855397}
-  - {fileID: 1098494228139519935}
 --- !u!114 &1098494228139519935
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -417,6 +417,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aed29f2de0044e499531777b31f2c091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  monoActivities: []
   <StateName>k__BackingField: hidden
   <Entered>k__BackingField:
     m_PersistentCalls:
@@ -436,7 +437,6 @@ MonoBehaviour:
   <Exited>k__BackingField:
     m_PersistentCalls:
       m_Calls: []
-  monoActivities: []
 --- !u!114 &2518858056728957374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -495,7 +495,6 @@ GameObject:
   - component: {fileID: 6754906519833514506}
   - component: {fileID: 1520294461941189649}
   - component: {fileID: 3357858517453454024}
-  - component: {fileID: 2259980097047793886}
   m_Layer: 0
   m_Name: MagicFlowerSpace
   m_TagString: Untagged
@@ -549,29 +548,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sourceObject: {fileID: 1520294461941189649}
+  path: 
+  eventItemList:
+    eventItems:
+    - eventName: ThisEnabled()
+    - eventName: ThisDisabled()
   items:
   - sourceObjectMethodName: 'get_CollectableFlowerCount(): Int32'
     targetObject: {fileID: 1253341266578782703}
     targetMethodName: 'SpawnRandom(Int32): Void'
---- !u!114 &2259980097047793886
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6754906519833514505}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sourceObject: {fileID: 1520294461941189649}
-  path: 'Entity: IMagicFlower'
-  items:
-  - eventName: GrantedBlossom(EventArgs)
-    methodItems:
-    - targetObject: {fileID: 3357858517453454024}
-      methodName: 'Transfer(): Void'
+    formatType: 0
 --- !u!1 &7038780993930413501
 GameObject:
   m_ObjectHideFlags: 0
@@ -708,13 +694,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sourceObject: {fileID: 1520294461941189649}
+  path: 
+  eventItemList:
+    eventItems:
+    - eventName: ThisEnabled()
+    - eventName: ThisDisabled()
   items:
   - sourceObjectMethodName: 'get_PayoutAmountPerFlower(): Int32'
     targetObject: {fileID: 3130755098099318123}
     targetMethodName: 'Emit(Int32): Void'
+    formatType: 0
   - sourceObjectMethodName: 'CreateTransactions(): ITransaction[]'
     targetObject: {fileID: 2658155704234856459}
     targetMethodName: 'Send(ITransaction[]): Void'
+    formatType: 0
 --- !u!114 &9096739133053775978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -728,10 +721,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sourceObject: {fileID: 1253341266578782703}
+  path: 
+  eventItemList:
+    eventItems:
+    - eventName: ThisEnabled()
+    - eventName: ThisDisabled()
   items:
   - sourceObjectMethodName: 'get_LastCollectedBlossomPosition(): Vector3'
     targetObject: {fileID: 3130755098099318123}
     targetMethodName: 'SetEmitPosition(Vector3): Void'
+    formatType: 0
 --- !u!1 &8411878958738429206
 GameObject:
   m_ObjectHideFlags: 0
@@ -899,6 +898,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  test: 0
+  testLerp: 0
 --- !u!1001 &2877698692632208280
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1498,6 +1499,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  test: 0
+  testLerp: 0
 --- !u!4 &5218932801021548600 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1572706299487897485, guid: 48e6acbb90657804a89e557290a06192, type: 3}

@@ -110,6 +110,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aed29f2de0044e499531777b31f2c091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  monoActivities:
+  - {fileID: 6481030225196919974}
   <StateName>k__BackingField: state_1
   <Entered>k__BackingField:
     m_PersistentCalls:
@@ -142,8 +144,6 @@ MonoBehaviour:
   <Exited>k__BackingField:
     m_PersistentCalls:
       m_Calls: []
-  monoActivities:
-  - {fileID: 6481030225196919974}
 --- !u!114 &1215629017163420312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205,6 +205,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aed29f2de0044e499531777b31f2c091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  monoActivities:
+  - {fileID: 1215629017164942360}
+  - {fileID: 1215629017164942358}
   <StateName>k__BackingField: state_blend_1_2
   <Entered>k__BackingField:
     m_PersistentCalls:
@@ -249,9 +252,6 @@ MonoBehaviour:
   <Exited>k__BackingField:
     m_PersistentCalls:
       m_Calls: []
-  monoActivities:
-  - {fileID: 1215629017164942360}
-  - {fileID: 1215629017164942358}
 --- !u!114 &1215629017164942360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -341,6 +341,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aed29f2de0044e499531777b31f2c091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  monoActivities: []
   <StateName>k__BackingField: state_2
   <Entered>k__BackingField:
     m_PersistentCalls:
@@ -360,7 +361,6 @@ MonoBehaviour:
   <Exited>k__BackingField:
     m_PersistentCalls:
       m_Calls: []
-  monoActivities: []
 --- !u!114 &1215629017214467616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -490,6 +490,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aed29f2de0044e499531777b31f2c091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  monoActivities: []
   <StateName>k__BackingField: state_3
   <Entered>k__BackingField:
     m_PersistentCalls:
@@ -509,7 +510,6 @@ MonoBehaviour:
   <Exited>k__BackingField:
     m_PersistentCalls:
       m_Calls: []
-  monoActivities: []
 --- !u!114 &1554155808406273575
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5541,6 +5541,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aed29f2de0044e499531777b31f2c091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  monoActivities:
+  - {fileID: 5537952822547491483}
+  - {fileID: 1215629019129054219}
   <StateName>k__BackingField: state_blend_2_3
   <Entered>k__BackingField:
     m_PersistentCalls:
@@ -5573,9 +5576,6 @@ MonoBehaviour:
   <Exited>k__BackingField:
     m_PersistentCalls:
       m_Calls: []
-  monoActivities:
-  - {fileID: 5537952822547491483}
-  - {fileID: 1215629019129054219}
 --- !u!114 &1215629019129054219
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5924,6 +5924,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aed29f2de0044e499531777b31f2c091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  monoActivities: []
   <StateName>k__BackingField: state_zero
   <Entered>k__BackingField:
     m_PersistentCalls:
@@ -5943,7 +5944,6 @@ MonoBehaviour:
   <Exited>k__BackingField:
     m_PersistentCalls:
       m_Calls: []
-  monoActivities: []
 --- !u!114 &5411217252528202781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6005,6 +6005,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aed29f2de0044e499531777b31f2c091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  monoActivities:
+  - {fileID: 4359426234369910837}
+  - {fileID: 6125305229998247473}
   <StateName>k__BackingField: state_blend_3_2
   <Entered>k__BackingField:
     m_PersistentCalls:
@@ -6037,9 +6040,6 @@ MonoBehaviour:
   <Exited>k__BackingField:
     m_PersistentCalls:
       m_Calls: []
-  monoActivities:
-  - {fileID: 4359426234369910837}
-  - {fileID: 6125305229998247473}
 --- !u!114 &6125305229998247473
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6129,9 +6129,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3295421872627299816}
   - component: {fileID: 2943986132688528183}
-  - component: {fileID: 6799644022701847008}
   - component: {fileID: 2122544324071360659}
   - component: {fileID: 275501897288589641}
+  - component: {fileID: 175795573196495560}
   m_Layer: 0
   m_Name: select
   m_TagString: Untagged
@@ -6168,31 +6168,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sourceObject: {fileID: 6645642497990244696}
+  path: 
+  eventItemList:
+    eventItems:
+    - eventName: ThisEnabled()
+      use: 0
+    - eventName: ThisDisabled()
+      use: 0
   items:
   - sourceObjectMethodName: 'Entity: IStage'
     targetObject: {fileID: 275501897288589641}
     targetMethodName: 'Select(IStage): Void'
     formatType: 0
---- !u!114 &6799644022701847008
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4099669869791896557}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sourceObject: {fileID: 275501897288589641}
-  path: 'Entity: IStageSelector'
-  extraEvents: 0
-  items:
-  - eventName: Selected(EventArgs)
-    methodItems:
-    - targetObject: {fileID: 2761422677200849388}
-      methodName: 'Trigger(): Void'
 --- !u!114 &2122544324071360659
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6254,6 +6241,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entityId: stage_selector
+--- !u!114 &175795573196495560
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4099669869791896557}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sourceObject: {fileID: 0}
+  path: 
+  extraEvents: 0
+  items: []
+  itemList:
+    eventItems: []
+  useSameTypeSourceObjects: 0
+  sameTypeSourceObjects: []
 --- !u!1 &6290599209220984656
 GameObject:
   m_ObjectHideFlags: 0
@@ -6263,7 +6270,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1590153172842662792}
-  - component: {fileID: 1104515623654611822}
+  - component: {fileID: 239801620388084388}
   m_Layer: 0
   m_Name: available
   m_TagString: Untagged
@@ -6287,7 +6294,7 @@ Transform:
   m_Father: {fileID: 2629727574049435407}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1104515623654611822
+--- !u!114 &239801620388084388
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6299,22 +6306,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sourceObject: {fileID: 6645642497990244696}
-  path: 'Entity: IStage'
-  extraEvents: 1
-  items:
-  - eventName: AvailableSet(EventArgs)
-    methodItems:
-    - targetObject: {fileID: 5615826285272213483}
-      methodName: 'Trigger(): Void'
-  - eventName: Unlocked(IStage)
-    methodItems: []
-  - eventName: ThisEnabled()
-    methodItems:
-    - targetObject: {fileID: 5615826285272213483}
-      methodName: 'Trigger(): Void'
-  - eventName: ThisDisabled()
-    methodItems: []
+  sourceObject: {fileID: 0}
+  path: 
+  extraEvents: 0
+  items: []
+  itemList:
+    eventItems: []
+  useSameTypeSourceObjects: 0
+  sameTypeSourceObjects: []
 --- !u!1 &6347508097548575377
 GameObject:
   m_ObjectHideFlags: 0
@@ -6362,6 +6361,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entityId: stage_1
+  pairs: []
 --- !u!1 &6502035500986349088
 GameObject:
   m_ObjectHideFlags: 0
@@ -6554,7 +6554,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4185031497072532946}
-  - component: {fileID: 3742360606510743343}
+  - component: {fileID: 428715781288052420}
   m_Layer: 0
   m_Name: unlock
   m_TagString: Untagged
@@ -6579,7 +6579,7 @@ Transform:
   m_Father: {fileID: 2629727574049435407}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3742360606510743343
+--- !u!114 &428715781288052420
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6591,22 +6591,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sourceObject: {fileID: 6645642497990244696}
-  path: 'Entity: IStage'
-  extraEvents: 1
-  items:
-  - eventName: AvailableSet(EventArgs)
-    methodItems: []
-  - eventName: Unlocked(IStage)
-    methodItems:
-    - targetObject: {fileID: 8354695515570212177}
-      methodName: 'Trigger(): Void'
-  - eventName: ThisEnabled()
-    methodItems:
-    - targetObject: {fileID: 4534718006070484852}
-      methodName: 'Trigger(): Void'
-  - eventName: ThisDisabled()
-    methodItems: []
+  sourceObject: {fileID: 0}
+  path: 
+  extraEvents: 0
+  items: []
+  itemList:
+    eventItems: []
+  useSameTypeSourceObjects: 0
+  sameTypeSourceObjects: []
 --- !u!1 &7235033003318980815
 GameObject:
   m_ObjectHideFlags: 0

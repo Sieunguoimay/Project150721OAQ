@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Common.UnityExtend.Reflection;
+using Common.UnityExtend.Serialization;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ namespace Common.UnityExtend.Attribute
         private readonly string _providerVariableName;
         private readonly bool _isProviderPropertyInBase;
 
-        protected BaseSelectorAttribute(string name, bool isProviderPropertyInBase = false)
+        protected BaseSelectorAttribute(string name, bool isProviderPropertyInBase)
         {
             _providerVariableName = name;
             _isProviderPropertyInBase = isProviderPropertyInBase;
@@ -26,12 +27,21 @@ namespace Common.UnityExtend.Attribute
                 : ReflectionUtility.GetObjectToWhichPropertyBelong(property);
             return ReflectionUtility.GetDataFromMember(providerObject, _providerVariableName, false);
         }
+
+        // public void InvokeCallback(SerializedProperty property)
+        // {
+        //     if (string.IsNullOrEmpty(_callbackMethod)) return;
+        //     var providerObject = _isCallbackInBase
+        //         ? property.serializedObject.targetObject
+        //         : ReflectionUtility.GetObjectToWhichPropertyBelong(property);
+        //     ReflectionUtility.GetMethodInfo(providerObject.GetType(), _callbackMethod, false).Invoke(providerObject, null);
+        // }
     }
 
     public class StringSelectorAttribute : BaseSelectorAttribute
     {
-        public StringSelectorAttribute(string name, bool isProviderPropertyInBase = false) : base(name,
-            isProviderPropertyInBase)
+        public StringSelectorAttribute(string name, bool isProviderPropertyInBase = false)
+            : base(name, isProviderPropertyInBase)
         {
         }
     }
@@ -48,59 +58,15 @@ namespace Common.UnityExtend.Attribute
             if (attribute is not StringSelectorAttribute objectSelector) return;
             position = EditorGUI.PrefixLabel(position, label);
 
-            if (property.propertyType == SerializedPropertyType.String)
-            {
-                if (!CreateMenuWithStringProperty(position, property, objectSelector)) return;
-            }
-            else if (property.propertyType == SerializedPropertyType.Integer)
-            {
-                if (!CreateMenuWithIntegerProperty(position, property, objectSelector)) return;
-            }
+            if (!CreateMenuWithStringProperty(position, property, objectSelector)) return;
 
             _menu?.ShowAsContext();
-        }
-
-
-        private bool CreateMenuWithIntegerProperty(Rect position, SerializedProperty property,
-            StringSelectorAttribute objectSelector)
-        {
-            var openWindow =
-                EditorGUI.DropdownButton(position, new GUIContent($"Index_{property.intValue}"),
-                    FocusType.Keyboard);
-            if (!openWindow)
-            {
-                _menu = null;
-                return false;
-            }
-
-            if (_menu == null)
-            {
-                _menu = new GenericMenu();
-
-                var ids = GetIds(property, objectSelector)?.ToArray();
-
-                if (ids == null) return false;
-
-                for (var i = 0; i < ids.Length; i++)
-                {
-                    var id = ids[i];
-                    _menu.AddItem(new GUIContent(id), property.intValue == i, data =>
-                    {
-                        property.serializedObject.Update();
-                        property.intValue = Array.IndexOf(ids, (string) data);
-                        property.serializedObject.ApplyModifiedProperties();
-                    }, id);
-                }
-            }
-
-            return true;
         }
 
         private bool CreateMenuWithStringProperty(Rect position, SerializedProperty property,
             StringSelectorAttribute objectSelector)
         {
-            var openWindow =
-                EditorGUI.DropdownButton(position, new GUIContent(property.stringValue), FocusType.Keyboard);
+            var openWindow = DrawDropdownButton(position, property);
             if (!openWindow)
             {
                 _menu = null;
@@ -116,15 +82,35 @@ namespace Common.UnityExtend.Attribute
 
             foreach (var id in ids)
             {
-                _menu.AddItem(new GUIContent(id), property.stringValue == id, data =>
+                _menu.AddItem(new GUIContent(id), IsActive(property, id), data =>
                 {
                     property.serializedObject.Update();
-                    property.stringValue = (string) data;
+                    OnSelected(property, (string) data);
                     property.serializedObject.ApplyModifiedProperties();
                 }, id);
             }
 
             return true;
+        }
+
+        protected virtual bool DrawDropdownButton(Rect position, SerializedProperty property)
+        {
+            return EditorGUI.DropdownButton(position, new GUIContent(GetDisplay(property)), FocusType.Keyboard);
+        }
+
+        protected virtual string GetDisplay(SerializedProperty property)
+        {
+            return property.stringValue;
+        }
+
+        protected virtual bool IsActive(SerializedProperty property, string item)
+        {
+            return property.stringValue == item;
+        }
+
+        protected virtual void OnSelected(SerializedProperty property, string item)
+        {
+            property.stringValue = item;
         }
 
         protected virtual IEnumerable<string> GetIds(SerializedProperty property,

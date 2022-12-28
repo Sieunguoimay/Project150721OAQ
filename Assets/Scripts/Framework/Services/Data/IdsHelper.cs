@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Framework.Entities;
 using UnityEditor;
 
 namespace Framework.Services.Data
@@ -10,6 +11,11 @@ namespace Framework.Services.Data
     public static class IdsHelper
     {
         private static Dictionary<Type, List<string>> _ids;
+
+        public static EntityAsset<TEntity> GetDataAsset<TEntity>(string id) where TEntity : class, IEntity<IEntityData, IEntitySavedData>
+        {
+            return GetDataServiceAsset().Assets.FirstOrDefault(a => a.Id == id && a is EntityAsset<TEntity>) as EntityAsset<TEntity>;
+        }
 
         public static IEnumerable<string> GetIds(Type typeConstraint)
         {
@@ -43,19 +49,20 @@ namespace Framework.Services.Data
         {
             _ids = new Dictionary<Type, List<string>>();
 
+            var containerAsset = GetDataServiceAsset();
+            var groups = containerAsset.Assets.SelectMany(a => a.GetType().GetInterfaces().Select(i => (i, a.Id)))
+                .GroupBy(d => d.i);
+            foreach (var a in groups)
+            {
+                _ids.Add(a.Key, a.Select(b => b.Id).ToList());
+            }
+        }
+
+        private static LocalDataServiceAsset GetDataServiceAsset()
+        {
             var containerGuid = AssetDatabase.FindAssets($"t: {typeof(LocalDataServiceAsset).FullName}")
                 .FirstOrDefault();
-            if (containerGuid != null)
-            {
-                var containerAsset = AssetDatabase.LoadAssetAtPath<LocalDataServiceAsset>(
-                    AssetDatabase.GUIDToAssetPath(containerGuid));
-                var groups = containerAsset.Assets.SelectMany(a => a.GetType().GetInterfaces().Select(i => (i, a.Id)))
-                    .GroupBy(d => d.i);
-                foreach (var a in groups)
-                {
-                    _ids.Add(a.Key, a.Select(b => b.Id).ToList());
-                }
-            }
+            return containerGuid != null ? AssetDatabase.LoadAssetAtPath<LocalDataServiceAsset>(AssetDatabase.GUIDToAssetPath(containerGuid)) : null;
         }
 
         private static void UpdateIdsToughWay()

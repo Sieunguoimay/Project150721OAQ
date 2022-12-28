@@ -11,12 +11,14 @@ namespace Common.UnityExtend.Attribute
     public class PathSelectorAttribute : BaseSelectorAttribute
     {
         public bool IsGetPath { get; }
+        public bool IsTypeProvided { get; }
 
         public PathSelectorAttribute(string objectPropertyName, bool isGetPath = true,
-            bool isProviderPropertyInBase = false) : base(
-            objectPropertyName, isProviderPropertyInBase)
+            bool isProviderPropertyInBase = false, bool typeProvided = false)
+            : base(objectPropertyName, isProviderPropertyInBase)
         {
             IsGetPath = isGetPath;
+            IsTypeProvided = typeProvided;
         }
     }
 
@@ -50,7 +52,8 @@ namespace Common.UnityExtend.Attribute
             position.width = 100;
 
             var path = string.IsNullOrEmpty(property.stringValue) ? new string[0] : property.stringValue.Split('.');
-            var rootType = GetSiblingObject(property, objectSelector)?.GetType();
+            var siblingObject = GetSiblingObject(property, objectSelector);
+            var rootType = objectSelector.IsTypeProvided ? siblingObject as Type : siblingObject?.GetType();
             if (rootType == null) return false;
             var open = false;
             for (var i = 0; i < path.Length; i++)

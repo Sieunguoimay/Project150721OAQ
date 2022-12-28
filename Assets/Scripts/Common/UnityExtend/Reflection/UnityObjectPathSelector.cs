@@ -10,7 +10,7 @@ namespace Common.UnityExtend.Reflection
     [Serializable]
     public class UnityObjectPathSelector
     {
-        [SerializeField, UnityObjectSelector] private UnityEngine.Object sourceObject;
+        [SerializeField, ComponentSelector] private UnityEngine.Object sourceObject;
 
 #if UNITY_EDITOR
         [PathSelector(nameof(sourceObject))]

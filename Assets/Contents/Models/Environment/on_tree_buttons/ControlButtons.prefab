@@ -172,6 +172,12 @@ MonoBehaviour:
     methodItems:
     - targetObject: {fileID: 4843719479694198081}
       methodName: 'Trigger(): Void'
+  itemList:
+    eventItems:
+    - eventName: Selected(EventArgs)
+      methodItems:
+      - targetObject: {fileID: 4843719479694198081}
+        methodName: 'Trigger(): Void'
   useSameTypeSourceObjects: 0
   sameTypeSourceObjects: []
 --- !u!111 &6279741400933025842
@@ -802,20 +808,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6548680099063403112, guid: 7e3bd7b4041136b428061be3ded1ed8b, type: 3}
   m_PrefabInstance: {fileID: 6680975104884645769}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2594791563038511381
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 456555364674473441}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ed72912558a46f9bd96d185daf59a1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  anim: {fileID: 5174356277855033989}
-  clip: {fileID: 7400000, guid: cf6a3f1da2822bc4ca2489947c107446, type: 2}
 --- !u!114 &916197025578557987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -836,10 +828,30 @@ MonoBehaviour:
     methodItems:
     - targetObject: {fileID: 2594791563038511381}
       methodName: 'Play(): Void'
+  itemList:
+    eventItems:
+    - eventName: Clicked(EventArgs)
+      methodItems:
+      - targetObject: {fileID: 2594791563038511381}
+        methodName: 'Play(): Void'
   useSameTypeSourceObjects: 1
   sameTypeSourceObjects:
   - {fileID: 4034170937604421311}
   - {fileID: 9118853022139614570}
+--- !u!114 &2594791563038511381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 456555364674473441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ed72912558a46f9bd96d185daf59a1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  anim: {fileID: 5174356277855033989}
+  clip: {fileID: 7400000, guid: cf6a3f1da2822bc4ca2489947c107446, type: 2}
 --- !u!4 &4817950677339554369 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2191946698518814152, guid: 7e3bd7b4041136b428061be3ded1ed8b, type: 3}
