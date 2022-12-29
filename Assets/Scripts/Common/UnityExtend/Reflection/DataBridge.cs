@@ -195,8 +195,7 @@ namespace Common.UnityExtend.Reflection
 
                 var evInfo = e.GetEventInfo(obj.GetType());
 
-                var runtimeDelegate =
-                    EventSubscription.EventHandlerItem.CreateDelegate(evInfo.EventHandlerType, MethodInfo, this);
+                var runtimeDelegate = EventHandlerItem.CreateDelegate(evInfo.EventHandlerType, MethodInfo, this);
                 if (runtimeDelegate == null) continue;
 
                 evInfo.AddEventHandler(obj, runtimeDelegate);

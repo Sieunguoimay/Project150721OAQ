@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Common.UnityExtend.Attribute;
-using Common.UnityExtend.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 
-namespace Common.UnityExtend
+namespace Common.UnityExtend.Reflection
 {
     public class ConditionIntermediate : MonoBehaviour
     {
@@ -145,7 +141,12 @@ namespace Common.UnityExtend
         [ContextMenu("Trigger")]
         public void Trigger()
         {
-            if (ifStatement.IsTrue())
+            Trigger(ifStatement.IsTrue());
+        }
+        
+        public void Trigger(bool value)
+        {
+            if (value)
             {
                 then?.Invoke();
             }

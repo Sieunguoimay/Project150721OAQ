@@ -5,6 +5,8 @@ using System.Linq;
 using Common.UnityExtend.Attribute;
 using Framework.Services.Data;
 using Gameplay.Entities.MagicFlower;
+using UnityEditor;
+using Object = UnityEngine.Object;
 
 namespace Framework.Entities.ContainerEntity
 {
@@ -18,11 +20,11 @@ namespace Framework.Entities.ContainerEntity
         IEntitySavedData[] GetComponentSavedDataItems();
     }
 
-    // [CreateAssetMenu(menuName = "Entity/ContainerEntityData")]
     public abstract class ContainerEntityData<TEntity> : EntityAsset<TEntity>, IContainerEntityData
         where TEntity : class, IContainerEntity<IContainerEntityData, IContainerEntitySavedData>
     {
         [SerializeField, ChildAsset(false), TypeConstraint(typeof(IEntityData))]
+        [ContextMenuItem(nameof(AddChildAssetsToComponents), nameof(AddChildAssetsToComponents))]
         private DataAsset[] componentAssets;
 
         protected IEntity<IEntityData, IEntitySavedData>[] GetEntityItems()
@@ -36,14 +38,23 @@ namespace Framework.Entities.ContainerEntity
 
             return items;
         }
-        // protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
-        // {
-        //     var items = GetEntityItems();
-        //     var savedData = new ContainerEntitySavedData(Id, items.Select(i => i.SavedData).ToArray());
-        //     return new ContainerEntity<,>(this, savedData, items);
-        // }
 
         public IEntityData[] GetComponentDataItems() => componentAssets.Select(d => d as IEntityData).ToArray();
+
+#if UNITY_EDITOR
+        [ContextMenuExtend(nameof(AddChildAssetsToComponents))]
+        protected void AddChildAssetsToComponents()
+        {
+            var assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this)).Where(a => a != this && !componentAssets.Contains(a) && a is DataAsset).Select(a => a as DataAsset).ToArray();
+            if (assets.Length <= 0) return;
+            Array.Resize(ref componentAssets, componentAssets.Length + assets.Length);
+            for (var i = 0; i < assets.Length; i++)
+            {
+                componentAssets[i] = assets[i];
+            }
+        }
+
+#endif
     }
 
     [Serializable]
@@ -56,7 +67,6 @@ namespace Framework.Entities.ContainerEntity
         {
             _componentSavedDataItems = componentSavedDataItems;
         }
-
 
         public IEntitySavedData[] GetComponentSavedDataItems()
         {

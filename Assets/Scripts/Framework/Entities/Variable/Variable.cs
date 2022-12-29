@@ -3,16 +3,16 @@ using Framework.Entities;
 
 namespace Framework.Entities.Variable
 {
-    public interface IVariable<TPrimitive> : IEntity<IVariableData, IVariableSavedData<TPrimitive>>
+    public interface IVariable<TPrimitive> : IEntity<IVariableData<TPrimitive>, IVariableSavedData<TPrimitive>>
     {
         void SetValue(TPrimitive value);
         TPrimitive Value { get; }
         event Action<object, EventArgs> ValueChanged;
     }
 
-    public class Variable<TPrimitive> : BaseEntity<IVariableData, IVariableSavedData<TPrimitive>>, IVariable<TPrimitive>
+    public class Variable<TPrimitive> : BaseEntity<IVariableData<TPrimitive>, IVariableSavedData<TPrimitive>>, IVariable<TPrimitive>
     {
-        public Variable(IVariableData data, IVariableSavedData<TPrimitive> savedData) : base(data, savedData)
+        public Variable(IVariableData<TPrimitive> data, IVariableSavedData<TPrimitive> savedData) : base(data, savedData)
         {
         }
 

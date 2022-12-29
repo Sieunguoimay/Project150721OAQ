@@ -4,7 +4,7 @@ using System;
 
 namespace Framework.Entities.Variable.Boolean
 {
-    public interface IBooleanData : IVariableData
+    public interface IBooleanData : IVariableData<bool>
     {
     }
 

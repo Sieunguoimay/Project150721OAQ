@@ -1,18 +1,16 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Common.UnityExtend.Attribute;
-using Common.UnityExtend.Reflection;
-using Gameplay.Entities.Stage;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Common.UnityExtend
+namespace Common.UnityExtend.Reflection
 {
     public class EventSubscription : MonoBehaviour
     {
@@ -75,60 +73,6 @@ namespace Common.UnityExtend
             }
         }
 
-        [Serializable]
-        public class EventHandlerItem
-        {
-            [SerializeField, ComponentSelector] private Object targetObject;
-
-            [SerializeField, StringSelector(nameof(GetMethodNames))]
-            public string methodName;
-
-            public IEnumerable<string> GetMethodNames() =>
-                targetObject.GetType().GetMethods(ReflectionUtility.MethodFlags)
-                    .Where(m => m.ReturnType == typeof(void)).Select(ReflectionUtility.FormatName.FormatMethodName);
-
-            public MethodInfo MethodInfo =>
-                targetObject ? ReflectionUtility.GetMethodInfo(targetObject.GetType(), methodName, true) : null;
-
-            public Delegate RuntimeHandler { get; private set; }
-
-            public Delegate CreateDelegate(Type handlerType)
-            {
-                RuntimeHandler = CreateDelegate(handlerType, MethodInfo, targetObject);
-                return RuntimeHandler;
-            }
-
-            public static Delegate CreateDelegate(Type handlerType, MethodInfo methodInfo, object targetObject)
-            {
-                Delegate runtimeHandler = null;
-                if (methodInfo == null) return null;
-                var prams = methodInfo.GetParameters();
-                if (prams.Length == 0)
-                {
-                    var methodCallExpression = Expression.Call(Expression.Constant(targetObject), methodInfo, null);
-                    if (handlerType == typeof(EventHandler))
-                    {
-                        runtimeHandler = new EventHandler(Expression
-                            .Lambda<Action<object, EventArgs>>(methodCallExpression,
-                                Expression.Parameter(typeof(object)), Expression.Parameter(typeof(EventArgs)))
-                            .Compile());
-                    }
-                    else
-                    {
-                        var lambdaParamExpressions = handlerType.GetGenericArguments().Select(Expression.Parameter);
-                        runtimeHandler = Expression.Lambda(handlerType, methodCallExpression, lambdaParamExpressions)
-                            .Compile();
-                    }
-                }
-                else
-                {
-                    runtimeHandler = Delegate.CreateDelegate(handlerType, targetObject, methodInfo);
-                }
-
-                return runtimeHandler;
-            }
-        }
-
         #region ExtraEvents
 
         public event Action ThisEnabled;
@@ -140,9 +84,9 @@ namespace Common.UnityExtend
             return new[] {type.GetEvent(nameof(ThisEnabled)), type.GetEvent(nameof(ThisDisabled))};
         }
 
-        private static bool IsExtraEventItem(EventItemWithTargets ei)
+        private static bool IsExtraEventItem(EventItem ei)
         {
-            return EventItemWithTargets.ExtractEventName(ei.EventName).StartsWith("This");
+            return EventItem.ExtractEventName(ei.EventName).StartsWith("This");
         }
 
         #endregion

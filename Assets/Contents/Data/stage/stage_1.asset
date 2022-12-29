@@ -29,3 +29,4 @@ MonoBehaviour:
   m_Name: available
   m_EditorClassIdentifier: 
   <Id>k__BackingField: available
+  <InitialValue>k__BackingField: 1

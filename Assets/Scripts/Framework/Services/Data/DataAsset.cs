@@ -1,6 +1,9 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Common.Misc;
+using Common.UnityExtend.Attribute;
+using Common.UnityExtend.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,7 +36,14 @@ namespace Framework.Services.Data
 
             AssetDatabase.SaveAssets();
         }
+#endif
+    }
+#if UNITY_EDITOR
+    [CustomEditor(typeof(DataAsset), true)]
+    [CanEditMultipleObjects]
+    public class DataAssetEditor : BaseContextMenuExtendEditor
+    {
+        
     }
 #endif
 }
-

@@ -4,8 +4,9 @@ using System;
 
 namespace Framework.Entities.Variable
 {
-    public interface IVariableData : IEntityData
+    public interface IVariableData<out TPrimitive> : IEntityData
     {
+        TPrimitive InitialValue { get; }
     }
 
     public interface IVariableSavedData<TPrimitive> : IEntitySavedData
@@ -15,12 +16,14 @@ namespace Framework.Entities.Variable
     }
 
     [CreateAssetMenu(menuName = "Entity/VariableData")]
-    public class VariableData<TPrimitive> : EntityAsset<IVariable<TPrimitive>>, IVariableData
+    public class VariableData<TPrimitive> : EntityAsset<IVariable<TPrimitive>>, IVariableData<TPrimitive>
     {
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {
             return new Variable<TPrimitive>(this, new VariableSavedData<TPrimitive>(Id));
         }
+
+        [field:SerializeField]public TPrimitive InitialValue { get; private set; }
     }
     
     [Serializable]

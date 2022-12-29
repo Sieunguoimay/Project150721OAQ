@@ -42,7 +42,7 @@ namespace Framework.Entities.ContainerEntity
             }
         }
 #if UNITY_EDITOR
-        [ContextMenu("TestSave")]
+        [ContextMenuExtend("TestSave")]
         public void TestSave()
         {
             Entity.SavedData.Save();

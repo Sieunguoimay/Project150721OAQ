@@ -1,5 +1,19 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6282277909022751272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 420ce2a381323214eb36dfa64dcf3176, type: 3}
+  m_Name: available
+  m_EditorClassIdentifier: 
+  <Id>k__BackingField: available
+  <InitialValue>k__BackingField: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13,4 +27,6 @@ MonoBehaviour:
   m_Name: stage_5
   m_EditorClassIdentifier: 
   <Id>k__BackingField: stage_5
+  componentAssets:
+  - {fileID: -6282277909022751272}
   <IsAvailableInAdvanced>k__BackingField: 0
