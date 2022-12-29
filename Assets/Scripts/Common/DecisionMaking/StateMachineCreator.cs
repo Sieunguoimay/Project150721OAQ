@@ -55,7 +55,7 @@ namespace Common.DecisionMaking
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            _showStates = EditorGUILayout.Foldout(_showStates, "States");
+            _showStates = EditorGUILayout.Foldout(_showStates, "States",true);
             if (_showStates)
             {
                 var creator = target as StateMachineCreator;

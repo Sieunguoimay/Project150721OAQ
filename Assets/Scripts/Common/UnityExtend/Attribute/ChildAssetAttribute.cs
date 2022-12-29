@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Common.UnityExtend.Reflection;
+using Common.UnityExtend.Serialization;
 using Common.UnityExtend.Serialization.ChildAsset;
 using UnityEditor;
 using UnityEngine;
@@ -54,7 +55,7 @@ namespace Common.UnityExtend.Attribute
         {
             if (property.propertyType != SerializedPropertyType.ObjectReference) return;
 
-            var type = ReflectionUtility.GetSiblingPropertyType(property, property.name);
+            var type = SerializeUtility.GetSiblingPropertyType(property, property.name);
             var instance = ScriptableObject.CreateInstance(type);
             instance.name = type.Name;
 

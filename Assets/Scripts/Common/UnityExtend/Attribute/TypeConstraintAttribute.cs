@@ -65,31 +65,22 @@ namespace Common.UnityExtend.Attribute
                 !constrainedType.IsInstanceOfType(property.objectReferenceValue)))
                 GUI.color = Color.red;
 
-            var width = position.width - 8;
+            var width = position.width - 27;
 
-            if (typeConstraint.ShowConstraintType)
-            {
-                position.width = width;
-                EditorGUI.PropertyField(position, property,
-                    new GUIContent($"{property.displayName} ({typeConstraint.RequiredTypesLabel})"));
-            }
-            else
-            {
-                position.width = width / 3;
-                EditorGUI.LabelField(position, new GUIContent($"{property.displayName}"));
-
-                position.x = width / 3;
-                position.width = width / 3 * 2;
-                EditorGUI.PropertyField(position, property, GUIContent.none);
-            }
+            position.width = width;
+            EditorGUI.PropertyField(position, property,
+                new GUIContent(typeConstraint.ShowConstraintType
+                    ? $"{property.displayName} ({typeConstraint.RequiredTypesLabel})"
+                    : $"{property.displayName}"));
 
             GUI.color = prevGuiColor;
 
-            var btnRect = position;
-            btnRect.x = width + 2;
-            btnRect.width = 25;
-            Menu(btnRect, property,
-                go => typeConstraint.RequiredTypes.SelectMany(i => go.GetComponentsInChildren(i, true).Select(c => c as UnityEngine.Object)).Distinct()
+            position.x += width + 2;
+            position.width = 25;
+            Menu(position, property,
+                go => typeConstraint.RequiredTypes
+                    .SelectMany(i => go.GetComponentsInChildren(i, true).Select(c => c as UnityEngine.Object))
+                    .Distinct()
                     .ToArray(), true);
         }
 

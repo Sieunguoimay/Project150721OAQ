@@ -23,7 +23,7 @@ namespace Common.UnityExtend
 
         [SerializeField] private bool extraEvents;
 
-        [SerializeField] private EventItemList<EventItemWithTargets> itemList;
+        [SerializeField] private EventList<EventItemWithTargets> itemList;
 
         [SerializeField] private bool useSameTypeSourceObjects;
 

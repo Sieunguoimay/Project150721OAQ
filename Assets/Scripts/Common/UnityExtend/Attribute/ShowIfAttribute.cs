@@ -1,4 +1,5 @@
 ﻿using Common.UnityExtend.Reflection;
+using Common.UnityExtend.Serialization;
 using UnityEditor;
 using UnityEngine;
 
@@ -28,7 +29,7 @@ namespace Common.UnityExtend.Attribute
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             if (attribute is not ShowIfAttribute att) return;
-            var value = ReflectionUtility.GetSiblingProperty(property, att.ProviderPropertyName);
+            var value = SerializeUtility.GetSiblingProperty(property, att.ProviderPropertyName);
 
             var toggled = value.Equals(att.Value);
 
@@ -47,7 +48,7 @@ namespace Common.UnityExtend.Attribute
 
             if (string.IsNullOrEmpty(att.SiblingCallbackName)) return;
 
-            var parent = ReflectionUtility.GetObjectToWhichPropertyBelong(property);
+            var parent = SerializeUtility.GetObjectToWhichPropertyBelong(property);
             var callback = parent.GetType().GetMethod(att.SiblingCallbackName, ReflectionUtility.MethodFlags);
             callback?.Invoke(parent, new object[] {_toggled});
         }

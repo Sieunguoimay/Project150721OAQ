@@ -89,7 +89,7 @@ namespace Common.UnityExtend.Serialization.ChildAsset
                             GUI.FocusControl(null);
                         }
 
-                        if (GUILayout.Button("+", GUILayout.Width(20)))
+                        if (GUILayout.Button("D", GUILayout.Width(20)))
                         {
                             Debug.Log("Duplicate");
                             var newAsset = CreateChildAsset(asset.GetType(), "", AssetDatabase.GetAssetPath(_target));
@@ -145,6 +145,11 @@ namespace Common.UnityExtend.Serialization.ChildAsset
                 _renameObject = newAsset;
                 GUI.FocusControl(null);
             });
+        }
+
+        private void DrawFromAssetToSubAsset()
+        {
+            
         }
 
         private static void DrawNewChildAssetMenu(string path, Action<Object> created)

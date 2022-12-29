@@ -887,14 +887,13 @@ GameObject:
   - component: {fileID: 1799892728}
   - component: {fileID: 1799892727}
   - component: {fileID: 1799892731}
-  - component: {fileID: 1799892732}
   m_Layer: 0
   m_Name: stagev
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1799892727
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -961,27 +960,6 @@ MonoBehaviour:
     - eventName: ThisDisabled()
       use: 0
   items: []
---- !u!114 &1799892732
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1799892726}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sourceObject: {fileID: 1799892727}
-  path: 'Entity: IVariable`1'
-  extraEvents: 0
-  itemList:
-    eventItems:
-    - eventName: ValueChanged(Object,EventArgs)
-      methodItems: []
-  useSameTypeSourceObjects: 0
-  sameTypeSourceObjects: []
 --- !u!1001 &1896590300
 PrefabInstance:
   m_ObjectHideFlags: 0

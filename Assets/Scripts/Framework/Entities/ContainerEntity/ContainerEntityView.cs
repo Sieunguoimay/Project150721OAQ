@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common.UnityExtend.Attribute;
+using Common.UnityExtend.Reflection;
 using Framework.Entities;
 using Framework.Resolver;
 using Framework.Services.Data;
@@ -12,18 +13,33 @@ using Object = UnityEngine.Object;
 namespace Framework.Entities.ContainerEntity
 {
     public class ContainerEntityView<TEntity, TData> : BaseEntityView<TEntity, TData>
-        where TEntity : class, IContainerEntity<IContainerEntityData, IContainerEntitySavedData> where TData : IContainerEntityData
+        where TEntity : class, IContainerEntity<IContainerEntityData, IContainerEntitySavedData>
+        where TData : IContainerEntityData
     {
         [SerializeField] private DataViewPair[] pairs;
 
-        public override void Inject(IResolver resolver)
+        private void OnEnable()
         {
-            base.Inject(resolver);
+            foreach (var pair in pairs)
+            {
+                var data = Entity.Components.FirstOrDefault(c => c.Data.Id.Equals(pair.subId));
+                if (data == null)
+                {
+                    Debug.Log("Component Entity is not found");
+                    continue;
+                }
+
+                var view = pair.view as IManualView;
+                view?.Setup(data);
+            }
         }
 
-        protected override void SetupInternal()
+        private void OnDisable()
         {
-            base.SetupInternal();
+            foreach (var pair in pairs)
+            {
+                (pair.view as IManualView)?.TearDown();
+            }
         }
 #if UNITY_EDITOR
         [ContextMenu("TestSave")]
@@ -36,17 +52,20 @@ namespace Framework.Entities.ContainerEntity
             }
         }
 
-        public IEnumerable<IEntityData> GetComponentDataItems() => (IdsHelper.GetDataAsset<TEntity>(EntityId) as ContainerEntityData<TEntity>)?.GetComponentDataItems();
+        public IEnumerable<IEntityData> GetComponentDataItems() =>
+            (IdsHelper.GetDataAsset<TEntity>(EntityId) as ContainerEntityData<TEntity>)?.GetComponentDataItems();
+
         public IEnumerable<string> GetComponentOptions() => GetComponentDataItems().Select(c => c.Id);
 #endif
         [Serializable]
         public class DataViewPair
         {
-            [ComponentSelector] public Object view;
+            [TypeConstraint(false, typeof(IManualView))]
+            public Object view;
 #if UNITY_EDITOR
-            [ObjectSelector(nameof(GetComponentDataItems), true)]
+            [StringSelector(nameof(GetComponentOptions), true)]
 #endif
-            public Object data;
+            public string subId;
         }
     }
 #if UNITY_EDITOR
@@ -55,6 +74,8 @@ namespace Framework.Entities.ContainerEntity
     {
         private bool _valid;
         private bool _shouldValidate;
+        private SerializedProperty _view;
+        private SerializedProperty _subId;
 
         public DataViewPairDrawer()
         {
@@ -63,6 +84,9 @@ namespace Framework.Entities.ContainerEntity
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            _view = property.FindPropertyRelative("view");
+            _subId = property.FindPropertyRelative("subId");
+
             if (_shouldValidate)
             {
                 Validate(property);
@@ -79,16 +103,14 @@ namespace Framework.Entities.ContainerEntity
                 GUI.color = Color.red;
             }
 
-            var view = property.FindPropertyRelative("view");
-            var data = property.FindPropertyRelative("data");
-            EditorGUI.PropertyField(position, view, new GUIContent("view"));
+            EditorGUI.PropertyField(position, _view);
 
             GUI.color = color;
             position.y += 20;
 
-            EditorGUI.PropertyField(position, data, new GUIContent("data"));
+            EditorGUI.PropertyField(position, _subId);
 
-            if (EditorGUI.EndChangeCheck()) 
+            if (EditorGUI.EndChangeCheck())
             {
                 _shouldValidate = true;
             }
@@ -96,8 +118,11 @@ namespace Framework.Entities.ContainerEntity
 
         private void Validate(SerializedProperty property)
         {
-            var entity = property.FindPropertyRelative("view").objectReferenceValue?.GetType().GetProperty("Entity");
-            var dataType = (property.FindPropertyRelative("data").objectReferenceValue as IEntityData)?.GetEntityType();
+            var entity = _view?.objectReferenceValue?.GetType().GetProperty("Entity", ReflectionUtility.PropertyFlags);
+            var dataId = _subId.stringValue;
+            var items = ReflectionUtility.GetDataFromMember(property?.serializedObject.targetObject,
+                "GetComponentDataItems", false) as IEnumerable<IEntityData>;
+            var dataType = items?.FirstOrDefault(i => i.Id.Equals(dataId))?.GetEntityType();
             _valid = entity?.PropertyType.IsAssignableFrom(dataType) ?? false;
         }
 

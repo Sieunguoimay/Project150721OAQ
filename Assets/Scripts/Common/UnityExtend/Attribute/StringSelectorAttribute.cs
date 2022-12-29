@@ -24,7 +24,7 @@ namespace Common.UnityExtend.Attribute
         {
             var providerObject = _isProviderPropertyInBase
                 ? property.serializedObject.targetObject
-                : ReflectionUtility.GetObjectToWhichPropertyBelong(property);
+                : SerializeUtility.GetObjectToWhichPropertyBelong(property);
             return ReflectionUtility.GetDataFromMember(providerObject, _providerVariableName, false);
         }
 

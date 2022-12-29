@@ -38,46 +38,6 @@ namespace Common.UnityExtend.Reflection
             return finalObj;
         }
 
-        public static object GetSiblingProperty(SerializedProperty property, string name)
-        {
-            var src = GetObjectToWhichPropertyBelong(property);
-            var type = src.GetType();
-            var prop = GetPropertyInfo(type, name, false);
-            var field = GetFieldInfo(type, name, false);
-            return prop == null ? field?.GetValue(src) : prop.GetValue(src, null);
-        }
-
-        public static Type GetSiblingPropertyType(SerializedProperty property, string name)
-        {
-            var src = GetObjectToWhichPropertyBelong(property);
-            var type = src.GetType();
-            var prop = GetPropertyInfo(type, name, false);
-            var field = GetFieldInfo(type, name, false);
-            return prop == null ? field?.FieldType : prop.PropertyType;
-        }
-
-        public static object GetObjectToWhichPropertyBelong(SerializedProperty prop)
-        {
-            var path = prop.propertyPath.Replace(".Array.data[", "[");
-            object obj = prop.serializedObject.targetObject;
-            var elements = path.Split('.');
-            foreach (var element in elements.Take(elements.Length - 1))
-            {
-                if (element.Contains("["))
-                {
-                    var elementName = element[..element.IndexOf("[", StringComparison.Ordinal)];
-                    var index = Convert.ToInt32(element[element.IndexOf("[", StringComparison.Ordinal)..]
-                        .Replace("[", "").Replace("]", ""));
-                    obj = GetValueOfElement(GetDataFromMember(obj, elementName, false) as IEnumerable, index);
-                }
-                else
-                {
-                    obj = GetDataFromMember(obj, element, false);
-                }
-            }
-
-            return obj;
-        }
 
         public static object GetDataFromMember(object source, string name, bool isNameFormatted)
         {
@@ -86,7 +46,7 @@ namespace Common.UnityExtend.Reflection
             var f = GetFieldInfo(type, name, isNameFormatted);
             if (f != null) return f.GetValue(source);
             var p = GetPropertyInfo(type, name, isNameFormatted);
-            if (p != null) return p.GetValue(source, null);
+            if (p != null) return p.GetValue(source);
             var mi = GetMethodInfo(type, name, isNameFormatted);
             if (mi != null && mi.GetParameters().Length == 0) return mi.Invoke(source, null);
             return null;
@@ -114,7 +74,7 @@ namespace Common.UnityExtend.Reflection
         public static PropertyInfo GetPropertyInfo(Type type, string name, bool isNameFormatted)
         {
             var props = GetAllProperties(type);
-            var prop= props.FirstOrDefault(
+            var prop = props.FirstOrDefault(
                 m =>
                 {
                     if (isNameFormatted)
@@ -131,17 +91,17 @@ namespace Common.UnityExtend.Reflection
         public static MethodInfo GetMethodInfo(Type type, string name, bool isNameFormatted)
         {
             var methods = GetAllMethods(type);
-            return methods.FirstOrDefault(m => isNameFormatted ? FormatName.FormatMethodName(m).Equals(name) : m.Name.Equals(name));
+            return methods.FirstOrDefault(m =>
+                isNameFormatted ? FormatName.FormatMethodName(m).Equals(name) : m.Name.Equals(name));
         }
 
-        private static object GetValueOfElement(IEnumerable enumerable, int index)
+        public static object GetValueOfElement(IEnumerable enumerable, int index)
         {
             var enm = enumerable.GetEnumerator();
             while (index-- >= 0)
                 enm.MoveNext();
             return enm.Current;
         }
-
 
         public static Type GetPropertyOrFieldType(Type type, string propName)
         {
@@ -174,7 +134,10 @@ namespace Common.UnityExtend.Reflection
         {
             if (obj is GameObject go)
             {
-                return go.GetComponents<Component>().SelectMany(c => { return c.GetType().GetInterfaces().Concat(new[] {c.GetType()}); }).Concat(new[] {go.GetType()});
+                return go.GetComponents<Component>().SelectMany(c =>
+                {
+                    return c.GetType().GetInterfaces().Concat(new[] {c.GetType()});
+                }).Concat(new[] {go.GetType()});
             }
 
             return obj.GetType().GetInterfaces().Concat(new[] {obj.GetType()});

@@ -7,14 +7,20 @@ namespace Framework.Entities
         TEntity Entity { get; }
     }
 
-    public abstract class BaseEntityManualView<TEntity> : MonoBehaviour, IEntityView<TEntity>
+    public interface IManualView
+    {
+        void Setup(object entity);
+        void TearDown();
+    }
+
+    public abstract class BaseEntityManualView<TEntity> : MonoBehaviour, IEntityView<TEntity>, IManualView
         where TEntity : IEntity<IEntityData, IEntitySavedData>
     {
         public TEntity Entity { get; private set; }
 
-        public void Setup(TEntity entity)
+        public void Setup(object entity)
         {
-            Entity = entity;
+            Entity = (TEntity) entity;
             OnSetup();
         }
 
@@ -24,11 +30,11 @@ namespace Framework.Entities
             Entity = default;
         }
 
-        private void OnSetup()
+        protected virtual void OnSetup()
         {
         }
 
-        private void OnTearDown()
+        protected virtual void OnTearDown()
         {
         }
     }

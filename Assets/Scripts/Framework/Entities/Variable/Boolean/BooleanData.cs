@@ -19,8 +19,15 @@ namespace Framework.Entities.Variable.Boolean
         {
             return new Boolean(this, new BooleanSavedData(Id));
         }
+#if UNITY_EDITOR
+        [ContextMenu("Test")]
+        void Test()
+        {
+            DebugEntity.SetValue(!DebugEntity.Value);
+        }
+#endif
     }
-    
+
     [Serializable]
     public class BooleanSavedData : VariableSavedData<bool>, IBooleanSavedData
     {

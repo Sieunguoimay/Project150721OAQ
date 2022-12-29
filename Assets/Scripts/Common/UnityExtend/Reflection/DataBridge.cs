@@ -12,110 +12,6 @@ using Object = UnityEngine.Object;
 
 namespace Common.UnityExtend.Reflection
 {
-    [Serializable]
-    public class EventItem
-    {
-        [SerializeField] protected string eventName;
-
-        public string EventName => eventName;
-
-        public void UpdateEventIdentity(EventInfo eventInfo)
-        {
-            eventName = FormatEventName(eventInfo);
-        }
-
-        public static string FormatEventName(EventInfo eventInfo)
-        {
-            return
-                $"{eventInfo.Name}({string.Join(",", eventInfo.EventHandlerType.GenericTypeArguments.Select(arg => arg.Name))})";
-        }
-
-        public static string ExtractEventName(string formattedName)
-        {
-            return formattedName.Split('(').FirstOrDefault();
-        }
-
-        public EventInfo GetEventInfo(Type type)
-        {
-            return type.GetEvents().FirstOrDefault(ei => FormatEventName(ei).Equals(eventName));
-        }
-    }
-
-    [Serializable]
-    public class EventItemList<TEventItem> where TEventItem : EventItem, new()
-    {
-        [SerializeField] private TEventItem[] eventItems;
-
-        public TEventItem[] EventItems => eventItems;
-
-
-        public void ValidateEventItems(IReadOnlyList<EventInfo> events)
-        {
-            if (events == null || events.Count == 0)
-            {
-                eventItems = new TEventItem[0];
-                return;
-            }
-
-            if (eventItems != null && eventItems.Length == events.Count) return;
-            var newItems = new TEventItem[events.Count];
-
-            for (var i = 0; i < events.Count; i++)
-            {
-                var n = EventItem.FormatEventName(events[i]);
-                var item = eventItems?.FirstOrDefault(it => it.EventName.Equals(n));
-                if (item != null)
-                {
-                    newItems[i] = item;
-                }
-                else
-                {
-                    newItems[i] = new TEventItem();
-                    newItems[i].UpdateEventIdentity(events[i]);
-                }
-            }
-
-            eventItems = newItems;
-        }
-    }
-#if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(EventItemList<>))]
-    public class EventItemListDrawer : PropertyDrawer
-    {
-        private bool _foldout;
-
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-            EditorGUI.BeginProperty(position, label, property);
-            var eventItems = property.FindPropertyRelative("eventItems");
-            var lines = _foldout ? eventItems.arraySize + 1 : 1;
-
-            position.height /= lines;
-            position.height -= lines * 2;
-
-              _foldout = EditorGUI.Foldout(position, _foldout, "Events");
-            if (_foldout)
-            {
-                position.y += position.height;
-                position.x += 10;
-                for (var i = 0; i < eventItems.arraySize; i++)
-                {
-                    EditorGUI.PropertyField(position, eventItems.GetArrayElementAtIndex(i), GUIContent.none);
-                    position.y += position.height;
-                }
-            }
-
-            EditorGUI.EndProperty();
-        }
-
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            var lines = _foldout ? property.FindPropertyRelative("eventItems").arraySize + 1 : 1;
-            return base.GetPropertyHeight(property, label) * lines + lines * 2;
-        }
-    }
-#endif
-
     public class DataBridge : MonoBehaviour
     {
         [SerializeField, ComponentSelector] private Object sourceObject;
@@ -123,12 +19,27 @@ namespace Common.UnityExtend.Reflection
         [SerializeField, PathSelector(nameof(sourceObject))]
         private string path;
 
-        [SerializeField] private EventItemList<SourceEventItem> eventItemList;
+        [SerializeField] private EventList<SourceEventItem> eventItemList = new();
 
         [SerializeField] private MethodPairItem[] items;
 
-        public Object SourceObject => ReflectionUtility.ExecutePathOfObject(sourceObject, string.IsNullOrEmpty(path) ? new string[0] : path.Split('.'), true) as Object;
-        public Type SourceObjectType => ReflectionUtility.GetTypeAtPath(sourceObject?.GetType(), string.IsNullOrEmpty(path) ? new string[0] : path.Split('.'), true);
+        private object _runtimeSourceObject;
+
+        private object GetSourceObject()
+        {
+            _runtimeSourceObject ??= ReflectionUtility.ExecutePathOfObject(sourceObject,
+                string.IsNullOrEmpty(path) ? new string[0] : path.Split('.'), true);
+
+            if (_runtimeSourceObject == null)
+            {
+                Debug.LogError($"Object at this path {sourceObject}->{path} is null");
+            }
+
+            return _runtimeSourceObject;
+        }
+
+        public Type SourceObjectType => ReflectionUtility.GetTypeAtPath(sourceObject?.GetType(),
+            string.IsNullOrEmpty(path) ? new string[0] : path.Split('.'), true);
 
         [Serializable]
         public class MethodPairItem
@@ -178,7 +89,8 @@ namespace Common.UnityExtend.Reflection
                 if (_targetMethodInfo != null && _sourceMethodInfo != null) return;
 
                 _targetMethodInfo = ReflectionUtility.GetMethodInfo(targetObject.GetType(), targetMethodName, true);
-                _sourceMethodInfo = ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), sourceObjectMethodName.Split('.'), true);
+                _sourceMethodInfo =
+                    ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), sourceObjectMethodName.Split('.'), true);
 
                 _sourcePathExecutor.Setup(sourceObjectMethodName, sourceObject);
 
@@ -248,15 +160,18 @@ namespace Common.UnityExtend.Reflection
                 }
             }
 
-            var events = SourceObjectType?.GetEvents().Concat(GetExtraEvents()).ToArray();
-            eventItemList.ValidateEventItems(events);
+            if (eventItemList != null)
+            {
+                var events = SourceObjectType?.GetEvents().Concat(GetExtraEvents()).ToArray();
+                eventItemList.ValidateEventItems(events);
+            }
         }
 
         private void OnEnable()
         {
             foreach (var t in items)
             {
-                t.SetupReflection(SourceObject);
+                t.SetupReflection(GetSourceObject());
             }
 
             Subscribe();
@@ -271,7 +186,7 @@ namespace Common.UnityExtend.Reflection
 
         private void Subscribe()
         {
-            var obj = SourceObject;
+            var obj = GetSourceObject();
             _cachedRuntimeDelegates = new Delegate[eventItemList.EventItems.Length];
             for (var i = 0; i < eventItemList.EventItems.Length; i++)
             {
@@ -280,7 +195,8 @@ namespace Common.UnityExtend.Reflection
 
                 var evInfo = e.GetEventInfo(obj.GetType());
 
-                var runtimeDelegate = EventSubscription.EventHandlerItem.CreateDelegate(evInfo.EventHandlerType, MethodInfo, this);
+                var runtimeDelegate =
+                    EventSubscription.EventHandlerItem.CreateDelegate(evInfo.EventHandlerType, MethodInfo, this);
                 if (runtimeDelegate == null) continue;
 
                 evInfo.AddEventHandler(obj, runtimeDelegate);
@@ -290,7 +206,7 @@ namespace Common.UnityExtend.Reflection
 
         private void Unsubscribe()
         {
-            var obj = SourceObject;
+            var obj = GetSourceObject();
 
             for (var i = 0; i < eventItemList.EventItems.Length; i++)
             {
@@ -305,11 +221,11 @@ namespace Common.UnityExtend.Reflection
             _cachedRuntimeDelegates = null;
         }
 
-        private MethodInfo MethodInfo => GetType().GetMethod("OnEventTriggered");
+        private MethodInfo MethodInfo => GetType().GetMethod(nameof(OnEventTriggered), ReflectionUtility.MethodFlags);
 
         private void OnEventTriggered()
         {
-            Debug.Log("OK");
+            Transfer();
         }
 
         [ContextMenu("Transfer")]
@@ -317,7 +233,7 @@ namespace Common.UnityExtend.Reflection
         {
             foreach (var t in items)
             {
-                t.Transfer(SourceObject);
+                t.Transfer(GetSourceObject());
             }
         }
 
