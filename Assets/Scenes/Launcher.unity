@@ -702,12 +702,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   keyType: 0
-  stringKeys: []
-  integerKeys: 
+  stringKeys:
+  - 
+  - 
+  integerKeys: 0000000000000000
   eventHandlerGroups:
-  - eventHandlers:
-    - targetObject: {fileID: 1505393257}
-      methodName: 'Test(): Void'
+  - eventHandlers: []
+  - eventHandlers: []
 --- !u!4 &1505393258
 Transform:
   m_ObjectHideFlags: 0
