@@ -718,13 +718,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7651760e7104424c9e90a92043e3ea8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  keyType: 2
+  keyType: 1
   stringKeys:
   - 
   - 
   integerKeys: 0000000000000000
   eventHandlerGroups:
   - eventHandlers:
+    - targetObject: {fileID: 0}
+      methodName: 
+    - targetObject: {fileID: 0}
+      methodName: 
     - targetObject: {fileID: 0}
       methodName: 
   - eventHandlers:

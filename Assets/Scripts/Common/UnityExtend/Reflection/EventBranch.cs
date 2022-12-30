@@ -154,7 +154,7 @@ namespace Common.UnityExtend.Reflection
         private SerializedProperty _integerKeys;
         private SerializedProperty _eventHandlerGroups;
 
-        private int _foldout;
+        private bool _editKeys;
 
         private void OnEnable()
         {
@@ -173,7 +173,25 @@ namespace Common.UnityExtend.Reflection
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.PropertyField(_keyType);
 
-            EditorGUILayout.LabelField("Branches");
+            var shouldEditKey =
+                _keyType.enumValueIndex is (int) EventBranch.BranchKeyType.IntegerKey or (int) EventBranch.BranchKeyType
+                    .StringKey;
+
+            EditorGUILayout.BeginHorizontal();
+            if (shouldEditKey)
+            {
+                var color = GUI.color;
+                GUI.color = _editKeys ? Color.cyan : color;
+                if (GUILayout.Button("#", GUILayout.Width(20)))
+                {
+                    _editKeys = !_editKeys;
+                }
+
+                GUI.color = color;
+            }
+
+            EditorGUILayout.LabelField("Branches", GUILayout.Width(70));
+            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginVertical();
             var count = _eventHandlerGroups.arraySize;
@@ -182,72 +200,47 @@ namespace Common.UnityExtend.Reflection
             {
                 if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.Index)
                 {
-                    label = ($"Index {i}");
+                    label = ($"Index - {i}");
                 }
                 else if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.BoolKey)
                 {
+                    label = i == 1 ? "True" : "False";
                     if (i > 2) continue;
                 }
                 else if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.IntegerKey)
                 {
-                    label = "Integer";
+                    label = $"Key - {_integerKeys.GetArrayElementAtIndex(i).intValue}";
                 }
                 else if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.StringKey)
                 {
-                    label = "String";
+                    label = $"Key - {_stringKeys.GetArrayElementAtIndex(i).stringValue}";
                 }
 
-                var rect = EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                if (_editKeys)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.Space(15, false);
+                    EditorGUILayout.LabelField("New Key", GUILayout.Width(55));
+                    _stringKeys.GetArrayElementAtIndex(i).stringValue = EditorGUILayout.TextField(GUIContent.none,
+                        _stringKeys.GetArrayElementAtIndex(i).stringValue, GUILayout.Width(50));
+                    EditorGUILayout.EndHorizontal();
+                }
+
+                EditorGUILayout.BeginHorizontal(); //EditorStyles.helpBox);
                 EditorGUILayout.Space(15, false);
                 var eventHandlers =
                     _eventHandlerGroups.GetArrayElementAtIndex(i)
                         .FindPropertyRelative(nameof(EventBranch.EventHandlerGroup.eventHandlers));
 
-                EditorGUILayout.BeginVertical();
-                // _foldout = EditorGUILayout.Foldout(_foldout, new GUIContent(label), true);
-                for (int j = 0; j < eventHandlers.arraySize; j++)
+                if (EditorGUILayout.PropertyField(eventHandlers, new GUIContent(label), true))
                 {
-                    EditorGUILayout.PropertyField(eventHandlers.GetArrayElementAtIndex(j));
+                    Debug.Log("OK");
                 }
-
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                if (GUILayout.Button("-"))
-                {
-                    eventHandlers.DeleteArrayElementAtIndex(eventHandlers.arraySize - 1);
-                }
-
-                if (GUILayout.Button("+"))
-                {
-                    eventHandlers.InsertArrayElementAtIndex(eventHandlers.arraySize);
-                }
-
-                EditorGUILayout.EndHorizontal();
-
-                EditorGUILayout.EndVertical();
-                // if (EditorGUILayout.PropertyField(eventHandlers, new GUIContent(label), true))
-                // {
-                //     Debug.Log("OK");
-                // }
 
                 EditorGUILayout.Space(2, false);
                 EditorGUILayout.EndHorizontal();
-
-                // if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.IntegerKey)
-                // {
-                //     rect.y += 4;
-                //     rect.x += 73;
-                //     rect.height = 16;
-                //     rect.width = 70;
-                //     var integerKey = _integerKeys.GetArrayElementAtIndex(i);
-                //     integerKey.intValue = EditorGUI.IntField(rect, GUIContent.none, integerKey.intValue);
-                //     var ev = Event.current;
-                //     if (rect.Contains(ev.mousePosition) && ev.type == EventType.MouseDown && ev.button == 0)
-                //     {
-                //         Debug.Log("OK");
-                //         ev.Use();
-                //     }
-                // }
+                EditorGUILayout.EndVertical();
             }
 
             EditorGUILayout.EndVertical();
