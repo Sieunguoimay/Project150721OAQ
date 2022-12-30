@@ -62,7 +62,7 @@ namespace Common.UnityExtend.Reflection
 
         public void TriggerStringKey(string key)
         {
-            if (!Validate(BranchKeyType.StringIndex)) return;
+            if (!Validate(BranchKeyType.StringKey)) return;
             InternalTriggerByIndex(Array.IndexOf(stringKeys, key));
         }
 
@@ -121,7 +121,7 @@ namespace Common.UnityExtend.Reflection
             Index,
             BoolKey,
             IntegerKey,
-            StringIndex,
+            StringKey,
         }
 
         public void Test()
@@ -154,6 +154,8 @@ namespace Common.UnityExtend.Reflection
         private SerializedProperty _integerKeys;
         private SerializedProperty _eventHandlerGroups;
 
+        private int _foldout;
+
         private void OnEnable()
         {
             _keyType = serializedObject.FindProperty("keyType");
@@ -164,6 +166,7 @@ namespace Common.UnityExtend.Reflection
 
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.ObjectField(new GUIContent("Script"), MonoScript.FromMonoBehaviour(target as MonoBehaviour),
                 typeof(EventBranch), false);
@@ -172,17 +175,79 @@ namespace Common.UnityExtend.Reflection
 
             EditorGUILayout.LabelField("Branches");
 
-            var boxStyle = new GUIStyle(GUI.skin.box) {border = new RectOffset(1, 1, 1, 1)};
-            EditorGUILayout.BeginVertical(boxStyle);
+            EditorGUILayout.BeginVertical();
             var count = _eventHandlerGroups.arraySize;
+            var label = "None";
             for (var i = 0; i < count; i++)
             {
                 if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.Index)
                 {
-                    EditorGUILayout.LabelField($"Index_{i}");
+                    label = ($"Index {i}");
+                }
+                else if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.BoolKey)
+                {
+                    if (i > 2) continue;
+                }
+                else if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.IntegerKey)
+                {
+                    label = "Integer";
+                }
+                else if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.StringKey)
+                {
+                    label = "String";
                 }
 
-                EditorGUILayout.PropertyField(_eventHandlerGroups.GetArrayElementAtIndex(i));
+                var rect = EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+                EditorGUILayout.Space(15, false);
+                var eventHandlers =
+                    _eventHandlerGroups.GetArrayElementAtIndex(i)
+                        .FindPropertyRelative(nameof(EventBranch.EventHandlerGroup.eventHandlers));
+
+                EditorGUILayout.BeginVertical();
+                // _foldout = EditorGUILayout.Foldout(_foldout, new GUIContent(label), true);
+                for (int j = 0; j < eventHandlers.arraySize; j++)
+                {
+                    EditorGUILayout.PropertyField(eventHandlers.GetArrayElementAtIndex(j));
+                }
+
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("-"))
+                {
+                    eventHandlers.DeleteArrayElementAtIndex(eventHandlers.arraySize - 1);
+                }
+
+                if (GUILayout.Button("+"))
+                {
+                    eventHandlers.InsertArrayElementAtIndex(eventHandlers.arraySize);
+                }
+
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.EndVertical();
+                // if (EditorGUILayout.PropertyField(eventHandlers, new GUIContent(label), true))
+                // {
+                //     Debug.Log("OK");
+                // }
+
+                EditorGUILayout.Space(2, false);
+                EditorGUILayout.EndHorizontal();
+
+                // if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.IntegerKey)
+                // {
+                //     rect.y += 4;
+                //     rect.x += 73;
+                //     rect.height = 16;
+                //     rect.width = 70;
+                //     var integerKey = _integerKeys.GetArrayElementAtIndex(i);
+                //     integerKey.intValue = EditorGUI.IntField(rect, GUIContent.none, integerKey.intValue);
+                //     var ev = Event.current;
+                //     if (rect.Contains(ev.mousePosition) && ev.type == EventType.MouseDown && ev.button == 0)
+                //     {
+                //         Debug.Log("OK");
+                //         ev.Use();
+                //     }
+                // }
             }
 
             EditorGUILayout.EndVertical();
@@ -195,46 +260,12 @@ namespace Common.UnityExtend.Reflection
             }
 
             EditorGUILayout.EndHorizontal();
+            serializedObject.ApplyModifiedProperties();
         }
 
         private void AddItem()
         {
             (target as EventBranch)?.AddItem();
-        }
-    }
-
-    [CustomPropertyDrawer(typeof(EventBranch.EventHandlerGroup))]
-    public class EventHandlerGroupDrawer : PropertyDrawer
-    {
-        private bool _expand;
-
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-            // base.OnGUI(position, property, label);
-            var prop = property.FindPropertyRelative(nameof(EventBranch.EventHandlerGroup.eventHandlers));
-            position.height /= (_expand ? (prop.arraySize + 1) : 0) + 1;
-            _expand = EditorGUI.Foldout(position, _expand, prop.name,true);
-            if (_expand)
-            {
-                for (var i = 0; i < prop.arraySize; i++)
-                {
-                    position.y += position.height;
-                    EditorGUI.PropertyField(position, prop.GetArrayElementAtIndex(i));
-                }
-
-                position.y += position.height;
-                position.x += position.width - 22;
-                position.width = 20;
-                if (GUI.Button(position, "+"))
-                {
-                }
-            }
-        }
-
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            var arr = property.FindPropertyRelative(nameof(EventBranch.EventHandlerGroup.eventHandlers));
-            return base.GetPropertyHeight(property, label) * ((_expand ? (arr.arraySize + 1) : 0) + 1);
         }
     }
 #endif

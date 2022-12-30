@@ -87,7 +87,8 @@ namespace Common.UnityExtend.Reflection
 
         public IEnumerable<string> GetMethodNames() => targetObject == null
             ? null
-            : ReflectionUtility.GetAllMethods(targetObject.GetType()).Where(m => m.ReturnType == typeof(void)).Select(ReflectionUtility.FormatName.FormatMethodName);
+            : ReflectionUtility.GetAllMethods(targetObject.GetType()).Where(m => m.ReturnType == typeof(void))
+                .Select(ReflectionUtility.FormatName.FormatMethodName);
 
         public MethodInfo MethodInfo =>
             targetObject ? ReflectionUtility.GetMethodInfo(targetObject.GetType(), methodName, true) : null;
@@ -170,6 +171,21 @@ namespace Common.UnityExtend.Reflection
         {
             var lines = _foldout ? property.FindPropertyRelative("eventItems").arraySize + 1 : 1;
             return base.GetPropertyHeight(property, label) * lines + (_foldout ? 2 : 0);
+        }
+    }
+
+    [CustomPropertyDrawer(typeof(EventHandlerItem))]
+    public class EventHandlerItemDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            // base.OnGUI(position, property, label);
+            position.width /= 2;
+            position.height -= 2;
+            EditorGUI.PropertyField(position, property.FindPropertyRelative("targetObject"), GUIContent.none);
+            position.x += position.width;
+            position.height += 2;
+            EditorGUI.PropertyField(position, property.FindPropertyRelative("methodName"), GUIContent.none);
         }
     }
 #endif
