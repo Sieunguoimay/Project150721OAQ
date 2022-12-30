@@ -81,17 +81,32 @@ namespace Common.UnityExtend.Reflection
     public class EventHandlerItem
     {
         [SerializeField, ComponentSelector] private Object targetObject;
-
-        [SerializeField, StringSelector(nameof(GetMethodNames))]
+#if UNITY_EDITOR
+        [StringSelector(nameof(GetMethodNames), false, nameof(StringSelectorCallback))]
+#endif
+        [SerializeField]
         public string methodName;
 
-        public IEnumerable<string> GetMethodNames() => targetObject == null
-            ? null
-            : ReflectionUtility.GetAllMethods(targetObject.GetType()).Where(m => m.ReturnType == typeof(void))
-                .Select(ReflectionUtility.FormatName.FormatMethodName);
+#if UNITY_EDITOR
+        public object StringSelectorCallback(object value)
+        {
+            return ((string) value).Split('/').LastOrDefault();
+        }
+
+        public IEnumerable<string> GetMethodNames()
+        {
+            if (targetObject == null) return null;
+            var result = ReflectionUtility.GetAllMethodsAndInterfaces(targetObject.GetType());
+            var valueTuples = result as (Type, IEnumerable<MethodInfo>)[] ?? result.ToArray();
+            return valueTuples.Length > 1
+                ? valueTuples.SelectMany(r => r.Item2.Where(m => m.ReturnType == typeof(void))
+                    .Select(mi => $"{r.Item1.Name}/{ReflectionUtility.FormatName.FormatMethodName(mi)}"))
+                : valueTuples.FirstOrDefault().Item2.Where(m => m.ReturnType == typeof(void)).Select(ReflectionUtility.FormatName.FormatMethodName);
+        }
 
         public MethodInfo MethodInfo =>
             targetObject ? ReflectionUtility.GetMethodInfo(targetObject.GetType(), methodName, true) : null;
+#endif
 
         public Delegate RuntimeHandler { get; private set; }
 

@@ -91,7 +91,7 @@ namespace Common.UnityExtend.Reflection
             {
                 get
                 {
-                    if (pathSelector.Executor == null) pathSelector.Setup();
+                    if (pathSelector.Executor == null) pathSelector.Setup(true);
                     return pathSelector;
                 }
             }
@@ -113,7 +113,7 @@ namespace Common.UnityExtend.Reflection
             public FieldDataSourceType GetResultType()
             {
                 return dataSource == FieldDataSourceType.ObjectField
-                    ? MapToTypeEnum(PathSelector.Executor.LastMemberType)
+                    ? MapToTypeEnum(PathSelector.Executor.RuntimePathFinalType)
                     : dataSource;
             }
 

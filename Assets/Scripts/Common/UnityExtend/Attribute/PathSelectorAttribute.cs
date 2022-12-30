@@ -15,7 +15,7 @@ namespace Common.UnityExtend.Attribute
 
         public PathSelectorAttribute(string objectPropertyName, bool isGetPath = true,
             bool isProviderPropertyInBase = false, bool typeProvided = false)
-            : base(objectPropertyName, isProviderPropertyInBase)
+            : base(objectPropertyName, isProviderPropertyInBase, "")
         {
             IsGetPath = isGetPath;
             IsTypeProvided = typeProvided;
@@ -33,9 +33,7 @@ namespace Common.UnityExtend.Attribute
         {
             if (attribute is not PathSelectorAttribute objectSelector) return;
 
-            // position.width = 50;
             position = EditorGUI.PrefixLabel(position, label);
-            // position.x += 50;
             if (property.propertyType == SerializedPropertyType.String)
             {
                 if (!CreateMenuWithStringProperty(position, property, objectSelector)) return;
@@ -83,7 +81,7 @@ namespace Common.UnityExtend.Attribute
                     var i1 = i;
                     _menu.AddItem(new GUIContent(id), property.stringValue == id, data =>
                     {
-                        path[i1] = (string) data;
+                        path[i1] = ModifyValue((string) data);
                         property.serializedObject.Update();
                         property.stringValue = string.Join('.', path);
                         property.serializedObject.ApplyModifiedProperties();
@@ -136,16 +134,34 @@ namespace Common.UnityExtend.Attribute
 
         private static IEnumerable<string> GetIds(Type type, bool isGetPath)
         {
-            var methods = ReflectionUtility.GetAllMethods(type);
-            var props = ReflectionUtility.GetAllProperties(type);
-            var fields = ReflectionUtility.GetAllFields(type);
-            return new string[0]
-                    .Concat(methods.Where(m => !m.Name.StartsWith("get_")).Where(m =>
-                            !isGetPath || m.GetParameters().Length == 0 && m.ReturnType != typeof(void))
-                        .Select(ReflectionUtility.FormatName.FormatMethodName))
-                    .Concat(props.Select(ReflectionUtility.FormatName.FormatPropertyName))
-                    .Concat(fields.Select(ReflectionUtility.FormatName.FormatFieldName))
-                ;
+            // var result = ReflectionUtility.GetAllMethodsAndInterfaces(type);
+            // return result.SelectMany(r => r.Item2.Where(m => m.ReturnType == typeof(void)).Select(mi => $"{r.Item1.Name}/{ReflectionUtility.FormatName.FormatMethodName(mi)}"));
+            var types = type.GetInterfaces();
+            if (types.Length > 0)
+            {
+                var interfaces = types.Concat(new[] {type});
+                var methods = interfaces.SelectMany(i => i.GetMethods().Where(WhereMethod).Select(mi => $"{i.Name}/{ReflectionUtility.FormatName.FormatMethodName(mi)}"));
+                var props = interfaces.SelectMany(i => i.GetProperties().Select(pi => $"{i.Name}/{ReflectionUtility.FormatName.FormatPropertyName(pi)}"));
+                var fields = interfaces.SelectMany(i => i.GetFields().Select(fi => $"{i.Name}/{ReflectionUtility.FormatName.FormatFieldName(fi)}"));
+                return new string[0].Concat(methods).Concat(props).Concat(fields);
+            }
+            else
+            {
+                var methods = type.GetMethods().Where(WhereMethod).Select(ReflectionUtility.FormatName.FormatMethodName);
+                var props = type.GetProperties().Select(ReflectionUtility.FormatName.FormatPropertyName);
+                var fields = type.GetFields().Select(ReflectionUtility.FormatName.FormatFieldName);
+                return new string[0].Concat(methods).Concat(props).Concat(fields);
+            }
+
+            bool WhereMethod(MethodInfo m)
+            {
+                return !m.Name.StartsWith("get_") && (!isGetPath || m.GetParameters().Length == 0 && m.ReturnType != typeof(void));
+            }
+        }
+
+        private static string ModifyValue(string value)
+        {
+            return value.Split('/').LastOrDefault();
         }
     }
 #endif

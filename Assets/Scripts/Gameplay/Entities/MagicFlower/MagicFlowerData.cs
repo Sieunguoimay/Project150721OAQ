@@ -39,7 +39,7 @@ namespace Gameplay.Entities.MagicFlower
     {
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {
-            return new MagicFlower(this, new MagicFlowerSavedData(Id));
+            return new MagicFlower(this, new MagicFlowerSavedData(this));
         }
 
         [field: SerializeField] public int NumFlowers { get; private set; }
@@ -50,13 +50,12 @@ namespace Gameplay.Entities.MagicFlower
 
         [field: SerializeField, Min(0)] public int PayoutAmountPerFlower { get; private set; }
         [SerializeField, ChildAsset] private StageData Test2;
-
     }
 
     [Serializable]
-    public class MagicFlowerSavedData : BaseEntitySavedData, IMagicFlowerSavedData
+    public class MagicFlowerSavedData : BaseEntitySavedData<IMagicFlowerData>, IMagicFlowerSavedData
     {
-        public MagicFlowerSavedData(string id) : base(id)
+        public MagicFlowerSavedData(IMagicFlowerData data) : base(data)
         {
         }
 

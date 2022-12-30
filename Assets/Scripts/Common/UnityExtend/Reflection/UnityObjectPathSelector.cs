@@ -20,10 +20,13 @@ namespace Common.UnityExtend.Reflection
 
         [field: System.NonSerialized] public PathExecutor Executor { get; private set; }
 
-        public void Setup()
+        public Type PathFinalType => ReflectionUtility.GetTypeAtPath(sourceObject?.GetType(),
+            string.IsNullOrEmpty(path) ? new string[0] : path.Split('.'), true);
+
+        public void Setup(bool cache)
         {
             Executor = new PathExecutor();
-            Executor.Setup(path, sourceObject);
+            Executor.Setup(path, sourceObject, cache);
         }
 
         public class PathExecutor
@@ -31,7 +34,23 @@ namespace Common.UnityExtend.Reflection
             private MemberInfoWrapper[] _memberInfos;
             private object _sourceObject;
 
-            public void Setup(string path, object sourceObject)
+            // private bool _cache;
+            // private object _runtimeObject;
+            //
+            public object CachedRuntimeObject => ExecutePath();
+            // {
+            //     get
+            //     {
+            //         if (_cache)
+            //         {
+            //             return _runtimeObject ??= ExecutePath();
+            //         }
+            //
+            //         return ExecutePath();
+            //     }
+            // }
+
+            public void Setup(string path, object sourceObject, bool cache)
             {
                 _sourceObject = sourceObject;
                 if (string.IsNullOrEmpty(path))
@@ -39,6 +58,7 @@ namespace Common.UnityExtend.Reflection
                     _memberInfos = new MemberInfoWrapper[0];
                     return;
                 }
+
                 var p = path.Split('.');
                 _memberInfos = new MemberInfoWrapper[p.Length];
                 var currType = _sourceObject.GetType();
@@ -48,6 +68,8 @@ namespace Common.UnityExtend.Reflection
                     _memberInfos[i].Setup(currType, p[i], true);
                     currType = _memberInfos[i].GetMemberType();
                 }
+
+                // _cache = cache;
             }
 
             public object ExecutePath()
@@ -62,7 +84,7 @@ namespace Common.UnityExtend.Reflection
                 return currObj;
             }
 
-            public Type LastMemberType => _memberInfos[^1].GetMemberType();
+            public Type RuntimePathFinalType => _memberInfos.Length == 0 ? _sourceObject.GetType() : _memberInfos[^1].GetMemberType();
         }
 
         public class MemberInfoWrapper
@@ -105,12 +127,13 @@ namespace Common.UnityExtend.Reflection
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            // base.OnGUI(position, property, label);k
+            EditorGUI.BeginProperty(position, label, property);
             position.height -= 2;
             position.height /= 2;
             EditorGUI.PropertyField(position, property.FindPropertyRelative("sourceObject"));
             position.y += position.height + 2;
             EditorGUI.PropertyField(position, property.FindPropertyRelative("path"));
+            EditorGUI.EndProperty();
         }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)

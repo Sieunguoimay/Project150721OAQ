@@ -13,11 +13,13 @@ namespace Common.UnityExtend.Attribute
     {
         private readonly string _providerVariableName;
         private readonly bool _isProviderPropertyInBase;
+        private readonly string _callbackToModifySelectedValue;
 
-        protected BaseSelectorAttribute(string name, bool isProviderPropertyInBase)
+        protected BaseSelectorAttribute(string name, bool isProviderPropertyInBase, string callbackToModifySelectedValue)
         {
             _providerVariableName = name;
             _isProviderPropertyInBase = isProviderPropertyInBase;
+            _callbackToModifySelectedValue = callbackToModifySelectedValue;
         }
 
         public object GetData(SerializedProperty property)
@@ -28,6 +30,12 @@ namespace Common.UnityExtend.Attribute
             return ReflectionUtility.GetDataFromMember(providerObject, _providerVariableName, false);
         }
 
+        public object InvokeCallback(SerializedProperty property, object value)
+        {
+            if (string.IsNullOrEmpty(_callbackToModifySelectedValue)) return value;
+            var providerObject = SerializeUtility.GetObjectToWhichPropertyBelong(property);
+            return providerObject.GetType().GetMethod(_callbackToModifySelectedValue)?.Invoke(providerObject, new[] {value});
+        }
         // public void InvokeCallback(SerializedProperty property)
         // {
         //     if (string.IsNullOrEmpty(_callbackMethod)) return;
@@ -40,8 +48,8 @@ namespace Common.UnityExtend.Attribute
 
     public class StringSelectorAttribute : BaseSelectorAttribute
     {
-        public StringSelectorAttribute(string name, bool isProviderPropertyInBase = false)
-            : base(name, isProviderPropertyInBase)
+        public StringSelectorAttribute(string name, bool isProviderPropertyInBase = false, string callbackToModifySelectedValue = "")
+            : base(name, isProviderPropertyInBase, callbackToModifySelectedValue)
         {
         }
     }
@@ -85,7 +93,7 @@ namespace Common.UnityExtend.Attribute
                 _menu.AddItem(new GUIContent(id), IsActive(property, id), data =>
                 {
                     property.serializedObject.Update();
-                    OnSelected(property, (string) data);
+                    OnSelected(property, objectSelector, (string) data);
                     property.serializedObject.ApplyModifiedProperties();
                 }, id);
             }
@@ -108,9 +116,9 @@ namespace Common.UnityExtend.Attribute
             return property.stringValue == item;
         }
 
-        protected virtual void OnSelected(SerializedProperty property, string item)
+        protected virtual void OnSelected(SerializedProperty property, StringSelectorAttribute att, string item)
         {
-            property.stringValue = item;
+            property.stringValue = (string) att.InvokeCallback(property, item);
         }
 
         protected virtual IEnumerable<string> GetIds(SerializedProperty property,

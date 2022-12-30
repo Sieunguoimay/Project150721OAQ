@@ -433,7 +433,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &858286692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -684,13 +684,16 @@ GameObject:
   - component: {fileID: 1505393261}
   - component: {fileID: 1505393260}
   - component: {fileID: 1505393259}
+  - component: {fileID: 1505393264}
+  - component: {fileID: 1505393263}
+  - component: {fileID: 1505393262}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1505393258
 Transform:
   m_ObjectHideFlags: 0
@@ -718,11 +721,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7651760e7104424c9e90a92043e3ea8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  keyType: 1
+  keyType: 3
   stringKeys:
-  - 
-  - 
-  integerKeys: 0000000000000000
+  - hey12
+  - x
+  - xx
+  integerKeys: 0a0000006400000064000000
   eventHandlerGroups:
   - eventHandlers:
     - targetObject: {fileID: 0}
@@ -731,15 +735,8 @@ MonoBehaviour:
       methodName: 
     - targetObject: {fileID: 0}
       methodName: 
-  - eventHandlers:
-    - targetObject: {fileID: 0}
-      methodName: 
-    - targetObject: {fileID: 0}
-      methodName: 
-    - targetObject: {fileID: 0}
-      methodName: 
-    - targetObject: {fileID: 0}
-      methodName: 
+  - eventHandlers: []
+  - eventHandlers: []
 --- !u!114 &1505393260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -752,16 +749,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sourceObject: {fileID: 1505393261}
-  path: 
+  sourceObject: {fileID: 1505393262}
+  path: 'Entity: IVariable`1'
   extraEvents: 0
   itemList:
     eventItems:
-    - eventName: ThisEnabled()
-      methodItems:
-      - targetObject: {fileID: 0}
-        methodName: 
-    - eventName: ThisDisabled()
+    - eventName: ValueChanged(Object,EventArgs)
       methodItems: []
   useSameTypeSourceObjects: 0
   sameTypeSourceObjects: []
@@ -777,8 +770,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sourceObject: {fileID: 0}
-  path: 
+  pathSelector:
+    sourceObject: {fileID: 0}
+    path: 
   eventItemList:
     eventItems:
     - eventName: ThisEnabled()
@@ -786,6 +780,86 @@ MonoBehaviour:
     - eventName: ThisDisabled()
       use: 0
   items: []
+  debug: 0
+--- !u!114 &1505393262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505393256}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1505393263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505393256}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pathSelector:
+    sourceObject: {fileID: 1505393263}
+    path: 
+  eventItemList:
+    eventItems:
+    - eventName: ThisEnabled()
+      use: 0
+    - eventName: ThisDisabled()
+      use: 0
+    - eventName: ThisEnabled()
+      use: 0
+    - eventName: ThisDisabled()
+      use: 0
+  items:
+  - sourceObjectMethodName: 
+    targetObject: {fileID: 0}
+    targetMethodName: 
+    formatType: 3
+  debug: 0
+--- !u!114 &1505393264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505393256}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6eb3471c880a4f63bf9a7bf07f46191e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ifStatement:
+    fieldA:
+      dataSource: 3
+      pathSelector:
+        sourceObject: {fileID: 0}
+        path: 
+      stringValue: 
+      numberValue: 0
+      boolValue: 0
+    compareOperator: 0
+    fieldB:
+      dataSource: 0
+      pathSelector:
+        sourceObject: {fileID: 0}
+        path: 
+      stringValue: 
+      numberValue: 0
+      boolValue: 0
+  then:
+    m_PersistentCalls:
+      m_Calls: []
+  elseWise:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &1560789970
 PrefabInstance:
   m_ObjectHideFlags: 0

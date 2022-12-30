@@ -17,14 +17,14 @@ namespace Gameplay.Entities.Stage.StageSelector
     {
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {
-            return new StageSelector(this, new StageSelectorSavedData(Id));
+            return new StageSelector(this, new StageSelectorSavedData(this));
         }
     }
     
     [Serializable]
-    public class StageSelectorSavedData : BaseEntitySavedData, IStageSelectorSavedData
+    public class StageSelectorSavedData : BaseEntitySavedData<IStageSelectorData>, IStageSelectorSavedData
     {
-        public StageSelectorSavedData(string id) : base(id)
+        public StageSelectorSavedData(IStageSelectorData data) : base(data)
         {
         }
     }

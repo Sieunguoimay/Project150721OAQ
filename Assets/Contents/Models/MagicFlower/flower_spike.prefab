@@ -1087,18 +1087,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sourceObject: {fileID: 2570582846859840317}
-  path: 
+  pathSelector:
+    sourceObject: {fileID: 2570582846859840317}
+    path: 
   eventItemList:
     eventItems:
     - eventName: ThisEnabled()
+      use: 0
     - eventName: ThisDisabled()
+      use: 0
   items:
-  - sourceObjectMethodName: 'get_ToBlossomDurationStep1(): Single'
+  - sourceObjectMethodName: 'Entity: IMagicFlower.Data: IMagicFlowerData.ToBlossomDuration:
+      Single'
     targetObject: {fileID: 6964056268158935379}
     targetMethodName: 'SetDuration(Single): Void'
     formatType: 0
-  - sourceObjectMethodName: 'get_ToBlossomDurationStep2(): Single'
+  - sourceObjectMethodName: 'Entity: IMagicFlower.Data: IMagicFlowerData.ToBlossomDuration:
+      Single'
     targetObject: {fileID: 2641433042094798711}
     targetMethodName: 'SetDuration(Single): Void'
     formatType: 0
@@ -1117,13 +1122,6 @@ MonoBehaviour:
   sourceObject: {fileID: 2570582846859840317}
   path: 'Entity: IMagicFlower'
   extraEvents: 0
-  items:
-  - eventName: GrantedBlossom(EventArgs)
-    methodItems:
-    - targetObject: {fileID: 7794105247901880241}
-      methodName: 'Transfer(): Void'
-    - targetObject: {fileID: 5955243257303247707}
-      methodName: 'Transition(): Void'
   itemList:
     eventItems:
     - eventName: GrantedBlossom(EventArgs)

@@ -58,12 +58,13 @@ namespace Framework.Entities.ContainerEntity
     }
 
     [Serializable]
-    public class ContainerEntitySavedData : BaseEntitySavedData, IContainerEntitySavedData
+    public class ContainerEntitySavedData<TEntityData> : BaseEntitySavedData<TEntityData>, IContainerEntitySavedData
+    where TEntityData: IContainerEntityData
     {
         [SerializeField] private InnerAssetSavedDataService innerAssetSavedDataService = new();
         private readonly IEntitySavedData[] _componentSavedDataItems;
 
-        public ContainerEntitySavedData(string id, IEntitySavedData[] componentSavedDataItems) : base(id)
+        public ContainerEntitySavedData(TEntityData data, IEntitySavedData[] componentSavedDataItems) : base(data)
         {
             _componentSavedDataItems = componentSavedDataItems;
         }

@@ -1,11 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
 namespace Common.UnityExtend.Reflection
 {
-    public class EventBranch : MonoBehaviour
+    public interface IEventBranch
+    {
+        void TriggerByIndex(int index);
+        void TriggerIntKey(int key);
+        void TriggerStringKey(string key);
+        void TriggerBoolKey(bool key);
+    }
+
+    public class EventBranch : MonoBehaviour, IEventBranch
     {
         [SerializeField] private BranchKeyType keyType;
         [SerializeField] private string[] stringKeys;
@@ -86,10 +96,7 @@ namespace Common.UnityExtend.Reflection
                 AssertInvalidIndex(index);
             }
 
-            foreach (var g in eventHandlerGroups)
-            {
-                g.InvokeAction();
-            }
+            eventHandlerGroups[index].InvokeAction();
         }
 
         private void InitializeEvents()
@@ -115,6 +122,18 @@ namespace Common.UnityExtend.Reflection
             Debug.LogError($"Index {index} is invalid. Events {eventHandlerGroups?.Length ?? 0}");
         }
 
+        public bool ValidateBranchKeys()
+        {
+            var valid = keyType switch
+            {
+                BranchKeyType.IntegerKey => !integerKeys.GroupBy(x => x).Any(x => x.Count() > 1),
+                BranchKeyType.StringKey => !stringKeys.GroupBy(x => x).Any(x => x.Count() > 1),
+                _ => true
+            };
+
+            return valid;
+        }
+
         [Serializable]
         public enum BranchKeyType
         {
@@ -124,26 +143,22 @@ namespace Common.UnityExtend.Reflection
             StringKey,
         }
 
-        public void Test()
+        private void OnValidate()
         {
-            Debug.Log("Hey");
-        }
+            if (keyType != BranchKeyType.BoolKey) return;
+            if (eventHandlerGroups.Length == 2) return;
+            
+            Array.Resize(ref eventHandlerGroups, 2);
+            if (integerKeys.Length < 2)
+            {
+                Array.Resize(ref integerKeys, 2);
+            }
 
-        [ContextMenu("TestTrigger")]
-        public void TestTrigger()
-        {
-            TriggerByIndex(0);
+            if (stringKeys.Length < 2)
+            {
+                Array.Resize(ref stringKeys, 2);
+            }
         }
-
-#if UNITY_EDITOR
-        public void AddItem()
-        {
-            var n = eventHandlerGroups.Length + 1;
-            Array.Resize(ref eventHandlerGroups, n);
-            Array.Resize(ref integerKeys, n);
-            Array.Resize(ref stringKeys, n);
-        }
-#endif
     }
 #if UNITY_EDITOR
     [CustomEditor(typeof(EventBranch))]
@@ -155,6 +170,7 @@ namespace Common.UnityExtend.Reflection
         private SerializedProperty _eventHandlerGroups;
 
         private bool _editKeys;
+        private bool _isKeysValid;
 
         private void OnEnable()
         {
@@ -162,34 +178,25 @@ namespace Common.UnityExtend.Reflection
             _stringKeys = serializedObject.FindProperty("stringKeys");
             _integerKeys = serializedObject.FindProperty("integerKeys");
             _eventHandlerGroups = serializedObject.FindProperty("eventHandlerGroups");
+            _isKeysValid = (target as EventBranch)?.ValidateBranchKeys() ?? false;
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.ObjectField(new GUIContent("Script"), MonoScript.FromMonoBehaviour(target as MonoBehaviour),
                 typeof(EventBranch), false);
             EditorGUI.EndDisabledGroup();
+
             EditorGUILayout.PropertyField(_keyType);
 
-            var shouldEditKey =
-                _keyType.enumValueIndex is (int) EventBranch.BranchKeyType.IntegerKey or (int) EventBranch.BranchKeyType
-                    .StringKey;
+            var shouldEditKey = _keyType.enumValueIndex is (int) EventBranch.BranchKeyType.IntegerKey or (int) EventBranch.BranchKeyType
+                .StringKey;
 
             EditorGUILayout.BeginHorizontal();
-            if (shouldEditKey)
-            {
-                var color = GUI.color;
-                GUI.color = _editKeys ? Color.cyan : color;
-                if (GUILayout.Button("#", GUILayout.Width(20)))
-                {
-                    _editKeys = !_editKeys;
-                }
-
-                GUI.color = color;
-            }
-
+            _editKeys = shouldEditKey && DrawEditKeyButton(_editKeys);
             EditorGUILayout.LabelField("Branches", GUILayout.Width(70));
             EditorGUILayout.EndHorizontal();
 
@@ -205,7 +212,7 @@ namespace Common.UnityExtend.Reflection
                 else if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.BoolKey)
                 {
                     label = i == 1 ? "True" : "False";
-                    if (i > 2) continue;
+                    if (i >= 2) break;
                 }
                 else if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.IntegerKey)
                 {
@@ -221,44 +228,116 @@ namespace Common.UnityExtend.Reflection
                 {
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.Space(15, false);
+                    EditorGUILayout.BeginHorizontal(GUI.skin.box);
                     EditorGUILayout.LabelField("New Key", GUILayout.Width(55));
-                    _stringKeys.GetArrayElementAtIndex(i).stringValue = EditorGUILayout.TextField(GUIContent.none,
-                        _stringKeys.GetArrayElementAtIndex(i).stringValue, GUILayout.Width(50));
+                    if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.StringKey)
+                    {
+                        _stringKeys.GetArrayElementAtIndex(i).stringValue = EditorGUILayout.TextField(GUIContent.none,
+                            _stringKeys.GetArrayElementAtIndex(i).stringValue, GUILayout.Width(50));
+                    }
+                    else if (_keyType.enumValueIndex == (int) EventBranch.BranchKeyType.IntegerKey)
+                    {
+                        _integerKeys.GetArrayElementAtIndex(i).intValue = EditorGUILayout.IntField(GUIContent.none,
+                            _integerKeys.GetArrayElementAtIndex(i).intValue, GUILayout.Width(50));
+                    }
+
+                    EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndHorizontal();
                 }
 
-                EditorGUILayout.BeginHorizontal(); //EditorStyles.helpBox);
+                var rect = EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.Space(15, false);
-                var eventHandlers =
-                    _eventHandlerGroups.GetArrayElementAtIndex(i)
-                        .FindPropertyRelative(nameof(EventBranch.EventHandlerGroup.eventHandlers));
-
-                if (EditorGUILayout.PropertyField(eventHandlers, new GUIContent(label), true))
-                {
-                    Debug.Log("OK");
-                }
-
+                var eventHandlers = _eventHandlerGroups.GetArrayElementAtIndex(i)
+                    .FindPropertyRelative(nameof(EventBranch.EventHandlerGroup.eventHandlers));
+                EditorGUILayout.PropertyField(eventHandlers, new GUIContent(label), true);
                 EditorGUILayout.Space(2, false);
                 EditorGUILayout.EndHorizontal();
+
+                if (eventHandlers.isExpanded && DrawDeleteButtonForEvent(rect))
+                {
+                    DeleteItem(i);
+                    break;
+                }
+
                 EditorGUILayout.EndVertical();
             }
 
             EditorGUILayout.EndVertical();
 
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("+", GUILayout.Width(20)))
+            if (_keyType.enumValueIndex != (int) EventBranch.BranchKeyType.BoolKey)
             {
-                AddItem();
+                EditorGUILayout.BeginHorizontal();
+                // GUILayout.FlexibleSpace();
+                EditorGUILayout.Space(10);
+                if (GUILayout.Button("+")) //, GUILayout.Width(20)))
+                {
+                    AddItem();
+                }
+
+                EditorGUILayout.Space(10);
+
+                EditorGUILayout.EndHorizontal();
             }
 
-            EditorGUILayout.EndHorizontal();
-            serializedObject.ApplyModifiedProperties();
+            if (serializedObject.ApplyModifiedProperties())
+            {
+                _isKeysValid = (target as EventBranch)?.ValidateBranchKeys() ?? false;
+            }
+
+            if (!_isKeysValid)
+            {
+                var color = GUI.color;
+                GUI.color = Color.red;
+                EditorGUILayout.LabelField("Err");
+                GUI.color = color;
+            }
+        }
+
+        private bool DrawEditKeyButton(bool editKey)
+        {
+            var color = GUI.color;
+            GUI.color = _editKeys ? Color.cyan : color;
+            if (GUILayout.Button("#", GUILayout.Width(20)))
+            {
+                editKey = !editKey;
+                if (!editKey)
+                {
+                    GUI.FocusControl(null);
+                }
+            }
+
+            GUI.color = color;
+            return editKey;
+        }
+
+        private static bool DrawDeleteButtonForEvent(Rect rect)
+        {
+            rect.y += rect.height - 16;
+            rect.height = 16;
+            rect.x = rect.width - 72;
+            rect.width = 20;
+
+            var color = GUI.color;
+            GUI.color = Color.red;
+            var click = GUI.Button(rect, "X");
+
+            GUI.color = color;
+            return click;
         }
 
         private void AddItem()
         {
-            (target as EventBranch)?.AddItem();
+            var lastIndex = _eventHandlerGroups.arraySize;
+            _eventHandlerGroups.InsertArrayElementAtIndex(lastIndex);
+            _integerKeys.InsertArrayElementAtIndex(lastIndex);
+            _stringKeys.InsertArrayElementAtIndex(lastIndex);
+        }
+
+        private void DeleteItem(int index)
+        {
+            _eventHandlerGroups.DeleteArrayElementAtIndex(index);
+            _integerKeys.DeleteArrayElementAtIndex(index);
+            _stringKeys.DeleteArrayElementAtIndex(index);
         }
     }
 #endif

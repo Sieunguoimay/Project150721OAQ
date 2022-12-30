@@ -95,40 +95,8 @@ namespace Common.UnityExtend.Reflection
         [ContextMenu("UpdateEventItems")]
         public void UpdateEventItems()
         {
-            var events = GetEventProviderType()?.GetEvents().Concat(extraEvents ? GetExtraEvents() : new EventInfo[0]).ToArray();
-            // ValidateEventItems(events);
-            itemList.ValidateEventItems(events);
+            itemList.ValidateEventItems(GetEventProviderType()?.GetEvents().Concat(extraEvents ? GetExtraEvents() : new EventInfo[0]).ToArray());
         }
-        //
-        // private void ValidateEventItems(IReadOnlyList<EventInfo> events)
-        // {
-        //     if (events == null || events.Count == 0)
-        //     {
-        //         items = new EventItemWithTargets[0];
-        //         return;
-        //     }
-        //
-        //     if (items != null && items.Length == events.Count) return;
-        //
-        //     var newItems = new EventItemWithTargets[events.Count];
-        //
-        //     for (var i = 0; i < events.Count; i++)
-        //     {
-        //         var n = EventItemWithTargets.FormatEventName(events[i]);
-        //         var item = items?.FirstOrDefault(it => it.EventName.Equals(n));
-        //         if (item != null)
-        //         {
-        //             newItems[i] = item;
-        //         }
-        //         else
-        //         {
-        //             newItems[i] = new EventItemWithTargets();
-        //             newItems[i].UpdateEventIdentity(events[i]);
-        //         }
-        //     }
-        //
-        //     items = newItems;
-        // }
 
         public bool ValidateEventHandlerItems()
         {
@@ -218,7 +186,9 @@ namespace Common.UnityExtend.Reflection
         private SerializedProperty _path;
         private SerializedProperty _extraEvents;
         private SerializedProperty _sameTypeSourceObjects;
+
         private SerializedProperty _useSameTypeSourceObjects;
+
         // private SerializedProperty _items;
         private SerializedProperty _itemList;
 
@@ -251,12 +221,6 @@ namespace Common.UnityExtend.Reflection
             EditorGUILayout.PropertyField(_path);
             EditorGUILayout.PropertyField(_extraEvents);
 
-            // if (EditorGUI.EndChangeCheck())
-            // {
-            //     es.UpdateEventItems();
-            //     _anythingChanged = true;
-            // }
-
             EditorGUILayout.PropertyField(_useSameTypeSourceObjects);
 
             if (_useSameTypeSourceObjects.boolValue)
@@ -277,21 +241,20 @@ namespace Common.UnityExtend.Reflection
             }
 
             EditorGUI.BeginChangeCheck();
-
-
-            // for (var i = 0; i < _items.arraySize; i++)
-            // {
-            //     EditorGUILayout.PropertyField(_items.GetArrayElementAtIndex(i).FindPropertyRelative("methodItems"), new GUIContent(_items.GetArrayElementAtIndex(i).FindPropertyRelative("eventName").stringValue));
-            // }
-
-            for (var i = 0; i < _itemList.arraySize; i++)
+            try
             {
-                EditorGUILayout.PropertyField(_itemList.GetArrayElementAtIndex(i).FindPropertyRelative("methodItems"), new GUIContent(_itemList.GetArrayElementAtIndex(i).FindPropertyRelative("eventName").stringValue));
+                for (var i = 0; i < _itemList.arraySize; i++)
+                {
+                    EditorGUILayout.PropertyField(_itemList.GetArrayElementAtIndex(i).FindPropertyRelative("methodItems"), new GUIContent(_itemList.GetArrayElementAtIndex(i).FindPropertyRelative("eventName").stringValue));
+                }
+            }
+            catch (Exception)
+            {
+                //
             }
 
             serializedObject.ApplyModifiedProperties();
 
-            // base.OnInspectorGUI();
             if (EditorGUI.EndChangeCheck())
             {
                 _anythingChanged = true;

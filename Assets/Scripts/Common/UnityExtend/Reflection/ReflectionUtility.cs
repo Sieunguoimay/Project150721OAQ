@@ -134,10 +134,7 @@ namespace Common.UnityExtend.Reflection
         {
             if (obj is GameObject go)
             {
-                return go.GetComponents<Component>().SelectMany(c =>
-                {
-                    return c.GetType().GetInterfaces().Concat(new[] {c.GetType()});
-                }).Concat(new[] {go.GetType()});
+                return go.GetComponents<Component>().SelectMany(c => { return c.GetType().GetInterfaces().Concat(new[] {c.GetType()}); }).Concat(new[] {go.GetType()});
             }
 
             return obj.GetType().GetInterfaces().Concat(new[] {obj.GetType()});
@@ -168,6 +165,11 @@ namespace Common.UnityExtend.Reflection
                     }
                 }
             }
+        }
+
+        public static IEnumerable<(Type, IEnumerable<MethodInfo>)> GetAllMethodsAndInterfaces(Type type)
+        {
+            return type.GetInterfaces().Concat(new[] {type}).Select(i => (i, i.GetMethods())).Select(dummy => ((Type, IEnumerable<MethodInfo>)) dummy);
         }
 
         public static IEnumerable<PropertyInfo> GetAllProperties(Type type)

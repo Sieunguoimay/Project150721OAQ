@@ -12,34 +12,33 @@ using Object = UnityEngine.Object;
 
 namespace Common.UnityExtend.Reflection
 {
-    public class DataBridge : MonoBehaviour
+    public interface IDataBridge
     {
-        [SerializeField, ComponentSelector] private Object sourceObject;
+        void Transfer();
+    }
 
-        [SerializeField, PathSelector(nameof(sourceObject))]
-        private string path;
+    public class DataBridge : MonoBehaviour, IDataBridge
+    {
+        [SerializeField] private UnityObjectPathSelector pathSelector = new();
 
         [SerializeField] private EventList<SourceEventItem> eventItemList = new();
 
         [SerializeField] private MethodPairItem[] items;
 
-        private object _runtimeSourceObject;
+        public Type SourceObjectType => PathSelector.PathFinalType;
 
-        private object GetSourceObject()
+        private UnityObjectPathSelector PathSelector
         {
-            _runtimeSourceObject ??= ReflectionUtility.ExecutePathOfObject(sourceObject,
-                string.IsNullOrEmpty(path) ? new string[0] : path.Split('.'), true);
-
-            if (_runtimeSourceObject == null)
+            get
             {
-                Debug.LogError($"Object at this path {sourceObject}->{path} is null");
+                if (pathSelector.Executor == null)
+                {
+                    pathSelector.Setup(true);
+                }
+
+                return pathSelector;
             }
-
-            return _runtimeSourceObject;
         }
-
-        public Type SourceObjectType => ReflectionUtility.GetTypeAtPath(sourceObject?.GetType(),
-            string.IsNullOrEmpty(path) ? new string[0] : path.Split('.'), true);
 
         [Serializable]
         public class MethodPairItem
@@ -89,10 +88,10 @@ namespace Common.UnityExtend.Reflection
                 if (_targetMethodInfo != null && _sourceMethodInfo != null) return;
 
                 _targetMethodInfo = ReflectionUtility.GetMethodInfo(targetObject.GetType(), targetMethodName, true);
-                _sourceMethodInfo =
+                _sourceMethodInfo = //sourcePathExecutor.RuntimePathFinalType;
                     ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), sourceObjectMethodName.Split('.'), true);
 
-                _sourcePathExecutor.Setup(sourceObjectMethodName, sourceObject);
+                _sourcePathExecutor.Setup(sourceObjectMethodName, sourceObject, true);
 
                 if (_targetMethodInfo == null || _sourceMethodInfo == null)
                 {
@@ -167,54 +166,64 @@ namespace Common.UnityExtend.Reflection
             }
         }
 
+        [SerializeField] private bool debug;
+
         private void OnEnable()
         {
+            if (debug)
+            {
+                Debug.Log("OK");
+            }
             foreach (var t in items)
             {
-                t.SetupReflection(GetSourceObject());
+                t.SetupReflection(PathSelector.Executor.CachedRuntimeObject);
             }
 
             Subscribe();
+            ThisEnabled?.Invoke();
         }
 
         private void OnDisable()
         {
             Unsubscribe();
+            ThisDisabled?.Invoke();
         }
 
         private Delegate[] _cachedRuntimeDelegates;
 
         private void Subscribe()
         {
-            var obj = GetSourceObject();
+            var obj = PathSelector.Executor.CachedRuntimeObject;
             _cachedRuntimeDelegates = new Delegate[eventItemList.EventItems.Length];
             for (var i = 0; i < eventItemList.EventItems.Length; i++)
             {
                 var e = eventItemList.EventItems[i];
                 if (!e.use) continue;
-
-                var evInfo = e.GetEventInfo(obj.GetType());
+                var o = IsExtraEventItem(e) ? this : obj;
+                var evInfo = e.GetEventInfo(o.GetType());
 
                 var runtimeDelegate = EventHandlerItem.CreateDelegate(evInfo.EventHandlerType, MethodInfo, this);
                 if (runtimeDelegate == null) continue;
 
-                evInfo.AddEventHandler(obj, runtimeDelegate);
+                evInfo.AddEventHandler(o, runtimeDelegate);
                 _cachedRuntimeDelegates[i] = runtimeDelegate;
             }
         }
 
         private void Unsubscribe()
         {
-            var obj = GetSourceObject();
+            var obj = PathSelector.Executor.CachedRuntimeObject;
 
             for (var i = 0; i < eventItemList.EventItems.Length; i++)
             {
                 var e = eventItemList.EventItems[i];
                 if (!e.use) continue;
+                
+                var o = IsExtraEventItem(e) ? this : obj;
 
-                var evInfo = e.GetEventInfo(obj.GetType());
+                var evInfo = e.GetEventInfo(o.GetType());
 
-                evInfo.RemoveEventHandler(obj, _cachedRuntimeDelegates[i]);
+                evInfo.RemoveEventHandler(o, _cachedRuntimeDelegates[i]);
             }
 
             _cachedRuntimeDelegates = null;
@@ -232,7 +241,7 @@ namespace Common.UnityExtend.Reflection
         {
             foreach (var t in items)
             {
-                t.Transfer(GetSourceObject());
+                t.Transfer(PathSelector.Executor.CachedRuntimeObject);
             }
         }
 
@@ -246,6 +255,11 @@ namespace Common.UnityExtend.Reflection
         {
             var type = GetType();
             return new[] {type.GetEvent(nameof(ThisEnabled)), type.GetEvent(nameof(ThisDisabled))};
+        }
+
+        private static bool IsExtraEventItem(EventItem ei)
+        {
+            return EventItem.ExtractEventName(ei.EventName).StartsWith("This");
         }
 
         #endregion

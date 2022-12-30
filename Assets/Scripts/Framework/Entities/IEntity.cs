@@ -29,39 +29,42 @@ namespace Framework.Entities
         void Save();
     }
 
-    public class EntityData : IEntityData
-    {
-        public EntityData(string id)
-        {
-            Id = id;
-        }
-
-        public string Id { get; }
-
-        public IEntity<IEntityData, IEntitySavedData> CreateEntity()
-        {
-            return new BaseEntity<IEntityData, IEntitySavedData>(this, null);
-        }
-
-        public virtual Type GetEntityType()
-        {
-            return typeof(IEntityData);
-        }
-    }
+    // public class EntityData : IEntityData
+    // {
+    //     public EntityData(string id)
+    //     {
+    //         Id = id;
+    //     }
+    //
+    //     public string Id { get; }
+    //
+    //     public IEntity<IEntityData, IEntitySavedData> CreateEntity()
+    //     {
+    //         return new BaseEntity<IEntityData, IEntitySavedData>(this, null);
+    //     }
+    //
+    //     public virtual Type GetEntityType()
+    //     {
+    //         return typeof(IEntityData);
+    //     }
+    // }
 
     [Serializable]
-    public abstract class BaseEntitySavedData : IEntitySavedData
+    public abstract class BaseEntitySavedData<TEntityData> : IEntitySavedData where TEntityData: IEntityData
     {
         [SerializeField] private string id;
         [NonSerialized] private ISavedDataService _savedDataService;
 
-        protected BaseEntitySavedData(string id)
+        private TEntityData Data { get; set; }
+        protected BaseEntitySavedData(TEntityData data)
         {
-            this.id = id;
+            Data = data;
+            id = data.Id;
         }
 
         public virtual void Load(ISavedDataService savedDataService)
         {
+            InitializeDefaultData(Data);
             _savedDataService = savedDataService;
             _savedDataService.Load(id, this);
             // var json = "{\"amount\":30.0}";
@@ -79,6 +82,11 @@ namespace Framework.Entities
             _savedDataService.MarkDirty(id, this);
             // var json = JsonUtility.ToJson(this);
             // Debug.Log(json);
+        }
+
+        protected virtual void InitializeDefaultData(TEntityData data)
+        {
+            
         }
     }
 

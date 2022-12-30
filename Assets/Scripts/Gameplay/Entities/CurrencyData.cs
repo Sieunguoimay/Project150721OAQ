@@ -12,18 +12,15 @@ namespace Gameplay.Entities
 
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {
-            return new Currency(this, new CurrencySavedData(Id));
+            return new Currency(this, new CurrencySavedData(this));
         }
     }
 
     [Serializable]
-    public class CurrencySavedData : BaseEntitySavedData, ICurrencySavedData
+    public class CurrencySavedData : BaseEntitySavedData<ICurrencyData>, ICurrencySavedData
     {
         [SerializeField] private double amount;
 
-        public CurrencySavedData(string id) : base(id)
-        {
-        }
 
         public double Get()
         {
@@ -34,6 +31,10 @@ namespace Gameplay.Entities
         {
             amount = newValue;
             Save();
+        }
+
+        public CurrencySavedData(ICurrencyData data) : base(data)
+        {
         }
     }
 }

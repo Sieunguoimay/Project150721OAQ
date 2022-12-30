@@ -20,17 +20,23 @@ namespace Framework.Entities.Variable
     {
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {
-            return new Variable<TPrimitive>(this, new VariableSavedData<TPrimitive>(Id));
+            return new Variable<TPrimitive>(this, new VariableSavedData<TPrimitive>(this));
         }
 
         [field:SerializeField]public TPrimitive InitialValue { get; private set; }
     }
     
     [Serializable]
-    public class VariableSavedData<TPrimitive> : BaseEntitySavedData, IVariableSavedData<TPrimitive>
+    public class VariableSavedData<TPrimitive> : BaseEntitySavedData<IVariableData<TPrimitive>>, IVariableSavedData<TPrimitive>
     {
-        public VariableSavedData(string id) : base(id)
+        public VariableSavedData(IVariableData<TPrimitive> data) : base(data)
         {
+        }
+
+        protected override void InitializeDefaultData(IVariableData<TPrimitive> data)
+        {
+            base.InitializeDefaultData(data);
+            Value = data.InitialValue;
         }
 
         public TPrimitive Value { get; private set; }

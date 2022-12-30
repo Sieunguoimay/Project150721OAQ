@@ -25,7 +25,7 @@ namespace Gameplay.Entities.Stage
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {
             var items = GetEntityItems();
-            var savedDataItems = new StageSavedData(Id, items.Select(i => i.SavedData).ToArray());
+            var savedDataItems = new StageSavedData(this, items.Select(i => i.SavedData).ToArray());
             return new Stage(this, savedDataItems, items);
         }
 
@@ -47,14 +47,19 @@ namespace Gameplay.Entities.Stage
     }
 
     [Serializable]
-    public class StageSavedData : ContainerEntitySavedData, IStageSavedData
+    public class StageSavedData : ContainerEntitySavedData<IStageData>, IStageSavedData
     {
-        public StageSavedData(string id, IEntitySavedData[] componentSavedDataItems) : base(id, componentSavedDataItems)
+        public StageSavedData(IStageData data, IEntitySavedData[] componentSavedDataItems) : base(data, componentSavedDataItems)
         {
         }
 
         [field: SerializeField] public bool IsAvailable { get; private set; }
         [field: SerializeField] public bool IsUnlocked { get; private set; }
+        protected override void InitializeDefaultData(IStageData data)
+        {
+            base.InitializeDefaultData(data);
+            IsAvailable = data.IsAvailableInAdvanced;
+        }
 
         public void SetAvailable(bool state)
         {

@@ -6167,8 +6167,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sourceObject: {fileID: 6645642497990244696}
-  path: 
+  pathSelector:
+    sourceObject: {fileID: 6645642497990244696}
+    path: 
   eventItemList:
     eventItems:
     - eventName: ThisEnabled()
@@ -6180,6 +6181,7 @@ MonoBehaviour:
     targetObject: {fileID: 275501897288589641}
     targetMethodName: 'Select(IStage): Void'
     formatType: 0
+  debug: 0
 --- !u!114 &2122544324071360659
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6273,7 +6275,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1590153172842662792}
-  - component: {fileID: 239801620388084388}
+  - component: {fileID: 7806613648281521271}
+  - component: {fileID: 6982903629761533359}
   m_Layer: 0
   m_Name: available
   m_TagString: Untagged
@@ -6292,12 +6295,11 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 8505489194677098188}
+  m_Children: []
   m_Father: {fileID: 2629727574049435407}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &239801620388084388
+--- !u!114 &7806613648281521271
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6306,28 +6308,48 @@ MonoBehaviour:
   m_GameObject: {fileID: 6290599209220984656}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
+  m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sourceObject: {fileID: 6645642497990244696}
-  path: 'Entity: IStage'
-  extraEvents: 1
-  itemList:
+  pathSelector:
+    sourceObject: {fileID: 5787745042233997384}
+    path: 'Entity: IVariable`1'
+  eventItemList:
     eventItems:
-    - eventName: AvailableSet(EventArgs)
-      methodItems:
-      - targetObject: {fileID: 5615826285272213483}
-        methodName: 'Trigger(): Void'
-    - eventName: Unlocked(IStage)
-      methodItems: []
+    - eventName: ValueChanged(Object,EventArgs)
+      use: 1
     - eventName: ThisEnabled()
-      methodItems:
-      - targetObject: {fileID: 5615826285272213483}
-        methodName: 'Trigger(): Void'
+      use: 1
     - eventName: ThisDisabled()
-      methodItems: []
-  useSameTypeSourceObjects: 0
-  sameTypeSourceObjects: []
+      use: 0
+  items:
+  - sourceObjectMethodName: 'Value: Boolean'
+    targetObject: {fileID: 6982903629761533359}
+    targetMethodName: 'TriggerBoolKey(Boolean): Void'
+    formatType: 0
+  debug: 1
+--- !u!114 &6982903629761533359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6290599209220984656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7651760e7104424c9e90a92043e3ea8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  keyType: 1
+  stringKeys:
+  - 
+  - 
+  integerKeys: 0000000000000000
+  eventHandlerGroups:
+  - eventHandlers: []
+  - eventHandlers:
+    - targetObject: {fileID: 5411217252528202781}
+      methodName: 'Transition(): Void'
 --- !u!1 &6347508097548575377
 GameObject:
   m_ObjectHideFlags: 0
@@ -6339,7 +6361,6 @@ GameObject:
   - component: {fileID: 2629727574049435407}
   - component: {fileID: 6645642497990244696}
   - component: {fileID: 5787745042233997384}
-  - component: {fileID: 7349955472569437602}
   m_Layer: 0
   m_Name: DataView
   m_TagString: Untagged
@@ -6392,114 +6413,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &7349955472569437602
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6347508097548575377}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sourceObject: {fileID: 5787745042233997384}
-  path: 'Entity: IVariable`1'
-  eventItemList:
-    eventItems:
-    - eventName: ValueChanged(Object,EventArgs)
-      use: 1
-    - eventName: ThisEnabled()
-      use: 0
-    - eventName: ThisDisabled()
-      use: 0
-  items:
-  - sourceObjectMethodName: 'Value: Boolean'
-    targetObject: {fileID: 2665824723577030446}
-    targetMethodName: 'set_enabled(Boolean): Void'
-    formatType: 0
---- !u!1 &6502035500986349088
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8505489194677098188}
-  - component: {fileID: 5615826285272213483}
-  m_Layer: 0
-  m_Name: transition_to_state_1
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8505489194677098188
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6502035500986349088}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1590153172842662792}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5615826285272213483
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6502035500986349088}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6eb3471c880a4f63bf9a7bf07f46191e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ifStatement:
-    fieldA:
-      dataSource: 3
-      pathSelector:
-        sourceObject: {fileID: 6645642497990244696}
-        path: 'Entity: IStage.SavedData: IStageSavedData.IsAvailable: Boolean'
-      stringValue: 
-      numberValue: 0
-      boolValue: 0
-    compareOperator: 0
-    fieldB:
-      dataSource: 0
-      pathSelector:
-        sourceObject: {fileID: 0}
-        path: 
-      stringValue: 
-      numberValue: 0
-      boolValue: 1
-  then:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5411217252528202781}
-        m_TargetAssemblyTypeName: Common.DecisionMaking.Actions.StateTransition,
-          Assembly-CSharp
-        m_MethodName: Transition
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  elseWise:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &6708307923204869686
 GameObject:
   m_ObjectHideFlags: 0

@@ -19,21 +19,6 @@ namespace Gameplay.Entities.Stage
         {
         }
 
-        public override void Initialize()
-        {
-            base.Initialize();
-
-            SetupPreData();
-        }
-
-        private void SetupPreData()
-        {
-            if (!SavedData.IsAvailable && Data.IsAvailableInAdvanced)
-            {
-                SavedData.SetAvailable(true);
-            }
-        }
-
         public void SetToAvailable()
         {
             if (SavedData.IsAvailable) return;

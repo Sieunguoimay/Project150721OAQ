@@ -15,7 +15,7 @@ namespace Framework.Entities.Variable
         public Variable(IVariableData<TPrimitive> data, IVariableSavedData<TPrimitive> savedData) : base(data, savedData)
         {
         }
-
+        
         public void SetValue(TPrimitive value)
         {
             SavedData.SetValue(value);

@@ -41,7 +41,7 @@ namespace Common.UnityExtend.Attribute
             return GetName(property.objectReferenceValue)?.Equals(item) ?? false;
         }
 
-        protected override void OnSelected(SerializedProperty property, string item)
+        protected override void OnSelected(SerializedProperty property, StringSelectorAttribute att, string item)
         {
             property.objectReferenceValue = _items.FirstOrDefault(i => GetName(i).Equals(item));
         }

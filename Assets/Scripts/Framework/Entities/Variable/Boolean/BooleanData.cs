@@ -17,7 +17,7 @@ namespace Framework.Entities.Variable.Boolean
     {
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {
-            return new Boolean(this, new BooleanSavedData(Id));
+            return new Boolean(this, new BooleanSavedData(this));
         }
 #if UNITY_EDITOR
         [ContextMenu("Test")]
@@ -31,7 +31,7 @@ namespace Framework.Entities.Variable.Boolean
     [Serializable]
     public class BooleanSavedData : VariableSavedData<bool>, IBooleanSavedData
     {
-        public BooleanSavedData(string id) : base(id)
+        public BooleanSavedData(IVariableData<bool> data) : base(data)
         {
         }
     }
