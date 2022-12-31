@@ -34,21 +34,21 @@ namespace Common.UnityExtend.Reflection
             private MemberInfoWrapper[] _memberInfos;
             private object _sourceObject;
 
-            // private bool _cache;
-            // private object _runtimeObject;
-            //
-            public object CachedRuntimeObject => ExecutePath();
-            // {
-            //     get
-            //     {
-            //         if (_cache)
-            //         {
-            //             return _runtimeObject ??= ExecutePath();
-            //         }
-            //
-            //         return ExecutePath();
-            //     }
-            // }
+            private bool _cache;
+            private object _runtimeObject;
+
+            public object CachedRuntimeObject //=> ExecutePath();
+            {
+                get
+                {
+                    if (_cache)
+                    {
+                        return _runtimeObject ??= ExecutePath();
+                    }
+
+                    return ExecutePath();
+                }
+            }
 
             public void Setup(string path, object sourceObject, bool cache)
             {
@@ -69,7 +69,7 @@ namespace Common.UnityExtend.Reflection
                     currType = _memberInfos[i].GetMemberType();
                 }
 
-                // _cache = cache;
+                _cache = cache;
             }
 
             public object ExecutePath()
@@ -84,7 +84,8 @@ namespace Common.UnityExtend.Reflection
                 return currObj;
             }
 
-            public Type RuntimePathFinalType => _memberInfos.Length == 0 ? _sourceObject.GetType() : _memberInfos[^1].GetMemberType();
+            public Type RuntimePathFinalType =>
+                _memberInfos.Length == 0 ? _sourceObject.GetType() : _memberInfos[^1].GetMemberType();
         }
 
         public class MemberInfoWrapper
@@ -119,8 +120,12 @@ namespace Common.UnityExtend.Reflection
                 return null;
             }
         }
-    }
 
+        public class CompactAttribute : PropertyAttribute
+        {
+            
+        }
+    }
 #if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(UnityObjectPathSelector))]
     public class UnityObjectPathSelectorDrawer : PropertyDrawer
@@ -139,6 +144,20 @@ namespace Common.UnityExtend.Reflection
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             return base.GetPropertyHeight(property, label) * 2 + 2;
+        }
+    }
+
+    [CustomPropertyDrawer(typeof(UnityObjectPathSelector.CompactAttribute))]
+    public class UnityObjectPathSelectorCompactDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            EditorGUI.BeginProperty(position, label, property);
+            position.width /= 2;
+            EditorGUI.PropertyField(position, property.FindPropertyRelative("sourceObject"), GUIContent.none);
+            position.x += position.width;
+            EditorGUI.PropertyField(position, property.FindPropertyRelative("path"), GUIContent.none);
+            EditorGUI.EndProperty();
         }
     }
 #endif

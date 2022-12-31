@@ -8,15 +8,10 @@ namespace Gameplay.Entities.Stage
 {
     public interface IStageData : IContainerEntityData
     {
-        bool IsAvailableInAdvanced { get; }
     }
 
     public interface IStageSavedData : IContainerEntitySavedData
     {
-        bool IsAvailable { get; }
-        bool IsUnlocked { get; }
-        void SetAvailable(bool state);
-        void SetUnlock(bool state);
     }
 
     [CreateAssetMenu(menuName = "Entity/StageData")]
@@ -28,22 +23,6 @@ namespace Gameplay.Entities.Stage
             var savedDataItems = new StageSavedData(this, items.Select(i => i.SavedData).ToArray());
             return new Stage(this, savedDataItems, items);
         }
-
-        [field: SerializeField] public bool IsAvailableInAdvanced { get; private set; }
-
-#if UNITY_EDITOR
-        [ContextMenu(nameof(SetToAvailable))]
-        private void SetToAvailable()
-        {
-            DebugEntity?.SetToAvailable();
-        }
-
-        [ContextMenu(nameof(Unlock))]
-        private void Unlock()
-        {
-            DebugEntity?.Unlock();
-        }
-#endif
     }
 
     [Serializable]
@@ -51,26 +30,6 @@ namespace Gameplay.Entities.Stage
     {
         public StageSavedData(IStageData data, IEntitySavedData[] componentSavedDataItems) : base(data, componentSavedDataItems)
         {
-        }
-
-        [field: SerializeField] public bool IsAvailable { get; private set; }
-        [field: SerializeField] public bool IsUnlocked { get; private set; }
-        protected override void InitializeDefaultData(IStageData data)
-        {
-            base.InitializeDefaultData(data);
-            IsAvailable = data.IsAvailableInAdvanced;
-        }
-
-        public void SetAvailable(bool state)
-        {
-            IsAvailable = state;
-            Save();
-        }
-
-        public void SetUnlock(bool state)
-        {
-            IsUnlocked = state;
-            Save();
         }
     }
 }

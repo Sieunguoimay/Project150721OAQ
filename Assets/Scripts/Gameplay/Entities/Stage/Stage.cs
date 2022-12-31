@@ -6,10 +6,6 @@ namespace Gameplay.Entities.Stage
 {
     public interface IStage :  IContainerEntity<IStageData, IStageSavedData>
     {
-        void SetToAvailable();
-        event Action<EventArgs> AvailableSet;
-        void Unlock();
-        event Action<IStage> Unlocked;
     }
 
     public class Stage : ContainerEntity<IStageData, IStageSavedData>, IStage
@@ -18,23 +14,5 @@ namespace Gameplay.Entities.Stage
             base(data, savedData, components)
         {
         }
-
-        public void SetToAvailable()
-        {
-            if (SavedData.IsAvailable) return;
-            SavedData.SetAvailable(true);
-            AvailableSet?.Invoke(EventArgs.Empty);
-        }
-
-        public event Action<EventArgs> AvailableSet;
-
-        public void Unlock()
-        {
-            if (!SavedData.IsAvailable || SavedData.IsUnlocked) return;
-            SavedData.SetUnlock(true);
-            Unlocked?.Invoke(this);
-        }
-
-        public event Action<IStage> Unlocked;
     }
 }

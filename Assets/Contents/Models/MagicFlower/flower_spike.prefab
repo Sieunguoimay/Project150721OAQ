@@ -1099,12 +1099,16 @@ MonoBehaviour:
   items:
   - sourceObjectMethodName: 'Entity: IMagicFlower.Data: IMagicFlowerData.ToBlossomDuration:
       Single'
-    targetObject: {fileID: 6964056268158935379}
+    targetObject:
+      sourceObject: {fileID: 6964056268158935379}
+      path: 
     targetMethodName: 'SetDuration(Single): Void'
     formatType: 0
   - sourceObjectMethodName: 'Entity: IMagicFlower.Data: IMagicFlowerData.ToBlossomDuration:
       Single'
-    targetObject: {fileID: 2641433042094798711}
+    targetObject:
+      sourceObject: {fileID: 2641433042094798711}
+      path: 
     targetMethodName: 'SetDuration(Single): Void'
     formatType: 0
 --- !u!114 &3530896135137191369
@@ -1126,9 +1130,15 @@ MonoBehaviour:
     eventItems:
     - eventName: GrantedBlossom(EventArgs)
       methodItems:
-      - targetObject: {fileID: 7794105247901880241}
+      - targetObjectPath:
+          sourceObject: {fileID: 7794105247901880241}
+          path: 
+        targetObject: {fileID: 1792837611251527934}
         methodName: 'Transfer(): Void'
-      - targetObject: {fileID: 5955243257303247707}
+      - targetObjectPath:
+          sourceObject: {fileID: 5955243257303247707}
+          path: 
+        targetObject: {fileID: 5955243257303247707}
         methodName: 'Transition(): Void'
   useSameTypeSourceObjects: 0
   sameTypeSourceObjects: []

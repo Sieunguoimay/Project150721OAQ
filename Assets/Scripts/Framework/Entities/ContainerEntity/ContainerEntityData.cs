@@ -1,12 +1,9 @@
-using Framework.Entities;
 using UnityEngine;
 using System;
 using System.Linq;
 using Common.UnityExtend.Attribute;
 using Framework.Services.Data;
-using Gameplay.Entities.MagicFlower;
 using UnityEditor;
-using Object = UnityEngine.Object;
 
 namespace Framework.Entities.ContainerEntity
 {
@@ -45,7 +42,9 @@ namespace Framework.Entities.ContainerEntity
         [ContextMenuExtend(nameof(AddChildAssetsToComponents))]
         protected void AddChildAssetsToComponents()
         {
-            var assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this)).Where(a => a != this && !componentAssets.Contains(a) && a is DataAsset).Select(a => a as DataAsset).ToArray();
+            var assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this))
+                .Where(a => a != this && !componentAssets.Contains(a) && a is DataAsset).Select(a => a as DataAsset)
+                .ToArray();
             if (assets.Length <= 0) return;
             Array.Resize(ref componentAssets, componentAssets.Length + assets.Length);
             for (var i = 0; i < assets.Length; i++)
@@ -58,8 +57,9 @@ namespace Framework.Entities.ContainerEntity
     }
 
     [Serializable]
-    public class ContainerEntitySavedData<TEntityData> : BaseEntitySavedData<TEntityData>, IContainerEntitySavedData
-    where TEntityData: IContainerEntityData
+    public class ContainerEntitySavedData<TEntityData> : BaseEntitySavedData<TEntityData>, IContainerEntitySavedData,
+        IWriteToStorageCallbackHandler
+        where TEntityData : IContainerEntityData
     {
         [SerializeField] private InnerAssetSavedDataService innerAssetSavedDataService = new();
         private readonly IEntitySavedData[] _componentSavedDataItems;
@@ -67,6 +67,12 @@ namespace Framework.Entities.ContainerEntity
         public ContainerEntitySavedData(TEntityData data, IEntitySavedData[] componentSavedDataItems) : base(data)
         {
             _componentSavedDataItems = componentSavedDataItems;
+            innerAssetSavedDataService.MarkedDirtyDelegate = OnInnerMarkedDirty;
+        }
+
+        private void OnInnerMarkedDirty()
+        {
+            Save();
         }
 
         public IEntitySavedData[] GetComponentSavedDataItems()
@@ -88,32 +94,49 @@ namespace Framework.Entities.ContainerEntity
         {
             [SerializeField] private InnerAssetSavedDataItem[] items = new InnerAssetSavedDataItem[0];
 
+            public Action MarkedDirtyDelegate;
+
             public void Load(string savedId, object obj)
             {
-                var found = items?.FirstOrDefault(i => i.id.Equals(savedId));
-                if (found != null)
-                {
-                    JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(found.Obj), obj);
-                }
+                var index = Array.FindIndex(items, i => i.id.Equals(savedId));
+                if (index == -1) return;
+                JsonUtility.FromJsonOverwrite(items[index].json, obj);
+                items[index].Obj = obj;
             }
 
             public void MarkDirty(string savedId, object obj)
             {
-                var found = items.Any(i => i.id.Equals(savedId));
-                if (found) return;
-
-                Array.Resize(ref items, items.Length + 1);
-                items[^1] = new InnerAssetSavedDataItem
+                var found = items.FirstOrDefault(i => i.id.Equals(savedId));
+                if (found != null)
                 {
-                    id = savedId,
-                    Obj = obj
-                };
+                    found.Obj = obj;
+                }
+                else
+                {
+                    Array.Resize(ref items, items.Length + 1);
+                    items[^1] = new InnerAssetSavedDataItem
+                    {
+                        id = savedId,
+                        Obj = obj
+                    };
+                }
+
+                MarkedDirtyDelegate?.Invoke();
             }
 
             public void WriteToStorage()
             {
-                //Not used
+                foreach (var i in items)
+                {
+                    (i.Obj as IWriteToStorageCallbackHandler)?.OnBeforeWrite();
+                    i.json = JsonUtility.ToJson(i.Obj);
+                }
             }
+        }
+
+        public void OnBeforeWrite()
+        {
+            innerAssetSavedDataService.WriteToStorage();
         }
 
         [Serializable]
@@ -121,6 +144,7 @@ namespace Framework.Entities.ContainerEntity
         {
             public string id;
             public object Obj;
+            public string json;
         }
     }
 }

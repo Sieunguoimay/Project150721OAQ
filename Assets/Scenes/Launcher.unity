@@ -574,6 +574,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1083243620}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1285951689
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1285951691}
+  m_Layer: 0
+  m_Name: Test
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1285951691
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1285951689}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.699952, y: 4.3152585, z: -4.805293}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1301096602
 GameObject:
   m_ObjectHideFlags: 0
@@ -727,16 +758,7 @@ MonoBehaviour:
   - x
   - xx
   integerKeys: 0a0000006400000064000000
-  eventHandlerGroups:
-  - eventHandlers:
-    - targetObject: {fileID: 0}
-      methodName: 
-    - targetObject: {fileID: 0}
-      methodName: 
-    - targetObject: {fileID: 0}
-      methodName: 
-  - eventHandlers: []
-  - eventHandlers: []
+  unityEvents: []
 --- !u!114 &1505393260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -780,7 +802,6 @@ MonoBehaviour:
     - eventName: ThisDisabled()
       use: 0
   items: []
-  debug: 0
 --- !u!114 &1505393262
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -820,10 +841,11 @@ MonoBehaviour:
       use: 0
   items:
   - sourceObjectMethodName: 
-    targetObject: {fileID: 0}
+    targetObject:
+      sourceObject: {fileID: 0}
+      path: 
     targetMethodName: 
     formatType: 3
-  debug: 0
 --- !u!114 &1505393264
 MonoBehaviour:
   m_ObjectHideFlags: 0

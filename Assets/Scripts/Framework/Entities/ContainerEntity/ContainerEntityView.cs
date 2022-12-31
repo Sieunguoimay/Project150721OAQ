@@ -16,11 +16,11 @@ namespace Framework.Entities.ContainerEntity
         where TEntity : class, IContainerEntity<IContainerEntityData, IContainerEntitySavedData>
         where TData : IContainerEntityData
     {
-        [SerializeField] private DataViewPair[] pairs;
+        [SerializeField] private DataViewPair[] viewDataPairs;
 
         private void OnEnable()
         {
-            foreach (var pair in pairs)
+            foreach (var pair in viewDataPairs)
             {
                 var data = Entity.Components.FirstOrDefault(c => c.Data.Id.Equals(pair.subId));
                 if (data == null)
@@ -36,7 +36,7 @@ namespace Framework.Entities.ContainerEntity
 
         private void OnDisable()
         {
-            foreach (var pair in pairs)
+            foreach (var pair in viewDataPairs)
             {
                 (pair.view as IManualView)?.TearDown();
             }

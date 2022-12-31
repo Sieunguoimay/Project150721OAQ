@@ -112,7 +112,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2490410637897212428}
   - component: {fileID: 1732845382351416717}
-  - component: {fileID: 1004994341623987105}
   - component: {fileID: 6279741400933025842}
   m_Layer: 0
   m_Name: play_button
@@ -152,34 +151,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entityId: stage_selector
---- !u!114 &1004994341623987105
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1127747903096587479}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sourceObject: {fileID: 1732845382351416717}
-  path: 'Entity: IStageSelector'
-  extraEvents: 0
-  items:
-  - eventName: Selected(EventArgs)
-    methodItems:
-    - targetObject: {fileID: 4843719479694198081}
-      methodName: 'Trigger(): Void'
-  itemList:
-    eventItems:
-    - eventName: Selected(EventArgs)
-      methodItems:
-      - targetObject: {fileID: 4843719479694198081}
-        methodName: 'Trigger(): Void'
-  useSameTypeSourceObjects: 0
-  sameTypeSourceObjects: []
 --- !u!111 &6279741400933025842
 Animation:
   m_ObjectHideFlags: 0
@@ -206,7 +177,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6048141505249746448}
-  - component: {fileID: 4843719479694198081}
+  - component: {fileID: 8547190550219611977}
+  - component: {fileID: 7629102269817292106}
+  - component: {fileID: 1694957514735798216}
   m_Layer: 0
   m_Name: show_play_button_animation
   m_TagString: Untagged
@@ -231,7 +204,7 @@ Transform:
   m_Father: {fileID: 5577019158374509206}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4843719479694198081
+--- !u!114 &8547190550219611977
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -240,29 +213,93 @@ MonoBehaviour:
   m_GameObject: {fileID: 3516461878864128858}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6eb3471c880a4f63bf9a7bf07f46191e, type: 3}
+  m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ifStatement:
-    fieldA:
-      dataSource: 3
-      pathSelector:
-        sourceObject: {fileID: 1732845382351416717}
-        path: 'AnyStageSelected: Boolean'
-      stringValue: 
-      numberValue: 0
-      boolValue: 0
-    compareOperator: 0
-    fieldB:
-      dataSource: 0
-      pathSelector:
-        sourceObject: {fileID: 0}
-        path: 
-      stringValue: 
-      numberValue: 0
-      boolValue: 1
-  then:
-    m_PersistentCalls:
+  sourceObject: {fileID: 1732845382351416717}
+  path: 'Entity: IStageSelector'
+  extraEvents: 1
+  itemList:
+    eventItems:
+    - eventName: Selected(EventArgs)
+      methodItems:
+      - targetObjectPath:
+          sourceObject: {fileID: 7629102269817292106}
+          path: 
+        targetObject: {fileID: 7629102269817292106}
+        methodName: 'Transfer(): Void'
+    - eventName: ThisEnabled()
+      methodItems:
+      - targetObjectPath:
+          sourceObject: {fileID: 7640144786567347893}
+          path: 
+        targetObject: {fileID: 7640144786567347893}
+        methodName: 'InvokeCallback(): Void'
+    - eventName: ThisDisabled()
+      methodItems: []
+  useSameTypeSourceObjects: 0
+  sameTypeSourceObjects: []
+--- !u!114 &7629102269817292106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3516461878864128858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pathSelector:
+    sourceObject: {fileID: 1732845382351416717}
+    path: 
+  eventItemList:
+    eventItems:
+    - eventName: ThisEnabled()
+      use: 0
+    - eventName: ThisDisabled()
+      use: 0
+  items:
+  - sourceObjectMethodName: 'AnyStageSelected: Boolean'
+    targetObject:
+      sourceObject: {fileID: 1694957514735798216}
+      path: 
+    targetMethodName: 'TriggerBoolKey(Boolean): Void'
+    formatType: 0
+--- !u!114 &1694957514735798216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3516461878864128858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7651760e7104424c9e90a92043e3ea8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  keyType: 1
+  stringKeys:
+  - xxx
+  - 
+  integerKeys: 0000000000000000
+  unityEvents:
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5605431169130995589}
+        m_TargetAssemblyTypeName: Common.Activity.MonoActivityQueue, Assembly-CSharp
+        m_MethodName: Begin
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 6267455474943034393}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
@@ -292,21 +329,6 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: Common.Animation.ScriptingAnimation.ShortAnimations.UnityAnimationActivity,
           Assembly-CSharp
         m_MethodName: Play
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  elseWise:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5605431169130995589}
-        m_TargetAssemblyTypeName: Common.Activity.MonoActivityQueue, Assembly-CSharp
-        m_MethodName: Begin
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -823,16 +845,14 @@ MonoBehaviour:
   sourceObject: {fileID: 8742604358969271590}
   path: 
   extraEvents: 0
-  items:
-  - eventName: Clicked(EventArgs)
-    methodItems:
-    - targetObject: {fileID: 2594791563038511381}
-      methodName: 'Play(): Void'
   itemList:
     eventItems:
     - eventName: Clicked(EventArgs)
       methodItems:
-      - targetObject: {fileID: 2594791563038511381}
+      - targetObjectPath:
+          sourceObject: {fileID: 2594791563038511381}
+          path: 
+        targetObject: {fileID: 2594791563038511381}
         methodName: 'Play(): Void'
   useSameTypeSourceObjects: 1
   sameTypeSourceObjects:

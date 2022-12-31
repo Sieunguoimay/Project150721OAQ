@@ -11,7 +11,12 @@ namespace Common.DecisionMaking.Actions
 
         public override Activity.Activity CreateActivity()
         {
-            return new ActivityCallback(() => callback?.Invoke());
+            return new ActivityCallback(InvokeCallback);
+        }
+
+        public void InvokeCallback()
+        {
+            callback?.Invoke();
         }
     }
 }

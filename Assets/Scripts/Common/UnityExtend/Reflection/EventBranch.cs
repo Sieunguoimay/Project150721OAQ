@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Common.UnityExtend.Reflection
 {
@@ -20,39 +21,7 @@ namespace Common.UnityExtend.Reflection
         [SerializeField] private BranchKeyType keyType;
         [SerializeField] private string[] stringKeys;
         [SerializeField] private int[] integerKeys;
-        [SerializeField] private EventHandlerGroup[] eventHandlerGroups;
-
-        [Serializable]
-        public class EventHandlerGroup
-        {
-            public EventHandlerItem[] eventHandlers;
-            private event Action RuntimeAction;
-
-            public void InvokeAction()
-            {
-                RuntimeAction?.Invoke();
-            }
-
-            public void Initialize()
-            {
-                var handlerType = typeof(Action);
-
-                foreach (var t in eventHandlers)
-                {
-                    RuntimeAction += (Action) t.CreateDelegate(handlerType);
-                }
-            }
-        }
-
-        private bool _initializedEvents;
-
-        private void Awake()
-        {
-            if (!_initializedEvents)
-            {
-                InitializeEvents();
-            }
-        }
+        [SerializeField] private UnityEvent[] unityEvents;
 
         public void TriggerByIndex(int index)
         {
@@ -86,27 +55,13 @@ namespace Common.UnityExtend.Reflection
 
         private void InternalTriggerByIndex(int index)
         {
-            if (!_initializedEvents)
-            {
-                InitializeEvents();
-            }
 
-            if ((index < 0 || index > eventHandlerGroups.Length))
+            if ((index < 0 || index > unityEvents.Length))
             {
                 AssertInvalidIndex(index);
             }
 
-            eventHandlerGroups[index].InvokeAction();
-        }
-
-        private void InitializeEvents()
-        {
-            foreach (var g in eventHandlerGroups)
-            {
-                g.Initialize();
-            }
-
-            _initializedEvents = true;
+            unityEvents[index]?.Invoke();
         }
 
         private bool Validate(BranchKeyType type)
@@ -119,7 +74,7 @@ namespace Common.UnityExtend.Reflection
 
         private void AssertInvalidIndex(int index)
         {
-            Debug.LogError($"Index {index} is invalid. Events {eventHandlerGroups?.Length ?? 0}");
+            Debug.LogError($"Index {index} is invalid. Events {unityEvents?.Length ?? 0}");
         }
 
         public bool ValidateBranchKeys()
@@ -146,9 +101,10 @@ namespace Common.UnityExtend.Reflection
         private void OnValidate()
         {
             if (keyType != BranchKeyType.BoolKey) return;
-            if (eventHandlerGroups.Length == 2) return;
-            
-            Array.Resize(ref eventHandlerGroups, 2);
+            if (unityEvents == null) unityEvents = new UnityEvent[0];
+            if (unityEvents.Length == 2) return;
+
+            Array.Resize(ref unityEvents, 2);
             if (integerKeys.Length < 2)
             {
                 Array.Resize(ref integerKeys, 2);
@@ -167,7 +123,7 @@ namespace Common.UnityExtend.Reflection
         private SerializedProperty _keyType;
         private SerializedProperty _stringKeys;
         private SerializedProperty _integerKeys;
-        private SerializedProperty _eventHandlerGroups;
+        private SerializedProperty _unityEvents;
 
         private bool _editKeys;
         private bool _isKeysValid;
@@ -177,7 +133,7 @@ namespace Common.UnityExtend.Reflection
             _keyType = serializedObject.FindProperty("keyType");
             _stringKeys = serializedObject.FindProperty("stringKeys");
             _integerKeys = serializedObject.FindProperty("integerKeys");
-            _eventHandlerGroups = serializedObject.FindProperty("eventHandlerGroups");
+            _unityEvents = serializedObject.FindProperty("unityEvents");
             _isKeysValid = (target as EventBranch)?.ValidateBranchKeys() ?? false;
         }
 
@@ -192,8 +148,9 @@ namespace Common.UnityExtend.Reflection
 
             EditorGUILayout.PropertyField(_keyType);
 
-            var shouldEditKey = _keyType.enumValueIndex is (int) EventBranch.BranchKeyType.IntegerKey or (int) EventBranch.BranchKeyType
-                .StringKey;
+            var shouldEditKey =
+                _keyType.enumValueIndex is (int) EventBranch.BranchKeyType.IntegerKey or (int) EventBranch.BranchKeyType
+                    .StringKey;
 
             EditorGUILayout.BeginHorizontal();
             _editKeys = shouldEditKey && DrawEditKeyButton(_editKeys);
@@ -201,7 +158,7 @@ namespace Common.UnityExtend.Reflection
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginVertical();
-            var count = _eventHandlerGroups.arraySize;
+            var count = _unityEvents.arraySize;
             var label = "None";
             for (var i = 0; i < count; i++)
             {
@@ -223,7 +180,9 @@ namespace Common.UnityExtend.Reflection
                     label = $"Key - {_stringKeys.GetArrayElementAtIndex(i).stringValue}";
                 }
 
-                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                label += " - UnityEvent";
+
+                EditorGUILayout.BeginVertical();
                 if (_editKeys)
                 {
                     EditorGUILayout.BeginHorizontal();
@@ -246,14 +205,11 @@ namespace Common.UnityExtend.Reflection
                 }
 
                 var rect = EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.Space(15, false);
-                var eventHandlers = _eventHandlerGroups.GetArrayElementAtIndex(i)
-                    .FindPropertyRelative(nameof(EventBranch.EventHandlerGroup.eventHandlers));
-                EditorGUILayout.PropertyField(eventHandlers, new GUIContent(label), true);
-                EditorGUILayout.Space(2, false);
+                var unityEvent = _unityEvents.GetArrayElementAtIndex(i);
+                EditorGUILayout.PropertyField(unityEvent, new GUIContent(label), true);
                 EditorGUILayout.EndHorizontal();
 
-                if (eventHandlers.isExpanded && DrawDeleteButtonForEvent(rect))
+                if (unityEvent.isExpanded && DrawDeleteButtonForEvent(rect))
                 {
                     DeleteItem(i);
                     break;
@@ -327,15 +283,15 @@ namespace Common.UnityExtend.Reflection
 
         private void AddItem()
         {
-            var lastIndex = _eventHandlerGroups.arraySize;
-            _eventHandlerGroups.InsertArrayElementAtIndex(lastIndex);
+            var lastIndex = _unityEvents.arraySize;
+            _unityEvents.InsertArrayElementAtIndex(lastIndex);
             _integerKeys.InsertArrayElementAtIndex(lastIndex);
             _stringKeys.InsertArrayElementAtIndex(lastIndex);
         }
 
         private void DeleteItem(int index)
         {
-            _eventHandlerGroups.DeleteArrayElementAtIndex(index);
+            _unityEvents.DeleteArrayElementAtIndex(index);
             _integerKeys.DeleteArrayElementAtIndex(index);
             _stringKeys.DeleteArrayElementAtIndex(index);
         }

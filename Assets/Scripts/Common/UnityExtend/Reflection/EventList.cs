@@ -80,7 +80,9 @@ namespace Common.UnityExtend.Reflection
     [Serializable]
     public class EventHandlerItem
     {
-        [SerializeField, ComponentSelector] private Object targetObject;
+        [SerializeField, UnityObjectPathSelector.Compact]
+        private UnityObjectPathSelector targetObjectPath;
+
 #if UNITY_EDITOR
         [StringSelector(nameof(GetMethodNames), false, nameof(StringSelectorCallback))]
 #endif
@@ -95,24 +97,27 @@ namespace Common.UnityExtend.Reflection
 
         public IEnumerable<string> GetMethodNames()
         {
-            if (targetObject == null) return null;
-            var result = ReflectionUtility.GetAllMethodsAndInterfaces(targetObject.GetType());
+            if (targetObjectPath == null || targetObjectPath.PathFinalType == null) return null;
+            var result = ReflectionUtility.GetAllMethodsAndInterfaces(targetObjectPath.PathFinalType);
             var valueTuples = result as (Type, IEnumerable<MethodInfo>)[] ?? result.ToArray();
             return valueTuples.Length > 1
                 ? valueTuples.SelectMany(r => r.Item2.Where(m => m.ReturnType == typeof(void))
                     .Select(mi => $"{r.Item1.Name}/{ReflectionUtility.FormatName.FormatMethodName(mi)}"))
-                : valueTuples.FirstOrDefault().Item2.Where(m => m.ReturnType == typeof(void)).Select(ReflectionUtility.FormatName.FormatMethodName);
+                : valueTuples.FirstOrDefault().Item2.Where(m => m.ReturnType == typeof(void))
+                    .Select(ReflectionUtility.FormatName.FormatMethodName);
         }
 
-        public MethodInfo MethodInfo =>
-            targetObject ? ReflectionUtility.GetMethodInfo(targetObject.GetType(), methodName, true) : null;
+        public MethodInfo MethodInfo => targetObjectPath.PathFinalType != null
+            ? ReflectionUtility.GetMethodInfo(targetObjectPath.PathFinalType, methodName, true)
+            : null;
 #endif
 
         public Delegate RuntimeHandler { get; private set; }
 
         public Delegate CreateDelegate(Type handlerType)
         {
-            RuntimeHandler = CreateDelegate(handlerType, MethodInfo, targetObject);
+            targetObjectPath.Setup(true);
+            RuntimeHandler = CreateDelegate(handlerType, MethodInfo, targetObjectPath.Executor.CachedRuntimeObject);
             return RuntimeHandler;
         }
 
@@ -195,12 +200,16 @@ namespace Common.UnityExtend.Reflection
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             // base.OnGUI(position, property, label);
-            position.width /= 2;
             position.height -= 2;
-            EditorGUI.PropertyField(position, property.FindPropertyRelative("targetObject"), GUIContent.none);
-            position.x += position.width;
-            position.height += 2;
+            position.height /= 2;
+            EditorGUI.PropertyField(position, property.FindPropertyRelative("targetObjectPath"), GUIContent.none);
+            position.y += position.height + 2;
             EditorGUI.PropertyField(position, property.FindPropertyRelative("methodName"), GUIContent.none);
+        }
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return base.GetPropertyHeight(property, label) * 2 + 2;
         }
     }
 #endif

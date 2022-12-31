@@ -104,14 +104,15 @@ namespace Common.UnityExtend.Serialization.ChildAsset
                             GUI.FocusControl(null);
                         }
 
-                        if (GUILayout.Button("D" + (_multiTargetDuplicateActive ? "++" : ""), GUILayout.Width(_multiTargetDuplicateActive ? 35 : 20)))
+                        if (GUILayout.Button("D" + (_multiTargetDuplicateActive ? "++" : ""),
+                            GUILayout.Width(_multiTargetDuplicateActive ? 35 : 20)))
                         {
                             if (_multiTargetDuplicateActive)
                             {
                                 var selected = Selection.objects;
                                 foreach (var a in selected)
                                 {
-                                    if (!ShouldSkipAsset(a)) continue;
+                                    if (!ValidateAsset(a)) continue;
                                     AssetToSubAsset(_editObject, a);
                                 }
                             }
@@ -176,7 +177,7 @@ namespace Common.UnityExtend.Serialization.ChildAsset
             });
 
             EditorGUILayout.EndHorizontal();
-            if (DrawAllSelectedAssets(true, true, () =>
+            if (DrawAllSelectedAssets(!_includeActiveBaseAsset, true, () =>
             {
                 if (_multiTargetDuplicateActive)
                 {
@@ -192,6 +193,7 @@ namespace Common.UnityExtend.Serialization.ChildAsset
             }
         }
 
+        private bool _includeActiveBaseAsset;
         private bool _multiTargetDuplicateActive;
 
         private void DrawMultiTargetAction()
@@ -199,6 +201,12 @@ namespace Common.UnityExtend.Serialization.ChildAsset
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             var color = GUI.color;
+            GUI.color = _includeActiveBaseAsset ? Color.cyan : color;
+            if (GUILayout.Button("Include Active Base Asset"))
+            {
+                _includeActiveBaseAsset = !_includeActiveBaseAsset;
+                _activeSelectedAsset = null;
+            }
             GUI.color = _multiTargetDuplicateActive ? Color.cyan : color;
             if (GUILayout.Button("Duplicate to Others"))
             {
@@ -215,24 +223,27 @@ namespace Common.UnityExtend.Serialization.ChildAsset
         private Object _activeSelectedAsset;
         private Object _cachedSelectedParentAsset;
 
-        private bool DrawAllSelectedAssets(bool excludeActive, bool excludeChildAsset = true, Action onDrawPrefix = null)
+        private bool DrawAllSelectedAssets(bool excludeActiveBaseAsset, bool excludeChildAsset = true,
+            Action onDrawPrefix = null)
         {
             _selectedAssetsFoldout = EditorGUILayout.Foldout(_selectedAssetsFoldout, "Other Selected", true);
             if (!_selectedAssetsFoldout) return false;
 
             var assets = Selection.objects;
             var active = Selection.activeObject;
-            if (excludeActive)
+            if (excludeActiveBaseAsset)
             {
                 if (active != _activeSelectedAsset)
                 {
                     _activeSelectedAsset = active;
-                    _cachedSelectedParentAsset = AssetDatabase.IsSubAsset(active) ? AssetDatabase.LoadAssetAtPath<Object>(AssetDatabase.GetAssetPath(active)) : active;
+                    _cachedSelectedParentAsset = AssetDatabase.IsSubAsset(active)
+                        ? AssetDatabase.LoadAssetAtPath<Object>(AssetDatabase.GetAssetPath(active))
+                        : active;
                 }
             }
             else
             {
-                _cachedSelectedParentAsset = active;
+                _cachedSelectedParentAsset = AssetDatabase.IsSubAsset(active) ? active : null;
             }
 
             var count = 0;
@@ -242,7 +253,7 @@ namespace Common.UnityExtend.Serialization.ChildAsset
             EditorGUI.BeginDisabledGroup(true);
             foreach (var a in assets)
             {
-                if (!ShouldSkipAsset(a, excludeChildAsset)) continue;
+                if (!ValidateAsset(a, excludeChildAsset)) continue;
                 EditorGUILayout.BeginHorizontal();
                 onDrawPrefix?.Invoke();
                 EditorGUILayout.ObjectField(a, typeof(Object), false);
@@ -256,10 +267,10 @@ namespace Common.UnityExtend.Serialization.ChildAsset
             return count > 0;
         }
 
-        private bool ShouldSkipAsset(Object a, bool excludeChildAsset = true)
+        private bool ValidateAsset(Object a, bool excludeChildAsset = true)
         {
-            var exclude = excludeChildAsset && AssetDatabase.IsSubAsset(a);
-            return a != _cachedSelectedParentAsset && !exclude;
+            var childAsset = excludeChildAsset && AssetDatabase.IsSubAsset(a);
+            return a != _cachedSelectedParentAsset && !childAsset;
         }
 
         private bool _pulling;
@@ -357,6 +368,7 @@ namespace Common.UnityExtend.Serialization.ChildAsset
 
         private static void AssetToSubAsset(Object freeAsset, Object parent)
         {
+            if (freeAsset == null) return;
             if (!AssetDatabase.IsSubAsset(parent))
             {
                 var child = CreateChildAsset(freeAsset.GetType(), freeAsset.name, AssetDatabase.GetAssetPath(parent));

@@ -1,5 +1,33 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-3635626627535178276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 420ce2a381323214eb36dfa64dcf3176, type: 3}
+  m_Name: available
+  m_EditorClassIdentifier: 
+  <Id>k__BackingField: available
+  <InitialValue>k__BackingField: 0
+--- !u!114 &-364115057242414881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 420ce2a381323214eb36dfa64dcf3176, type: 3}
+  m_Name: is_unlocked
+  m_EditorClassIdentifier: 
+  <Id>k__BackingField: is_unlocked
+  <InitialValue>k__BackingField: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14,19 +42,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Id>k__BackingField: stage_2
   componentAssets:
-  - {fileID: 3916368366636797143}
-  <IsAvailableInAdvanced>k__BackingField: 0
---- !u!114 &3916368366636797143
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 420ce2a381323214eb36dfa64dcf3176, type: 3}
-  m_Name: available
-  m_EditorClassIdentifier: 
-  <Id>k__BackingField: available
-  <InitialValue>k__BackingField: 0
+  - {fileID: -364115057242414881}
+  - {fileID: -3635626627535178276}

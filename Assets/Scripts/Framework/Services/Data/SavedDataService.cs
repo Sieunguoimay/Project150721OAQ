@@ -15,6 +15,11 @@ namespace Framework.Services.Data
         void WriteToStorage();
     }
 
+    public interface IWriteToStorageCallbackHandler
+    {
+        void OnBeforeWrite();
+    }
+
     public class SavedDataService : ISavedDataService
     {
         private readonly string _path;
@@ -46,6 +51,7 @@ namespace Framework.Services.Data
         {
             foreach (var (key, value) in _tobeSavedObjects)
             {
+                (value as IWriteToStorageCallbackHandler)?.OnBeforeWrite();
                 SaveJsonToLocal(key, JsonUtility.ToJson(value));
             }
         }

@@ -50,13 +50,14 @@ namespace Common.UnityExtend.Reflection
             [SerializeField]
             private string sourceObjectMethodName;
 
-            [SerializeField] private Object targetObject;
+            [SerializeField, UnityObjectPathSelector.Compact]
+            private UnityObjectPathSelector targetObject;
 
 #if UNITY_EDITOR
 
             public IEnumerable<string> GetTargetMethodNames()
             {
-                return targetObject.GetType()?
+                return targetObject.PathFinalType?
                     .GetMethods().Where(m => m.GetParameters().Length <= 1 && m.ReturnType == typeof(void))
                     .Select(ReflectionUtility.FormatName.FormatMethodName);
             }
@@ -78,7 +79,7 @@ namespace Common.UnityExtend.Reflection
             {
                 SetupReflection(sourceObject);
 
-                _targetMethodInfo.Invoke(targetObject, _numMethodParameters == 1
+                _targetMethodInfo.Invoke(targetObject.Executor.CachedRuntimeObject, _numMethodParameters == 1
                     ? new[] {Format(_sourcePathExecutor.ExecutePath())}
                     : new object[0]);
             }
@@ -86,16 +87,16 @@ namespace Common.UnityExtend.Reflection
             public void SetupReflection(object sourceObject)
             {
                 if (_targetMethodInfo != null && _sourceMethodInfo != null) return;
+                targetObject.Setup(true);
 
-                _targetMethodInfo = ReflectionUtility.GetMethodInfo(targetObject.GetType(), targetMethodName, true);
+                _targetMethodInfo = ReflectionUtility.GetMethodInfo(targetObject.PathFinalType, targetMethodName, true);
                 _sourceMethodInfo = //sourcePathExecutor.RuntimePathFinalType;
                     ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), sourceObjectMethodName.Split('.'), true);
 
-                _sourcePathExecutor.Setup(sourceObjectMethodName, sourceObject, true);
-
+                _sourcePathExecutor.Setup(sourceObjectMethodName, sourceObject, false);
                 if (_targetMethodInfo == null || _sourceMethodInfo == null)
                 {
-                    Debug.LogError("Methods not found");
+                    Debug.LogError($"Methods not found {this}");
                     return;
                 }
 
@@ -166,14 +167,8 @@ namespace Common.UnityExtend.Reflection
             }
         }
 
-        [SerializeField] private bool debug;
-
         private void OnEnable()
         {
-            if (debug)
-            {
-                Debug.Log("OK");
-            }
             foreach (var t in items)
             {
                 t.SetupReflection(PathSelector.Executor.CachedRuntimeObject);
@@ -218,7 +213,7 @@ namespace Common.UnityExtend.Reflection
             {
                 var e = eventItemList.EventItems[i];
                 if (!e.use) continue;
-                
+
                 var o = IsExtraEventItem(e) ? this : obj;
 
                 var evInfo = e.GetEventInfo(o.GetType());
@@ -294,38 +289,48 @@ namespace Common.UnityExtend.Reflection
             var formatType = property.FindPropertyRelative("formatType");
 
             var fullWidth = position.width;
-            var fullHeight = position.height;
-            position.height = fullHeight / 2 - 2;
+            position.height = (position.height - 4) / 3;
             position.width = fullWidth / 3 + 27;
             EditorGUI.PropertyField(position, sourceObjectMethodName, GUIContent.none);
 
+
+            position.y += position.height + 2;
+            position.width = fullWidth; // 3;
+            // position.height = height * 2; // 3;
+            EditorGUI.PropertyField(position, targetObject, GUIContent.none);
+
+            // var btnRect = position;
+            // btnRect.x += position.width + 2;
+            // btnRect.width = 25;
+            // TypeConstraintPropertyDrawer.Menu(btnRect, targetObject,
+            //     go => go.GetComponents<Component>().Select(c => c as Object).Concat(new[] {go}).ToArray(), false);
+
+            // btnRect.x = 27;
+            position.y += position.height + 2;
+
+
             //Formatter
             const float w = 70;
+            position.x += fullWidth - w * 1.65f;
+            position.width = w * 1.65f;
+            EditorGUI.LabelField(position, new GUIContent("Format"));
+            position.x -= fullWidth - w * 1.65f;
+
             position.x += fullWidth - w + 1;
             position.width = w;
             EditorGUI.PropertyField(position, formatType, GUIContent.none);
             position.x -= fullWidth - w + 1;
 
-            position.y += position.height;
-            position.width = fullWidth / 3;
-            EditorGUI.PropertyField(position, targetObject, GUIContent.none);
+            position.width = fullWidth / 3 * 2 - 27;
+            EditorGUI.PropertyField(position, targetMethodName, GUIContent.none);
 
-            var btnRect = position;
-            btnRect.x += position.width + 2;
-            btnRect.width = 25;
-            TypeConstraintPropertyDrawer.Menu(btnRect, targetObject,
-                go => go.GetComponents<Component>().Select(c => c as Object).Concat(new[] {go}).ToArray(), false);
-
-            btnRect.x += 27;
-            btnRect.width = fullWidth / 3 * 2 - 27;
-            EditorGUI.PropertyField(btnRect, targetMethodName, GUIContent.none);
 
             EditorGUI.EndProperty();
         }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return base.GetPropertyHeight(property, label) * 2 + 4;
+            return base.GetPropertyHeight(property, label) * 3 + 4;
         }
     }
 #endif

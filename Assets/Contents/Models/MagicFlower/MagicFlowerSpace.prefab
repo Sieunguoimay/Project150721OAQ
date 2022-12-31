@@ -558,7 +558,9 @@ MonoBehaviour:
       use: 0
   items:
   - sourceObjectMethodName: 'get_CollectableFlowerCount(): Int32'
-    targetObject: {fileID: 1253341266578782703}
+    targetObject:
+      sourceObject: {fileID: 1253341266578782703}
+      path: 
     targetMethodName: 'SpawnRandom(Int32): Void'
     formatType: 0
 --- !u!1 &7038780993930413501
@@ -707,11 +709,15 @@ MonoBehaviour:
       use: 0
   items:
   - sourceObjectMethodName: 'PayoutAmountPerFlower: Int32'
-    targetObject: {fileID: 3130755098099318123}
+    targetObject:
+      sourceObject: {fileID: 3130755098099318123}
+      path: 
     targetMethodName: 'Emit(Int32): Void'
     formatType: 0
   - sourceObjectMethodName: 'CreateTransactions(): ITransaction[]'
-    targetObject: {fileID: 2658155704234856459}
+    targetObject:
+      sourceObject: {fileID: 2658155704234856459}
+      path: 
     targetMethodName: 'Send(ITransaction[]): Void'
     formatType: 0
 --- !u!114 &9096739133053775978
@@ -737,7 +743,9 @@ MonoBehaviour:
       use: 0
   items:
   - sourceObjectMethodName: 'LastCollectedBlossomPosition: Vector3'
-    targetObject: {fileID: 3130755098099318123}
+    targetObject:
+      sourceObject: {fileID: 3130755098099318123}
+      path: 
     targetMethodName: 'SetEmitPosition(Vector3): Void'
     formatType: 0
 --- !u!1 &8411878958738429206

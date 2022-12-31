@@ -4,9 +4,5 @@ namespace Gameplay.Entities.Stage
 {
     public class StageEntityView : ContainerEntityView<IStage, IStageData>
     {
-        public void OnClicked()
-        {
-            Entity.Unlock();
-        }
     }
 }

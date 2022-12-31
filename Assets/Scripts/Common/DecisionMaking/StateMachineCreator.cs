@@ -61,10 +61,15 @@ namespace Common.DecisionMaking
                 var creator = target as StateMachineCreator;
 
                 if (creator is null) return;
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.Space(10,false);
+                EditorGUILayout.BeginVertical();
                 foreach (var state in creator.States)
                 {
                     EditorGUILayout.LabelField(state.StateName);
                 }
+                EditorGUILayout.EndVertical();
+                EditorGUILayout.EndHorizontal();
             }
         }
     }

@@ -20,14 +20,15 @@ namespace Framework.Entities.Variable
     {
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {
-            return new Variable<TPrimitive>(this, new VariableSavedData<TPrimitive>(this));
+            return new Variable<TPrimitive>(this, null); //new VariableSavedData<TPrimitive>(this));
         }
 
-        [field:SerializeField]public TPrimitive InitialValue { get; private set; }
+        [field: SerializeField] public TPrimitive InitialValue { get; private set; }
     }
-    
+
     [Serializable]
-    public class VariableSavedData<TPrimitive> : BaseEntitySavedData<IVariableData<TPrimitive>>, IVariableSavedData<TPrimitive>
+    public class VariableSavedData<TPrimitive> : BaseEntitySavedData<IVariableData<TPrimitive>>,
+        IVariableSavedData<TPrimitive>
     {
         public VariableSavedData(IVariableData<TPrimitive> data) : base(data)
         {
@@ -39,7 +40,8 @@ namespace Framework.Entities.Variable
             Value = data.InitialValue;
         }
 
-        public TPrimitive Value { get; private set; }
+        [field: SerializeField] public TPrimitive Value { get; private set; }
+
         public void SetValue(TPrimitive value)
         {
             Value = value;
