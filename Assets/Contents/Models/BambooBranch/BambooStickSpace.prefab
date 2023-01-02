@@ -152,7 +152,7 @@ Transform:
   m_GameObject: {fileID: 5671317843080482682}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8309504978036155935}
@@ -478,8 +478,6 @@ MonoBehaviour:
       pathSelector:
         sourceObject: {fileID: 5983454113372052464}
         path: 'Finished: Boolean'
-      sourceObject: {fileID: 5983454113372052464}
-      path: Finished
       stringValue: b
       numberValue: 0
       boolValue: 0
@@ -489,8 +487,6 @@ MonoBehaviour:
       pathSelector:
         sourceObject: {fileID: 0}
         path: 
-      sourceObject: {fileID: 0}
-      path: 
       stringValue: 0
       numberValue: 0
       boolValue: 1
@@ -509,6 +505,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 1
+  elseWise:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &8909257703993847222
 MonoBehaviour:
   m_ObjectHideFlags: 0
