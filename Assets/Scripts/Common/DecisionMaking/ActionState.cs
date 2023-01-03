@@ -15,16 +15,19 @@ namespace Common.DecisionMaking
 
         public void Enter()
         {
+            IsCurrent = true;
             Entered?.Invoke();
-
             Begin();
         }
 
         public void Exit()
         {
+            IsCurrent = false;
             Exited?.Invoke();
             End();
         }
+
+        [field: NonSerialized] public bool IsCurrent { get; private set; }
 
 #if UNITY_EDITOR
         [ContextMenu("Use GameObject Name")]
@@ -40,10 +43,12 @@ namespace Common.DecisionMaking
     {
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
             EditorGUILayout.PropertyField(serializedObject.FindProperty(SerializeUtility.FormatBackingFieldPropertyName("StateName")));
             EditorGUILayout.PropertyField(serializedObject.FindProperty(SerializeUtility.FormatBackingFieldPropertyName("Entered")));
             EditorGUILayout.PropertyField(serializedObject.FindProperty(SerializeUtility.FormatBackingFieldPropertyName("Exited")));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("monoActivities"));
+            serializedObject.ApplyModifiedProperties();
         }
     }
 #endif

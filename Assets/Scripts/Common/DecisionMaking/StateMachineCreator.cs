@@ -41,7 +41,7 @@ namespace Common.DecisionMaking
             }
         }
 
-        private int GetIndex(string stateName)
+        public int GetIndex(string stateName)
         {
             return States.Select((s, i) => (s, i)).FirstOrDefault(t => t.s.StateName.Equals(stateName)).i;
         }

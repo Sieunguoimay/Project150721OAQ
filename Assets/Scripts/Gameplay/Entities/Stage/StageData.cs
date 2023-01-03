@@ -17,11 +17,10 @@ namespace Gameplay.Entities.Stage
     [CreateAssetMenu(menuName = "Entity/StageData")]
     public class StageData : ContainerEntityData<IStage>, IStageData
     {
-        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
+
+        protected override IEntity<IEntityData, IEntitySavedData> CreateContainerEntityInternal(IEntity<IEntityData, IEntitySavedData>[] components, IEntitySavedData[] savedDataItems)
         {
-            var items = GetEntityItems();
-            var savedDataItems = new StageSavedData(this, items.Select(i => i.SavedData).ToArray());
-            return new Stage(this, savedDataItems, items);
+            return new Stage(this, new StageSavedData(this, savedDataItems), components);
         }
     }
 

@@ -20,11 +20,10 @@ namespace Framework.Entities.ContainerEntity
     public abstract class ContainerEntityData<TEntity> : EntityAsset<TEntity>, IContainerEntityData
         where TEntity : class, IContainerEntity<IContainerEntityData, IContainerEntitySavedData>
     {
-        [SerializeField, ChildAsset(false), TypeConstraint(typeof(IEntityData))]
-        [ContextMenuItem(nameof(AddChildAssetsToComponents), nameof(AddChildAssetsToComponents))]
+        [SerializeField, ChildAsset(false), TypeConstraint(typeof(IEntityData))] [ContextMenuItem(nameof(AddChildAssetsToComponents), nameof(AddChildAssetsToComponents))]
         private DataAsset[] componentAssets;
 
-        protected IEntity<IEntityData, IEntitySavedData>[] GetEntityItems()
+        protected IEntity<IEntityData, IEntitySavedData>[] CreateComponentEntityItems()
         {
             var dataItems = GetComponentDataItems();
             var items = new IEntity<IEntityData, IEntitySavedData>[dataItems.Length];
@@ -36,6 +35,14 @@ namespace Framework.Entities.ContainerEntity
             return items;
         }
 
+        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
+        {
+            var items = CreateComponentEntityItems();
+            var savedDataItems = items.Select(i => i.SavedData).ToArray();
+            return CreateContainerEntityInternal(items, savedDataItems);
+        }
+
+        protected abstract IEntity<IEntityData, IEntitySavedData> CreateContainerEntityInternal(IEntity<IEntityData, IEntitySavedData>[] components, IEntitySavedData[] savedDataItems);
         public IEntityData[] GetComponentDataItems() => componentAssets.Select(d => d as IEntityData).ToArray();
 
 #if UNITY_EDITOR

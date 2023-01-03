@@ -85,7 +85,7 @@ Material:
     - _ClipLerp: {r: 9999, g: 9999, b: 9999, a: 0}
     - _Color: {r: 1, g: 0.9192872, b: 0.8443396, a: 1}
     - _EmissionColor: {r: 1, g: 0, b: 0, a: 1}
-    - _LocalClipBoxMax: {r: 0, g: 0, b: 0, a: 1}
+    - _LocalClipBoxMax: {r: -0.23, g: 0, b: 0, a: 1}
     - _LocalClipBoxMin: {r: -3.1, g: 0, b: 0, a: 0}
     - _LocalMax: {r: 9999, g: 9999, b: 9999, a: 0}
     - _LocalMin: {r: -9999, g: -9999, b: -9999, a: 0}
