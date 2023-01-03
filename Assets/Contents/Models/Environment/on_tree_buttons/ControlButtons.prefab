@@ -226,14 +226,12 @@ MonoBehaviour:
       - targetObjectPath:
           sourceObject: {fileID: 7629102269817292106}
           path: 
-        targetObject: {fileID: 7629102269817292106}
         methodName: 'Transfer(): Void'
     - eventName: ThisEnabled()
       methodItems:
       - targetObjectPath:
           sourceObject: {fileID: 7640144786567347893}
           path: 
-        targetObject: {fileID: 7640144786567347893}
         methodName: 'InvokeCallback(): Void'
     - eventName: ThisDisabled()
       methodItems: []
@@ -299,6 +297,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 3286656977683029130}
+        m_TargetAssemblyTypeName: UnityEngine.Animator, UnityEngine
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: pulling_up
+          m_BoolArgument: 0
+        m_CallState: 2
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 6267455474943034393}
@@ -336,6 +346,18 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 3286656977683029130}
+        m_TargetAssemblyTypeName: UnityEngine.Animator, UnityEngine
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: pulling_down
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &4235553808963084203
@@ -500,17 +522,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1273631731835073436, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
   m_PrefabInstance: {fileID: 194438938414792358}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8742604358969271590 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-  m_PrefabInstance: {fileID: 194438938414792358}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be883e2310fc4bf7b5d73a04465bd393, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &391142421283708650
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -597,7 +608,7 @@ PrefabInstance:
     - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
       propertyPath: click.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
-      objectReference: {fileID: 2594791563038511381}
+      objectReference: {fileID: 0}
     - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
       propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
       value: 2
@@ -643,17 +654,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1938529037248997670, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
   m_PrefabInstance: {fileID: 391142421283708650}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &9118853022139614570 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-  m_PrefabInstance: {fileID: 391142421283708650}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be883e2310fc4bf7b5d73a04465bd393, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &5484663544082279743
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -743,17 +743,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
---- !u!114 &4034170937604421311 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
-  m_PrefabInstance: {fileID: 5484663544082279743}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be883e2310fc4bf7b5d73a04465bd393, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &6267455474943034393 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1938529037248997670, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
@@ -771,6 +760,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5577019158374509206}
     m_Modifications:
+    - target: {fileID: 1979497973586593036, guid: 7e3bd7b4041136b428061be3ded1ed8b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1979497973586593036, guid: 7e3bd7b4041136b428061be3ded1ed8b, type: 3}
       propertyPath: m_PlayAutomatically
       value: 0
@@ -825,60 +818,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7e3bd7b4041136b428061be3ded1ed8b, type: 3}
---- !u!1 &456555364674473441 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6548680099063403112, guid: 7e3bd7b4041136b428061be3ded1ed8b, type: 3}
+--- !u!95 &3286656977683029130 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 8154640611958031107, guid: 7e3bd7b4041136b428061be3ded1ed8b, type: 3}
   m_PrefabInstance: {fileID: 6680975104884645769}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &916197025578557987
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 456555364674473441}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sourceObject: {fileID: 8742604358969271590}
-  path: 
-  extraEvents: 0
-  itemList:
-    eventItems:
-    - eventName: Clicked(EventArgs)
-      methodItems:
-      - targetObjectPath:
-          sourceObject: {fileID: 2594791563038511381}
-          path: 
-        targetObject: {fileID: 2594791563038511381}
-        methodName: 'Play(): Void'
-  useSameTypeSourceObjects: 1
-  sameTypeSourceObjects:
-  - {fileID: 4034170937604421311}
-  - {fileID: 9118853022139614570}
---- !u!114 &2594791563038511381
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 456555364674473441}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ed72912558a46f9bd96d185daf59a1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  anim: {fileID: 5174356277855033989}
-  clip: {fileID: 7400000, guid: cf6a3f1da2822bc4ca2489947c107446, type: 2}
 --- !u!4 &4817950677339554369 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2191946698518814152, guid: 7e3bd7b4041136b428061be3ded1ed8b, type: 3}
-  m_PrefabInstance: {fileID: 6680975104884645769}
-  m_PrefabAsset: {fileID: 0}
---- !u!111 &5174356277855033989 stripped
-Animation:
-  m_CorrespondingSourceObject: {fileID: 1979497973586593036, guid: 7e3bd7b4041136b428061be3ded1ed8b, type: 3}
   m_PrefabInstance: {fileID: 6680975104884645769}
   m_PrefabAsset: {fileID: 0}

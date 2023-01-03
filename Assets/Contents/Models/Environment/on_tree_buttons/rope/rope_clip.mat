@@ -7,11 +7,11 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: rope_2
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-  m_ValidKeywords:
+  m_Name: rope_clip
+  m_Shader: {fileID: 4800000, guid: 4f5639124eeed034699c6606c6318fa1, type: 3}
+  m_ValidKeywords: []
+  m_InvalidKeywords:
   - _NORMALMAP
-  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -85,8 +85,8 @@ Material:
     - _ClipLerp: {r: 9999, g: 9999, b: 9999, a: 0}
     - _Color: {r: 1, g: 0.9192872, b: 0.8443396, a: 1}
     - _EmissionColor: {r: 1, g: 0, b: 0, a: 1}
-    - _LocalClipBoxMax: {r: 0.7, g: 0, b: 0, a: 0}
-    - _LocalClipBoxMin: {r: -3.2, g: 0, b: 0, a: 0}
+    - _LocalClipBoxMax: {r: 0, g: 0, b: 0, a: 1}
+    - _LocalClipBoxMin: {r: -3.1, g: 0, b: 0, a: 0}
     - _LocalMax: {r: 9999, g: 9999, b: 9999, a: 0}
     - _LocalMin: {r: -9999, g: -9999, b: -9999, a: 0}
   m_BuildTextureStacks: []

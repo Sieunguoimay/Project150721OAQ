@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2191946698518814152}
-  - component: {fileID: 1979497973586593036}
+  - component: {fileID: 8154640611958031107}
   m_Layer: 0
   m_Name: rope
   m_TagString: Untagged
@@ -34,22 +34,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!111 &1979497973586593036
-Animation:
+--- !u!95 &8154640611958031107
+Animator:
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6548680099063403112}
   m_Enabled: 1
-  serializedVersion: 3
-  m_Animation: {fileID: 7400000, guid: cf6a3f1da2822bc4ca2489947c107446, type: 2}
-  m_Animations:
-  - {fileID: 7400000, guid: cf6a3f1da2822bc4ca2489947c107446, type: 2}
-  m_WrapMode: 0
-  m_PlayAutomatically: 1
-  m_AnimatePhysics: 0
-  m_CullingType: 0
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: eb3646d05422ade46a91d9cc14f13206, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!1001 &1680952042444259594
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -194,7 +198,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 18e89d59a172a5a42986482daba678db, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 13e563c61d13c98429defaec39b0dc33, type: 2}
+      objectReference: {fileID: 2100000, guid: 39fc51141c843134ab5c43841b86d76e, type: 2}
     - target: {fileID: 919132149155446097, guid: 18e89d59a172a5a42986482daba678db, type: 3}
       propertyPath: m_Name
       value: rope_lp
@@ -206,3 +210,22 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 18e89d59a172a5a42986482daba678db, type: 3}
   m_PrefabInstance: {fileID: 6240461902689560880}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &6511073493594297441 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 18e89d59a172a5a42986482daba678db, type: 3}
+  m_PrefabInstance: {fileID: 6240461902689560880}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5887352791438929593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6511073493594297441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdd24480e3a343c3a888a892415fea6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  propertyName: _ClipLerp
+  useSharedMaterial: 0

@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Common.UnityExtend.Attribute;
 using Common.UnityExtend.Rendering;
 using UnityEngine;
 using UnityEngine.Rendering;
-
 
 namespace Contents.Shaders.SupportScripts
 {
@@ -15,6 +15,8 @@ namespace Contents.Shaders.SupportScripts
 #endif
         [SerializeField]
         private string propertyName;
+
+        [SerializeField] private bool useSharedMaterial;
 
         private MeshRenderer _meshRenderer;
         private int _propertyID;
@@ -29,24 +31,30 @@ namespace Contents.Shaders.SupportScripts
                     _meshRenderer = GetComponent<MeshRenderer>();
                 }
 
-                return ShaderUtility.GetShaderPropertyNamesByType(_meshRenderer.sharedMaterial.shader, ShaderPropertyType.Range, ShaderPropertyType.Float);
+                return ShaderUtility.GetShaderPropertyNamesByType(_meshRenderer.sharedMaterial.shader,
+                    ShaderPropertyType.Range, ShaderPropertyType.Float);
             }
         }
-
 #endif
+        private Material Material => useSharedMaterial || !Application.isPlaying
+            ? _meshRenderer.sharedMaterial
+            : _meshRenderer.material;
+
         public void SetProperty(float value)
         {
             if (_meshRenderer == null)
             {
                 _meshRenderer = GetComponent<MeshRenderer>();
                 _propertyID = Shader.PropertyToID(propertyName);
-                if (!_meshRenderer.sharedMaterial.HasFloat(_propertyID))
+                if (!Material.HasFloat(_propertyID))
                 {
-                    Debug.Log($"Err. Property {propertyName} not found in this Shader {_meshRenderer.sharedMaterial.shader.name}");
+                    Debug.Log(
+                        $"Err. Property {propertyName} not found in this Shader {_meshRenderer.sharedMaterial.shader.name}");
                 }
             }
 
-            _meshRenderer.material.SetFloat(_propertyID, value);
+            Material.SetFloat(_propertyID, value);
         }
+
     }
 }

@@ -7,8 +7,8 @@ Shader "Custom/Clip"
         _NormalMap ("Normal", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
-        _LocalClipBoxMin ("_LocalClipBoxMin", Vector) = (-10,-10,-10)
-        _LocalClipBoxMax ("_LocalClipBoxMax", Vector) = (10,10,10)
+        _LocalClipBoxMin ("_LocalClipBoxMin", Vector) = (-10,-10,-10,0)//W is 0,1,2 -> x y z
+        _LocalClipBoxMax ("_LocalClipBoxMax", Vector) = (10,10,10,0)//W is 0,1 -> lerp direction
         _ClipLerp ("_ClipLerp", Range(0,1)) = .5
     }
 
@@ -42,6 +42,7 @@ Shader "Custom/Clip"
         fixed4 _Color;
         fixed4 _LocalClipBoxMin;
         fixed4 _LocalClipBoxMax;
+        fixed _ClipLerp;
 
         // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
         // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
@@ -58,10 +59,13 @@ Shader "Custom/Clip"
 
         void surf(Input IN, inout SurfaceOutputStandard o)
         {
-            float3 lowerBounds = lerp(_LocalClipBoxMin.xyz, _LocalClipBoxMax.xyz, _LocalClipBoxMin.w);
-            float3 upperBounds = lerp(_LocalClipBoxMax.xyz, _LocalClipBoxMin.xyz, _LocalClipBoxMax.w);
-            clip(IN.localPos - lowerBounds);
-            clip(upperBounds - IN.localPos);
+            float w = _LocalClipBoxMin.w;
+            float w2 = _LocalClipBoxMax.w;
+            float3 axis = float3(w == 0 ? 1 : 0, w == 1 ? 1 : 0, w == 2 ? 1 : 0);
+            float3 lowerBounds = lerp(_LocalClipBoxMin.xyz, _LocalClipBoxMax.xyz, _ClipLerp * (w2 == 0 ? 1 : 0));
+            float3 upperBounds = lerp(_LocalClipBoxMax.xyz, _LocalClipBoxMin.xyz, _ClipLerp * (w2 == 1 ? 1 : 0));
+            clip((IN.localPos - lowerBounds) * axis);
+            clip((upperBounds - IN.localPos) * axis);
             // Albedo comes from a texture tinted by color
             fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
             o.Albedo = c.rgb;
