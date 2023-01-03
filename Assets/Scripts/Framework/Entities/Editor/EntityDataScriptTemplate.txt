@@ -17,14 +17,14 @@ namespace #NAMESPACE#
     {
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
         {
-            return new #SCRIPTNAME#(this, new #SCRIPTNAME#SavedData(Id));
+            return new #SCRIPTNAME#(this, new #SCRIPTNAME#SavedData(this));
         }
     }
     
     [Serializable]
-    public class #SCRIPTNAME#SavedData : BaseEntitySavedData, I#SCRIPTNAME#SavedData
+    public class #SCRIPTNAME#SavedData : BaseEntitySavedData<I#SCRIPTNAME#Data>, I#SCRIPTNAME#SavedData
     {
-        public #SCRIPTNAME#SavedData(string id) : base(id)
+        public #SCRIPTNAME#SavedData(I#SCRIPTNAME#Data id) : base(id)
         {
         }
     }

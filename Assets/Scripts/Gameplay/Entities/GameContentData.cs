@@ -15,10 +15,6 @@ namespace Gameplay.Entities
         public string[] CurrencyIds { get; private set; }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        [field: SerializeField, IdSelector(typeof(ICurrencyProcessorData))]
-        public string MatchProcessorId { get; private set; }
-
-        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         [field: SerializeField, IdSelector(typeof(IEntityData))]
         public string[] EntityIds { get; private set; }
 

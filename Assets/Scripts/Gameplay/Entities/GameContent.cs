@@ -24,8 +24,6 @@ namespace Gameplay.Entities
                 _entityLoader.CreateEntity(currencyId);
             }
 
-            _entityLoader.CreateEntity(Data.MatchProcessorId);
-
             for (var i = 0; i < Data.EntityIds.Length; i++)
             {
                 var entityId = Data.EntityIds[i];
@@ -39,9 +37,7 @@ namespace Gameplay.Entities
             {
                 _entityLoader.DestroyEntity( Resolver.Resolve<ICurrency>(currencyId));
             }
-
-            _entityLoader.DestroyEntity(Resolver.Resolve<ICurrencyProcessor>(Data.MatchProcessorId));
-
+            
             for (var i = 0; i < Data.EntityIds.Length; i++)
             {
                 _entityLoader.DestroyEntity(_entities[i]);

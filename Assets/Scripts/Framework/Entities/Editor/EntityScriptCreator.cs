@@ -24,6 +24,10 @@ namespace Framework.Entities.Editor
 
         private void OnGUI()
         {
+            GUI.enabled = false;
+            EditorGUILayout.ObjectField("Script", MonoScript.FromScriptableObject(this), typeof(EntityScriptCreator), false);
+            GUI.enabled = true;
+
             EditorGUILayout.LabelField($"Path: {_path}");
             GUI.SetNextControlName(nameof(EntityScriptCreator));
             _entityName = EditorGUILayout.TextField("Entity Name", _entityName);

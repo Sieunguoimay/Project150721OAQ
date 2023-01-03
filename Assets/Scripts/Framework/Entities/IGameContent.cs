@@ -11,7 +11,6 @@ namespace Framework.Entities
     public interface IGameContentData : IEntityData
     {
         string[] CurrencyIds { get; }
-        string MatchProcessorId { get; }
         string[] EntityIds { get; }
     }
 
