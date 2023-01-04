@@ -3,15 +3,15 @@ using Common.UnityExtend.Attribute;
 
 namespace Framework.Services.Data
 {
-    public class IdSelectorAttribute : StringSelectorAttribute
+    public class DataAssetIdSelectorAttribute : StringSelectorAttribute
     {
         public Type TypeConstraint { get; }
 
-        public IdSelectorAttribute() : base("")
+        public DataAssetIdSelectorAttribute() : base("")
         {
         }
 
-        public IdSelectorAttribute(Type typeConstraint) : base("")
+        public DataAssetIdSelectorAttribute(Type typeConstraint) : base("")
         {
             TypeConstraint = typeConstraint;
         }

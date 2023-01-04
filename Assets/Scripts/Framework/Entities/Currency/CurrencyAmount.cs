@@ -14,7 +14,7 @@ namespace Framework.Entities.Currency
             Amount = amount;
         }
 
-        [field: SerializeField, IdSelector(typeof(ICurrencyData))]
+        [field: SerializeField, DataAssetIdSelector(typeof(ICurrencyData))]
         public string CurrencyId { get; private set; }
 
         [field: SerializeField] public double Amount { get; private set; }

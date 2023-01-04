@@ -1,24 +1,13 @@
-﻿using System;
-using Framework.Entities;
-using Framework.Entities.Currency;
-using Framework.Services;
-using Framework.Services.Data;
+﻿using Framework.Entities;
+using Framework.Entities.ContainerEntity;
 using UnityEngine;
 
 namespace Gameplay.Entities
 {
     [CreateAssetMenu(menuName = "Entity/GameContentData")]
-    public class GameContentData : EntityAsset<IGameContent>, IGameContentData
+    public class GameContentData : ContainerEntityData<IGameContent>, IGameContentData
     {
-        // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        [field: SerializeField, IdSelector(typeof(ICurrencyData))]
-        public string[] CurrencyIds { get; private set; }
-
-        // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        [field: SerializeField, IdSelector(typeof(IEntityData))]
-        public string[] EntityIds { get; private set; }
-
-        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
+        protected override IEntity<IEntityData, IEntitySavedData> CreateContainerEntityInternal()
         {
             return new GameContent(this, null);
         }

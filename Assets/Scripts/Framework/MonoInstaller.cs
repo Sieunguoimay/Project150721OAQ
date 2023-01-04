@@ -19,7 +19,9 @@ namespace Framework
     {
         [SerializeField] private LocalDataServiceAsset dataServiceAsset;
         [SerializeField] private string saveFolder = "SavedData";
-        [SerializeField,IdSelector(typeof(IGameContentData))] private string gameContentId;
+
+        [SerializeField, DataAssetIdSelector(typeof(IGameContentData))]
+        private string gameContentId;
 
 #if UNITY_EDITOR
         public static string ProjectPath => Path.GetDirectoryName(Application.dataPath);
@@ -33,7 +35,7 @@ namespace Framework
 
         //Services
 
-        private readonly IEntityLoader _entityLoader = new EntityLoader();
+        private readonly EntityLoader _entityLoader = new();
 
         private void Awake()
         {
@@ -93,6 +95,7 @@ namespace Framework
         {
             _entityLoader.Inject(_container);
             _entityLoader.CreateEntity(gameContentId);
+            _entityLoader.SetupEntities();
         }
 
         private void UnloadEntities()

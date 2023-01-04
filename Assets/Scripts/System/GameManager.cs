@@ -5,6 +5,7 @@ using Framework.Services;
 using Gameplay;
 using Gameplay.BambooStick;
 using Gameplay.Board;
+using Gameplay.Entities.Stage;
 using Gameplay.GameInteract;
 using Gameplay.Piece;
 using SNM;
@@ -12,7 +13,7 @@ using UnityEngine;
 
 namespace System
 {
-    public class GameManager : MonoBehaviour, ISelfBindingInjectable
+    public class GameManager : MonoSelfBindingInjectable<GameManager>
     {
         // [SerializeField, IdSelector(typeof(ICurrencyProcessorData))]
         // private string matchProcessorId;
@@ -29,19 +30,19 @@ namespace System
 
         private IResolver _resolver;
 
-        public void Bind(IBinder binder)
-        {
+        // public void Bind(IBinder binder)
+        // {
             // binder.Bind<GameFlowManager>(_gameFlowManager);
             // binder.Bind<IMatchChooser>(_matchChooser);
-        }
+        // }
 
-        public void Unbind(IBinder binder)
-        {
+        // public void Unbind(IBinder binder)
+        // {
             // binder.Unbind<GameFlowManager>();
             // binder.Unbind<IMatchChooser>();
-        }
+        // }
 
-        public void Inject(IResolver resolver)
+        public override void Inject(IResolver resolver)
         {
             _resolver = resolver;
 
@@ -50,7 +51,7 @@ namespace System
             _pieceManager = resolver.Resolve<PieceManager>();
             _bambooFamily = resolver.Resolve<BambooFamilyManager>();
 
-            RayPointer.Instance.SetCamera(resolver.Resolve<CameraManager>().Camera);
+            // RayPointer.Instance.SetCamera(resolver.Resolve<CameraManager>().Camera);
 
             // var matchProcessor = _resolver.Resolve<ICurrencyProcessor>(matchProcessorId);
             // _resolver.Resolve<IMessageService>().Register<IMessage<ICurrencyProcessor>, ICurrencyProcessor>(MatchProcessorSuccess, matchProcessor);
@@ -89,6 +90,11 @@ namespace System
         //     StartGame();
         // }
 
+        public void GenerateMatch(IStage stage)
+        {
+            GenerateMatch(stage.Data.PlayerNum, stage.Data.TilesPerGroup);
+        }
+
         public void GenerateMatch(int playerNum, int tilesPerGroup)
         {
             _boardManager.CreateBoard(playerNum, tilesPerGroup);
@@ -108,7 +114,7 @@ namespace System
         {
             _gameplay.StartNewMatch();
         }
-        
+
         //
         // public void ReplayMatch()
         // {

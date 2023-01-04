@@ -23,32 +23,45 @@ namespace Framework.Entities.Editor
         private bool _createManualView;
         private bool _createInjectableView;
 
-        private string _entityScriptTemplate = "EntityScriptTemplate";
-        private string _entityDataScriptTemplate = "EntityDataScriptTemplate";
-        private string _entityManualViewScriptTemplate = "EntityManualViewScriptTemplate";
-        private string _entityViewScriptTemplate = "EntityViewScriptTemplate";
-        private TextAsset _entityScriptTemplateAsset;
-        private TextAsset _entityDataScriptTemplateAsset;
-        private TextAsset _entityManualViewScriptTemplateAsset;
-        private TextAsset _entityViewScriptTemplateAsset;
-
+        private bool _foldout;
+        private readonly TemplateSet _templateSet = new();
+        private bool _useContainerTemplate;
         private void OnEnable()
         {
-            _entityScriptTemplateAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(GetTemplateProjectPath(_entityScriptTemplate));
-            _entityDataScriptTemplateAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(GetTemplateProjectPath(_entityDataScriptTemplate));
-            _entityManualViewScriptTemplateAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(GetTemplateProjectPath(_entityManualViewScriptTemplate));
-            _entityViewScriptTemplateAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(GetTemplateProjectPath(_entityViewScriptTemplate));
+            _templateSet.Setup("EntityScriptTemplate", "EntityDataScriptTemplate", "EntityManualViewScriptTemplate", "EntityViewScriptTemplate");
         }
 
         private void OnGUI()
         {
             GUI.enabled = false;
-            EditorGUILayout.ObjectField("Script", MonoScript.FromScriptableObject(this), typeof(EntityScriptCreator),
-                false);
-            EditorGUILayout.ObjectField(_entityScriptTemplate,_entityScriptTemplateAsset, typeof(TextAsset), false);
-            EditorGUILayout.ObjectField(_entityDataScriptTemplate,_entityDataScriptTemplateAsset, typeof(TextAsset), false);
-            EditorGUILayout.ObjectField(_entityManualViewScriptTemplate,_entityManualViewScriptTemplateAsset, typeof(TextAsset), false);
-            EditorGUILayout.ObjectField(_entityViewScriptTemplate,_entityViewScriptTemplateAsset, typeof(TextAsset), false);
+            EditorGUILayout.ObjectField("Script", MonoScript.FromScriptableObject(this), typeof(EntityScriptCreator), false);
+            GUI.enabled = true;
+            var useContainerTemplate = EditorGUILayout.Toggle("Use Container Template",_useContainerTemplate);
+            GUI.enabled = false;
+            if (_useContainerTemplate != useContainerTemplate)
+            {
+                _useContainerTemplate = useContainerTemplate;
+                if (_useContainerTemplate)
+                {
+                    _templateSet.Setup("Container/ContainerEntityScriptTemplate", "Container/ContainerEntityDataScriptTemplate",
+                        "Container/ContainerEntityManualViewScriptTemplate", "Container/ContainerEntityViewScriptTemplate");
+                }
+                else
+                {
+                    _templateSet.Setup("EntityScriptTemplate", "EntityDataScriptTemplate", "EntityManualViewScriptTemplate", "EntityViewScriptTemplate");
+                }
+            }
+            _foldout = EditorGUILayout.Foldout(_foldout, "Templates", true);
+            if (_foldout)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.Space(10, false);
+                EditorGUILayout.BeginVertical();
+                _templateSet.DrawTemplates();
+                EditorGUILayout.EndVertical();
+                EditorGUILayout.EndHorizontal();
+            }
+
             GUI.enabled = true;
 
             EditorGUILayout.LabelField($"Path: {_path}");
@@ -80,19 +93,56 @@ namespace Framework.Entities.Editor
             }
 
             var nameSpace = CreateNameSpace(Path.Combine(_path, _entityName));
+            return _templateSet.Create(_entityName, physicalPath, nameSpace, _createManualView, _createInjectableView);
+        }
 
-            if (!CreateWithTemplate(GetTemplateAbsolutePath(_entityScriptTemplate), physicalPath, nameSpace,
-                _entityName, $"{_entityName}.cs"))
-                return false;
-            if (!CreateWithTemplate(GetTemplateAbsolutePath(_entityDataScriptTemplate), physicalPath, nameSpace,
-                _entityName,
-                $"{_entityName}Data.cs")) return false;
-            if (!(_createManualView && CreateWithTemplate(GetTemplateAbsolutePath(_entityManualViewScriptTemplate),
-                physicalPath,
-                nameSpace, _entityName, $"{_entityName}EntityManualView.cs"))) return false;
-            return _createInjectableView && CreateWithTemplate(GetTemplateAbsolutePath(_entityViewScriptTemplate),
-                physicalPath,
-                nameSpace, _entityName, $"{_entityName}EntityView.cs");
+        private class TemplateSet
+        {
+            private string _entityScriptTemplate = "EntityScriptTemplate";
+            private string _entityDataScriptTemplate = "EntityDataScriptTemplate";
+            private string _entityManualViewScriptTemplate = "EntityManualViewScriptTemplate";
+            private string _entityViewScriptTemplate = "EntityViewScriptTemplate";
+
+            private TextAsset _entityScriptTemplateAsset;
+            private TextAsset _entityDataScriptTemplateAsset;
+            private TextAsset _entityManualViewScriptTemplateAsset;
+            private TextAsset _entityViewScriptTemplateAsset;
+
+            public void Setup(string a, string b, string c, string d)
+            {
+                _entityScriptTemplate = a;
+                _entityDataScriptTemplate = b;
+                _entityManualViewScriptTemplate = c;
+                _entityViewScriptTemplate = d;
+                _entityScriptTemplateAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(GetTemplateProjectPath(_entityScriptTemplate));
+                _entityDataScriptTemplateAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(GetTemplateProjectPath(_entityDataScriptTemplate));
+                _entityManualViewScriptTemplateAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(GetTemplateProjectPath(_entityManualViewScriptTemplate));
+                _entityViewScriptTemplateAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(GetTemplateProjectPath(_entityViewScriptTemplate));
+            }
+
+            public void DrawTemplates()
+            {
+                EditorGUILayout.ObjectField("Entity", _entityScriptTemplateAsset, typeof(TextAsset), false);
+                EditorGUILayout.ObjectField("EntityData", _entityDataScriptTemplateAsset, typeof(TextAsset), false);
+                EditorGUILayout.ObjectField("EntityView", _entityViewScriptTemplateAsset, typeof(TextAsset), false);
+                EditorGUILayout.ObjectField("ManualEntityView", _entityManualViewScriptTemplateAsset, typeof(TextAsset), false);
+            }
+
+            public bool Create(string entityName, string physicalPath, string nameSpace, bool createManualView, bool createInjectableView)
+            {
+                if (!CreateWithTemplate(GetTemplateAbsolutePath(_entityScriptTemplate), physicalPath, nameSpace,
+                    entityName, $"{entityName}.cs"))
+                    return false;
+                if (!CreateWithTemplate(GetTemplateAbsolutePath(_entityDataScriptTemplate), physicalPath, nameSpace,
+                    entityName,
+                    $"{entityName}Data.cs")) return false;
+                if (!(createManualView && CreateWithTemplate(GetTemplateAbsolutePath(_entityManualViewScriptTemplate),
+                    physicalPath,
+                    nameSpace, entityName, $"{entityName}EntityManualView.cs"))) return false;
+                return createInjectableView && CreateWithTemplate(GetTemplateAbsolutePath(_entityViewScriptTemplate),
+                    physicalPath,
+                    nameSpace, entityName, $"{entityName}EntityView.cs");
+            }
         }
 
         private static string GetTemplateAbsolutePath(string templateName)
@@ -101,7 +151,7 @@ namespace Framework.Entities.Editor
                 $"{TemplatePath}/{templateName}.txt");
         }
 
-        private string GetTemplateProjectPath(string templateName)
+        private static string GetTemplateProjectPath(string templateName)
         {
             return $"{TemplatePath}/{templateName}.txt";
         }

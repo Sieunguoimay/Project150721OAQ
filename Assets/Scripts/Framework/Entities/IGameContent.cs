@@ -1,21 +1,19 @@
-﻿using Framework.Entities.Currency;
+﻿using Framework.Entities.ContainerEntity;
+using Framework.Entities.Currency;
 using Framework.Resolver;
 
 namespace Framework.Entities
 {
-    public interface IGameContent : IEntity<IGameContentData,IGameContentSavedData>
+    public interface IGameContent : IContainerEntity<IGameContentData,IGameContentSavedData>
     {
         //Empty
     }
 
-    public interface IGameContentData : IEntityData
+    public interface IGameContentData : IContainerEntityData
     {
-        string[] CurrencyIds { get; }
-        string[] EntityIds { get; }
     }
 
-    public interface IGameContentSavedData : IEntitySavedData
+    public interface IGameContentSavedData : IContainerEntitySavedData
     {
-        
     }
 }

@@ -39,7 +39,12 @@ namespace Framework.Services.Data
             return null;
         }
 
-        [MenuItem("Tools/IdsHelper/Force Update Ids")]
+        public static DataAsset GetDataAssetById(string id)
+        {
+            return GetDataServiceAsset().Assets.FirstOrDefault(a => a.Id.Equals(id));
+        }
+
+        [MenuItem("Tools/DataAssetIdsHelper/Force Update Ids")]
         public static void ForceUpdateIds()
         {
             UpdateIdsEasyWay();

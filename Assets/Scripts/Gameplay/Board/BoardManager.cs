@@ -28,15 +28,15 @@ namespace Gameplay.Board
 
             if (Application.isPlaying)
             {
+                var boardTransform = transform;
                 SpawnedTiles = new Tile[polygon.Length * (tilesPerGroup + 1)];
                 var tileGroups = new Board.TileGroup[groupNum];
                 for (var i = 0; i < polygon.Length; i++)
                 {
                     var cornerPos = polygon[i];
-
-                    SpawnedTiles[i * (tilesPerGroup + 1)] = SpawnMandarinTile(tileGroups, i, tilesPerGroup,
-                        ToVector3(cornerPos + cornerPos.normalized * mandarinTilePrefab.Size / 2f),
-                        Quaternion.LookRotation(ToVector3(cornerPos)));
+                    var worldPos = boardTransform.TransformPoint(ToVector3(cornerPos + cornerPos.normalized * mandarinTilePrefab.Size / 2f));
+                    var worldRot = boardTransform.rotation * Quaternion.LookRotation(ToVector3(cornerPos));
+                    SpawnedTiles[i * (tilesPerGroup + 1)] = SpawnMandarinTile(tileGroups, i, tilesPerGroup, worldPos, worldRot);
 
                     var p0 = polygon[i];
                     var p1 = polygon[(i + 1) % polygon.Length];
@@ -46,9 +46,9 @@ namespace Gameplay.Board
                     for (var j = 0; j < tilesPerGroup; j++)
                     {
                         var pj = p0 + (j + 0.5f) * citizenTilePrefab.Size * dir;
-                        SpawnedTiles[i * (tilesPerGroup + 1) + j] = SpawnCitizenTile(tileGroups, i, j,
-                            ToVector3(pj + normal * citizenTilePrefab.Size / 2f),
-                            Quaternion.LookRotation(ToVector3(normal)));
+                        worldPos = boardTransform.TransformPoint(ToVector3(pj + normal * citizenTilePrefab.Size / 2f));
+                        worldRot = boardTransform.rotation * Quaternion.LookRotation(ToVector3(normal));
+                        SpawnedTiles[i * (tilesPerGroup + 1) + j] = SpawnCitizenTile(tileGroups, i, j, worldPos, worldRot);
                     }
                 }
 

@@ -63,11 +63,14 @@ namespace Common.UnityExtend.Attribute
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            Draw(position, property, label, EditorStyles.label);
+        }
+
+        protected void Draw(Rect position, SerializedProperty property, GUIContent label, GUIStyle style)
+        {
             if (attribute is not StringSelectorAttribute objectSelector) return;
-            position = EditorGUI.PrefixLabel(position, label);
-
+            position = EditorGUI.PrefixLabel(position, label, style);
             if (!CreateMenuWithStringProperty(position, property, objectSelector)) return;
-
             _menu?.ShowAsContext();
         }
 

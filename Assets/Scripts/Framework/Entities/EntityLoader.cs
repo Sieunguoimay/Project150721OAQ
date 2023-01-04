@@ -1,39 +1,72 @@
-﻿using Framework.Resolver;
+﻿using System.Collections.Generic;
+using Framework.Resolver;
 using Framework.Services;
 using Framework.Services.Data;
+using UnityEngine;
 
 namespace Framework.Entities
 {
-    public interface IEntityLoader : IInjectable
+    public interface IEntityLoader
     {
+        /// <summary>
+        /// Better call CreateEntity() inside Inject() Method
+        /// </summary>
+        /// <param name="entityDataId"></param>
+        /// <returns></returns>
         IEntity<IEntityData, IEntitySavedData> CreateEntity(string entityDataId);
 
         void DestroyEntity(IEntity<IEntityData, IEntitySavedData> entity);
     }
 
     //Only for entity
-    public class EntityLoader : IEntityLoader
+    public class EntityLoader : IEntityLoader, IInjectable
     {
         private IDataService _dataService;
         private IResolver _resolver;
         private IBinder _binder;
+        private ISavedDataService _savedDataService;
+
+        private List<IEntity<IEntityData, IEntitySavedData>> _entitiesTobeSetup;
 
         public void Inject(IResolver resolver)
         {
             _resolver = resolver;
             _dataService = resolver.Resolve<IDataService>();
             _binder = resolver.Resolve<IBinder>();
+            _savedDataService = resolver.Resolve<ISavedDataService>();
+            _entitiesTobeSetup = new List<IEntity<IEntityData, IEntitySavedData>>();
+        }
+
+        public void SetupEntities()
+        {
+            foreach (var entity in _entitiesTobeSetup)
+            {
+                entity.Inject(_resolver);
+            }
+
+            foreach (var entity in _entitiesTobeSetup)
+            {
+                entity.Initialize();
+            }
+
+            _entitiesTobeSetup.Clear();
+            _entitiesTobeSetup = null;
         }
 
         public IEntity<IEntityData, IEntitySavedData> CreateEntity(string entityDataId)
         {
             var entityAsset = _dataService.Load<IEntityData>(entityDataId);
-            var entity = entityAsset.CreateEntity();
+            var entity = entityAsset.CreateEntity(this);
+            _binder.Bind(entity.Data.GetEntityType(), entity.Data.Id, entity);
+            entity.SavedData?.Load(_savedDataService);
 
-            _binder.Bind(entityAsset.GetEntityType(), entityDataId, entity);
+            if (_entitiesTobeSetup == null)
+            {
+                Debug.LogError("EntityLoader has already committed. You better call CreateEntity() earlier");
+                return entity;
+            }
 
-            entity.Inject(_resolver);
-            entity.Initialize();
+            _entitiesTobeSetup.Add(entity);
             return entity;
         }
 

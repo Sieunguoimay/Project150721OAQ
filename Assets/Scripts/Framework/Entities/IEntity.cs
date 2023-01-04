@@ -1,6 +1,5 @@
 ﻿using System;
 using Framework.Resolver;
-using Framework.Services;
 using Framework.Services.Data;
 using UnityEngine;
 
@@ -12,14 +11,18 @@ namespace Framework.Entities
         TData Data { get; }
         TSavedData SavedData { get; }
 
+        /// <summary>
+        /// Initialize is called in order to setup inner stuff
+        /// </summary>
         void Initialize();
+
         void Terminate();
     }
 
     public interface IEntityData
     {
         string Id { get; }
-        IEntity<IEntityData, IEntitySavedData> CreateEntity();
+        IEntity<IEntityData, IEntitySavedData> CreateEntity(IEntityLoader entityLoader);
         Type GetEntityType();
     }
 
@@ -50,12 +53,13 @@ namespace Framework.Entities
     // }
 
     [Serializable]
-    public abstract class BaseEntitySavedData<TEntityData> : IEntitySavedData where TEntityData: IEntityData
+    public abstract class BaseEntitySavedData<TEntityData> : IEntitySavedData where TEntityData : IEntityData
     {
         [SerializeField] private string id;
         [NonSerialized] private ISavedDataService _savedDataService;
 
         private TEntityData Data { get; set; }
+
         protected BaseEntitySavedData(TEntityData data)
         {
             Data = data;
@@ -86,7 +90,6 @@ namespace Framework.Entities
 
         protected virtual void InitializeDefaultData(TEntityData data)
         {
-            
         }
     }
 
@@ -94,10 +97,9 @@ namespace Framework.Entities
         where TData : IEntityData
         where TSavedData : IEntitySavedData
     {
-        private ISavedDataService _savedDataService;
         protected IResolver Resolver { get; private set; }
 
-        public BaseEntity(TData data, TSavedData savedData)
+        protected BaseEntity(TData data, TSavedData savedData)
         {
             Data = data;
             SavedData = savedData;
@@ -106,7 +108,6 @@ namespace Framework.Entities
         public virtual void Inject(IResolver resolver)
         {
             Resolver = resolver;
-            _savedDataService = resolver.Resolve<ISavedDataService>();
         }
 
         public TData Data { get; }
@@ -114,7 +115,6 @@ namespace Framework.Entities
 
         public virtual void Initialize()
         {
-            SavedData?.Load(_savedDataService);
         }
 
         public virtual void Terminate()

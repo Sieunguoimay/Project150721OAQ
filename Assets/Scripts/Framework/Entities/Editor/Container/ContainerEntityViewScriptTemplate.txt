@@ -1,0 +1,8 @@
+﻿using Framework.Entities.ContainerEntity;
+
+namespace #NAMESPACE#
+{
+    public class #SCRIPTNAME#EntityView : ContainerEntityView<I#SCRIPTNAME#, I#SCRIPTNAME#Data>
+    {
+    }
+}

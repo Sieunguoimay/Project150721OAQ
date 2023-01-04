@@ -8,6 +8,9 @@ namespace Gameplay
     {
         private Camera _camera = null;
         public Camera Camera => _camera ? _camera : _camera = GetComponent<Camera>();
+        
+
+#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             var plane = new Plane(Vector3.up, Vector3.zero);
@@ -32,7 +35,7 @@ namespace Gameplay
 
             for (var i = 0; i < hitPoints.Length; i++)
             {
-                Gizmos.DrawLine(camPos,hitPoints[i]);
+                Gizmos.DrawLine(camPos, hitPoints[i]);
                 Gizmos.DrawLine(hitPoints[i], hitPoints[(i + 1) % hitPoints.Length]);
             }
         }
@@ -55,5 +58,6 @@ namespace Gameplay
                 centerPoint - up * halfVerticalSize + right * halfHorizontalSize
             };
         }
+#endif
     }
 }

@@ -34,10 +34,11 @@ namespace Gameplay.Board.BoardDrawing
 
         public void OnDraw(Vector3 point, float progress)
         {
-            var p = _spline.GetPointAtDistance(progress * _spline.ArcLength);
-            var p3 = new Vector3(p.x, transform.position.y, p.z);
+            Transform t;
+            var p = (t = transform).parent.TransformPoint(_spline.GetPointAtDistance(progress * _spline.ArcLength));
+            var p3 = new Vector3(p.x, t.position.y, p.z);
 
-            transform.position = p3;
+            t.position = p3;
             if (penBall == null) return;
             penBall.position = point;
             penBall.up = (p3 - point).normalized;

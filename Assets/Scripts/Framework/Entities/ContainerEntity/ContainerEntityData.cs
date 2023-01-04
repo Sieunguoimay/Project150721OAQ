@@ -10,48 +10,65 @@ namespace Framework.Entities.ContainerEntity
     public interface IContainerEntityData : IEntityData
     {
         IEntityData[] GetComponentDataItems();
+        string[] GetLoadAlongEntityIds();
     }
 
     public interface IContainerEntitySavedData : IEntitySavedData
     {
         IEntitySavedData[] GetComponentSavedDataItems();
+        void SetComponentSavedDataItems(IEntitySavedData[] items);
     }
 
     public abstract class ContainerEntityData<TEntity> : EntityAsset<TEntity>, IContainerEntityData
         where TEntity : class, IContainerEntity<IContainerEntityData, IContainerEntitySavedData>
     {
-        [SerializeField, ChildAsset(false), TypeConstraint(typeof(IEntityData))] [ContextMenuItem(nameof(AddChildAssetsToComponents), nameof(AddChildAssetsToComponents))]
+        [SerializeField, ChildAsset(false), TypeConstraint(typeof(IEntityData))]
+#if UNITY_EDITOR
+        [ContextMenuItem(nameof(AddChildAssetsToComponents), nameof(AddChildAssetsToComponents))]
+#endif
         private DataAsset[] componentAssets;
 
-        protected IEntity<IEntityData, IEntitySavedData>[] CreateComponentEntityItems()
+        [SerializeField, DataAssetIdSelector] private string[] loadAlongEntityIds;
+
+        private IEntity<IEntityData, IEntitySavedData>[] CreateComponentEntityItems(IEntityLoader entityLoader)
         {
             var dataItems = GetComponentDataItems();
             var items = new IEntity<IEntityData, IEntitySavedData>[dataItems.Length];
             for (var i = 0; i < dataItems.Length; i++)
             {
-                items[i] = dataItems[i].CreateEntity();
+                items[i] = dataItems[i].CreateEntity(entityLoader);
             }
 
             return items;
         }
 
-        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
+        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal(IEntityLoader entityLoader)
         {
-            var items = CreateComponentEntityItems();
-            var savedDataItems = items.Select(i => i.SavedData).ToArray();
-            return CreateContainerEntityInternal(items, savedDataItems);
+            var components = CreateComponentEntityItems(entityLoader);
+            var componentSavedDataItems = components.Select(i => i.SavedData).ToArray();
+            var entity = CreateContainerEntityInternal();
+            var loadAlongEntities = loadAlongEntityIds.Select(entityLoader.CreateEntity).ToList();
+            (entity as TEntity)?.SetupInternal(components, loadAlongEntities);
+            (entity.SavedData as IContainerEntitySavedData)?.SetComponentSavedDataItems(componentSavedDataItems);
+            return entity;
         }
 
-        protected abstract IEntity<IEntityData, IEntitySavedData> CreateContainerEntityInternal(IEntity<IEntityData, IEntitySavedData>[] components, IEntitySavedData[] savedDataItems);
+        protected abstract IEntity<IEntityData, IEntitySavedData> CreateContainerEntityInternal();
         public IEntityData[] GetComponentDataItems() => componentAssets.Select(d => d as IEntityData).ToArray();
+
+        public string[] GetLoadAlongEntityIds()
+        {
+            return loadAlongEntityIds;
+        }
+
 
 #if UNITY_EDITOR
         [ContextMenuExtend(nameof(AddChildAssetsToComponents))]
         protected void AddChildAssetsToComponents()
         {
             var assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this))
-                .Where(a => a != this && !componentAssets.Contains(a) && a is DataAsset).Select(a => a as DataAsset)
-                .ToArray();
+                .Where(a => a != this && !componentAssets.Contains(a) && a is DataAsset)
+                .Select(a => a as DataAsset).ToArray();
             if (assets.Length <= 0) return;
             Array.Resize(ref componentAssets, componentAssets.Length + assets.Length);
             for (var i = 0; i < assets.Length; i++)
@@ -69,17 +86,21 @@ namespace Framework.Entities.ContainerEntity
         where TEntityData : IContainerEntityData
     {
         [SerializeField] private InnerAssetSavedDataService innerAssetSavedDataService = new();
-        private readonly IEntitySavedData[] _componentSavedDataItems;
+        private IEntitySavedData[] _componentSavedDataItems;
 
-        public ContainerEntitySavedData(TEntityData data, IEntitySavedData[] componentSavedDataItems) : base(data)
+        public ContainerEntitySavedData(TEntityData data) : base(data)
         {
-            _componentSavedDataItems = componentSavedDataItems;
             innerAssetSavedDataService.MarkedDirtyDelegate = OnInnerMarkedDirty;
         }
 
         private void OnInnerMarkedDirty()
         {
             Save();
+        }
+
+        public void SetComponentSavedDataItems(IEntitySavedData[] items)
+        {
+            _componentSavedDataItems = items;
         }
 
         public IEntitySavedData[] GetComponentSavedDataItems()
@@ -90,7 +111,7 @@ namespace Framework.Entities.ContainerEntity
         public override void Load(ISavedDataService savedDataService)
         {
             base.Load(savedDataService);
-            foreach (var item in GetComponentSavedDataItems())
+            foreach (var item in _componentSavedDataItems)
             {
                 item.Load(innerAssetSavedDataService);
             }
@@ -108,7 +129,7 @@ namespace Framework.Entities.ContainerEntity
                 var index = Array.FindIndex(items, i => i.id.Equals(savedId));
                 if (index == -1) return;
                 JsonUtility.FromJsonOverwrite(items[index].json, obj);
-                items[index].Obj = obj;
+                items[index].RuntimeObj = obj;
             }
 
             public void MarkDirty(string savedId, object obj)
@@ -116,7 +137,7 @@ namespace Framework.Entities.ContainerEntity
                 var found = items.FirstOrDefault(i => i.id.Equals(savedId));
                 if (found != null)
                 {
-                    found.Obj = obj;
+                    found.RuntimeObj = obj;
                 }
                 else
                 {
@@ -124,7 +145,7 @@ namespace Framework.Entities.ContainerEntity
                     items[^1] = new InnerAssetSavedDataItem
                     {
                         id = savedId,
-                        Obj = obj
+                        RuntimeObj = obj
                     };
                 }
 
@@ -135,8 +156,8 @@ namespace Framework.Entities.ContainerEntity
             {
                 foreach (var i in items)
                 {
-                    (i.Obj as IWriteToStorageCallbackHandler)?.OnBeforeWrite();
-                    i.json = JsonUtility.ToJson(i.Obj);
+                    (i.RuntimeObj as IWriteToStorageCallbackHandler)?.OnBeforeWrite();
+                    i.json = JsonUtility.ToJson(i.RuntimeObj);
                 }
             }
         }
@@ -150,7 +171,7 @@ namespace Framework.Entities.ContainerEntity
         private class InnerAssetSavedDataItem
         {
             public string id;
-            public object Obj;
+            public object RuntimeObj;
             public string json;
         }
     }

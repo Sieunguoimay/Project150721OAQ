@@ -1,25 +1,17 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Common.UnityExtend.Attribute;
-using Common.UnityExtend.Reflection;
+﻿using System.Collections;
 using Framework.Resolver;
 using Framework.Services.Data;
 using Gameplay;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Framework.Entities
 {
-    public class BaseEntityView<TEntity, TEntityData> : MonoInjectable, IEntityView<TEntity>
-        where TEntity : IEntity<IEntityData, IEntitySavedData> where TEntityData : IEntityData
+    public class BaseEntityView<TEntity> : MonoInjectable, IEntityView<TEntity>
+        where TEntity : IEntity<IEntityData, IEntitySavedData>
     {
-#if UNITY_EDITOR
-        public IEnumerable<string> Ids => IdsHelper.GetIds(typeof(TEntityData));
-#endif
         [SerializeField]
 #if UNITY_EDITOR
-        [StringSelector(nameof(Ids))]
+        [DataAssetIdSelector(typeof(IEntityData))]
 #endif
         private string entityId;
 
@@ -34,16 +26,6 @@ namespace Framework.Entities
         }
 
         protected override void SetupInternal()
-        {
-        }
-
-        private IEnumerator Start()
-        {
-            yield return new WaitUntil(() => Entity != null);
-            SafeStart();
-        }
-
-        protected virtual void SafeStart()
         {
         }
     }

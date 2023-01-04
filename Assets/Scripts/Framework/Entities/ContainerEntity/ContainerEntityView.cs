@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.UnityExtend.Attribute;
 using Common.UnityExtend.Reflection;
-using Framework.Entities;
-using Framework.Resolver;
 using Framework.Services.Data;
 using UnityEditor;
 using UnityEngine;
@@ -12,17 +10,17 @@ using Object = UnityEngine.Object;
 
 namespace Framework.Entities.ContainerEntity
 {
-    public class ContainerEntityView<TEntity, TData> : BaseEntityView<TEntity, TData>
+    public class ContainerEntityView<TEntity> : BaseEntityView<TEntity>
         where TEntity : class, IContainerEntity<IContainerEntityData, IContainerEntitySavedData>
-        where TData : IContainerEntityData
     {
         [SerializeField] private DataViewPair[] viewDataPairs;
 
-        private void OnEnable()
+        protected override void SetupInternal()
         {
+            base.SetupInternal();
             foreach (var pair in viewDataPairs)
             {
-                var data = Entity.Components.FirstOrDefault(c => c.Data.Id.Equals(pair.subId));
+                var data = Entity?.Components?.FirstOrDefault(c => c.Data.Id.Equals(pair.subId));
                 if (data == null)
                 {
                     Debug.Log("Component Entity is not found");
@@ -34,7 +32,7 @@ namespace Framework.Entities.ContainerEntity
             }
         }
 
-        private void OnDisable()
+        private void OnDestroy()
         {
             foreach (var pair in viewDataPairs)
             {
@@ -69,7 +67,7 @@ namespace Framework.Entities.ContainerEntity
         }
     }
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(ContainerEntityView<,>.DataViewPair))]
+    [CustomPropertyDrawer(typeof(ContainerEntityView<>.DataViewPair))]
     public class DataViewPairDrawer : PropertyDrawer
     {
         private bool _valid;

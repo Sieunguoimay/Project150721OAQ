@@ -1,0 +1,9 @@
+﻿using Framework.Entities;
+using Framework.Resolver;
+
+namespace #NAMESPACE#
+{
+    public class #SCRIPTNAME#EntityManualView : BaseEntityManualView<I#SCRIPTNAME#>
+    {
+    }
+}

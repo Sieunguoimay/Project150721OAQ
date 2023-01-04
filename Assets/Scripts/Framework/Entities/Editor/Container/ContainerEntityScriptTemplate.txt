@@ -1,0 +1,17 @@
+﻿using Framework.Entities;
+using Framework.Entities.ContainerEntity;
+
+namespace #NAMESPACE#
+{
+    public interface I#SCRIPTNAME# : IContainerEntity<I#SCRIPTNAME#Data, I#SCRIPTNAME#SavedData>
+    {
+    }
+
+    public class #SCRIPTNAME# : ContainerEntity<I#SCRIPTNAME#Data, I#SCRIPTNAME#SavedData>, I#SCRIPTNAME#
+    {
+        public #SCRIPTNAME#(I#SCRIPTNAME#Data data, I#SCRIPTNAME#SavedData savedData, IEntity<IEntityData, IEntitySavedData>[] components) 
+            : base(data, savedData, components)
+        {
+        }
+    }
+}

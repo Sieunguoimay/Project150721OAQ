@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Gameplay.Entities.MagicFlower
 {
-    public class MagicFlowerEntityView : BaseEntityView<IMagicFlower, IMagicFlowerData>, IMagicFlowerUniqueData,
+    public class MagicFlowerEntityView : BaseEntityView<IMagicFlower>, IMagicFlowerUniqueData,
         IMagicFlowerUnique, IMagicFlowerUniqueSavedData
     {
         public int NumFlowers => Entity.Data.NumFlowers;

@@ -96,6 +96,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onTrue:
+    m_PersistentCalls:
+      m_Calls: []
+  onFalse:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2453423506100255921
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,6 +147,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onTrue:
+    m_PersistentCalls:
+      m_Calls: []
+  onFalse:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &2869304347668198514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,7 +183,6 @@ MonoBehaviour:
       path: 'Entity: IVariable`1'
     targetMethodName: 'SetValue(Boolean): Void'
     formatType: 0
-  debug: 0
 --- !u!1 &2453423506486198347
 GameObject:
   m_ObjectHideFlags: 0
@@ -304,6 +315,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onTrue:
+    m_PersistentCalls:
+      m_Calls: []
+  onFalse:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &3236828730179125039
 GameObject:
   m_ObjectHideFlags: 0
@@ -349,6 +366,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onTrue:
+    m_PersistentCalls:
+      m_Calls: []
+  onFalse:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &7641750173797798259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -379,7 +402,6 @@ MonoBehaviour:
       path: 'Entity: IVariable`1'
     targetMethodName: 'SetValue(Boolean): Void'
     formatType: 0
-  debug: 0
 --- !u!1 &3467919302345769287
 GameObject:
   m_ObjectHideFlags: 0
@@ -424,6 +446,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onTrue:
+    m_PersistentCalls:
+      m_Calls: []
+  onFalse:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4635110045186290328
 GameObject:
   m_ObjectHideFlags: 0
@@ -521,6 +549,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onTrue:
+    m_PersistentCalls:
+      m_Calls: []
+  onFalse:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &8455430095616518289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -551,7 +585,6 @@ MonoBehaviour:
       path: 'Entity: IVariable`1'
     targetMethodName: 'SetValue(Boolean): Void'
     formatType: 0
-  debug: 0
 --- !u!1 &4910712726780071072
 GameObject:
   m_ObjectHideFlags: 0
@@ -597,6 +630,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onTrue:
+    m_PersistentCalls:
+      m_Calls: []
+  onFalse:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &9138746771330183165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -627,7 +666,6 @@ MonoBehaviour:
       path: 'Entity: IVariable`1'
     targetMethodName: 'SetValue(Boolean): Void'
     formatType: 0
-  debug: 0
 --- !u!1 &5489758912336591856
 GameObject:
   m_ObjectHideFlags: 0
@@ -672,6 +710,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onTrue:
+    m_PersistentCalls:
+      m_Calls: []
+  onFalse:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &7310478993111115738
 GameObject:
   m_ObjectHideFlags: 0
@@ -768,6 +812,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onTrue:
+    m_PersistentCalls:
+      m_Calls: []
+  onFalse:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &8611139239365150848
 GameObject:
   m_ObjectHideFlags: 0
@@ -812,6 +862,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onTrue:
+    m_PersistentCalls:
+      m_Calls: []
+  onFalse:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &9040842164523048304
 GameObject:
   m_ObjectHideFlags: 0

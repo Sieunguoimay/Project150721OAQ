@@ -13,11 +13,8 @@ MonoBehaviour:
   m_Name: game_content
   m_EditorClassIdentifier: 
   <Id>k__BackingField: game_content
-  <CurrencyIds>k__BackingField:
-  - game_currency
-  - piece_collection
-  <MatchProcessorId>k__BackingField: match_processor_1
-  <EntityIds>k__BackingField:
+  componentAssets: []
+  loadAlongEntityIds:
   - magic_flower
   - stage_1
   - stage_2
@@ -25,3 +22,5 @@ MonoBehaviour:
   - stage_4
   - stage_5
   - stage_selector
+  - game_play_runner
+  - game_currency

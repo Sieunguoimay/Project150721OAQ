@@ -15,7 +15,7 @@ namespace Gameplay.Entities.Stage.StageSelector
     [CreateAssetMenu(menuName = "Entity/StageSelectorData")]
     public class StageSelectorData : EntityAsset<IStageSelector>, IStageSelectorData
     {
-        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
+        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal(IEntityLoader entityLoader)
         {
             return new StageSelector(this, new StageSelectorSavedData(this));
         }

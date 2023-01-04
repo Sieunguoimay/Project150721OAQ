@@ -37,7 +37,7 @@ namespace Gameplay.Entities.MagicFlower
     [CreateAssetMenu(menuName = "Entity/MagicFlowerData")]
     public class MagicFlowerData : EntityAsset<IMagicFlower>, IMagicFlowerData
     {
-        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal()
+        protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal(IEntityLoader entityLoader)
         {
             return new MagicFlower(this, new MagicFlowerSavedData(this));
         }
@@ -45,7 +45,7 @@ namespace Gameplay.Entities.MagicFlower
         [field: SerializeField] public int NumFlowers { get; private set; }
         [field: SerializeField] public float ToBlossomDuration { get; private set; }
 
-        [field: SerializeField, IdSelector(typeof(ICurrencyData))]
+        [field: SerializeField, DataAssetIdSelector(typeof(ICurrencyData))]
         public string PayoutCurrencyId { get; private set; }
 
         [field: SerializeField, Min(0)] public int PayoutAmountPerFlower { get; private set; }

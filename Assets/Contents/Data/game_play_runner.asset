@@ -24,13 +24,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e39d6bab76f40744ac916f3b7fbb27b, type: 3}
-  m_Name: game_player
+  m_Name: game_play_runner
   m_EditorClassIdentifier: 
-  <Id>k__BackingField: game_player
+  <Id>k__BackingField: game_play_runner
   componentAssets:
   - {fileID: 2507254951895255989}
   - {fileID: -3186634712275419830}
   - {fileID: 7764844798873626724}
+  loadAlongEntityIds: []
 --- !u!114 &2507254951895255989
 MonoBehaviour:
   m_ObjectHideFlags: 0
