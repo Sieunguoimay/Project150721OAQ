@@ -68,8 +68,8 @@ namespace Gameplay.Board.BoardDrawing
 
                 var mandarinDir = point1.normalized;
                 var mandarinNormal = new Vector2(mandarinDir.y, -mandarinDir.x);
-                var mandarinPoint1 = point1 + mandarinDir * tileSize + mandarinNormal * tileSize * .5f;
-                var mandarinPoint2 = point1 + mandarinDir * tileSize - mandarinNormal * tileSize * .5f;
+                var mandarinPoint1 = point1 + mandarinDir * tileSize + mandarinNormal * (tileSize * .5f);
+                var mandarinPoint2 = point1 + mandarinDir * tileSize - mandarinNormal * (tileSize * .5f);
 
                 points[pCount] = mandarinPoint1;
                 points[pCount + 1] = mandarinPoint2;
@@ -84,8 +84,8 @@ namespace Gameplay.Board.BoardDrawing
                 var count = 0;
                 for (var j = 0; j < tilesPerGroup + 1; j++)
                 {
-                    var onEdgePoint = point1 + dir * tileSize * j;
-                    var offEdgePoint = point1 + dir * tileSize * j + normal * tileSize;
+                    var onEdgePoint = point1 + dir * (tileSize * j);
+                    var offEdgePoint = point1 + dir * (tileSize * j) + normal * tileSize;
                     points[pCount + j] = onEdgePoint;
                     points[pCount + 2 * (tilesPerGroup + 1) - j - 1] = offEdgePoint;
 
@@ -128,14 +128,14 @@ namespace Gameplay.Board.BoardDrawing
         private static (int, int)[] ConnectContour(IList<(int, int)> contour)
         {
             var connectedContour = new List<(int, int)>();
-            var str = "";
+            // var str = "";
+            //
+            // for (var i = 0; i < contour.Count; i++)
+            // {
+            //     str += $"({contour[i].Item1} {contour[i].Item2}), ";
+            // }
 
-            for (var i = 0; i < contour.Count; i++)
-            {
-                str += $"({contour[i].Item1} {contour[i].Item2}), ";
-            }
-
-            Debug.Log(str);
+            // Debug.Log(str);
             for (var i = 0; i < contour.Count; i++)
             {
                 connectedContour.Add(contour[i]);
@@ -154,13 +154,13 @@ namespace Gameplay.Board.BoardDrawing
                 }
             }
 
-            str = "";
-            for (var i = 0; i < connectedContour.Count; i++)
-            {
-                str += $"({connectedContour[i].Item1} {connectedContour[i].Item2}), ";
-            }
+            // str = "";
+            // for (var i = 0; i < connectedContour.Count; i++)
+            // {
+            //     str += $"({connectedContour[i].Item1} {connectedContour[i].Item2}), ";
+            // }
 
-            Debug.Log(str);
+            // Debug.Log(str);
 
             return connectedContour.ToArray();
         }
