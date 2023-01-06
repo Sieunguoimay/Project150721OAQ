@@ -41,6 +41,7 @@ namespace Framework.Entities.Variable.Boolean
 
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour(target as MonoBehaviour), typeof(BooleanEntityManualView), false);
             EditorGUI.EndDisabledGroup();
@@ -48,9 +49,11 @@ namespace Framework.Entities.Variable.Boolean
             _foldout = EditorGUILayout.Foldout(_foldout, "Events", true);
             if (_foldout)
             {
-                EditorGUILayout.PropertyField(_onFalse);
                 EditorGUILayout.PropertyField(_onTrue);
+                EditorGUILayout.PropertyField(_onFalse);
             }
+
+            serializedObject.ApplyModifiedProperties();
         }
     }
 #endif

@@ -72,6 +72,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5699620853877190966}
   - component: {fileID: 5917523767727093393}
+  - component: {fileID: 1946774087196284177}
   m_Layer: 0
   m_Name: in_play_field
   m_TagString: Untagged
@@ -126,6 +127,21 @@ MonoBehaviour:
   <Exited>k__BackingField:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1946774087196284177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2194995286609438164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f97a6eb7ad84314a93da52cc0021393, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stateConstraint: 1
+  <CurrentState>k__BackingField: in_play_field
+  <TargetState>k__BackingField: backward
 --- !u!1 &2418070954908593185
 GameObject:
   m_ObjectHideFlags: 0
@@ -334,6 +350,7 @@ Transform:
   - {fileID: 3036694705004281987}
   - {fileID: 2443119641669185752}
   - {fileID: 6658083312948141071}
+  - {fileID: 3973256819080548750}
   m_Father: {fileID: 5592389154637034431}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -396,7 +413,6 @@ GameObject:
   - component: {fileID: 3036694705004281987}
   - component: {fileID: 1484992628947491423}
   - component: {fileID: 1214372518392912095}
-  - component: {fileID: 6605148587140870710}
   m_Layer: 0
   m_Name: Views
   m_TagString: Untagged
@@ -449,46 +465,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   onTrue:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6615770553092878632}
+        m_TargetAssemblyTypeName: Common.DecisionMaking.Actions.StateTransition,
+          Assembly-CSharp
+        m_MethodName: Transition
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   onFalse:
     m_PersistentCalls:
-      m_Calls: []
---- !u!114 &6605148587140870710
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3395873532831075333}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pathSelector:
-    sourceObject: {fileID: 1214372518392912095}
-    path: 'Entity: IVariable`1'
-  eventItemList:
-    eventItems:
-    - eventName: ValueChanged(Object,EventArgs)
-      use: 1
-    - eventName: ThisEnabled()
-      use: 1
-    - eventName: ThisDisabled()
-      use: 0
-  items:
-  - sourceObjectMethodName: 'Value: Boolean'
-    targetObject:
-      sourceObject: {fileID: 5304320415625222787}
-      path: 
-    targetMethodName: 'SetActive(Boolean): Void'
-    formatType: 5
-  - sourceObjectMethodName: 'Value: Boolean'
-    targetObject:
-      sourceObject: {fileID: 3797201966511073992}
-      path: 
-    targetMethodName: 'SetActive(Boolean): Void'
-    formatType: 0
+      m_Calls:
+      - m_Target: {fileID: 1946774087196284177}
+        m_TargetAssemblyTypeName: Common.DecisionMaking.Actions.StateTransition,
+          Assembly-CSharp
+        m_MethodName: Transition
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &3571878746804893088
 GameObject:
   m_ObjectHideFlags: 0
@@ -1068,7 +1074,7 @@ GameObject:
   - component: {fileID: 9109772867734973188}
   - component: {fileID: 3193259288576800765}
   - component: {fileID: 3321552500338217968}
-  - component: {fileID: 6999622229271809465}
+  - component: {fileID: 4619842457437977481}
   m_Layer: 0
   m_Name: forward
   m_TagString: Untagged
@@ -1104,7 +1110,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monoActivities:
-  - {fileID: 6999622229271809465}
+  - {fileID: 5893280240995900583}
+  - {fileID: 4619842457437977481}
   - {fileID: 3321552500338217968}
   <StateName>k__BackingField: forward
   <Entered>k__BackingField:
@@ -1140,7 +1147,7 @@ MonoBehaviour:
   stateConstraint: 1
   <CurrentState>k__BackingField: forward
   <TargetState>k__BackingField: in_play_field
---- !u!114 &6999622229271809465
+--- !u!114 &4619842457437977481
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1152,22 +1159,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27f7a1444c994267b51da1d4e9e270cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  duration: 1
+  duration: 0.5
   onProgress:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8305368935752619521}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   progress: 1
 --- !u!1 &7909916913109183023
 GameObject:
@@ -1223,6 +1218,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7022830268443264611}
   - component: {fileID: 5404697942038324763}
+  - component: {fileID: 4902131564979530944}
   m_Layer: 0
   m_Name: DollyCamera
   m_TagString: Untagged
@@ -1237,7 +1233,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8305368935752619521}
-  m_LocalRotation: {x: 0.31703985, y: -0.21372293, z: 0.07356266, w: 0.92108464}
+  m_LocalRotation: {x: 0.36650118, y: 0, z: 0, w: 0.9304176}
   m_LocalPosition: {x: 0, y: 16.66, z: -17.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1245,7 +1241,7 @@ Transform:
   - {fileID: 5014958493923183352}
   m_Father: {fileID: 1193489891547142368}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 43, y: 0, z: 0}
 --- !u!114 &5404697942038324763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1284,6 +1280,90 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_ComponentOwner: {fileID: 5014958493923183352}
+--- !u!95 &4902131564979530944
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8305368935752619521}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!1 &8306319198157243818
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3973256819080548750}
+  - component: {fileID: 5360090069211617207}
+  - component: {fileID: 5893280240995900583}
+  m_Layer: 0
+  m_Name: Timeline
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3973256819080548750
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8306319198157243818}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1193489891547142368}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!320 &5360090069211617207
+PlayableDirector:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8306319198157243818}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_PlayableAsset: {fileID: 11400000, guid: 4654def1d4b4a224681c27d398867d32, type: 2}
+  m_InitialState: 1
+  m_WrapMode: 2
+  m_DirectorUpdateMode: 1
+  m_InitialTime: 0
+  m_SceneBindings:
+  - key: {fileID: -6679107761211824255, guid: 4654def1d4b4a224681c27d398867d32, type: 2}
+    value: {fileID: 4902131564979530944}
+  m_ExposedReferences:
+    m_References: []
+--- !u!114 &5893280240995900583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8306319198157243818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 698f10a4960f4ca8bf23d7687184d2c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8925162797239311554
 GameObject:
   m_ObjectHideFlags: 0
