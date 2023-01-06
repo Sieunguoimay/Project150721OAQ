@@ -41,12 +41,27 @@ namespace Common.DecisionMaking
     [CustomEditor(typeof(ActionState))]
     public class ActionStateEditor : Editor
     {
+        private bool _foldout;
+
         public override void OnInspectorGUI()
         {
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour(target as MonoBehaviour),
+                typeof(ActionState), false);
+            EditorGUI.EndDisabledGroup();
+
             serializedObject.Update();
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(SerializeUtility.FormatBackingFieldPropertyName("StateName")));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(SerializeUtility.FormatBackingFieldPropertyName("Entered")));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty(SerializeUtility.FormatBackingFieldPropertyName("Exited")));
+            EditorGUILayout.PropertyField(
+                serializedObject.FindProperty(SerializeUtility.FormatBackingFieldPropertyName("StateName")));
+            _foldout = EditorGUILayout.Foldout(_foldout, "Events",true);
+            if (_foldout)
+            {
+                EditorGUILayout.PropertyField(
+                    serializedObject.FindProperty(SerializeUtility.FormatBackingFieldPropertyName("Entered")));
+                EditorGUILayout.PropertyField(
+                    serializedObject.FindProperty(SerializeUtility.FormatBackingFieldPropertyName("Exited")));
+            }
+
             EditorGUILayout.PropertyField(serializedObject.FindProperty("monoActivities"));
             serializedObject.ApplyModifiedProperties();
         }

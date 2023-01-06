@@ -9,12 +9,13 @@ namespace Common.DecisionMaking.Actions
     {
         [SerializeField] private float duration;
         [SerializeField] private UnityEventFloat onProgress;
+        [SerializeField] private bool progress=true;
 
         private Activity.Activity _activity;
 
         public override Activity.Activity CreateActivity()
         {
-            return _activity ??= new ActivityTimer(duration, p => onProgress?.Invoke(p), true);
+            return _activity ??= new ActivityTimer(duration, p => onProgress?.Invoke(p), progress);
         }
 
         public void SetDuration(float d)
