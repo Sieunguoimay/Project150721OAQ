@@ -41,7 +41,7 @@ namespace Common.DecisionMaking
     [CustomEditor(typeof(ActionState))]
     public class ActionStateEditor : Editor
     {
-        private bool _foldout;
+        private static bool _foldout;
 
         public override void OnInspectorGUI()
         {
