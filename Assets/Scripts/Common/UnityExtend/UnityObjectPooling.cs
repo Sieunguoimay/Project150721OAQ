@@ -22,19 +22,17 @@ namespace Common.UnityExtend
             Items = new List<TPrefab>();
         }
 
-
         public TPrefab GetFromPool()
         {
-            while (true)
+            var freePs = Items.FirstOrDefault(p => _availableCondition.Invoke(p));
+            if (freePs)
             {
-                var freePs = Items.FirstOrDefault(p => _availableCondition.Invoke(p));
-                if (freePs)
-                {
-                    return freePs;
-                }
-
-                Items.Add(Object.Instantiate(_psPrefab, _container));
+                return freePs;
             }
+
+            var newItem = Object.Instantiate(_psPrefab, _container);
+            Items.Add(newItem);
+            return newItem;
         }
     }
 }

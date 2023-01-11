@@ -10,8 +10,9 @@ using Object = UnityEngine.Object;
 
 namespace Framework.Entities.ContainerEntity
 {
-    public class ContainerEntityView<TEntity> : BaseEntityView<TEntity>
+    public class ContainerEntityView<TEntity, TEntityData> : BaseEntityView<TEntity, TEntityData>
         where TEntity : class, IContainerEntity<IContainerEntityData, IContainerEntitySavedData>
+        where TEntityData : IContainerEntityData
     {
         [SerializeField] private DataViewPair[] viewDataPairs;
 
@@ -51,7 +52,7 @@ namespace Framework.Entities.ContainerEntity
         }
 
         public IEnumerable<IEntityData> GetComponentDataItems() =>
-            (IdsHelper.GetDataAsset<TEntity>(EntityId) as ContainerEntityData<TEntity>)?.GetComponentDataItems();
+            (DataAssetIdHelper.GetDataAsset<TEntity>(EntityId) as ContainerEntityData<TEntity>)?.GetComponentDataItems();
 
         public IEnumerable<string> GetComponentOptions() => GetComponentDataItems().Select(c => c.Id);
 #endif
@@ -67,7 +68,7 @@ namespace Framework.Entities.ContainerEntity
         }
     }
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(ContainerEntityView<>.DataViewPair))]
+    [CustomPropertyDrawer(typeof(ContainerEntityView<,>.DataViewPair))]
     public class DataViewPairDrawer : PropertyDrawer
     {
         private bool _valid;

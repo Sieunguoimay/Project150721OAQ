@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Gameplay.Entities.Stage.StageSelector
 {
-    public class StageSelectorEntityView : BaseEntityView<IStageSelector>
+    public class StageSelectorEntityView : BaseEntityView<IStageSelector, IStageSelectorData>
     {
         public bool AnyStageSelected => Entity.SelectedStage != null;
 

@@ -6,6 +6,7 @@ using Gameplay;
 using Gameplay.BambooStick;
 using Gameplay.Board;
 using Gameplay.Entities.Stage;
+using Gameplay.Entities.Stage.StageSelector;
 using Gameplay.GameInteract;
 using Gameplay.Piece;
 using SNM;
@@ -29,6 +30,7 @@ namespace System
         private PieceManager _pieceManager;
 
         private IResolver _resolver;
+        private IStageSelector _stageSelector;
 
         // public void Bind(IBinder binder)
         // {
@@ -50,7 +52,7 @@ namespace System
             _boardManager = resolver.Resolve<BoardManager>();
             _pieceManager = resolver.Resolve<PieceManager>();
             _bambooFamily = resolver.Resolve<BambooFamilyManager>();
-
+            _stageSelector = resolver.Resolve<IStageSelector>("stage_selector");
             // RayPointer.Instance.SetCamera(resolver.Resolve<CameraManager>().Camera);
 
             // var matchProcessor = _resolver.Resolve<ICurrencyProcessor>(matchProcessorId);
@@ -112,9 +114,17 @@ namespace System
 
         public void StartGame()
         {
+            GenerateMatch(_stageSelector.SelectedStage);
             _gameplay.StartNewMatch();
         }
 
+        public void ClearGame()
+        {
+            _pieceManager.ResetAll();
+            _boardManager.ResetAll();
+            _playersManager.ResetAll();
+            _gameplay.ClearGame();
+        }
         //
         // public void ReplayMatch()
         // {

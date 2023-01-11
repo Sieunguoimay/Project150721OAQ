@@ -23,5 +23,10 @@ namespace Framework.Entities.Variable
         protected virtual void OnValueChanged(object arg1, EventArgs arg2)
         {
         }
+
+        public void SetValue(TPrimitive value)
+        {
+            Entity.SetValue(value);
+        }
     }
 }

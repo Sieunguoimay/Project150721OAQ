@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Framework.Entities;
 using Framework.Entities.ContainerEntity;
@@ -15,6 +16,7 @@ namespace Gameplay.Entities.GamePlayRunner
         void Resume();
         void Reset();
         IStage Stage { get; }
+        event Action ResetEvent;
     }
   
     public class GamePlayRunner : ContainerEntity<IGamePlayRunnerData, IGamePlayRunnerSavedData>, IGamePlayRunner
@@ -34,7 +36,7 @@ namespace Gameplay.Entities.GamePlayRunner
             _isStarted = GetComponentEntity<IBoolean>("is_started");
             _isPaused = GetComponentEntity<IBoolean>("is_paused");
             _isEnded = GetComponentEntity<IBoolean>("is_ended");
-            Reset();
+            ResetInternally();
         }
 
         public void Play(IStage stage)
@@ -72,11 +74,18 @@ namespace Gameplay.Entities.GamePlayRunner
 
         public void Reset()
         {
+            ResetInternally();
+            ResetEvent?.Invoke();
+        }
+
+        private void ResetInternally()
+        {
             _isStarted.SetValue(false);
             _isPaused.SetValue(false);
             _isEnded.SetValue(false);
         }
-
+        
         public IStage Stage { get; private set; }
+        public event Action ResetEvent;
     }
 }

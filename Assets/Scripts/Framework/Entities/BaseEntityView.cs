@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Framework.Resolver;
 using Framework.Services.Data;
 using Gameplay;
@@ -6,13 +7,15 @@ using UnityEngine;
 
 namespace Framework.Entities
 {
-    public class BaseEntityView<TEntity> : MonoInjectable, IEntityView<TEntity>
-        where TEntity : IEntity<IEntityData, IEntitySavedData>
+    public class BaseEntityView<TEntity, TEntityData> : MonoInjectable, IEntityView<TEntity>
+        where TEntity : IEntity<IEntityData, IEntitySavedData> where TEntityData : IEntityData
     {
-        [SerializeField]
 #if UNITY_EDITOR
-        [DataAssetIdSelector(typeof(IEntityData))]
+        public Type DataType => typeof(TEntityData);
+
+        [DataAssetIdSelector(nameof(DataType))]
 #endif
+        [SerializeField]
         private string entityId;
 
         protected string EntityId => entityId;

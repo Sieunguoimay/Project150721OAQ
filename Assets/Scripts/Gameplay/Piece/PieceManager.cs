@@ -1,8 +1,10 @@
 ﻿using System;
 using Common;
 using Common.Activity;
+using Common.UnityExtend;
 using Gameplay.Piece.Activities;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Gameplay.Piece
 {
@@ -12,29 +14,45 @@ namespace Gameplay.Piece
         [SerializeField] private Piece citizenPrefab;
 
         public Piece[] Pieces { get; private set; }
+        private UnityObjectPooling<Piece> _mandarinPooling;
+        private UnityObjectPooling<Piece> _citizenPooling;
 
         public void ResetAll()
         {
             foreach (var p in Pieces)
             {
                 p.ActivityQueue.End();
+                p.gameObject.SetActive(false);
             }
         }
 
         public void SpawnPieces(int groups, int tilesPerGroup)
         {
-            Pieces = new Piece[groups * tilesPerGroup * 5 + groups];
+            _mandarinPooling ??= new UnityObjectPooling<Piece>(transform, mandarinPrefab, p => !p.gameObject.activeSelf);
+            _citizenPooling ??= new UnityObjectPooling<Piece>(transform, citizenPrefab, p => !p.gameObject.activeSelf);
+
+            if (Pieces == null)
+            {
+                Pieces = new Piece[groups * tilesPerGroup * 5 + groups];
+            }
+            else if(Pieces.Length!=groups * tilesPerGroup * 5 + groups)
+            {
+                var pieces = Pieces;
+                Array.Resize(ref pieces,groups * tilesPerGroup * 5 + groups);
+                Pieces = pieces;
+            }
 
             var count = 0;
             for (var i = 0; i < groups; i++)
             {
-                Pieces[count++] = Instantiate(mandarinPrefab, transform, true);
-
+                Pieces[count++] = _mandarinPooling.GetFromPool(); // Instantiate(mandarinPrefab, transform, true);
+                Pieces[count-1].gameObject.SetActive(true);
                 for (var j = 0; j < tilesPerGroup; j++)
                 {
                     for (var k = 0; k < 5; k++)
                     {
-                        Pieces[count++] = Instantiate(citizenPrefab, transform, true);
+                        Pieces[count++] = _citizenPooling.GetFromPool(); //Instantiate(citizenPrefab, transform, true);
+                        Pieces[count-1].gameObject.SetActive(true);
                     }
                 }
             }
@@ -77,6 +95,5 @@ namespace Gameplay.Piece
                 }
             }
         }
-
     }
 }

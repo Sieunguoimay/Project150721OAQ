@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,8 +8,7 @@ using UnityEditor;
 
 namespace Framework.Services.Data
 {
-#if UNITY_EDITOR
-    public static class IdsHelper
+    public static class DataAssetIdHelper
     {
         private static Dictionary<Type, List<string>> _ids;
 
@@ -89,5 +89,5 @@ namespace Framework.Services.Data
             }
         }
     }
-#endif
 }
+#endif

@@ -33,7 +33,6 @@ namespace System
 
         private bool IsGameOver { get; set; }
         public bool IsPlaying { get; private set; }
-        private Coroutine _coroutine;
 
         public ActivityQueue ActivityQueue { get; } = new();
 
@@ -51,15 +50,7 @@ namespace System
             IsPlaying = false;
             IsGameOver = false;
         }
-
-        public void TearDown()
-        {
-            if (_coroutine != null)
-            {
-                PublicExecutor.Instance.StopCoroutine(_coroutine);
-            }
-        }
-
+        
         public void StartNewMatch()
         {
             IsPlaying = true;
@@ -78,7 +69,7 @@ namespace System
             }, _board);
         }
 
-        public void ResetGame()
+        public void ClearGame()
         {
             IsGameOver = false;
             IsPlaying = false;
@@ -193,21 +184,21 @@ namespace System
             // TellWinner(_perMatchData.PlayerScores);
         }
 
-        private static void TellWinner(IReadOnlyList<Currency> scores)
-        {
-            if (scores[0].Get() > scores[1].Get())
-            {
-                Debug.Log("Player 1 win! " + scores[0].Get() + " - " + scores[1].Get());
-            }
-            else if (scores[0].Get() < scores[1].Get())
-            {
-                Debug.Log("Player 2 win! " + scores[0].Get() + " - " + scores[1].Get());
-            }
-            else
-            {
-                Debug.Log("Draw! " + scores[0].Get() + " - " + scores[1].Get());
-            }
-        }
+        // private static void TellWinner(IReadOnlyList<Currency> scores)
+        // {
+        //     if (scores[0].Get() > scores[1].Get())
+        //     {
+        //         Debug.Log("Player 1 win! " + scores[0].Get() + " - " + scores[1].Get());
+        //     }
+        //     else if (scores[0].Get() < scores[1].Get())
+        //     {
+        //         Debug.Log("Player 2 win! " + scores[0].Get() + " - " + scores[1].Get());
+        //     }
+        //     else
+        //     {
+        //         Debug.Log("Draw! " + scores[0].Get() + " - " + scores[1].Get());
+        //     }
+        // }
 
         #endregion
     }
