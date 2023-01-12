@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Misc;
 using Common.UnityExtend;
 using Common.UnityExtend.ParticleSystem;
 using UnityEngine;
@@ -14,11 +15,11 @@ namespace Gameplay.MagicFlower
         [SerializeField] private UnityEvent onCollided;
 
         private Vector3 _position;
-        private UnityObjectPooling<ParticleSystem> _pool;
+        private CustomConditionPooling<ParticleSystem> _pool;
 
         private void Start()
         {
-            _pool = new UnityObjectPooling<ParticleSystem>(transform, ps, p => !p.isPlaying);
+            _pool = new CustomConditionPooling<ParticleSystem>(p => !p.isPlaying, () => Instantiate(ps, transform));
         }
 
         private void OnDestroy()

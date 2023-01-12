@@ -18,10 +18,13 @@ namespace Gameplay.Piece
             spacing = 0.3f
         };
 
+        [SerializeField] private PieceType pieceType;
+
         [field: NonSerialized] public ActivityQueue ActivityQueue { get; } = new();
         public virtual Animator Animator => null;
         public virtual PlayableDirector JumpTimeline => null;
         public ActivityFlocking.ConfigData FlockingConfigData => flockingConfigData;
+        public PieceType Type => pieceType;
 
         private void Update()
         {
@@ -29,6 +32,12 @@ namespace Gameplay.Piece
         }
 
 
+        public enum PieceType
+        {
+            Citizen,
+            Mandarin
+        }
+        
 #if UNITY_EDITOR
 
         private void OnDrawGizmos()

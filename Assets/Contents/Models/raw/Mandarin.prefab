@@ -47,14 +47,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78662cf76f129bc4992b94a8c5b86c74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  config:
-    size: {x: 0.4, y: 0.6, z: 0.4}
-    flockingConfigData:
-      maxSpeed: 3
-      maxAcceleration: 10
-      arriveDistance: 1
-      spacing: 0.3
   size: {x: 0.4, y: 0.6, z: 0.4}
+  flockingConfigData:
+    maxSpeed: 3
+    maxAcceleration: 10
+    arriveDistance: 1
+    spacing: 0.3
+  pieceType: 1
 --- !u!1 &3580329900981908367
 GameObject:
   m_ObjectHideFlags: 0
