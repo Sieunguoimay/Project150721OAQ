@@ -24,7 +24,7 @@ namespace Gameplay.GameInteract
 
         public void SetupInteract(Board.Board.TileGroup tileGroup, MoveButtonCommand left, MoveButtonCommand right)
         {
-            _tiles = _boardManager.SpawnedTiles.Where(st => tileGroup.Tiles.Contains(st) && st.Pieces.Count > 0)
+            _tiles = _boardManager.SpawnedTiles.Where(st => tileGroup.CitizenTiles.Contains(st) && st.Pieces.Count > 0)
                 .ToArray();
 
             _choosingTileCommands = new TileChooser.ButtonCommand[_tiles.Length];

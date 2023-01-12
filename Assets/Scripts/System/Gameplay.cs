@@ -130,7 +130,7 @@ namespace System
             ChangePlayer();
 
             var tileGroup = _board.TileGroups[CurrentPlayer.Index];
-            var isNewPlayerAllEmpty = tileGroup.Tiles.All(t => t.Pieces.Count <= 0);
+            var isNewPlayerAllEmpty = tileGroup.CitizenTiles.All(t => t.Pieces.Count <= 0);
             if (isNewPlayerAllEmpty)
             {
                 if (CurrentPlayer.PieceBench.Pieces.Count <= 0)
@@ -140,7 +140,7 @@ namespace System
                 }
 
                 //Take back pieces to board
-                _dropper.Take(CurrentPlayer.PieceBench.Pieces, tileGroup.Tiles.Length);
+                _dropper.Take(CurrentPlayer.PieceBench.Pieces, tileGroup.CitizenTiles.Length);
                 _dropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tileGroup.MandarinTile), true);
                 _dropper.DropOnce(_ =>
                 {
@@ -170,7 +170,7 @@ namespace System
         {
             for (var i = 0; i < _playersManager.Players.Length; i++)
             {
-                foreach (var tile in _board.TileGroups[i].Tiles)
+                foreach (var tile in _board.TileGroups[i].CitizenTiles)
                 {
                     _playersManager.Players[i].PieceBench.Pieces.AddRange(tile.Pieces);
                     tile.Pieces.Clear();

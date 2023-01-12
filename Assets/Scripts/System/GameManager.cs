@@ -34,14 +34,14 @@ namespace System
 
         // public void Bind(IBinder binder)
         // {
-            // binder.Bind<GameFlowManager>(_gameFlowManager);
-            // binder.Bind<IMatchChooser>(_matchChooser);
+        // binder.Bind<GameFlowManager>(_gameFlowManager);
+        // binder.Bind<IMatchChooser>(_matchChooser);
         // }
 
         // public void Unbind(IBinder binder)
         // {
-            // binder.Unbind<GameFlowManager>();
-            // binder.Unbind<IMatchChooser>();
+        // binder.Unbind<GameFlowManager>();
+        // binder.Unbind<IMatchChooser>();
         // }
 
         public override void Inject(IResolver resolver)
@@ -94,20 +94,15 @@ namespace System
 
         public void GenerateMatch(IStage stage)
         {
-            GenerateMatch(stage.Data.PlayerNum, stage.Data.TilesPerGroup);
-        }
+            _boardManager.CreateBoard(stage.Data.PlayerNum, stage.Data.TilesPerGroup);
 
-        public void GenerateMatch(int playerNum, int tilesPerGroup)
-        {
-            _boardManager.CreateBoard(playerNum, tilesPerGroup);
-
-            _playersManager.FillWithFakePlayers(playerNum);
+            _playersManager.FillWithFakePlayers(stage.Data.PlayerNum);
             _playersManager.CreatePieceBench(_boardManager.Board);
 
             _gameplay.Setup(_playersManager, _boardManager.Board, _pieceManager,
                 _resolver.Resolve<GameInteractManager>());
 
-            _pieceManager.SpawnPieces(playerNum, tilesPerGroup);
+            _pieceManager.SpawnPieces(stage.Data.PlayerNum, stage.Data.TilesPerGroup, stage.Data.NumCitizensInTile);
 
             _bambooFamily.BeginAnimSequence();
         }

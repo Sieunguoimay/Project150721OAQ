@@ -71,7 +71,7 @@ namespace Gameplay.Board
             mandarinTile.transform.SetPositionAndRotation(position, rotation);
 
             tileGroups[i] = new Board.TileGroup
-                {MandarinTile = mandarinTile, Tiles = new Tile[tilesPerGroup]};
+                {MandarinTile = mandarinTile, CitizenTiles = new Tile[tilesPerGroup]};
             return mandarinTile;
         }
 
@@ -81,7 +81,7 @@ namespace Gameplay.Board
             var citizenTile = Instantiate(citizenTilePrefab, transform);
             citizenTile.Setup();
             citizenTile.transform.SetPositionAndRotation(position, rotation);
-            tileGroups[i].Tiles[j] = citizenTile;
+            tileGroups[i].CitizenTiles[j] = citizenTile;
             return citizenTile;
         }
 

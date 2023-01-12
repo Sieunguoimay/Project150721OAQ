@@ -2,7 +2,6 @@
 using Common.Activity;
 using Gameplay.Piece.Activities;
 using UnityEngine;
-using UnityEngine.Pool;
 
 namespace Gameplay.Piece
 {
@@ -12,64 +11,29 @@ namespace Gameplay.Piece
         [SerializeField] private Piece citizenPrefab;
 
         private Piece[] Pieces { get; set; }
-        // private ObjectPool<Piece> _mandarinPool;
-        // private ObjectPool<Piece> _citizenPool;
-
-        protected override void SetupInternal()
-        {
-            base.SetupInternal();
-            //
-            // _mandarinPool = new ObjectPool<Piece>(() => Instantiate(mandarinPrefab, transform), ActionOnGet,
-            //     ActionOnRelease);
-            //
-            // _citizenPool = new ObjectPool<Piece>(() => Instantiate(citizenPrefab, transform), ActionOnGet,
-            //     ActionOnRelease);
-            //
-            // static void ActionOnGet(Component p)
-            // {
-            //     p.gameObject.SetActive(true);
-            // }
-            //
-            // static void ActionOnRelease(Component p)
-            // {
-            //     p.gameObject.SetActive(false);
-            // }
-        }
 
         public void ResetAll()
         {
             foreach (var p in Pieces)
             {
-                // p.ActivityQueue.End();
-                // switch (p.Type)
-                // {
-                //     case Piece.PieceType.Citizen:
-                //         _citizenPool.Release(p);
-                //         break;
-                //     case Piece.PieceType.Mandarin:
-                //         _mandarinPool.Release(p);
-                //         break;
-                //     default:
-                //         throw new ArgumentOutOfRangeException();
-                // }
                 Destroy(p.gameObject);
             }
 
             Pieces = null;
         }
 
-        public void SpawnPieces(int groups, int tilesPerGroup)
+        public void SpawnPieces(int groups, int tilesPerGroup, int numCitizen)
         {
             Pieces = new Piece[groups * tilesPerGroup * 5 + groups];
             var count = 0;
             for (var i = 0; i < groups; i++)
             {
-                Pieces[count++] = Instantiate(mandarinPrefab,transform);//_mandarinPool.Get();
+                Pieces[count++] = Instantiate(mandarinPrefab, transform); 
                 for (var j = 0; j < tilesPerGroup; j++)
                 {
-                    for (var k = 0; k < 5; k++)
+                    for (var k = 0; k < numCitizen; k++)
                     {
-                        Pieces[count++] = Instantiate(citizenPrefab,transform);//_citizenPool.Get();
+                        Pieces[count++] = Instantiate(citizenPrefab, transform); 
                     }
                 }
             }
@@ -80,11 +44,12 @@ namespace Gameplay.Piece
             var index = 0;
             foreach (var tg in board.TileGroups)
             {
-                foreach (var t in tg.Tiles)
+                foreach (var t in tg.CitizenTiles)
                 {
                     for (var i = 0; i < 5; i++)
                     {
-                        if (Pieces[index] is Citizen p)
+                        var p = Pieces[index];
+                        if (p.Type == Piece.PieceType.Citizen)
                         {
                             t.Pieces.Add(p);
 
@@ -100,7 +65,7 @@ namespace Gameplay.Piece
                         }
                         else
                         {
-                            Pieces[index].transform.position = tg.MandarinTile.GetPositionInFilledCircle(0);
+                            p.transform.position = tg.MandarinTile.GetPositionInFilledCircle(0);
                             tg.MandarinTile.Pieces.Add(Pieces[index]);
                             i--;
                         }

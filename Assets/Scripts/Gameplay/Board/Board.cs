@@ -14,13 +14,13 @@ namespace Gameplay.Board
         public void SetGroups(TileGroup[] groups)
         {
             TileGroups = groups;
-            Tiles = new Tile[TileGroups.Length * TileGroups[0].Tiles.Length + TileGroups.Length];
+            Tiles = new Tile[TileGroups.Length * TileGroups[0].CitizenTiles.Length + TileGroups.Length];
 
             var index = 0;
             foreach (var tg in TileGroups)
             {
                 Tiles[index++] = tg.MandarinTile;
-                foreach (var t in tg.Tiles)
+                foreach (var t in tg.CitizenTiles)
                 {
                     Tiles[index++] = t;
                 }
@@ -39,7 +39,7 @@ namespace Gameplay.Board
         public class TileGroup
         {
             public MandarinTile MandarinTile;
-            public Tile[] Tiles;
+            public Tile[] CitizenTiles;
         }
 
         public class BoardMetadata

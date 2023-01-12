@@ -38,8 +38,8 @@ namespace Gameplay
             foreach (var p in Players)
             {
                 var tg = board.TileGroups[p.Index];
-                var pos1 = tg.Tiles[0].transform.position;
-                var pos2 = tg.Tiles[^1].transform.position;
+                var pos1 = tg.CitizenTiles[0].transform.position;
+                var pos2 = tg.CitizenTiles[^1].transform.position;
                 var diff = pos2 - pos1;
                 var pos = pos1 + new Vector3(diff.z, diff.y, -diff.x) * 0.5f;
                 var rot = Quaternion.LookRotation(pos1 - pos, Vector3.up);

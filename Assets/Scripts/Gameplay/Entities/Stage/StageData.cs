@@ -9,6 +9,7 @@ namespace Gameplay.Entities.Stage
     {
         int PlayerNum { get; }
         int TilesPerGroup { get; }
+        int NumCitizensInTile { get; }
     }
 
     public interface IStageSavedData : IContainerEntitySavedData
@@ -25,6 +26,7 @@ namespace Gameplay.Entities.Stage
 
         [field: SerializeField, Min(2)] public int PlayerNum { get; private set; } = 2;
         [field: SerializeField, Min(3)] public int TilesPerGroup { get; private set; } = 5;
+        [field: SerializeField, Min(1)] public int NumCitizensInTile { get; private set; } = 5;
     }
 
     [Serializable]
