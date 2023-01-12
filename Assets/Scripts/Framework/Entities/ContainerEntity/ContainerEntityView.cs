@@ -16,9 +16,9 @@ namespace Framework.Entities.ContainerEntity
     {
         [SerializeField] private DataViewPair[] viewDataPairs;
 
-        protected override void SetupInternal()
+        protected override void OnSetup()
         {
-            base.SetupInternal();
+            base.OnSetup();
             foreach (var pair in viewDataPairs)
             {
                 var data = Entity?.Components?.FirstOrDefault(c => c.Data.Id.Equals(pair.subId));

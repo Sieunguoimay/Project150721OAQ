@@ -28,7 +28,7 @@ namespace Framework.Entities
             base.Inject(resolver);
         }
 
-        protected override void SetupInternal()
+        protected override void OnSetup()
         {
         }
     }
