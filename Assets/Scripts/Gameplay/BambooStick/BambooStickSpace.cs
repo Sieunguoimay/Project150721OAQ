@@ -59,6 +59,11 @@ namespace Gameplay.BambooStick
             activeOnStop.SetActive(false);
         }
 
+        public void ForceStop()
+        {
+            
+        }
+
         private void TimelineStopped(PlayableDirector obj)
         {
             timeline.stopped -= TimelineStopped;

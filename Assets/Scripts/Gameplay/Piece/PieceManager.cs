@@ -1,18 +1,35 @@
 ﻿using System;
 using Common.Activity;
+using Framework.Resolver;
+using Gameplay.Entities.Stage.StageSelector;
 using Gameplay.Piece.Activities;
 using UnityEngine;
 
 namespace Gameplay.Piece
 {
-    public class PieceManager : MonoSelfBindingInjectable<PieceManager>
+    public class PieceManager : MonoControlUnitBase<PieceManager>, GameplayControlUnit.IGameplayUnit
     {
         [SerializeField] private Piece mandarinPrefab;
         [SerializeField] private Piece citizenPrefab;
 
         private Piece[] Pieces { get; set; }
 
-        public void ResetAll()
+        protected override void OnInject(IResolver container)
+        {
+            base.OnInject(container);
+            var stage = container.Resolve<IStageSelector>("stage_selector").SelectedStage;
+        }
+
+        public void OnGameplayStart()
+        {
+        }
+
+        public void OnGameplayStop()
+        {
+            ClearAll();
+        }
+
+        public void ClearAll()
         {
             foreach (var p in Pieces)
             {
@@ -28,12 +45,12 @@ namespace Gameplay.Piece
             var count = 0;
             for (var i = 0; i < groups; i++)
             {
-                Pieces[count++] = Instantiate(mandarinPrefab, transform); 
+                Pieces[count++] = Instantiate(mandarinPrefab, transform);
                 for (var j = 0; j < tilesPerGroup; j++)
                 {
                     for (var k = 0; k < numCitizen; k++)
                     {
-                        Pieces[count++] = Instantiate(citizenPrefab, transform); 
+                        Pieces[count++] = Instantiate(citizenPrefab, transform);
                     }
                 }
             }
@@ -42,7 +59,7 @@ namespace Gameplay.Piece
         public void ReleasePieces(Action onAllInPlace, Board.Board board)
         {
             var index = 0;
-            foreach (var tg in board.TileGroups)
+            foreach (var tg in board.Sides)
             {
                 foreach (var t in tg.CitizenTiles)
                 {
@@ -51,10 +68,10 @@ namespace Gameplay.Piece
                         var p = Pieces[index];
                         if (p.Type == Piece.PieceType.Citizen)
                         {
-                            t.Pieces.Add(p);
+                            t.PiecesContainer.Add(p);
 
                             var delay = i * 0.1f;
-                            var position = t.GetPositionInFilledCircle(Mathf.Max(0, t.Pieces.Count - 1));
+                            var position = t.GetPositionInFilledCircle(Mathf.Max(0, t.PiecesContainer.Count - 1));
 
                             p.ActivityQueue.Add(new ActivityAnimation(p.Animator, LegHashes.sit_down));
                             p.ActivityQueue.Add(delay > 0 ? new ActivityDelay(delay) : null);
@@ -66,7 +83,7 @@ namespace Gameplay.Piece
                         else
                         {
                             p.transform.position = tg.MandarinTile.GetPositionInFilledCircle(0);
-                            tg.MandarinTile.Pieces.Add(Pieces[index]);
+                            tg.MandarinTile.PiecesContainer.Add(Pieces[index]);
                             i--;
                         }
 

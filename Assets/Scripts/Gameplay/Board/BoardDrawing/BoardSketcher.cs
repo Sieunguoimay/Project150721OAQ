@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Gameplay.Board.BoardDrawing
 {
-    public class BoardSketcher : MonoSelfBindingInjectable<BoardSketcher>
+    public class BoardSketcher : MonoControlUnitBase<BoardSketcher>
     {
         [SerializeField] private VisualPen[] pens;
         [SerializeField] private DrawingSurface[] surfaces;
@@ -49,7 +49,7 @@ namespace Gameplay.Board.BoardDrawing
             out (int, int)[] edges)
         {
             var polygon = boardMetadata.Polygon;
-            var tilesPerGroup = boardMetadata.TilesPerGroup;
+            var tilesPerGroup = boardMetadata.NumCitizenTilesPerSide;
             var tileSize = boardMetadata.TileSize;
             var pointNum = ((tilesPerGroup + 1) * 2 + 2) * polygon.Length;
             var edgeNum = (tilesPerGroup * 2 + tilesPerGroup + 4) * polygon.Length;

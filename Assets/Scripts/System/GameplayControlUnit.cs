@@ -1,4 +1,5 @@
-﻿using Common.Misc;
+﻿using System.Linq;
+using Common.Misc;
 using Framework.Entities;
 using Framework.Resolver;
 using Framework.Services;
@@ -14,15 +15,9 @@ using UnityEngine;
 
 namespace System
 {
-    public class GameManager : MonoSelfBindingInjectable<GameManager>
+    public class GameplayControlUnit : MonoControlUnitBase<GameplayControlUnit>
     {
-        // [SerializeField, IdSelector(typeof(ICurrencyProcessorData))]
-        // private string matchProcessorId;
-
         private readonly Gameplay _gameplay = new();
-
-        // private readonly IMatchChooser _matchChooser = new MatchChooser();
-        // private readonly GameFlowManager _gameFlowManager = new();
 
         private BambooFamilyManager _bambooFamily;
         private PlayersManager _playersManager;
@@ -32,19 +27,9 @@ namespace System
         private IResolver _resolver;
         private IStageSelector _stageSelector;
 
-        // public void Bind(IBinder binder)
-        // {
-        // binder.Bind<GameFlowManager>(_gameFlowManager);
-        // binder.Bind<IMatchChooser>(_matchChooser);
-        // }
+        private IGameplayUnit[] _gameplayUnits;
 
-        // public void Unbind(IBinder binder)
-        // {
-        // binder.Unbind<GameFlowManager>();
-        // binder.Unbind<IMatchChooser>();
-        // }
-
-        public override void Inject(IResolver resolver)
+        protected override void OnInject(IResolver resolver)
         {
             _resolver = resolver;
 
@@ -57,6 +42,7 @@ namespace System
 
             // var matchProcessor = _resolver.Resolve<ICurrencyProcessor>(matchProcessorId);
             // _resolver.Resolve<IMessageService>().Register<IMessage<ICurrencyProcessor>, ICurrencyProcessor>(MatchProcessorSuccess, matchProcessor);
+            _gameplayUnits = new IGameplayUnit[] {_playersManager, _bambooFamily};
         }
 
         // private void OnEnable()
@@ -99,8 +85,7 @@ namespace System
             _playersManager.FillWithFakePlayers(stage.Data.PlayerNum);
             _playersManager.CreatePieceBench(_boardManager.Board);
 
-            _gameplay.Setup(_playersManager, _boardManager.Board, _pieceManager,
-                _resolver.Resolve<GameInteractManager>());
+            _gameplay.Setup(_playersManager, _boardManager.Board, _pieceManager, _resolver.Resolve<GameInteractManager>());
 
             _pieceManager.SpawnPieces(stage.Data.PlayerNum, stage.Data.TilesPerGroup, stage.Data.NumCitizensInTile);
 
@@ -111,15 +96,26 @@ namespace System
         {
             GenerateMatch(_stageSelector.SelectedStage);
             _gameplay.StartNewMatch();
+            
+            foreach (var gameplayUnit in _gameplayUnits)
+            {
+                gameplayUnit.OnGameplayStart();
+            }
         }
 
         public void ClearGame()
         {
-            _pieceManager.ResetAll();
-            _boardManager.ResetAll();
-            _playersManager.ResetAll();
-            _gameplay.ClearGame();
+            foreach (var gameplayUnit in _gameplayUnits)
+            {
+                gameplayUnit.OnGameplayStop();
+            }
+
+            // _pieceManager.ClearAll();
+            // _boardManager.ClearAll();
+            // _playersManager.ClearAll();
+            // _gameplay.ClearGame();
         }
+
         //
         // public void ReplayMatch()
         // {
@@ -131,5 +127,10 @@ namespace System
         //     _gameplay.ResetGame();
         //     _gameplay.TearDown();
         // }
+        public interface IGameplayUnit
+        {
+            void OnGameplayStart();
+            void OnGameplayStop();
+        }
     }
 }

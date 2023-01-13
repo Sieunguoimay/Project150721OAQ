@@ -44,3 +44,7 @@ MonoBehaviour:
   componentAssets:
   - {fileID: -364115057242414881}
   - {fileID: -3635626627535178276}
+  loadAlongEntityIds: []
+  <PlayerNum>k__BackingField: 2
+  <TilesPerGroup>k__BackingField: 5
+  <NumCitizensInTile>k__BackingField: 5

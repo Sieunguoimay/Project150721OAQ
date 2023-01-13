@@ -32,9 +32,9 @@ namespace Gameplay.UI
 
         private void OnDestroy()
         {
-            for (var i = 0; i < _itemUIs.Length; i++)
+            foreach (var t in _itemUIs)
             {
-                _itemUIs[i].TearDown();
+                t.TearDown();
             }
         }
 

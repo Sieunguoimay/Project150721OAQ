@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Gameplay
 {
-    public class CameraManager : MonoSelfBindingInjectable<CameraManager>
+    public class CameraManager : MonoControlUnitBase<CameraManager>
     {
         private Camera _camera = null;
         public Camera Camera => _camera ? _camera : _camera = GetComponent<Camera>();

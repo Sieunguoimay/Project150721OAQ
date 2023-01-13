@@ -38,13 +38,13 @@ namespace Gameplay.Board
 
         public void EatRecursively(Tile tile)
         {
-            var eatable = tile.Pieces.Count == 0 && tile is not MandarinTile &&
-                          _board.GetSuccessTile(tile, _forward).Pieces.Count > 0;
+            var eatable = tile.PiecesContainer.Count == 0 && tile.TargetPieceType != Piece.Piece.PieceType.Mandarin &&
+                          _board.GetSuccessTile(tile, _forward).PiecesContainer.Count > 0;
             if (eatable)
             {
                 var successTile = _board.GetSuccessTile(tile, _forward);
 
-                EatPieces(successTile.Pieces);
+                EatPieces(successTile.PiecesContainer);
 
                 _coroutine = PublicExecutor.Instance.Delay(0.2f, () =>
                 {

@@ -43,7 +43,7 @@ namespace Gameplay.GameInteract
                 ButtonContainer.ButtonViews[i].transform.position = pos;
                 ButtonContainer.ButtonViews[i].transform.rotation = tileRot;
                 ButtonContainer.ButtonViews[i].Display
-                    .SetDisplayInfo(new ButtonDisplayInfoText($"{optionTiles[i].Pieces.Count}"));
+                    .SetDisplayInfo(new ButtonDisplayInfoText($"{optionTiles[i].PiecesContainer.Count}"));
 
                 ButtonContainer2.ButtonViews[i].transform.position = tilePos;
                 ButtonContainer2.ButtonViews[i].transform.rotation = tileRot;

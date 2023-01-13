@@ -1,17 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Common.Curve.Mover;
-using Framework;
+﻿using System;
+using System.Collections;
 using Framework.Resolver;
 using Gameplay.Board;
 using Gameplay.Board.BoardDrawing;
-using SNM;
 using UnityEngine;
-using UnityEngine.Playables;
 
 namespace Gameplay.BambooStick
 {
-    public class BambooFamilyManager : MonoSelfBindingInjectable<BambooFamilyManager>
+    public class BambooFamilyManager : MonoControlUnitBase<BambooFamilyManager>, GameplayControlUnit.IGameplayUnit
     {
         [SerializeField] private BambooStickSpace[] bambooSticks;
         [SerializeField] private Transform[] bambooStickVisualTransforms;
@@ -20,18 +16,30 @@ namespace Gameplay.BambooStick
         private BoardManager _boardManager;
         private int _timelineCount;
 
-        public override void Inject(IResolver resolver)
+        protected override void OnInject(IResolver resolver)
         {
             _boardSketcher = resolver.Resolve<BoardSketcher>();
             _boardManager = resolver.Resolve<BoardManager>();
         }
-
-        public void BeginAnimSequence()
+        public void OnGameplayStart()
         {
-            StartCoroutine(BeginAnimeSequence());
+            BeginAnimSequence();
         }
 
-        private IEnumerator BeginAnimeSequence()
+        public void OnGameplayStop()
+        {
+            ForceStop();
+        }
+
+        public void ForceStop()
+        {
+            foreach (var stick in bambooSticks)
+            {
+                stick.ForceStop();
+            }
+        }
+
+        public void BeginAnimSequence()
         {
             _boardSketcher.Sketch(_boardManager.Board);
             var points = _boardSketcher.Points;
@@ -39,7 +47,7 @@ namespace Gameplay.BambooStick
             for (var i = 0; i < numActivePens; i++)
             {
                 var stick = bambooSticks[i];
-                var startDrawingIndex = i * (points.Count /numActivePens);
+                var startDrawingIndex = i * (points.Count / numActivePens);
                 stick.StartTimelineMoving(TimelineStopped);
 
                 var startDrawingPos = _boardSketcher.Surfaces[i].Get3DPoint(points[startDrawingIndex]);
@@ -48,9 +56,8 @@ namespace Gameplay.BambooStick
 
                 stick.pathPlan.PlanPath(stick.start.position, stick.start.forward, startDrawingPos, endForward);
             }
-
-            yield return null;
         }
+
         private void TimelineStopped()
         {
             _timelineCount++;
@@ -95,5 +102,7 @@ namespace Gameplay.BambooStick
                 }
             }
         }
+
+
     }
 }

@@ -9,17 +9,20 @@ namespace Gameplay.Board
     public class Tile : MonoBehaviour, IPieceContainer
     {
         [SerializeField] private float size;
+        [SerializeField] private Piece.Piece.PieceType targetPieceType;
+
         public float Size => size;
-        public List<Piece.Piece> Pieces { get; } = new();
+        public List<Piece.Piece> PiecesContainer { get; } = new();
 
         private const int MaxPiecesSupported = 50;
         private Vector2Int[] _reservedPoints;
 
+        public Piece.Piece.PieceType TargetPieceType => targetPieceType;
         public IEnumerable<ISelectionAdaptor> GetSelectionAdaptors() =>
-            Pieces.Where(p => p is Citizen)
+            PiecesContainer.Where(p => p is Citizen)
                 .Select(p => new CitizenToTileSelectorAdaptor(p as Citizen));
 
-        public void Setup()
+        public void RuntimeSetup()
         {
             _reservedPoints = ReservePositionsInFilledCircle(MaxPiecesSupported);
         }

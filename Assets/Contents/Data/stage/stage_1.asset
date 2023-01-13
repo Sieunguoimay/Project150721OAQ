@@ -16,7 +16,10 @@ MonoBehaviour:
   componentAssets:
   - {fileID: 3400564816399251251}
   - {fileID: 3363349186102348108}
-  <IsAvailableInAdvanced>k__BackingField: 1
+  loadAlongEntityIds: []
+  <PlayerNum>k__BackingField: 2
+  <TilesPerGroup>k__BackingField: 5
+  <NumCitizensInTile>k__BackingField: 5
 --- !u!114 &3363349186102348108
 MonoBehaviour:
   m_ObjectHideFlags: 0

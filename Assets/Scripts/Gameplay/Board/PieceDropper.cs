@@ -16,7 +16,7 @@ namespace Gameplay.Board
 
         private bool _forward;
 
-        public List<Piece.Piece> Pieces { get; } = new();
+        public List<Piece.Piece> PiecesContainer { get; } = new();
 
         public void SetBoard(Board board)
         {
@@ -25,17 +25,17 @@ namespace Gameplay.Board
 
         public void ClearHoldingPieces()
         {
-            Pieces.Clear();
+            PiecesContainer.Clear();
         }
 
         public void Take(List<Piece.Piece> pieces, int num)
         {
-            ForwardLastItems(pieces, Pieces, num);
+            ForwardLastItems(pieces, PiecesContainer, num);
         }
 
         public void SetMoveStartPoint(int index, bool forward)
         {
-            _boardTraveller.Start(index, Pieces.Count, _board.Tiles.Length);
+            _boardTraveller.Start(index, PiecesContainer.Count, _board.Tiles.Length);
             _forward = forward;
         }
 
@@ -54,7 +54,7 @@ namespace Gameplay.Board
 
         public void DropOnce(Action<Tile> done)
         {
-            var n = Pieces.Count;
+            var n = PiecesContainer.Count;
 
             for (var i = 0; i < n; i++)
             {
@@ -63,10 +63,10 @@ namespace Gameplay.Board
 
                 for (var j = 0; j < n - i; j++)
                 {
-                    if (Pieces[i + j] is not Citizen p) continue;
+                    if (PiecesContainer[i + j] is not Citizen p) continue;
 
-                    var skipSlot = currentTile is MandarinTile mt && mt.Pieces.Any(pi => pi is Mandarin);
-                    var index = currentTile.Pieces.Count + j + (skipSlot ? 9 : 0);
+                    var skipSlot = currentTile.TargetPieceType == Piece.Piece.PieceType.Mandarin && currentTile.PiecesContainer.Any(pi => pi.Type == Piece.Piece.PieceType.Mandarin);
+                    var index = currentTile.PiecesContainer.Count + j + (skipSlot ? 9 : 0);
                     var citizenPos = currentTile.GetPositionInFilledCircle(index);
 
                     p.ActivityQueue.Add(i == 0 && j > 0 ? new ActivityDelay(j * 0.1f) : null);
@@ -75,10 +75,10 @@ namespace Gameplay.Board
                     p.ActivityQueue.Add(i == n - 1 ? new ActivityNotifyOnLastDrop(done, currentTile) : null);
                 }
 
-                currentTile.Pieces.Add(Pieces[i]);
+                currentTile.PiecesContainer.Add(PiecesContainer[i]);
             }
 
-            foreach (var p in Pieces)
+            foreach (var p in PiecesContainer)
             {
                 p.ActivityQueue.Add(new ActivityAnimation(p.Animator, LegHashes.land));
                 p.ActivityQueue.Add(new ActivityTurnAway(p.transform));
@@ -86,7 +86,7 @@ namespace Gameplay.Board
                 p.ActivityQueue.Begin();
             }
 
-            Pieces.Clear();
+            PiecesContainer.Clear();
         }
 
         public void DropTillDawn(Action<Tile> onDone)
@@ -100,12 +100,12 @@ namespace Gameplay.Board
 
             _boardTraveller.Reset();
 
-            if (successTile.Pieces.Count > 0 && successTile is not MandarinTile)
+            if (successTile.PiecesContainer.Count > 0 && successTile.TargetPieceType == Piece.Piece.PieceType.Citizen)
             {
-                Take(successTile.Pieces, successTile.Pieces.Count);
+                Take(successTile.PiecesContainer, successTile.PiecesContainer.Count);
                 SetMoveStartPoint(Array.IndexOf(_board.Tiles, successTile), _forward);
 
-                foreach (var p in Pieces)
+                foreach (var p in PiecesContainer)
                 {
                     p.ActivityQueue.Add(new ActivityAnimation(p.Animator, LegHashes.stand_up));
                 }

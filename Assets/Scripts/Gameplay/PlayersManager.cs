@@ -1,11 +1,12 @@
-﻿using Gameplay.Board;
+﻿using System;
+using Gameplay.Board;
 using Gameplay.GameInteract;
 using SNM;
 using UnityEngine;
 
 namespace Gameplay
 {
-    public class PlayersManager : MonoSelfBindingInjectable<PlayersManager>
+    public class PlayersManager : MonoControlUnitBase<PlayersManager>,GameplayControlUnit.IGameplayUnit
     {
         [field: System.NonSerialized] public Player[] Players { get; private set; }
         private Player _mainPlayer;
@@ -15,7 +16,17 @@ namespace Gameplay
             _mainPlayer = new Player(0);
         }
 
-        public void ResetAll()
+        public void OnGameplayStart()
+        {
+            
+        }
+
+        public void OnGameplayStop()
+        {
+            ClearAll();
+        }
+        
+        public void ClearAll()
         {
             foreach (var player in Players)
             {
@@ -37,7 +48,7 @@ namespace Gameplay
         {
             foreach (var p in Players)
             {
-                var tg = board.TileGroups[p.Index];
+                var tg = board.Sides[p.Index];
                 var pos1 = tg.CitizenTiles[0].transform.position;
                 var pos2 = tg.CitizenTiles[^1].transform.position;
                 var diff = pos2 - pos1;

@@ -5,7 +5,7 @@ namespace Gameplay.Board
 {
     public interface IPieceContainer 
     {
-        List<Piece.Piece> Pieces { get; }
+        List<Piece.Piece> PiecesContainer { get; }
     }
 }
 

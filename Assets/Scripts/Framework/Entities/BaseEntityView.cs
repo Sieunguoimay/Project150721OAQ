@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Framework.Entities
 {
-    public class BaseEntityView<TEntity, TEntityData> : MonoInjectable, IEntityView<TEntity>
+    public class BaseEntityView<TEntity, TEntityData> : MonoControlUnitBase, IEntityView<TEntity>
         where TEntity : IEntity<IEntityData, IEntitySavedData> where TEntityData : IEntityData
     {
 #if UNITY_EDITOR
@@ -22,14 +22,9 @@ namespace Framework.Entities
 
         public TEntity Entity { get; private set; }
 
-        public override void Inject(IResolver resolver)
+        protected override void OnInject(IResolver resolver)
         {
             Entity = resolver.Resolve<TEntity>(entityId);
-            base.Inject(resolver);
-        }
-
-        protected override void OnSetup()
-        {
         }
     }
 }

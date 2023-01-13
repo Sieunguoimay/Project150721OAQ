@@ -63,7 +63,7 @@ namespace System
 
             _pieceManager.ReleasePieces(() =>
             {
-                _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index], new MoveCommand(this),
+                _interact.SetupInteract(_board.Sides[CurrentPlayer.Index], new MoveCommand(this),
                     new MoveCommand(this));
                 _interact.ShowTileChooser();
             }, _board);
@@ -107,7 +107,7 @@ namespace System
 
             protected override void Move(Tile tile, bool forward)
             {
-                _gameplay._dropper.Take(tile.Pieces, tile.Pieces.Count);
+                _gameplay._dropper.Take(tile.PiecesContainer, tile.PiecesContainer.Count);
                 _gameplay._dropper.SetMoveStartPoint(Array.IndexOf(_gameplay._board.Tiles, tile), forward);
                 _gameplay._dropper.DropTillDawn(lastTile =>
                 {
@@ -120,7 +120,7 @@ namespace System
 
         private void MakeDecision()
         {
-            var allMandarinTilesEmpty = _board.TileGroups.All(tg => tg.MandarinTile.Pieces.Count <= 0);
+            var allMandarinTilesEmpty = _board.Sides.All(tg => tg.MandarinTile.PiecesContainer.Count <= 0);
             if (allMandarinTilesEmpty)
             {
                 GameOver();
@@ -129,8 +129,8 @@ namespace System
 
             ChangePlayer();
 
-            var tileGroup = _board.TileGroups[CurrentPlayer.Index];
-            var isNewPlayerAllEmpty = tileGroup.CitizenTiles.All(t => t.Pieces.Count <= 0);
+            var tileGroup = _board.Sides[CurrentPlayer.Index];
+            var isNewPlayerAllEmpty = tileGroup.CitizenTiles.All(t => t.PiecesContainer.Count <= 0);
             if (isNewPlayerAllEmpty)
             {
                 if (CurrentPlayer.PieceBench.Pieces.Count <= 0)
@@ -144,14 +144,14 @@ namespace System
                 _dropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tileGroup.MandarinTile), true);
                 _dropper.DropOnce(_ =>
                 {
-                    _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index], new MoveCommand(this),
+                    _interact.SetupInteract(_board.Sides[CurrentPlayer.Index], new MoveCommand(this),
                         new MoveCommand(this));
                     _interact.ShowTileChooser();
                 });
                 return;
             }
 
-            _interact.SetupInteract(_board.TileGroups[CurrentPlayer.Index], new MoveCommand(this),
+            _interact.SetupInteract(_board.Sides[CurrentPlayer.Index], new MoveCommand(this),
                 new MoveCommand(this));
             _interact.ShowTileChooser();
         }
@@ -170,10 +170,10 @@ namespace System
         {
             for (var i = 0; i < _playersManager.Players.Length; i++)
             {
-                foreach (var tile in _board.TileGroups[i].CitizenTiles)
+                foreach (var tile in _board.Sides[i].CitizenTiles)
                 {
-                    _playersManager.Players[i].PieceBench.Pieces.AddRange(tile.Pieces);
-                    tile.Pieces.Clear();
+                    _playersManager.Players[i].PieceBench.Pieces.AddRange(tile.PiecesContainer);
+                    tile.PiecesContainer.Clear();
                 }
 
                 var sum = _playersManager.Players[i].PieceBench.Pieces.Sum(p => p is Citizen ? 1 : 10);

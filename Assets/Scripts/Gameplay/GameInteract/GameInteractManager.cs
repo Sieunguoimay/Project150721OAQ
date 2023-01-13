@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
-    public class GameInteractManager : MonoSelfBindingInjectable<GameInteractManager>
+    public class GameInteractManager : MonoControlUnitBase<GameInteractManager>
     {
         [SerializeField] private TileChooser tileChooser;
         [SerializeField] private ActionChooser actionChooser;
@@ -17,14 +17,14 @@ namespace Gameplay.GameInteract
         private TileChooser.ButtonCommand[] _choosingTileCommands;
         [field: System.NonSerialized] public Tile ChosenTile { get; private set; }
 
-        public override void Inject(IResolver resolver)
+        protected override void OnInject(IResolver resolver)
         {
             _boardManager = resolver.Resolve<BoardManager>();
         }
 
-        public void SetupInteract(Board.Board.TileGroup tileGroup, MoveButtonCommand left, MoveButtonCommand right)
+        public void SetupInteract(Board.Board.BoardSide boardSide, MoveButtonCommand left, MoveButtonCommand right)
         {
-            _tiles = _boardManager.SpawnedTiles.Where(st => tileGroup.CitizenTiles.Contains(st) && st.Pieces.Count > 0)
+            _tiles = _boardManager.Board.Tiles.Where(st => boardSide.CitizenTiles.Contains(st) && st.PiecesContainer.Count > 0)
                 .ToArray();
 
             _choosingTileCommands = new TileChooser.ButtonCommand[_tiles.Length];
