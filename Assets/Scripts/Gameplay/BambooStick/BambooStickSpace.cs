@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Common;
 using Common.Curve.Mover;
 using Common.Tools.MeshSaver;
-using Gameplay.Piece.Activities;
-using SNM;
 using Timeline;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -36,8 +33,7 @@ namespace Gameplay.BambooStick
 
         public float GetMoverSpeed()
         {
-            var cct = (timeline2.playableAsset as TimelineAsset)?.GetOutputTracks()
-                .FirstOrDefault(t => t is CustomControlTrack);
+            var cct = (timeline2.playableAsset as TimelineAsset)?.GetOutputTracks().FirstOrDefault(t => t is CustomControlTrack);
             if (cct == null) return 1f;
             var clip = cct.GetClips().FirstOrDefault(t => t.asset is CustomTimeControlAsset);
             if (clip == null) return 1f;

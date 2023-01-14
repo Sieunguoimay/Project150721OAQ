@@ -29,6 +29,7 @@ namespace Gameplay.BambooStick
                 stick.ResetState();
             }
             _boardSketcher.DeleteDrawing();
+            _timelineCount = 0;
         }
 
         public void BeginAnimSequence()
