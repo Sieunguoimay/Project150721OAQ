@@ -12,12 +12,14 @@ namespace Gameplay.Board
         [SerializeField] private Tile citizenTilePrefab;
         [field: System.NonSerialized] public Board Board { get; private set; }
 
-        public void ClearAll()
+        public void DeleteBoard()
         {
-            foreach (var t in Board.Tiles)
+            foreach (var tile in Board.Tiles)
             {
-                t.PiecesContainer.Clear();
+                Destroy(tile.gameObject);
             }
+
+            Board = null;
         }
 
         public void CreateBoard(int groupNum, int tilesPerGroup)

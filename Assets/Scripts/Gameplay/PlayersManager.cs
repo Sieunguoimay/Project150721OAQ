@@ -6,44 +6,41 @@ using UnityEngine;
 
 namespace Gameplay
 {
-    public class PlayersManager : MonoControlUnitBase<PlayersManager>,GameplayControlUnit.IGameplayUnit
+    public class PlayersManager : MonoControlUnitBase<PlayersManager>
     {
         [field: System.NonSerialized] public Player[] Players { get; private set; }
         private Player _mainPlayer;
-        
-        private void Start()
+        protected override void OnSetup()
         {
+            base.OnSetup();
             _mainPlayer = new Player(0);
         }
 
-        public void OnGameplayStart()
-        {
-            
-        }
-
-        public void OnGameplayStop()
-        {
-            ClearAll();
-        }
-        
-        public void ClearAll()
-        {
-            foreach (var player in Players)
-            {
-                player.ResetAll();
-            }
-        }
 
         public void FillWithFakePlayers(int n)
         {
             Players = new Player[n];
-            Players[0] = _mainPlayer;
-            for (var i = 1; i < n; i++)
+            for (var i = 0; i < n; i++)
             {
-                Players[i] = new Player(i);
+                if (i == 0)
+                {
+                    Players[i] = _mainPlayer;
+                }
+                else
+                {
+                    Players[i] = new Player(i);
+                }
             }
         }
 
+        public void DeletePlayers()
+        {
+            foreach (var p in Players)
+            {
+                Destroy(p.PieceBench.gameObject);
+            }
+            Players = null;
+        }
         public void CreatePieceBench(Board.Board board)
         {
             foreach (var p in Players)

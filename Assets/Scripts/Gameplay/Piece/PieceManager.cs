@@ -7,29 +7,14 @@ using UnityEngine;
 
 namespace Gameplay.Piece
 {
-    public class PieceManager : MonoControlUnitBase<PieceManager>, GameplayControlUnit.IGameplayUnit
+    public class PieceManager : MonoControlUnitBase<PieceManager>
     {
         [SerializeField] private Piece mandarinPrefab;
         [SerializeField] private Piece citizenPrefab;
 
         private Piece[] Pieces { get; set; }
 
-        protected override void OnInject(IResolver container)
-        {
-            base.OnInject(container);
-            var stage = container.Resolve<IStageSelector>("stage_selector").SelectedStage;
-        }
-
-        public void OnGameplayStart()
-        {
-        }
-
-        public void OnGameplayStop()
-        {
-            ClearAll();
-        }
-
-        public void ClearAll()
+        public void DeletePieces()
         {
             foreach (var p in Pieces)
             {

@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using Common.Misc;
-using Framework.Entities;
-using Framework.Resolver;
-using Framework.Services;
+﻿using Framework.Resolver;
 using Gameplay;
 using Gameplay.BambooStick;
 using Gameplay.Board;
@@ -23,26 +19,21 @@ namespace System
         private PlayersManager _playersManager;
         private BoardManager _boardManager;
         private PieceManager _pieceManager;
-
-        private IResolver _resolver;
+        private GameInteractManager _interact;
         private IStageSelector _stageSelector;
-
-        private IGameplayUnit[] _gameplayUnits;
 
         protected override void OnInject(IResolver resolver)
         {
-            _resolver = resolver;
-
             _playersManager = resolver.Resolve<PlayersManager>();
             _boardManager = resolver.Resolve<BoardManager>();
             _pieceManager = resolver.Resolve<PieceManager>();
             _bambooFamily = resolver.Resolve<BambooFamilyManager>();
             _stageSelector = resolver.Resolve<IStageSelector>("stage_selector");
+            _interact = resolver.Resolve<GameInteractManager>();
             // RayPointer.Instance.SetCamera(resolver.Resolve<CameraManager>().Camera);
 
             // var matchProcessor = _resolver.Resolve<ICurrencyProcessor>(matchProcessorId);
             // _resolver.Resolve<IMessageService>().Register<IMessage<ICurrencyProcessor>, ICurrencyProcessor>(MatchProcessorSuccess, matchProcessor);
-            _gameplayUnits = new IGameplayUnit[] {_playersManager, _bambooFamily};
         }
 
         // private void OnEnable()
@@ -78,6 +69,12 @@ namespace System
         //     StartGame();
         // }
 
+        public void StartGame()
+        {
+            GenerateMatch(_stageSelector.SelectedStage);
+            _gameplay.StartNewMatch();
+        }
+
         public void GenerateMatch(IStage stage)
         {
             _boardManager.CreateBoard(stage.Data.PlayerNum, stage.Data.TilesPerGroup);
@@ -85,35 +82,20 @@ namespace System
             _playersManager.FillWithFakePlayers(stage.Data.PlayerNum);
             _playersManager.CreatePieceBench(_boardManager.Board);
 
-            _gameplay.Setup(_playersManager, _boardManager.Board, _pieceManager, _resolver.Resolve<GameInteractManager>());
+            _gameplay.Setup(_playersManager, _boardManager.Board, _pieceManager, _interact);
 
             _pieceManager.SpawnPieces(stage.Data.PlayerNum, stage.Data.TilesPerGroup, stage.Data.NumCitizensInTile);
 
             _bambooFamily.BeginAnimSequence();
         }
 
-        public void StartGame()
-        {
-            GenerateMatch(_stageSelector.SelectedStage);
-            _gameplay.StartNewMatch();
-            
-            foreach (var gameplayUnit in _gameplayUnits)
-            {
-                gameplayUnit.OnGameplayStart();
-            }
-        }
-
         public void ClearGame()
         {
-            foreach (var gameplayUnit in _gameplayUnits)
-            {
-                gameplayUnit.OnGameplayStop();
-            }
-
-            // _pieceManager.ClearAll();
-            // _boardManager.ClearAll();
-            // _playersManager.ClearAll();
-            // _gameplay.ClearGame();
+            _bambooFamily.ResetAll();
+            _pieceManager.DeletePieces();
+            _gameplay.ClearGame();
+            _playersManager.DeletePlayers();
+            _boardManager.DeleteBoard();
         }
 
         //
@@ -127,10 +109,5 @@ namespace System
         //     _gameplay.ResetGame();
         //     _gameplay.TearDown();
         // }
-        public interface IGameplayUnit
-        {
-            void OnGameplayStart();
-            void OnGameplayStop();
-        }
     }
 }

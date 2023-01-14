@@ -23,6 +23,21 @@ namespace Gameplay.Board.BoardDrawing
             PenUsageNum = board.Metadata.Polygon.Length;
         }
 
+        public void DeleteDrawing()
+        {
+            _points = null;
+            _contour = null;
+            foreach (var pen in pens)
+            {
+                pen.ResetAll();
+            }
+
+            foreach (var surface in surfaces)
+            {
+                surface.ResetAll();
+            }
+        }
+
         public void StartDrawing(float initialSpeed)
         {
             for (var i = 0; i < PenUsageNum; i++)

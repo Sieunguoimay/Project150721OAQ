@@ -27,6 +27,10 @@ namespace Common.DrawLine
             _drawMesh.Draw(point, lineThickness, minDistance);
         }
 
+        public void ResetAll()
+        {
+            meshFilter.mesh = null;
+        }
         public void DryInk(string meshName = "(Static)mesh")
         {
             meshFilter.mesh = _drawMesh.GenerateStaticMesh(meshName);

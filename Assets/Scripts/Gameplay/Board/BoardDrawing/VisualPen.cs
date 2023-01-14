@@ -14,6 +14,11 @@ namespace Gameplay.Board.BoardDrawing
 
         public event Action<VisualPen> Done;
 
+        public void ResetAll()
+        {
+            ActivityQueue.End();
+            _spline = null;
+        }
         public void Draw(Vector2[] points, (int, int)[] contour, int contourStartIndex, int contourLength, IDrawingSurface surface, string inkName, float initialSpeed)
         {
             var points3D = new Vector3[contourLength + 1];

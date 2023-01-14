@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Gameplay.BambooStick
 {
-    public class BambooFamilyManager : MonoControlUnitBase<BambooFamilyManager>, GameplayControlUnit.IGameplayUnit
+    public class BambooFamilyManager : MonoControlUnitBase<BambooFamilyManager>
     {
         [SerializeField] private BambooStickSpace[] bambooSticks;
         [SerializeField] private Transform[] bambooStickVisualTransforms;
@@ -21,22 +21,14 @@ namespace Gameplay.BambooStick
             _boardSketcher = resolver.Resolve<BoardSketcher>();
             _boardManager = resolver.Resolve<BoardManager>();
         }
-        public void OnGameplayStart()
-        {
-            BeginAnimSequence();
-        }
 
-        public void OnGameplayStop()
-        {
-            ForceStop();
-        }
-
-        public void ForceStop()
+        public void ResetAll()
         {
             foreach (var stick in bambooSticks)
             {
-                stick.ForceStop();
+                stick.ResetState();
             }
+            _boardSketcher.DeleteDrawing();
         }
 
         public void BeginAnimSequence()
@@ -53,7 +45,6 @@ namespace Gameplay.BambooStick
                 var startDrawingPos = _boardSketcher.Surfaces[i].Get3DPoint(points[startDrawingIndex]);
                 var forward = (points[startDrawingIndex] - points[startDrawingIndex + 1]).normalized;
                 var endForward = _boardSketcher.Surfaces[i].transform.TransformDirection(new Vector3(forward.x, 0, forward.y));
-
                 stick.pathPlan.PlanPath(stick.start.position, stick.start.forward, startDrawingPos, endForward);
             }
         }
@@ -102,7 +93,5 @@ namespace Gameplay.BambooStick
                 }
             }
         }
-
-
     }
 }
