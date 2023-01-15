@@ -23,12 +23,11 @@ namespace System
         private readonly PieceDropper _dropper = new();
         private readonly PieceEater _eater = new();
 
-        private PlayersManager _playersManager;
+        private Player[] _players;
         private Board _board;
         private PieceManager _pieceManager;
         private GameInteractManager _interact;
 
-        // private PerMatchData _perMatchData;
         private Player CurrentPlayer { get; set; }
 
         private bool IsGameOver { get; set; }
@@ -36,11 +35,11 @@ namespace System
 
         public ActivityQueue ActivityQueue { get; } = new();
 
-        public void Setup(PlayersManager playersManager, Board board, PieceManager pieceManager,
+        public void Setup(Player[] players, Board board, PieceManager pieceManager,
             GameInteractManager interactManager)
         {
             _board = board;
-            _playersManager = playersManager;
+            _players = players;
             _pieceManager = pieceManager;
             _interact = interactManager;
 
@@ -49,24 +48,14 @@ namespace System
 
             IsPlaying = false;
             IsGameOver = false;
+            NextPlayer();
         }
         
         public void StartNewMatch()
         {
             IsPlaying = true;
-            ChangePlayer();
-            // _perMatchData = new PerMatchData(_playersManager.Players.Length);
-            // foreach (var score in _perMatchData.PlayerScores)
-            // {
-            //     score.Inject(_resolver);
-            // }
-
-            _pieceManager.ReleasePieces(() =>
-            {
-                _interact.SetupInteract(_board.Sides[CurrentPlayer.Index], new MoveCommand(this),
-                    new MoveCommand(this));
-                _interact.ShowTileChooser();
-            }, _board);
+            _interact.SetupInteract(_board.Sides[CurrentPlayer.Index], new MoveCommand(this), new MoveCommand(this));
+            _interact.ShowTileChooser();
         }
 
         public void ClearGame()
@@ -80,16 +69,16 @@ namespace System
 
         #region PRIVATE_METHODS
 
-        private void ChangePlayer()
+        private void NextPlayer()
         {
             if (CurrentPlayer == null)
             {
-                CurrentPlayer = _playersManager.Players[0];
+                CurrentPlayer = _players[0];
             }
             else
             {
                 CurrentPlayer.ReleaseTurn();
-                CurrentPlayer = _playersManager.Players[(CurrentPlayer.Index + 1) % _playersManager.Players.Length];
+                CurrentPlayer = _players[(CurrentPlayer.Index + 1) % _players.Length];
             }
 
             CurrentPlayer.AcquireTurn();
@@ -127,7 +116,7 @@ namespace System
                 return;
             }
 
-            ChangePlayer();
+            NextPlayer();
 
             var tileGroup = _board.Sides[CurrentPlayer.Index];
             var isNewPlayerAllEmpty = tileGroup.CitizenTiles.All(t => t.PiecesContainer.Count <= 0);
@@ -168,15 +157,15 @@ namespace System
 
         private void EvaluateWinner()
         {
-            for (var i = 0; i < _playersManager.Players.Length; i++)
+            for (var i = 0; i < _players.Length; i++)
             {
                 foreach (var tile in _board.Sides[i].CitizenTiles)
                 {
-                    _playersManager.Players[i].PieceBench.Pieces.AddRange(tile.PiecesContainer);
+                    _players[i].PieceBench.Pieces.AddRange(tile.PiecesContainer);
                     tile.PiecesContainer.Clear();
                 }
 
-                var sum = _playersManager.Players[i].PieceBench.Pieces.Sum(p => p is Citizen ? 1 : 10);
+                var sum = _players[i].PieceBench.Pieces.Sum(p => p is Citizen ? 1 : 10);
 
                 // _perMatchData.SetPlayerScore(i, sum);
             }
