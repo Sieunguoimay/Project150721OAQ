@@ -1,8 +1,4 @@
-﻿using System;
-using Gameplay.Board;
-using Gameplay.GameInteract;
-using SNM;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Gameplay
 {
@@ -15,7 +11,6 @@ namespace Gameplay
             base.OnSetup();
             _mainPlayer = new Player(0);
         }
-
 
         public void FillWithFakePlayers(int n)
         {
