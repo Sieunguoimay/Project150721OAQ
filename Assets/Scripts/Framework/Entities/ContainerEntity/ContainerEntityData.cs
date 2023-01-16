@@ -45,11 +45,9 @@ namespace Framework.Entities.ContainerEntity
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal(IEntityLoader entityLoader)
         {
             var components = CreateComponentEntityItems(entityLoader);
-            var componentSavedDataItems = components.Select(i => i.SavedData).ToArray();
             var entity = CreateContainerEntityInternal();
-            var loadAlongEntities = loadAlongEntityIds.Select(entityLoader.CreateEntity).ToList();
-            (entity as TEntity)?.SetupInternal(components, loadAlongEntities);
-            (entity.SavedData as IContainerEntitySavedData)?.SetComponentSavedDataItems(componentSavedDataItems);
+            (entity as IContainerEntity<IContainerEntityData, IContainerEntitySavedData>)?.SetupInternal(components, loadAlongEntityIds.Select(entityLoader.CreateEntity).ToList());
+            (entity.SavedData as IContainerEntitySavedData)?.SetComponentSavedDataItems(components.Select(i => i.SavedData).ToArray());
             return entity;
         }
 

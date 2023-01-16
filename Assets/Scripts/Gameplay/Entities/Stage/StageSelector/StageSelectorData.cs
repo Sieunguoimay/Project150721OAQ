@@ -1,11 +1,14 @@
 using Framework.Entities;
 using UnityEngine;
 using System;
+using Framework.Entities.SimpleContainer;
+using Framework.Services.Data;
 
 namespace Gameplay.Entities.Stage.StageSelector
 {
     public interface IStageSelectorData : IEntityData
     {
+        string StageContainerId { get; }
     }
 
     public interface IStageSelectorSavedData : IEntitySavedData
@@ -19,8 +22,10 @@ namespace Gameplay.Entities.Stage.StageSelector
         {
             return new StageSelector(this, new StageSelectorSavedData(this));
         }
+
+        [field: SerializeField, DataAssetIdSelector(typeof(ISimpleContainerData))] public string StageContainerId { get; private set; }
     }
-    
+
     [Serializable]
     public class StageSelectorSavedData : BaseEntitySavedData<IStageSelectorData>, IStageSelectorSavedData
     {

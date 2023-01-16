@@ -9,8 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: deca9b68f1c65f24a870fcd76be21360, type: 3}
-  m_Name: stage_selector
+  m_Script: {fileID: 11500000, guid: 4dab06dcb2e8f594c92da9dc948b7740, type: 3}
+  m_Name: stage_container
   m_EditorClassIdentifier: 
-  <Id>k__BackingField: stage_selector
-  <StageContainerId>k__BackingField: stage_container
+  <Id>k__BackingField: stage_container
+  componentAssets: []
+  loadAlongEntityIds:
+  - stage_1
+  - stage_2
+  - stage_3
+  - stage_4
+  - stage_5

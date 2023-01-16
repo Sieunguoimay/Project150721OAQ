@@ -45,32 +45,30 @@ namespace System
 
         public void StartGame()
         {
-            StartCoroutine(StartGameCoroutine());
+            StartGameCoroutine();
         }
 
-        private IEnumerator StartGameCoroutine()
+        private void StartGameCoroutine()
         {
-            yield return StartCoroutine(GenerateMatch(_stageSelector.SelectedStage));
-
-            _gameplay.StartNewMatch();
+            GenerateMatch(_stageSelector.SelectedStage, () =>
+            {
+                _gameplay.StartNewMatch();
+            });
         }
 
-        public IEnumerator GenerateMatch(IStage stage)
+        private void GenerateMatch(IStage stage, Action done)
         {
-            var done = false;
             _boardManager.CreateBoard(stage.Data.PlayerNum, stage.Data.TilesPerGroup);
 
             _playersManager.FillWithFakePlayers(stage.Data.PlayerNum);
             _playersManager.CreatePieceBench(_boardManager.Board);
 
-            _gameplay.Setup(_playersManager.Players, _boardManager.Board, _pieceManager, _interact);
+            _gameplay.Setup(_playersManager.Players, _boardManager.Board, _interact);
 
             _pieceManager.SpawnPieces(stage.Data.PlayerNum, stage.Data.TilesPerGroup, stage.Data.NumCitizensInTile);
-            _pieceManager.ReleasePieces(() => { done = true; }, _boardManager.Board);
+            _pieceManager.ReleasePieces(done, _boardManager.Board);
 
             _bambooFamily.BeginAnimSequence();
-
-            yield return new WaitUntil(() => done);
         }
 
         public void ClearGame()

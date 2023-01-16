@@ -32,6 +32,12 @@ namespace Gameplay.GameInteract
             ButtonContainer2.ShowButtons();
         }
 
+        public void ResetAll()
+        {
+            ButtonContainer.HideButtons();
+            ButtonContainer2.HideButtons();
+        }
+        
         private void SetButtonsPositionAndRotation(IReadOnlyList<Tile> optionTiles)
         {
             for (var i = 0; i < optionTiles.Count; i++)
@@ -49,7 +55,7 @@ namespace Gameplay.GameInteract
                 ButtonContainer2.ButtonViews[i].transform.rotation = tileRot;
             }
         }
-
+ 
         public class ButtonCommand : ButtonContainer.ButtonCommand
         {
             private IButtonContainer _buttonContainer2;

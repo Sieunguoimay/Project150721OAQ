@@ -6,6 +6,7 @@ namespace Gameplay.Entities.Stage
 {
     public interface IStage : IContainerEntity<IStageData, IStageSavedData>
     {
+        int Index { get; }
     }
 
     public class Stage : ContainerEntity<IStageData, IStageSavedData>, IStage
@@ -13,5 +14,8 @@ namespace Gameplay.Entities.Stage
         public Stage(IStageData data, IStageSavedData savedData) : base(data, savedData)
         {
         }
+
+        public void SetIndex(int index) => Index = index;
+        public int Index { get; private set; }
     }
 }

@@ -26,6 +26,7 @@ namespace Framework.Entities.Editor
         private bool _foldout;
         private readonly TemplateSet _templateSet = new();
         private bool _useContainerTemplate;
+
         private void OnEnable()
         {
             _templateSet.Setup("EntityScriptTemplate", "EntityDataScriptTemplate", "EntityManualViewScriptTemplate", "EntityViewScriptTemplate");
@@ -36,7 +37,7 @@ namespace Framework.Entities.Editor
             GUI.enabled = false;
             EditorGUILayout.ObjectField("Script", MonoScript.FromScriptableObject(this), typeof(EntityScriptCreator), false);
             GUI.enabled = true;
-            var useContainerTemplate = EditorGUILayout.Toggle("Use Container Template",_useContainerTemplate);
+            var useContainerTemplate = EditorGUILayout.Toggle("Use Container Template", _useContainerTemplate);
             GUI.enabled = false;
             if (_useContainerTemplate != useContainerTemplate)
             {
@@ -48,9 +49,11 @@ namespace Framework.Entities.Editor
                 }
                 else
                 {
-                    _templateSet.Setup("EntityScriptTemplate", "EntityDataScriptTemplate", "EntityManualViewScriptTemplate", "EntityViewScriptTemplate");
+                    _templateSet.Setup("EntityScriptTemplate", "EntityDataScriptTemplate",
+                        "EntityManualViewScriptTemplate", "EntityViewScriptTemplate");
                 }
             }
+
             _foldout = EditorGUILayout.Foldout(_foldout, "Templates", true);
             if (_foldout)
             {
@@ -131,17 +134,13 @@ namespace Framework.Entities.Editor
             public bool Create(string entityName, string physicalPath, string nameSpace, bool createManualView, bool createInjectableView)
             {
                 if (!CreateWithTemplate(GetTemplateAbsolutePath(_entityScriptTemplate), physicalPath, nameSpace,
-                    entityName, $"{entityName}.cs"))
-                    return false;
+                    entityName, $"{entityName}.cs")) return false;
                 if (!CreateWithTemplate(GetTemplateAbsolutePath(_entityDataScriptTemplate), physicalPath, nameSpace,
-                    entityName,
-                    $"{entityName}Data.cs")) return false;
-                if (!(createManualView && CreateWithTemplate(GetTemplateAbsolutePath(_entityManualViewScriptTemplate),
-                    physicalPath,
-                    nameSpace, entityName, $"{entityName}EntityManualView.cs"))) return false;
+                    entityName, $"{entityName}Data.cs")) return false;
+                if (createManualView && !CreateWithTemplate(GetTemplateAbsolutePath(_entityManualViewScriptTemplate),
+                    physicalPath, nameSpace, entityName, $"{entityName}EntityManualView.cs")) return false;
                 return createInjectableView && CreateWithTemplate(GetTemplateAbsolutePath(_entityViewScriptTemplate),
-                    physicalPath,
-                    nameSpace, entityName, $"{entityName}EntityView.cs");
+                    physicalPath, nameSpace, entityName, $"{entityName}EntityView.cs");
             }
         }
 

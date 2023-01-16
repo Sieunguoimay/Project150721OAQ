@@ -24,37 +24,40 @@ namespace Framework.Entities.Variable.Boolean
                 onFalse?.Invoke();
             }
         }
-    }
 #if UNITY_EDITOR
-    [CustomEditor(typeof(BooleanEntityManualView))]
-    public class BooleanEntityManualViewEditor : Editor
-    {
-        private bool _foldout;
-        private SerializedProperty _onTrue;
-        private SerializedProperty _onFalse;
+        [SerializeField] private bool foldout;
 
-        private void OnEnable()
+        [CustomEditor(typeof(BooleanEntityManualView))]
+        public class BooleanEntityManualViewEditor : Editor
         {
-            _onTrue = serializedObject.FindProperty("onTrue");
-            _onFalse = serializedObject.FindProperty("onFalse");
-        }
+            private SerializedProperty _onTrue;
+            private SerializedProperty _onFalse;
+            private SerializedProperty _foldout;
 
-        public override void OnInspectorGUI()
-        {
-            serializedObject.Update();
-            EditorGUI.BeginDisabledGroup(true);
-            EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour(target as MonoBehaviour), typeof(BooleanEntityManualView), false);
-            EditorGUI.EndDisabledGroup();
-
-            _foldout = EditorGUILayout.Foldout(_foldout, "Events", true);
-            if (_foldout)
+            private void OnEnable()
             {
-                EditorGUILayout.PropertyField(_onTrue);
-                EditorGUILayout.PropertyField(_onFalse);
+                _onTrue = serializedObject.FindProperty("onTrue");
+                _onFalse = serializedObject.FindProperty("onFalse");
+                _foldout = serializedObject.FindProperty("foldout");
             }
 
-            serializedObject.ApplyModifiedProperties();
+            public override void OnInspectorGUI()
+            {
+                serializedObject.Update();
+                EditorGUI.BeginDisabledGroup(true);
+                EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour(target as MonoBehaviour), typeof(BooleanEntityManualView), false);
+                EditorGUI.EndDisabledGroup();
+
+                _foldout.boolValue = EditorGUILayout.Foldout(_foldout.boolValue, "Events", true);
+                if (_foldout.boolValue)
+                {
+                    EditorGUILayout.PropertyField(_onTrue);
+                    EditorGUILayout.PropertyField(_onFalse);
+                }
+
+                serializedObject.ApplyModifiedProperties();
+            }
         }
-    }
 #endif
+    }
 }

@@ -9,8 +9,9 @@ namespace Framework.Entities.ContainerEntity
     public interface IContainerEntity<out TData, out TSavedData> : IEntity<TData, TSavedData>
         where TData : IContainerEntityData where TSavedData : IContainerEntitySavedData
     {
-        IEntity<IEntityData, IEntitySavedData>[] Components { get; }
-        void SetupInternal(IEntity<IEntityData, IEntitySavedData>[] components, IEnumerable<IEntity<IEntityData, IEntitySavedData>> loadAlongEntities);
+        IReadOnlyList<IEntity<IEntityData, IEntitySavedData>> Components { get; }
+        IReadOnlyList<IEntity<IEntityData, IEntitySavedData>> Children { get; }
+        void SetupInternal(IEntity<IEntityData, IEntitySavedData>[] components, IReadOnlyList<IEntity<IEntityData, IEntitySavedData>> loadAlongEntities);
     }
 
     public class ContainerEntity<TData, TSavedData> : BaseEntity<TData, TSavedData>, IContainerEntity<TData, TSavedData>
@@ -21,14 +22,15 @@ namespace Framework.Entities.ContainerEntity
         }
 
 
-        public IEntity<IEntityData, IEntitySavedData>[] Components { get; private set; }
-        private IEnumerable<IEntity<IEntityData, IEntitySavedData>> _loadAlongEntities;
+        public IReadOnlyList<IEntity<IEntityData, IEntitySavedData>> Components { get; private set; }
+        public IReadOnlyList<IEntity<IEntityData, IEntitySavedData>> Children { get; private set; }
+        
         private IEntityLoader _entityLoader;
 
-        public void SetupInternal(IEntity<IEntityData, IEntitySavedData>[] components, IEnumerable<IEntity<IEntityData, IEntitySavedData>> loadAlongEntities)
+        public void SetupInternal(IEntity<IEntityData, IEntitySavedData>[] components, IReadOnlyList<IEntity<IEntityData, IEntitySavedData>> loadAlongEntities)
         {
             Components = components;
-            _loadAlongEntities = loadAlongEntities;
+            Children = loadAlongEntities;
         }
 
         public override void Inject(IResolver resolver)
@@ -59,7 +61,7 @@ namespace Framework.Entities.ContainerEntity
                 component.Terminate();
             }
 
-            foreach (var la in _loadAlongEntities)
+            foreach (var la in Children)
             {
                 _entityLoader.DestroyEntity(la);
             }

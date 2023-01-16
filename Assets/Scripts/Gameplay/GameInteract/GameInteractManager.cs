@@ -39,6 +39,12 @@ namespace Gameplay.GameInteract
             actionChooser.SetupOtherCommands();
         }
 
+        public void ResetAll()
+        {
+            tileChooser.ResetAll();
+            actionChooser.HideAway();
+        }
+
         public static void NotifyTilesAdapters(Tile tile, bool selected)
         {
             var selectionAdaptors = tile.GetSelectionAdaptors();

@@ -1,13 +1,11 @@
-﻿using System;
-using Framework.Resolver;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Gameplay
+namespace Gameplay.Camera
 {
     public class CameraManager : MonoControlUnitBase<CameraManager>
     {
-        private Camera _camera = null;
-        public Camera Camera => _camera ? _camera : _camera = GetComponent<Camera>();
+        private UnityEngine.Camera _camera = null;
+        public UnityEngine.Camera Camera => _camera ? _camera : _camera = GetComponent<UnityEngine.Camera>();
         
 
 #if UNITY_EDITOR
@@ -40,7 +38,7 @@ namespace Gameplay
             }
         }
 
-        public static Vector3[] GetFarPlaneCorners(Camera camera)
+        public static Vector3[] GetFarPlaneCorners(UnityEngine.Camera camera)
         {
             var camTransform = camera.transform;
             var farClipPlane = camera.farClipPlane;

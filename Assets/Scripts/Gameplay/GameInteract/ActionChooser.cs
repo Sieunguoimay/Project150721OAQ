@@ -32,6 +32,10 @@ namespace Gameplay.GameInteract
             buttonContainer.ShowButtons();
         }
 
+        public void HideAway()
+        {
+            buttonContainer.HideButtons();
+        }
         private class CancelActionChooserCommand : ButtonContainer.ButtonCommand
         {
             private readonly GameInteractManager _interact;

@@ -1,5 +1,4 @@
-﻿using Framework.Entities;
-using Framework.Entities.ContainerEntity;
+﻿using Framework.Entities.ContainerEntity;
 
 namespace #NAMESPACE#
 {
@@ -9,8 +8,8 @@ namespace #NAMESPACE#
 
     public class #SCRIPTNAME# : ContainerEntity<I#SCRIPTNAME#Data, I#SCRIPTNAME#SavedData>, I#SCRIPTNAME#
     {
-        public #SCRIPTNAME#(I#SCRIPTNAME#Data data, I#SCRIPTNAME#SavedData savedData, IEntity<IEntityData, IEntitySavedData>[] components) 
-            : base(data, savedData, components)
+        public #SCRIPTNAME#(I#SCRIPTNAME#Data data, I#SCRIPTNAME#SavedData savedData) 
+            : base(data, savedData)
         {
         }
     }

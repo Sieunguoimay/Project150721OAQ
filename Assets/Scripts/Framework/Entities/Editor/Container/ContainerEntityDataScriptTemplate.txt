@@ -16,16 +16,16 @@ namespace #NAMESPACE#
     [CreateAssetMenu(menuName = "Entity/#SCRIPTNAME#Data")]
     public class #SCRIPTNAME#Data : ContainerEntityData<I#SCRIPTNAME#>, I#SCRIPTNAME#Data
     {
-        protected override IEntity<IEntityData, IEntitySavedData> CreateContainerEntityInternal(IEntity<IEntityData, IEntitySavedData>[] components, IEntitySavedData[] savedDataItems)
+        protected override IEntity<IEntityData, IEntitySavedData> CreateContainerEntityInternal()
         {
-            return new #SCRIPTNAME#(this, new #SCRIPTNAME#SavedData(this, savedDataItems), components);
+            return new #SCRIPTNAME#(this, new #SCRIPTNAME#SavedData(this));
         }
     }
 
     [Serializable]
     public class #SCRIPTNAME#SavedData : ContainerEntitySavedData<I#SCRIPTNAME#Data>, I#SCRIPTNAME#SavedData
     {
-        public #SCRIPTNAME#SavedData(I#SCRIPTNAME#Data data, IEntitySavedData[] componentSavedDataItems) : base(data, componentSavedDataItems)
+        public #SCRIPTNAME#SavedData(I#SCRIPTNAME#Data data) : base(data)
         {
         }
     }

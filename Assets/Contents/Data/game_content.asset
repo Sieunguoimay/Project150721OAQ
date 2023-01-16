@@ -16,11 +16,7 @@ MonoBehaviour:
   componentAssets: []
   loadAlongEntityIds:
   - magic_flower
-  - stage_1
-  - stage_2
-  - stage_3
-  - stage_4
-  - stage_5
+  - stage_container
   - stage_selector
   - game_play_runner
   - game_currency

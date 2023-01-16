@@ -25,7 +25,6 @@ namespace System
 
         private Player[] _players;
         private Board _board;
-        private PieceManager _pieceManager;
         private GameInteractManager _interact;
 
         private Player CurrentPlayer { get; set; }
@@ -35,12 +34,10 @@ namespace System
 
         public ActivityQueue ActivityQueue { get; } = new();
 
-        public void Setup(Player[] players, Board board, PieceManager pieceManager,
-            GameInteractManager interactManager)
+        public void Setup(Player[] players, Board board, GameInteractManager interactManager)
         {
             _board = board;
             _players = players;
-            _pieceManager = pieceManager;
             _interact = interactManager;
 
             _dropper.SetBoard(_board);
@@ -65,6 +62,7 @@ namespace System
             _dropper.ClearHoldingPieces();
             _eater.Cleanup();
             CurrentPlayer = null;
+            _interact.ResetAll();
         }
 
         #region PRIVATE_METHODS
