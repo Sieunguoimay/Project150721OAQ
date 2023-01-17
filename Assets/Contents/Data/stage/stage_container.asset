@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4dab06dcb2e8f594c92da9dc948b7740, type: 3}
+  m_Script: {fileID: 11500000, guid: 24a71896bfd9b6540aa72d4c3120d8e7, type: 3}
   m_Name: stage_container
   m_EditorClassIdentifier: 
   <Id>k__BackingField: stage_container

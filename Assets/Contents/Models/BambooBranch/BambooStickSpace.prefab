@@ -152,7 +152,7 @@ Transform:
   m_GameObject: {fileID: 5671317843080482682}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8309504978036155935}
@@ -375,18 +375,6 @@ PrefabInstance:
     - target: {fileID: 5627999791151368957, guid: 814ea5592efaedd4c9d3f51bf3053222, type: 3}
       propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
-    - target: {fileID: 8348238817051730411, guid: 814ea5592efaedd4c9d3f51bf3053222, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8348238817051730411, guid: 814ea5592efaedd4c9d3f51bf3053222, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8348238817051730411, guid: 814ea5592efaedd4c9d3f51bf3053222, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 814ea5592efaedd4c9d3f51bf3053222, type: 3}

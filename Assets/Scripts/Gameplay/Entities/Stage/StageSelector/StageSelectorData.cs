@@ -8,7 +8,6 @@ namespace Gameplay.Entities.Stage.StageSelector
 {
     public interface IStageSelectorData : IEntityData
     {
-        string StageContainerId { get; }
     }
 
     public interface IStageSelectorSavedData : IEntitySavedData
@@ -22,8 +21,6 @@ namespace Gameplay.Entities.Stage.StageSelector
         {
             return new StageSelector(this, new StageSelectorSavedData(this));
         }
-
-        [field: SerializeField, DataAssetIdSelector(typeof(ISimpleContainerData))] public string StageContainerId { get; private set; }
     }
 
     [Serializable]

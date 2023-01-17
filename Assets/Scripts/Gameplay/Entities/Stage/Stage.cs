@@ -7,6 +7,7 @@ namespace Gameplay.Entities.Stage
     public interface IStage : IContainerEntity<IStageData, IStageSavedData>
     {
         int Index { get; }
+        void SetIndex(int index);
     }
 
     public class Stage : ContainerEntity<IStageData, IStageSavedData>, IStage
