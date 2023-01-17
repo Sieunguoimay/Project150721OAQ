@@ -10,92 +10,45 @@ namespace Test
 {
     public class TestMain : MonoBehaviour
     {
-        [SerializeField, Range(-360, 360)] private float localEulerAngleX;
-        [SerializeField, Range(-360, 360)] private float localEulerAngleY;
-        [SerializeField, Range(-360, 360)] private float localEulerAngleZ;
+        [NonSerialized] private int _counter;
 
-        [SerializeField, Range(-10, 10)] private float quaternionX;
-        [SerializeField, Range(-10, 10)] private float quaternionY;
-        [SerializeField, Range(-10, 10)] private float quaternionZ;
-        [SerializeField, Range(-10, 10)] private float quaternionW;
-
-        private void OnValidate()
+        [ContextMenu("Test")]
+        private void Test()
         {
-            // transform.localEulerAngles = new Vector3(localEulerAngleX, localEulerAngleY, localEulerAngleZ);
-            // transform.rotation = ToQuaternion(Mathf.Deg2Rad * localEulerAngleX, Mathf.Deg2Rad * localEulerAngleY, Mathf.Deg2Rad * localEulerAngleZ);
-            transform.rotation = Quaternion.Euler(Vector3.right * localEulerAngleX);
+            var enumerator = GetIntegerEnumerator();
+            MyStartCoroutine(enumerator);
         }
 
-        // private PathMover _pathMover;
-        //
-        // private void Start()
-        // {
-        //     _pathMover = (new GameObject(nameof(PathMover))).AddComponent<PathMover>();
-        //     GameObject.CreatePrimitive(PrimitiveType.Cube).transform.SetParent(_pathMover.transform);
-        // }
-        //
-        // private void Update()
-        // {
-        //     if (Input.GetKeyDown(KeyCode.Return))
-        //     {
-        //         Test();
-        //     }
-        // }
-        //
-        // [ContextMenu("Test")]
-        // private void Test()
-        // {
-        //     _pathMover.transform.position = Vector3.zero;
-        //     _pathMover.FlyTo(Vector3.one * 5f);
-        // }
-        //
-        // [ContextMenu("Test2")]
-        // private void Test2()
-        // {
-        //     _pathMover.transform.position = UnityEngine.Random.insideUnitSphere * 5f;
-        //     _pathMover.SetPath(GetComponent<Path>());
-        // }
-
-
-        Quaternion ToQuaternion(float roll, float pitch, float yaw) // roll (x), pitch (Y), yaw (z)
+        private void MyStartCoroutine(IEnumerator<int> enumerator)
         {
-            // Abbreviations for the various angular functions
+            // while (enumerator.MoveNext())
+            // {
+            //     Debug.Log(enumerator.Current);
+            // }
 
-            var cr = Mathf.Cos(roll * 0.5f);
-            var sr = Mathf.Sin(roll * 0.5f);
-            var cp = Mathf.Cos(pitch * 0.5f);
-            var sp = Mathf.Sin(pitch * 0.5f);
-            var cy = Mathf.Cos(yaw * 0.5f);
-            var sy = Mathf.Sin(yaw * 0.5f);
-
-            Quaternion q;
-            q.w = cr * cp * cy + sr * sp * sy;
-            q.x = sr * cp * cy - cr * sp * sy;
-            q.y = cr * sp * cy + sr * cp * sy;
-            q.z = cr * cp * sy - sr * sp * cy;
-
-            return q;
+            foreach (var a in this)
+            {
+                Debug.Log(a);
+            }
         }
 
-        [field: System.NonSerialized] public UnityEvent<int> EventTrigger { get; private set; } = new();
-        public IReadOnlyList<string> Filters => new[] {"static", "progress", "state"};
-
-        [ContextMenu("Trigger a")]
-        private void TriggerA()
+        public IEnumerator<int> GetEnumerator()
         {
-            EventTrigger.Invoke(1);
+            return GetIntegerEnumerator();
         }
 
-        public void A()
+        public IEnumerator<int> GetIntegerEnumerator()
         {
-        }
+            Debug.Log("Hello kitty " + _counter++);
+            yield return 1;
+            Debug.Log("Hello kitty " + _counter++);
+            yield return 2;
+            Debug.Log("Hello kitty " + _counter++);
+            yield return 3;
+            Debug.Log("Hello kitty " + _counter++);
+            yield return 5;
+            Debug.Log("Hello kitty " + _counter++);
 
-        public void A(int a)
-        {
-            Debug.Log($"Well {a}");
         }
-
-        public int B { get; } = 10;
-        public int BB { get; set; } = 100;
     }
 }

@@ -40,11 +40,6 @@ namespace Common.UnityExtend.Rendering
     public class ShaderInstancePropertySetter : MonoBehaviour
     {
         [SerializeField] private MeshRenderer target;
-        //
-        // [SerializeField, StringSelector(nameof(PropertyNames))]
-        // private string propName;
-        //
-        // [SerializeField] private float value;
 
         [SerializeField] private Item[] items;
 
