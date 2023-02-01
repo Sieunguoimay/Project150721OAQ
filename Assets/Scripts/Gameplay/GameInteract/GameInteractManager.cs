@@ -12,10 +12,10 @@ namespace Gameplay.GameInteract
         [SerializeField] private TileChooser tileChooser;
         [SerializeField] private ActionChooser actionChooser;
 
-        private Tile[] _tiles;
+        private ITile[] _tiles;
         private BoardManager _boardManager;
         private TileChooser.ButtonCommand[] _choosingTileCommands;
-        [field: System.NonSerialized] public Tile ChosenTile { get; private set; }
+        [field: System.NonSerialized] public ITile ChosenTile { get; private set; }
 
         protected override void OnInject(IResolver resolver)
         {
@@ -24,7 +24,7 @@ namespace Gameplay.GameInteract
 
         public void SetupInteract(Board.Board.BoardSide boardSide, MoveButtonCommand left, MoveButtonCommand right)
         {
-            _tiles = _boardManager.Board.Tiles.Where(st => boardSide.CitizenTiles.Contains(st) && st.PiecesContainer.Count > 0)
+            _tiles = _boardManager.Board.Tiles.Where(st => boardSide.CitizenTiles.Contains(st) && st.HeldPieces.Count > 0)
                 .ToArray();
 
             _choosingTileCommands = new TileChooser.ButtonCommand[_tiles.Length];
@@ -45,7 +45,7 @@ namespace Gameplay.GameInteract
             actionChooser.HideAway();
         }
 
-        public static void NotifyTilesAdapters(Tile tile, bool selected)
+        public static void NotifyTilesAdapters(ITile tile, bool selected)
         {
             var selectionAdaptors = tile.GetSelectionAdaptors();
             foreach (var sa in selectionAdaptors)
@@ -57,9 +57,9 @@ namespace Gameplay.GameInteract
             }
         }
 
-        public void ShowDirectionChooserForTile(Tile tile)
+        public void ShowDirectionChooserForTile(ITile tile)
         {
-            var tileTransform = tile.transform;
+            var tileTransform = tile.Transform;
             var tileRotation = tileTransform.rotation;
             var pos = tileTransform.position + tileRotation * Vector3.forward * tile.Size;
             var t = actionChooser.transform;
@@ -83,9 +83,9 @@ namespace Gameplay.GameInteract
         {
             private GameInteractManager _interact;
             private ActionChooser _actionChooser;
-            private Tile _tile;
+            private ITile _tile;
 
-            public ButtonCommandChoosingTile Setup(ActionChooser actionChooser, GameInteractManager interact, Tile tile)
+            public ButtonCommandChoosingTile Setup(ActionChooser actionChooser, GameInteractManager interact, ITile tile)
             {
                 _actionChooser = actionChooser;
                 _interact = interact;
@@ -137,13 +137,13 @@ namespace Gameplay.GameInteract
             {
                 base.Execute();
                 _interact.HideTileChooser();
-                if (_interact.ChosenTile)
+                if (_interact.ChosenTile != null)
                 {
                     Move(_interact.ChosenTile, _forward);
                 }
             }
 
-            protected abstract void Move(Tile tile, bool forward);
+            protected abstract void Move(ITile tile, bool forward);
         }
     }
 }

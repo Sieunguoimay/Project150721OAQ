@@ -7,9 +7,21 @@ using UnityEngine.Playables;
 
 namespace Gameplay.Piece
 {
-    public class Piece : MonoBehaviour
+    public interface IPiece
+    {
+        PieceType PieceType { get; }
+    }
+
+    public enum PieceType
+    {
+        Citizen,
+        Mandarin
+    }
+
+    public class Piece : MonoBehaviour, IPiece
     {
         [SerializeField] private Vector3 size;
+
         [SerializeField] private ActivityFlocking.ConfigData flockingConfigData = new()
         {
             maxSpeed = 3f,
@@ -20,24 +32,19 @@ namespace Gameplay.Piece
 
         [SerializeField] private PieceType pieceType;
 
-        [field: NonSerialized] public ActivityQueue ActivityQueue { get; } = new();
+        private readonly ActivityQueue _activityQueue = new();
+        public IActivityQueue ActivityQueue => _activityQueue;
         public virtual Animator Animator => null;
         public virtual PlayableDirector JumpTimeline => null;
         public ActivityFlocking.ConfigData FlockingConfigData => flockingConfigData;
-        public PieceType Type => pieceType;
+        public PieceType PieceType => pieceType;
 
         private void Update()
         {
-            ActivityQueue?.Update(Time.deltaTime);
+            _activityQueue.Update(Time.deltaTime);
         }
 
 
-        public enum PieceType
-        {
-            Citizen,
-            Mandarin
-        }
-        
 #if UNITY_EDITOR
 
         private void OnDrawGizmos()

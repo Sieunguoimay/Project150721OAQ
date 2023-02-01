@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-namespace Gameplay
+namespace Gameplay.Piece
 {
     [SelectionBase]
-    public class Mandarin : Piece.Piece
+    public class Mandarin : Piece
     {
     }
 }

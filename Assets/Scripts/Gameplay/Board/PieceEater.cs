@@ -36,15 +36,15 @@ namespace Gameplay.Board
             }
         }
 
-        public void EatRecursively(Tile tile)
+        public void EatRecursively(ITile tile)
         {
-            var eatable = tile.PiecesContainer.Count == 0 && tile.TargetPieceType != Piece.Piece.PieceType.Mandarin &&
-                          _board.GetSuccessTile(tile, _forward).PiecesContainer.Count > 0;
+            var eatable = tile.HeldPieces.Count == 0 && tile.TargetPieceType != Piece.PieceType.Mandarin &&
+                          _board.GetSuccessTile(tile, _forward).HeldPieces.Count > 0;
             if (eatable)
             {
                 var successTile = _board.GetSuccessTile(tile, _forward);
 
-                EatPieces(successTile.PiecesContainer);
+                EatPieces(successTile);
 
                 _coroutine = PublicExecutor.Instance.Delay(0.2f, () =>
                 {
@@ -58,24 +58,26 @@ namespace Gameplay.Board
             }
         }
 
-        private void EatPieces(List<Piece.Piece> pieces)
+        private void EatPieces(IPieceContainer pieceContainer)
         {
+            var pieces = pieceContainer.HeldPieces ;
             var n = pieces.Count;
 
             var positions = new Vector3[n];
             var centerPoint = Vector3.zero;
-            var startIndex = _bench.Pieces.Count;
+            var startIndex = _bench.HeldPieces.Count;
             for (var i = 0; i < n; i++)
             {
                 _bench.GetPosAndRot(startIndex + i, out var pos, out var rot);
                 positions[i] = pos;
                 centerPoint += positions[i];
-                _bench.Pieces.Add(pieces[i]);
+                _bench.AddPiece(pieces[i]);
             }
 
             centerPoint /= n;
-
-            pieces.Sort((a, b) =>
+            
+            // pieces.Sort((a, b) =>
+            pieceContainer.Sort((a, b) =>
             {
                 var da = Vector3.SqrMagnitude(centerPoint - a.transform.position);
                 var db = Vector3.SqrMagnitude(centerPoint - b.transform.position);
@@ -96,7 +98,7 @@ namespace Gameplay.Board
                 pieces[i].ActivityQueue.Begin();
             }
 
-            pieces.Clear();
+            pieceContainer.Clear();
         }
     }
 }

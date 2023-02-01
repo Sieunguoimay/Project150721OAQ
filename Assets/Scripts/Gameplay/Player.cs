@@ -17,7 +17,7 @@ namespace Gameplay
 
         public virtual void ResetAll()
         {
-            PieceBench.Pieces.Clear();
+            PieceBench.Clear();
         }
 
         public virtual void ReleaseTurn()

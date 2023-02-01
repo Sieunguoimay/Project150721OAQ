@@ -4,7 +4,13 @@ using System.Linq;
 
 namespace Common.Activity
 {
-    public class Activity
+    public interface IActivity
+    {
+        void Begin();
+        void End();
+    }
+
+    public class Activity : IActivity
     {
         public virtual bool Inactive { get; protected set; } = true;
         public event Action<EventArgs> Done;
@@ -34,7 +40,7 @@ namespace Common.Activity
         }
     }
 
-    public interface IActivityQueue
+    public interface IActivityQueue : IActivity
     {
         IReadOnlyCollection<Activity> Activities { get; }
         void Add(Activity activity);

@@ -51,12 +51,12 @@ namespace Gameplay.Piece
                     for (var i = 0; i < 5; i++)
                     {
                         var p = Pieces[index];
-                        if (p.Type == Piece.PieceType.Citizen)
+                        if (p.PieceType == PieceType.Citizen)
                         {
-                            t.PiecesContainer.Add(p);
+                            t.AddPiece(p);
 
                             var delay = i * 0.1f;
-                            var position = t.GetPositionInFilledCircle(Mathf.Max(0, t.PiecesContainer.Count - 1));
+                            var position = t.GetPositionInFilledCircle(Mathf.Max(0, t.HeldPieces.Count - 1));
 
                             p.ActivityQueue.Add(new ActivityAnimation(p.Animator, LegHashes.sit_down));
                             p.ActivityQueue.Add(delay > 0 ? new ActivityDelay(delay) : null);
@@ -68,7 +68,7 @@ namespace Gameplay.Piece
                         else
                         {
                             p.transform.position = tg.MandarinTile.GetPositionInFilledCircle(0);
-                            tg.MandarinTile.PiecesContainer.Add(Pieces[index]);
+                            tg.MandarinTile.AddPiece(Pieces[index]);
                             i--;
                         }
 

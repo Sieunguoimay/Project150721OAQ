@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using Gameplay.Board;
 using Gameplay.Piece;
 using SNM;
 using UnityEngine;
 
 namespace Gameplay
 {
-    public class PieceBench : MonoBehaviour
+    public class PieceBench : MonoBehaviour, IPieceContainer
     {
-        public List<Piece.Piece> Pieces { get; } = new();
+        private readonly List<Piece.Piece> _pieces = new();
 
         private float _spacing;
         private int _perRow;
@@ -31,6 +32,31 @@ namespace Gameplay
             var offsetY = _spacing * y;
             pos = t.position + dirX * offsetX + dirY * offsetY;
             rot = rotation1;
+        }
+
+        public IReadOnlyList<Piece.Piece> HeldPieces => _pieces;
+
+        public void AddPiece(Piece.Piece piece)
+        {
+            _pieces.Add(piece);
+        }
+
+        public void RemoveLast()
+        {
+            if (_pieces.Count > 0)
+            {
+                _pieces.RemoveAt(_pieces.Count - 1);
+            }
+        }
+
+        public void Sort(Comparison<Piece.Piece> comparison)
+        {
+            _pieces.Sort(comparison);
+        }
+
+        public void Clear()
+        {
+            _pieces.Clear();
         }
     }
 }

@@ -1,25 +1,61 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gameplay.Piece;
 using UnityEngine;
 
 namespace Gameplay.Board
 {
+    public interface ITile : IPieceContainer
+    {
+        float Size { get; }
+        IEnumerable<ISelectionAdaptor> GetSelectionAdaptors();
+        Vector3 GetPositionInFilledCircle(int index, bool local = false, float space = 0.15f);
+        Transform Transform { get; }
+        PieceType TargetPieceType { get; }
+    }
+
     [SelectionBase]
-    public class Tile : MonoBehaviour, IPieceContainer
+    public class Tile : MonoBehaviour, ITile
     {
         [SerializeField] private float size;
-        [SerializeField] private Piece.Piece.PieceType targetPieceType;
+        [SerializeField] private PieceType targetPieceType;
 
         public float Size => size;
-        public List<Piece.Piece> PiecesContainer { get; } = new();
+        private readonly List<Piece.Piece> _heldPieces = new();
+        public IReadOnlyList<Piece.Piece> HeldPieces => _heldPieces;
+
+        public void AddPiece(Piece.Piece piece)
+        {
+            _heldPieces.Add(piece);
+        }
+
+        public void RemoveLast()
+        {
+            if (_heldPieces.Count > 0)
+            {
+                _heldPieces.RemoveAt(_heldPieces.Count - 1);
+            }
+        }
+
+        public void Sort(Comparison<Piece.Piece> comparison)
+        {
+            _heldPieces.Sort(comparison);
+        }
+
+        public void Clear()
+        {
+            _heldPieces.Clear();
+        }
 
         private const int MaxPiecesSupported = 50;
         private Vector2Int[] _reservedPoints;
+        private List<Piece.Piece> _heldPieces1;
 
-        public Piece.Piece.PieceType TargetPieceType => targetPieceType;
+        public PieceType TargetPieceType => targetPieceType;
+
         public IEnumerable<ISelectionAdaptor> GetSelectionAdaptors() =>
-            PiecesContainer.Where(p => p is Citizen)
+            HeldPieces.Where(p => p is Citizen)
                 .Select(p => new CitizenToTileSelectorAdaptor(p as Citizen));
 
         public void RuntimeSetup()
@@ -37,6 +73,8 @@ namespace Gameplay.Board
             var pos = new Vector3(_reservedPoints[index].x, 0, _reservedPoints[index].y) * space;
             return local ? pos : transform.TransformPoint(pos);
         }
+
+        public Transform Transform => transform;
 
         private static Vector2Int[] ReservePositionsInFilledCircle(int num)
         {

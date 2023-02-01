@@ -20,7 +20,7 @@ namespace Gameplay.GameInteract
         public IButtonContainer ButtonContainer => buttonContainer as IButtonContainer;
         public IButtonContainer ButtonContainer2 => buttonContainer2 as IButtonContainer;
 
-        public void ChooseTile(Tile[] tiles, ButtonCommand[] commands)
+        public void ChooseTile(ITile[] tiles, ButtonCommand[] commands)
         {
             var bd = commands.Select(c => new ButtonData(c.SetButtonContainer2(ButtonContainer2).SetContainer(ButtonContainer), new ButtonDisplayInfoSpecialAction())).ToArray();
 
@@ -38,18 +38,18 @@ namespace Gameplay.GameInteract
             ButtonContainer2.HideButtons();
         }
         
-        private void SetButtonsPositionAndRotation(IReadOnlyList<Tile> optionTiles)
+        private void SetButtonsPositionAndRotation(IReadOnlyList<ITile> optionTiles)
         {
             for (var i = 0; i < optionTiles.Count; i++)
             {
-                var tilePos = optionTiles[i].transform.position;
-                var tileRot = optionTiles[i].transform.rotation;
-                var pos = tilePos + optionTiles[i].transform.forward * optionTiles[i].Size;
+                var tilePos = optionTiles[i].Transform.position;
+                var tileRot = optionTiles[i].Transform.rotation;
+                var pos = tilePos + optionTiles[i].Transform.forward * optionTiles[i].Size;
 
                 ButtonContainer.ButtonViews[i].transform.position = pos;
                 ButtonContainer.ButtonViews[i].transform.rotation = tileRot;
                 ButtonContainer.ButtonViews[i].Display
-                    .SetDisplayInfo(new ButtonDisplayInfoText($"{optionTiles[i].PiecesContainer.Count}"));
+                    .SetDisplayInfo(new ButtonDisplayInfoText($"{optionTiles[i].HeldPieces.Count}"));
 
                 ButtonContainer2.ButtonViews[i].transform.position = tilePos;
                 ButtonContainer2.ButtonViews[i].transform.rotation = tileRot;

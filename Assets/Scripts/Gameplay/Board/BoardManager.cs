@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Gameplay.Piece;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Gameplay.Board
 {
@@ -16,7 +12,7 @@ namespace Gameplay.Board
         {
             foreach (var tile in Board.Tiles)
             {
-                Destroy(tile.gameObject);
+                Destroy(tile.Transform.gameObject);
             }
 
             Board = null;
