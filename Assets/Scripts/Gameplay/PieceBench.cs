@@ -9,7 +9,7 @@ namespace Gameplay
 {
     public class PieceBench : MonoBehaviour, IPieceContainer
     {
-        private readonly List<Piece.Piece> _pieces = new();
+        private readonly List<IPiece> _pieces = new();
 
         private float _spacing;
         private int _perRow;
@@ -34,9 +34,9 @@ namespace Gameplay
             rot = rotation1;
         }
 
-        public IReadOnlyList<Piece.Piece> HeldPieces => _pieces;
+        public IReadOnlyList<IPiece> HeldPieces => _pieces;
 
-        public void AddPiece(Piece.Piece piece)
+        public void AddPiece(IPiece piece)
         {
             _pieces.Add(piece);
         }
@@ -49,7 +49,7 @@ namespace Gameplay
             }
         }
 
-        public void Sort(Comparison<Piece.Piece> comparison)
+        public void Sort(Comparison<IPiece> comparison)
         {
             _pieces.Sort(comparison);
         }

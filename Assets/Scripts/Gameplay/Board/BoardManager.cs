@@ -4,8 +4,8 @@ namespace Gameplay.Board
 {
     public class BoardManager : MonoControlUnitBase<BoardManager>
     {
-        [SerializeField] private Tile mandarinTilePrefab;
-        [SerializeField] private Tile citizenTilePrefab;
+        [SerializeField] private MandarinTile mandarinTilePrefab;
+        [SerializeField] private CitizenTile citizenTilePrefab;
         [field: System.NonSerialized] public Board Board { get; private set; }
 
         public void DeleteBoard()

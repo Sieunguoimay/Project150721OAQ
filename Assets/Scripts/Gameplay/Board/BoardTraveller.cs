@@ -1,45 +1,54 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace Gameplay.Board
 {
-    public class BoardTraveller
+    public class BoardTraveller : IEnumerator<ITile>
     {
-        private int _steps;
         private int _stepCount = -1;
         private int _spaceSize;
-        public int CurrentIndex { get; private set; } = -1;
+        private int _currentIndex = -1;
+        private bool _forward;
 
-        public void Start(int startIndex, int steps, int spaceSize)
+        private Board _board;
+
+        public ITile Current => _currentIndex < 0 ? null : _board.Tiles[_currentIndex];
+        object IEnumerator.Current => Current;
+
+
+        public void Init(Board board, int startIndex, int spaceSize, bool forward)
         {
-            CurrentIndex = startIndex;
+            _board = board;
+            _currentIndex = startIndex;
             _spaceSize = spaceSize;
-            _steps = steps;
             _stepCount = 0;
+            _forward = forward;
         }
 
-        public void Next(bool forward)
+        public bool MoveNext()
         {
-            var isTravelling = _stepCount >= 0 && _stepCount < _steps;
-
-            if (!isTravelling)
-            {
-                Debug.Log("Bug... " + _stepCount + " " + _steps);
-                return;
-            }
-
             _stepCount++;
+            _currentIndex = MoveNext(_currentIndex, _spaceSize, _forward);
+            return true;
+        }
 
-            CurrentIndex = MoveNext(CurrentIndex, _spaceSize, forward); 
+        public void Dispose()
+        {
         }
 
         public void Reset()
         {
-            CurrentIndex = -1;
+            _currentIndex = -1;
         }
 
-        public static int MoveNext(int indexInSpace, int spaceSize, bool forward)
+        public int GetIndexAtStep(int step, bool forward)
         {
-            return Mod(forward ? indexInSpace + 1 : indexInSpace - 1, spaceSize);
+            return MoveNext(_currentIndex, _spaceSize, forward, step);
+        }
+
+        public static int MoveNext(int indexInSpace, int spaceSize, bool forward, int step = 1)
+        {
+            return Mod(forward ? indexInSpace + step : indexInSpace - step, spaceSize);
         }
 
         private static int Mod(int x, int m)

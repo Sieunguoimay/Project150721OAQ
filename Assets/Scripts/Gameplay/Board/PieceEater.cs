@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using Common;
-using Common.Activity;
-using Gameplay.Piece.Activities;
+using Gameplay.Piece;
 using SNM;
 using UnityEngine;
 
@@ -38,18 +36,20 @@ namespace Gameplay.Board
 
         public void EatRecursively(ITile tile)
         {
-            var eatable = tile.HeldPieces.Count == 0 && tile.TargetPieceType != Piece.PieceType.Mandarin &&
-                          _board.GetSuccessTile(tile, _forward).HeldPieces.Count > 0;
+            var eatable = tile.HeldPieces.Count == 0
+                          && tile is not IMandarinTile
+                          && Board.GetSuccessTile(_board.Tiles, tile, _forward).HeldPieces.Count > 0;
             if (eatable)
             {
-                var successTile = _board.GetSuccessTile(tile, _forward);
+                var successTile = Board.GetSuccessTile(_board.Tiles, tile, _forward);
 
-                EatPieces(successTile);
+                EatCitizens(successTile);
+                if (successTile is IMandarinTile mt) EatMandarin(mt);
 
                 _coroutine = PublicExecutor.Instance.Delay(0.2f, () =>
                 {
                     _coroutine = null;
-                    EatRecursively(_board.GetSuccessTile(successTile, _forward));
+                    EatRecursively(Board.GetSuccessTile(_board.Tiles, successTile, _forward));
                 });
             }
             else
@@ -58,44 +58,46 @@ namespace Gameplay.Board
             }
         }
 
-        private void EatPieces(IPieceContainer pieceContainer)
+        private void EatMandarin(IMandarinTile mandarinTile)
         {
-            var pieces = pieceContainer.HeldPieces ;
+            if (mandarinTile.Mandarin == null) return;
+
+            _bench.AddPiece(mandarinTile.Mandarin);
+            _bench.GetPosAndRot(_bench.HeldPieces.Count, out var pos, out var rot);
+            mandarinTile.Mandarin.Transform.position = pos;
+            mandarinTile.SetMandarin(null);
+        }
+
+        private void EatCitizens(IPieceContainer pieceContainer)
+        {
+            var pieces = pieceContainer.HeldPieces;
             var n = pieces.Count;
 
             var positions = new Vector3[n];
             var centerPoint = Vector3.zero;
-            var startIndex = _bench.HeldPieces.Count;
             for (var i = 0; i < n; i++)
             {
-                _bench.GetPosAndRot(startIndex + i, out var pos, out var rot);
+                _bench.GetPosAndRot(_bench.HeldPieces.Count + i, out var pos, out var rot);
                 positions[i] = pos;
-                centerPoint += positions[i];
+                centerPoint += pos;
                 _bench.AddPiece(pieces[i]);
             }
 
             centerPoint /= n;
-            
-            // pieces.Sort((a, b) =>
+
             pieceContainer.Sort((a, b) =>
             {
-                var da = Vector3.SqrMagnitude(centerPoint - a.transform.position);
-                var db = Vector3.SqrMagnitude(centerPoint - b.transform.position);
+                var da = Vector3.SqrMagnitude(centerPoint - a.Transform.position);
+                var db = Vector3.SqrMagnitude(centerPoint - b.Transform.position);
                 return da < db ? -1 : 1;
             });
 
             for (var i = 0; i < pieces.Count; i++)
             {
-                pieces[i].ActivityQueue.Add(i > 0 ? new ActivityDelay(i * 0.2f) : null);
-                pieces[i].ActivityQueue.Add(pieces[i].Animator
-                    ? new ActivityAnimation(pieces[i].Animator, LegHashes.stand_up)
-                    : null);
-                pieces[i].ActivityQueue.Add(new ActivityFlocking(pieces[i].FlockingConfigData, positions[i],
-                    pieces[i].transform, null));
-                pieces[i].ActivityQueue.Add(pieces[i].Animator
-                    ? new ActivityAnimation(pieces[i].Animator, LegHashes.sit_down)
-                    : null);
-                pieces[i].ActivityQueue.Begin();
+                if (pieces[i] is ICitizen citizen)
+                {
+                    citizen.CitizenMove.StraightMove(positions[i], i * 0.2f);
+                }
             }
 
             pieceContainer.Clear();

@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using Common.Activity;
-using Framework.Resolver;
-using Gameplay.Entities.Stage.StageSelector;
 using Gameplay.Piece.Activities;
 using UnityEngine;
 
@@ -9,72 +8,87 @@ namespace Gameplay.Piece
 {
     public class PieceManager : MonoControlUnitBase<PieceManager>
     {
-        [SerializeField] private Piece mandarinPrefab;
-        [SerializeField] private Piece citizenPrefab;
+        [SerializeField] private Mandarin mandarinPrefab;
+        [SerializeField] private Citizen citizenPrefab;
 
-        private Piece[] Pieces { get; set; }
+        private Mandarin[] _mandarins;
+        private Citizen[] _citizens;
+
+        private int _numCitizensPerTile;
+        private IEnumerable<Piece> AllPieces
+        {
+            get
+            {
+                foreach (var m in _mandarins)
+                {
+                    yield return m;
+                }
+
+                foreach (var c in _citizens)
+                {
+                    yield return c;
+                }
+            }
+        }
 
         public void DeletePieces()
         {
-            foreach (var p in Pieces)
+            foreach (var p in AllPieces)
             {
                 Destroy(p.gameObject);
             }
 
-            Pieces = null;
+            _mandarins = null;
+            _citizens = null;
         }
 
-        public void SpawnPieces(int groups, int tilesPerGroup, int numCitizen)
+        public void SpawnPieces(int groups, int tilesPerGroup, int numCitizens)
         {
-            Pieces = new Piece[groups * tilesPerGroup * 5 + groups];
-            var count = 0;
+            _numCitizensPerTile = numCitizens;
+            _mandarins = new Mandarin[groups];
+            _citizens = new Citizen[groups * tilesPerGroup * numCitizens];
             for (var i = 0; i < groups; i++)
             {
-                Pieces[count++] = Instantiate(mandarinPrefab, transform);
                 for (var j = 0; j < tilesPerGroup; j++)
                 {
-                    for (var k = 0; k < numCitizen; k++)
+                    for (var k = 0; k < numCitizens; k++)
                     {
-                        Pieces[count++] = Instantiate(citizenPrefab, transform);
+                        _citizens[i * tilesPerGroup * numCitizens + j * numCitizens + k] = Instantiate(citizenPrefab, transform);
                     }
                 }
+
+                _mandarins[i] = Instantiate(mandarinPrefab, transform);
             }
         }
 
         public void ReleasePieces(Action onAllInPlace, Board.Board board)
         {
-            var index = 0;
-            foreach (var tg in board.Sides)
+            for (var i = 0; i < board.Sides.Length; i++)
             {
-                foreach (var t in tg.CitizenTiles)
+                var tg = board.Sides[i];
+                var numTilesPerSide = tg.CitizenTiles.Length;
+                for (var j = 0; j < numTilesPerSide; j++)
                 {
-                    for (var i = 0; i < 5; i++)
+                    var ct = tg.CitizenTiles[j];
+                    for (var k = 0; k < _numCitizensPerTile; k++)
                     {
-                        var p = Pieces[index];
-                        if (p.PieceType == PieceType.Citizen)
-                        {
-                            t.AddPiece(p);
+                        var index = i * numTilesPerSide * _numCitizensPerTile + j * _numCitizensPerTile + k;
+                        var p = _citizens[index];
 
-                            var delay = i * 0.1f;
-                            var position = t.GetPositionInFilledCircle(Mathf.Max(0, t.HeldPieces.Count - 1));
+                        ct.AddPiece(p);
 
-                            p.ActivityQueue.Add(new ActivityAnimation(p.Animator, LegHashes.sit_down));
-                            p.ActivityQueue.Add(delay > 0 ? new ActivityDelay(delay) : null);
-                            p.ActivityQueue.Add(new ActivityFlocking(p.FlockingConfigData, position, p.transform,
-                                null));
-                            p.ActivityQueue.Add(index == Pieces.Length - 1 ? new ActivityCallback(onAllInPlace) : null);
-                            p.ActivityQueue.Begin();
-                        }
-                        else
-                        {
-                            p.transform.position = tg.MandarinTile.GetPositionInFilledCircle(0);
-                            tg.MandarinTile.AddPiece(Pieces[index]);
-                            i--;
-                        }
-
-                        index++;
+                        var delay = k * 0.1f;
+                        var position = ct.GetPositionInFilledCircle(Mathf.Max(0, ct.HeldPieces.Count - 1));
+                        p.ActivityQueue.Add(new ActivityAnimation(p.Animator, LegHashes.sit_down));
+                        p.ActivityQueue.Add(delay > 0 ? new ActivityDelay(delay) : null);
+                        p.ActivityQueue.Add(new ActivityFlocking(p.FlockingConfigData, position, p.transform, null));
+                        p.ActivityQueue.Add(index == _citizens.Length - 1 ? new ActivityCallback(onAllInPlace) : null);
+                        p.ActivityQueue.Begin();
                     }
                 }
+
+                _mandarins[i].transform.position = tg.MandarinTile.GetPositionInFilledCircle(0);
+                tg.MandarinTile.SetMandarin(_mandarins[i]);
             }
         }
     }

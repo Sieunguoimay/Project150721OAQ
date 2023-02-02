@@ -320,13 +320,13 @@ namespace Gameplay.Piece.Activities
 
     public class ActivityJumpTimeline : ActivityDelay
     {
-        private readonly Piece _p;
+        private readonly Citizen _p;
         private readonly Vector3 _target;
 
         private TransformControlTrack _jumping;
         private TransformControlTrack _facing;
 
-        public ActivityJumpTimeline(Piece p, Vector3 target) : base((float) p.JumpTimeline.duration)
+        public ActivityJumpTimeline(Citizen p, Vector3 target) : base((float) p.JumpTimeline.duration)
         {
             _p = p;
             _target = target;

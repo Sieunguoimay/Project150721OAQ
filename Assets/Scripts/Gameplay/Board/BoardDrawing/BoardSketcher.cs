@@ -60,8 +60,7 @@ namespace Gameplay.Board.BoardDrawing
 
         public DrawingSurface[] Surfaces => surfaces;
 
-        private static void GenerateSketch(Board.BoardMetadata boardMetadata, out Vector2[] points,
-            out (int, int)[] edges)
+        private static void GenerateSketch(BoardMetadata boardMetadata, out Vector2[] points, out (int, int)[] edges)
         {
             var polygon = boardMetadata.Polygon;
             var tilesPerGroup = boardMetadata.NumCitizenTilesPerSide;

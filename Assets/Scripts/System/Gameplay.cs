@@ -33,8 +33,6 @@ namespace System
             _board = board;
             _players = players;
             _interact = interactManager;
-
-            _dropper.SetBoard(_board);
             _eater.SetBoard(_board);
 
             IsPlaying = false;
@@ -53,7 +51,7 @@ namespace System
         {
             IsGameOver = false;
             IsPlaying = false;
-            (_dropper as IPieceContainer)?.Clear();
+            _dropper.Cleanup();
             _eater.Cleanup();
             CurrentPlayer = null;
             _interact.ResetAll();
@@ -88,13 +86,12 @@ namespace System
 
             protected override void Move(ITile tile, bool forward)
             {
-                _gameplay._dropper.Take(tile, tile.HeldPieces.Count);
+                _gameplay._dropper.Take(_gameplay._board, tile, tile.HeldPieces.Count);
                 _gameplay._dropper.SetMoveStartPoint(Array.IndexOf(_gameplay._board.Tiles, tile), forward);
                 _gameplay._dropper.DropTillDawn(lastTile =>
                 {
-                    _gameplay._eater.SetUpForEating(_gameplay.CurrentPlayer.PieceBench, forward,
-                        _gameplay.MakeDecision);
-                    _gameplay._eater.EatRecursively(_gameplay._board.GetSuccessTile(lastTile, forward));
+                    _gameplay._eater.SetUpForEating(_gameplay.CurrentPlayer.PieceBench, forward, _gameplay.MakeDecision);
+                    _gameplay._eater.EatRecursively(Board.GetSuccessTile(_gameplay._board.Tiles, lastTile, forward));
                 });
             }
         }
@@ -121,7 +118,7 @@ namespace System
                 }
 
                 //Take back pieces to board
-                _dropper.Take(CurrentPlayer.PieceBench, tileGroup.CitizenTiles.Length);
+                _dropper.Take(_board, CurrentPlayer.PieceBench, tileGroup.CitizenTiles.Length);
                 _dropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tileGroup.MandarinTile), true);
                 _dropper.DropOnce(_ =>
                 {

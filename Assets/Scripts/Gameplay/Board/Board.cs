@@ -1,9 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Gameplay.Board
 {
+    public class BoardSide
+    {
+        public IMandarinTile MandarinTile;
+        public ICitizenTile[] CitizenTiles;
+    }
+
+    public class BoardMetadata
+    {
+        public float TileSize;
+        public int NumCitizenTilesPerSide;
+        public Vector2[] Polygon;
+    }
+
     public class Board
     {
         public ITile[] Tiles { get; }
@@ -17,43 +31,37 @@ namespace Gameplay.Board
             Metadata = metadata;
         }
 
-        public ITile GetSuccessTile(ITile tile, bool forward)
+        public static ITile GetSuccessTile(IReadOnlyList<ITile> tiles, ITile tile, bool forward)
         {
-            var index = BoardTraveller.MoveNext(Array.IndexOf(Tiles, tile), Tiles.Length, forward);
-            return Tiles[index];
-        }
+            for (var i = 0; i < tiles.Count; i++)
+            {
+                if (tile == tiles[i])
+                {
+                    return tiles[BoardTraveller.MoveNext(i, tiles.Count, forward)];
+                }
+            }
 
-        public class BoardSide
-        {
-            public ITile MandarinTile;
-            public ITile[] CitizenTiles;
-        }
-
-        public class BoardMetadata
-        {
-            public float TileSize;
-            public int NumCitizenTilesPerSide;
-            public Vector2[] Polygon;
+            return null;
         }
     }
 
     public static class BoardCreator
     {
-        public static Board CreateBoard(int numSides, int numTilesPerSide, Tile mandarinTilePrefab, Tile citizenTilePrefab, Transform parent)
+        public static Board CreateBoard(int numSides, int numTilesPerSide, MandarinTile mandarinTilePrefab, CitizenTile citizenTilePrefab, Transform parent)
         {
             var length = numTilesPerSide * citizenTilePrefab.Size;
             var polygon = CreatePolygon(numSides, length);
 
             var spawnedTiles = new ITile[numSides * (numTilesPerSide + 1)];
-            var tileGroups = new Board.BoardSide[numSides];
+            var tileGroups = new BoardSide[numSides];
             for (var i = 0; i < polygon.Length; i++)
             {
                 var cornerPos = polygon[i];
                 var worldPos = parent.TransformPoint(ToVector3(cornerPos + cornerPos.normalized * mandarinTilePrefab.Size / 2f));
                 var worldRot = parent.rotation * Quaternion.LookRotation(ToVector3(cornerPos));
 
-                var mandarinTile = SpawnTile(mandarinTilePrefab, worldPos, worldRot, parent);
-                tileGroups[i] = new Board.BoardSide {MandarinTile = mandarinTile, CitizenTiles = new ITile[numTilesPerSide]};
+                var mandarinTile = SpawnTile(mandarinTilePrefab, worldPos, worldRot, parent) as IMandarinTile;
+                tileGroups[i] = new BoardSide {MandarinTile = mandarinTile, CitizenTiles = new ICitizenTile[numTilesPerSide]};
                 spawnedTiles[i * (numTilesPerSide + 1)] = mandarinTile;
 
                 var p0 = polygon[i];
@@ -67,7 +75,7 @@ namespace Gameplay.Board
                     worldPos = parent.TransformPoint(ToVector3(pj + normal * citizenTilePrefab.Size / 2f));
                     worldRot = parent.rotation * Quaternion.LookRotation(ToVector3(normal));
 
-                    var citizenTile = SpawnTile(citizenTilePrefab, worldPos, worldRot, parent);
+                    var citizenTile = SpawnTile(citizenTilePrefab, worldPos, worldRot, parent) as ICitizenTile;
                     spawnedTiles[i * (numTilesPerSide + 1) + j + 1] = citizenTile;
                     tileGroups[i].CitizenTiles[j] = citizenTile;
                 }
@@ -77,7 +85,7 @@ namespace Gameplay.Board
             (
                 tileGroups,
                 spawnedTiles,
-                new Board.BoardMetadata
+                new BoardMetadata
                 {
                     Polygon = polygon,
                     NumCitizenTilesPerSide = numTilesPerSide,

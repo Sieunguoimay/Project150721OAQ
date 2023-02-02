@@ -1,21 +1,13 @@
-﻿using System;
-using Common;
-using Common.Activity;
+﻿using Common.Activity;
 using Gameplay.Piece.Activities;
 using UnityEngine;
-using UnityEngine.Playables;
 
 namespace Gameplay.Piece
 {
     public interface IPiece
     {
-        PieceType PieceType { get; }
-    }
-
-    public enum PieceType
-    {
-        Citizen,
-        Mandarin
+        Transform Transform { get; }
+        IActivityQueue ActivityQueue { get; }
     }
 
     public class Piece : MonoBehaviour, IPiece
@@ -30,14 +22,13 @@ namespace Gameplay.Piece
             spacing = 0.3f
         };
 
-        [SerializeField] private PieceType pieceType;
 
         private readonly ActivityQueue _activityQueue = new();
         public IActivityQueue ActivityQueue => _activityQueue;
-        public virtual Animator Animator => null;
-        public virtual PlayableDirector JumpTimeline => null;
+        // public virtual Animator Animator => null;
+        // public virtual PlayableDirector JumpTimeline => null;
         public ActivityFlocking.ConfigData FlockingConfigData => flockingConfigData;
-        public PieceType PieceType => pieceType;
+        public Transform Transform => transform;
 
         private void Update()
         {

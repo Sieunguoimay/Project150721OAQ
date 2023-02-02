@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Gameplay.Piece;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Gameplay.Board
@@ -9,61 +6,26 @@ namespace Gameplay.Board
     public interface ITile : IPieceContainer
     {
         float Size { get; }
-        IEnumerable<ISelectionAdaptor> GetSelectionAdaptors();
         Vector3 GetPositionInFilledCircle(int index, bool local = false, float space = 0.15f);
         Transform Transform { get; }
-        PieceType TargetPieceType { get; }
     }
 
     [SelectionBase]
-    public class Tile : MonoBehaviour, ITile
+    public class Tile : MonoPieceContainer, ITile
     {
         [SerializeField] private float size;
-        [SerializeField] private PieceType targetPieceType;
 
         public float Size => size;
-        private readonly List<Piece.Piece> _heldPieces = new();
-        public IReadOnlyList<Piece.Piece> HeldPieces => _heldPieces;
-
-        public void AddPiece(Piece.Piece piece)
-        {
-            _heldPieces.Add(piece);
-        }
-
-        public void RemoveLast()
-        {
-            if (_heldPieces.Count > 0)
-            {
-                _heldPieces.RemoveAt(_heldPieces.Count - 1);
-            }
-        }
-
-        public void Sort(Comparison<Piece.Piece> comparison)
-        {
-            _heldPieces.Sort(comparison);
-        }
-
-        public void Clear()
-        {
-            _heldPieces.Clear();
-        }
 
         private const int MaxPiecesSupported = 50;
         private Vector2Int[] _reservedPoints;
-        private List<Piece.Piece> _heldPieces1;
-
-        public PieceType TargetPieceType => targetPieceType;
-
-        public IEnumerable<ISelectionAdaptor> GetSelectionAdaptors() =>
-            HeldPieces.Where(p => p is Citizen)
-                .Select(p => new CitizenToTileSelectorAdaptor(p as Citizen));
 
         public void RuntimeSetup()
         {
             _reservedPoints = ReservePositionsInFilledCircle(MaxPiecesSupported);
         }
 
-        public Vector3 GetPositionInFilledCircle(int index, bool local = false, float space = 0.15f)
+        public virtual Vector3 GetPositionInFilledCircle(int index, bool local = false, float space = 0.15f)
         {
             if (index >= _reservedPoints.Length)
             {
@@ -110,9 +72,4 @@ namespace Gameplay.Board
         }
     }
 
-    public interface ISelectionAdaptor
-    {
-        void OnTileSelected();
-        void OnTileDeselected(bool success);
-    }
 }

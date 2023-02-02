@@ -12,21 +12,20 @@ namespace Gameplay.GameInteract
         [SerializeField] private TileChooser tileChooser;
         [SerializeField] private ActionChooser actionChooser;
 
-        private ITile[] _tiles;
+        private ICitizenTile[] _tiles;
         private BoardManager _boardManager;
         private TileChooser.ButtonCommand[] _choosingTileCommands;
-        [field: System.NonSerialized] public ITile ChosenTile { get; private set; }
+        [field: System.NonSerialized] public ICitizenTile ChosenTile { get; private set; }
 
         protected override void OnInject(IResolver resolver)
         {
             _boardManager = resolver.Resolve<BoardManager>();
         }
 
-        public void SetupInteract(Board.Board.BoardSide boardSide, MoveButtonCommand left, MoveButtonCommand right)
+        public void SetupInteract(BoardSide boardSide, MoveButtonCommand left, MoveButtonCommand right)
         {
-            _tiles = _boardManager.Board.Tiles.Where(st => boardSide.CitizenTiles.Contains(st) && st.HeldPieces.Count > 0)
-                .ToArray();
-
+            _tiles = boardSide.CitizenTiles.Where(s => s.HeldPieces.Count > 0).ToArray();
+            
             _choosingTileCommands = new TileChooser.ButtonCommand[_tiles.Length];
 
             for (var i = 0; i < _tiles.Length; i++)
@@ -45,7 +44,7 @@ namespace Gameplay.GameInteract
             actionChooser.HideAway();
         }
 
-        public static void NotifyTilesAdapters(ITile tile, bool selected)
+        public static void NotifyTilesAdapters(ICitizenTile tile, bool selected)
         {
             var selectionAdaptors = tile.GetSelectionAdaptors();
             foreach (var sa in selectionAdaptors)
@@ -83,9 +82,9 @@ namespace Gameplay.GameInteract
         {
             private GameInteractManager _interact;
             private ActionChooser _actionChooser;
-            private ITile _tile;
+            private ICitizenTile _tile;
 
-            public ButtonCommandChoosingTile Setup(ActionChooser actionChooser, GameInteractManager interact, ITile tile)
+            public ButtonCommandChoosingTile Setup(ActionChooser actionChooser, GameInteractManager interact, ICitizenTile tile)
             {
                 _actionChooser = actionChooser;
                 _interact = interact;
