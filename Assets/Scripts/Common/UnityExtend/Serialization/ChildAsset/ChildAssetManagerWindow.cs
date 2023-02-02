@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,6 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace Common.UnityExtend.Serialization.ChildAsset
 {
+    [EditorWindowTitleAttribute(title = "Child Assets")]
     public class ChildAssetManagerWindow : EditorWindow
     {
         private Object _target;
@@ -413,3 +415,4 @@ namespace Common.UnityExtend.Serialization.ChildAsset
         #endregion
     }
 }
+#endif

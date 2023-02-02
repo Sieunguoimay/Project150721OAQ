@@ -79,16 +79,20 @@ namespace Gameplay.Piece
 
                         var delay = k * 0.1f;
                         var position = ct.GetPositionInFilledCircle(Mathf.Max(0, ct.HeldPieces.Count - 1));
-                        p.ActivityQueue.Add(new ActivityAnimation(p.Animator, LegHashes.sit_down));
-                        p.ActivityQueue.Add(delay > 0 ? new ActivityDelay(delay) : null);
-                        p.ActivityQueue.Add(new ActivityFlocking(p.FlockingConfigData, position, p.transform, null));
-                        p.ActivityQueue.Add(index == _citizens.Length - 1 ? new ActivityCallback(onAllInPlace) : null);
-                        p.ActivityQueue.Begin();
+                        p.CitizenMove.StraightMove(position,delay);
                     }
                 }
 
                 _mandarins[i].transform.position = tg.MandarinTile.GetPositionInFilledCircle(0);
                 tg.MandarinTile.SetMandarin(_mandarins[i]);
+            }
+
+            _citizens[^1].CitizenMove.ReachedTargetEvent += ReachedTarget;
+
+            void ReachedTarget(ICitizen citizen)
+            {
+                onAllInPlace?.Invoke();
+                citizen.CitizenMove.ReachedTargetEvent -= ReachedTarget;
             }
         }
     }

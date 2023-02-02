@@ -13,6 +13,7 @@ namespace Gameplay.Piece
     {
         CitizenMove CitizenMove { get; }
         Animator Animator { get; }
+        IActivityQueue ActivityQueue { get; }
     }
 
     [SelectionBase]
@@ -20,6 +21,14 @@ namespace Gameplay.Piece
     {
         [SerializeField] private AnimatorListener animatorListener;
         [SerializeField] private PlayableDirector jumpTimeline;
+
+        [SerializeField] private ActivityFlocking.ConfigData flockingConfigData = new()
+        {
+            maxSpeed = 3f,
+            maxAcceleration = 10f,
+            arriveDistance = 1f,
+            spacing = 0.3f
+        };
 
         private Transform _cameraTransform;
         private Animator _animator;
@@ -29,6 +38,10 @@ namespace Gameplay.Piece
         private Activity[] _standUpActivities;
         public CitizenMove CitizenMove { get; private set; }
 
+        private readonly ActivityQueue _activityQueue = new();
+        public IActivityQueue ActivityQueue => _activityQueue;
+        public ActivityFlocking.ConfigData FlockingConfigData => flockingConfigData;
+
         private void Awake()
         {
             _standUpActivities = new Activity[]
@@ -37,6 +50,11 @@ namespace Gameplay.Piece
                 new ActivityCallback(() => Animator.Play(LegHashes.idle))
             };
             CitizenMove = new CitizenMove(this);
+        }
+
+        private void Update()
+        {
+            _activityQueue.Update(Time.deltaTime);
         }
 
         public void PlayAnimStandUp()
@@ -94,9 +112,11 @@ namespace Gameplay.Piece
         public void StraightMove(Vector3 target, float delay)
         {
             _citizen.ActivityQueue.Add(delay > 0f ? new ActivityDelay(delay) : null);
-            _citizen.ActivityQueue.Add(_citizen.Animator ? new ActivityAnimation(_citizen.Animator, LegHashes.stand_up) : null);
-            _citizen.ActivityQueue.Add(new ActivityFlocking(_citizen.FlockingConfigData, target, _citizen.transform, null));
-            _citizen.ActivityQueue.Add(_citizen.Animator ? new ActivityAnimation(_citizen.Animator, LegHashes.sit_down) : null);
+            _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.stand_up));
+            _citizen.ActivityQueue.Add(new ActivityFlocking(_citizen.FlockingConfigData, target, _citizen.transform,
+                null));
+            _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.sit_down));
+            _citizen.ActivityQueue.Add(new ActivityCallback(() => ReachedTargetEvent?.Invoke(_citizen)));
             _citizen.ActivityQueue.Begin();
         }
     }
