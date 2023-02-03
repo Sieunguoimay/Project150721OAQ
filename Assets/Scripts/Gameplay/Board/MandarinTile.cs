@@ -39,9 +39,9 @@ namespace Gameplay.Board
             }
         }
 
-        public override Vector3 GetPositionInFilledCircle(int index, bool local = false, float space = 0.15f)
+        public override Vector3 GetPositionInFilledCircle(int index, bool local = false)
         {
-            return base.GetPositionInFilledCircle(index + (HasMandarin ? 9 : 0), local, space);
+            return base.GetPositionInFilledCircle(index + (HasMandarin ? 9 : 0), local);
         }
     }
 }

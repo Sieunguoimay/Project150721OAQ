@@ -6,7 +6,7 @@ namespace Gameplay.Board
     public interface ITile : IPieceContainer
     {
         float Size { get; }
-        Vector3 GetPositionInFilledCircle(int index, bool local = false, float space = 0.15f);
+        Vector3 GetPositionInFilledCircle(int index, bool local = false);
         Transform Transform { get; }
     }
 
@@ -25,19 +25,25 @@ namespace Gameplay.Board
             _reservedPoints = ReservePositionsInFilledCircle(MaxPiecesSupported);
         }
 
-        public virtual Vector3 GetPositionInFilledCircle(int index, bool local = false, float space = 0.15f)
+        public virtual Vector3 GetPositionInFilledCircle(int index, bool local = false)
         {
             if (index >= _reservedPoints.Length)
             {
                 _reservedPoints = ReservePositionsInFilledCircle(_reservedPoints.Length + MaxPiecesSupported);
             }
 
-            var pos = new Vector3(_reservedPoints[index].x, 0, _reservedPoints[index].y) * space;
+            var pos = new Vector3(_reservedPoints[index].x, 0, _reservedPoints[index].y) * .15f;
             return local ? pos : transform.TransformPoint(pos);
         }
 
         public Transform Transform => transform;
 
+        private Vector2Int GetNextPosition()
+        {
+            
+            return Vector2Int.one;
+        }
+            
         private static Vector2Int[] ReservePositionsInFilledCircle(int num)
         {
             var r = 1;
@@ -57,7 +63,6 @@ namespace Gameplay.Board
                         n++;
                     }
                 }
-
                 r++;
             }
 
@@ -65,7 +70,7 @@ namespace Gameplay.Board
             {
                 var da = a.x * a.x + a.y * a.y;
                 var db = b.x * b.x + b.y * b.y;
-                return (da == db ? 0 : (da < db ? -1 : 1));
+                return da == db ? 0 : da < db ? -1 : 1;
             });
 
             return points.ToArray();
