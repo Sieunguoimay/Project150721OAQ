@@ -1284,6 +1284,7 @@ MonoBehaviour:
   onFalse:
     m_PersistentCalls:
       m_Calls: []
+  foldout: 0
 --- !u!114 &1505393263
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -97,7 +97,6 @@ namespace Gameplay.Board
         private static Tile SpawnTile(Tile citizenTilePrefab, Vector3 position, Quaternion rotation, Transform parent)
         {
             var citizenTile = Object.Instantiate(citizenTilePrefab, parent);
-            citizenTile.RuntimeSetup();
             citizenTile.transform.SetPositionAndRotation(position, rotation);
             return citizenTile;
         }
