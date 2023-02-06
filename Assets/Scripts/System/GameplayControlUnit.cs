@@ -28,6 +28,9 @@ namespace System
         private GameInteractManager _interact;
         private IStageSelector _stageSelector;
 
+        public event Action GameplayBeginEvent;
+        public event Action GameplayEndEvent;
+
         protected override void OnInject(IResolver resolver)
         {
             _playersManager = resolver.Resolve<PlayersManager>();
@@ -46,6 +49,7 @@ namespace System
         public void StartGame()
         {
             StartGameCoroutine();
+            GameplayBeginEvent?.Invoke();
         }
 
         private void StartGameCoroutine()
@@ -78,6 +82,7 @@ namespace System
             _gameplay.ClearGame();
             _playersManager.DeletePlayers();
             _boardManager.DeleteBoard();
+            GameplayEndEvent?.Invoke();
         }
     }
 }

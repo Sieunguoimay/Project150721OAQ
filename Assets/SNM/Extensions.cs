@@ -39,7 +39,7 @@ namespace SNM
             });
         }
 
-        public static Coroutine TimeProgress(this MonoBehaviour mb, float duration, Action<float> onProgress)
+        private static Coroutine TimeProgress(this MonoBehaviour mb, float duration, Action<float> onProgress)
             => mb.StartCoroutine(TimeProgress(duration, onProgress));
 
         private static IEnumerator TimeProgress(float duration, Action<float> onProgress)

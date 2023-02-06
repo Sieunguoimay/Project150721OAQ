@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Common.Activity;
 using Gameplay;
 using Gameplay.Board;
@@ -38,13 +37,15 @@ namespace System
             IsPlaying = false;
             IsGameOver = false;
             NextPlayer();
+            _interact.MoveEvent -= OnMove;
+            _interact.MoveEvent += OnMove;
         }
+
 
         public void StartNewMatch()
         {
             IsPlaying = true;
-            _interact.SetupInteract(_board.Sides[CurrentPlayer.Index], new MoveCommand(this), new MoveCommand(this));
-            _interact.ShowTileChooser();
+            _interact.ShowTileChooser(_board.Sides[CurrentPlayer.Index].CitizenTiles);
         }
 
         public void ClearGame()
@@ -55,6 +56,7 @@ namespace System
             _eater.Cleanup();
             CurrentPlayer = null;
             _interact.ResetAll();
+            _interact.MoveEvent -= OnMove;
         }
 
         #region PRIVATE_METHODS
@@ -75,25 +77,15 @@ namespace System
         }
 
 
-        private class MoveCommand : GameInteractManager.MoveButtonCommand
+        private void OnMove(ITile tile, bool forward)
         {
-            private readonly Gameplay _gameplay;
-
-            public MoveCommand(Gameplay gameplay)
+            _dropper.Take(_board, tile, tile.HeldPieces.Count);
+            _dropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tile), forward);
+            _dropper.DropTillDawn(lastTile =>
             {
-                _gameplay = gameplay;
-            }
-
-            protected override void Move(ITile tile, bool forward)
-            {
-                _gameplay._dropper.Take(_gameplay._board, tile, tile.HeldPieces.Count);
-                _gameplay._dropper.SetMoveStartPoint(Array.IndexOf(_gameplay._board.Tiles, tile), forward);
-                _gameplay._dropper.DropTillDawn(lastTile =>
-                {
-                    _gameplay._eater.SetUpForEating(_gameplay.CurrentPlayer.PieceBench, forward, _gameplay.MakeDecision);
-                    _gameplay._eater.EatRecursively(Board.GetSuccessTile(_gameplay._board.Tiles, lastTile, forward));
-                });
-            }
+                _eater.SetUpForEating(CurrentPlayer.PieceBench, forward, MakeDecision);
+                _eater.EatRecursively(Board.GetSuccessTile(_board.Tiles, lastTile, forward));
+            });
         }
 
         private void MakeDecision()
@@ -122,16 +114,12 @@ namespace System
                 _dropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tileGroup.MandarinTile), true);
                 _dropper.DropOnce(_ =>
                 {
-                    _interact.SetupInteract(_board.Sides[CurrentPlayer.Index], new MoveCommand(this),
-                        new MoveCommand(this));
-                    _interact.ShowTileChooser();
+                    _interact.ShowTileChooser(_board.Sides[CurrentPlayer.Index].CitizenTiles);
                 });
                 return;
             }
 
-            _interact.SetupInteract(_board.Sides[CurrentPlayer.Index], new MoveCommand(this),
-                new MoveCommand(this));
-            _interact.ShowTileChooser();
+            _interact.ShowTileChooser(_board.Sides[CurrentPlayer.Index].CitizenTiles);
         }
 
         private void GameOver()

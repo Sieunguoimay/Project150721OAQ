@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Gameplay.Board
 {
@@ -7,7 +8,7 @@ namespace Gameplay.Board
         [SerializeField] private MandarinTile mandarinTilePrefab;
         [SerializeField] private CitizenTile citizenTilePrefab;
         [field: System.NonSerialized] public Board Board { get; private set; }
-
+        public event Action<BoardManager> BoardCreatedEvent;
         public void DeleteBoard()
         {
             foreach (var tile in Board.Tiles)
@@ -21,6 +22,7 @@ namespace Gameplay.Board
         public void CreateBoard(int groupNum, int tilesPerGroup)
         {
             Board = BoardCreator.CreateBoard(groupNum, tilesPerGroup, mandarinTilePrefab, citizenTilePrefab, transform);
+            BoardCreatedEvent?.Invoke(this);
         }
     }
 }

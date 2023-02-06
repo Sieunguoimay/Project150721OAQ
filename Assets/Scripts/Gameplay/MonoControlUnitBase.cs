@@ -13,6 +13,7 @@ namespace Gameplay
 
     public abstract class MonoControlUnitBase : MonoBehaviour, IControlUnit
     {
+        protected IResolver Resolver { get; private set; }
         public void Bind(IBinder binder)
         {
             OnBind(binder);
@@ -20,6 +21,7 @@ namespace Gameplay
 
         public void Inject(IResolver resolver)
         {
+            Resolver = resolver;
             OnInject(resolver);
         }
 
@@ -42,7 +44,7 @@ namespace Gameplay
         {
         }
 
-        protected virtual void OnInject(IResolver container)
+        protected virtual void OnInject(IResolver resolver)
         {
         }
 

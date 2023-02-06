@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Gameplay.GameInteract.Button;
 using SNM;
 using UnityEngine;
@@ -14,72 +15,96 @@ namespace Gameplay.GameInteract
 
     public interface IButtonContainer
     {
-        void Setup(ButtonData[] buttons);
+        void Setup(IReadOnlyList<OnGroundButton> buttons);
+        void TearDown();
         void ShowButtons();
         void HideButtons();
-        OnGroundButton[] Buttons { get; }
+        IReadOnlyList<OnGroundButton> Buttons { get; }
+        event Action<IButtonContainer> AllButtonHiddenEvent;
+        event Action<IButtonContainer> AllButtonShownEvent;
     }
 
     public sealed class ButtonContainer : MonoBehaviour, IButtonContainer
     {
-        [SerializeField] private OnGroundButton[] buttonViews;
-        [field: System.NonSerialized] private int OptionNum { get; set; }
-        public OnGroundButton[] Buttons => buttonViews;
+        public IReadOnlyList<OnGroundButton> Buttons { get; private set; }
+        public event Action<IButtonContainer> AllButtonHiddenEvent;
+        public event Action<IButtonContainer> AllButtonShownEvent;
 
         private Coroutine _coroutine;
+        private int _showCount;
+        private int _showAmount;
 
-        private void OnDisable()
+        public void Setup(IReadOnlyList<OnGroundButton> buttons)
+        {
+            Buttons = buttons;
+            foreach (var b in Buttons)
+            {
+                b.ClickedEvent -= OnButtonClicked;
+                b.ClickedEvent += OnButtonClicked;
+                b.ActiveChangedEvent -= OnButtonActiveChanged;
+                b.ActiveChangedEvent += OnButtonActiveChanged;
+            }
+        }
+
+        public void TearDown()
         {
             if (_coroutine != null)
             {
                 StopCoroutine(_coroutine);
             }
-        }
-
-        public void Setup(ButtonData[] buttons)
-        {
-            OptionNum = buttons.Length;
-            for (var i = 0; i < buttonViews.Length; i++)
-            {
-                if (i < OptionNum)
-                {
-                    buttonViews[i].SetCommand(buttons[i].Command);
-                    buttonViews[i].Display?.SetDisplayInfo(buttons[i].DisplayInfo);
-                }
-                else
-                {
-                    buttonViews[i].SetCommand(null);
-                }
-            }
 
             foreach (var b in Buttons)
             {
-                b.ClickedEvent+=OnButtonClicked;
+                b.ActiveChangedEvent -= OnButtonActiveChanged;
+                b.ClickedEvent -= OnButtonClicked;
+            }
+        }
+
+
+        private void OnButtonActiveChanged(IButton obj)
+        {
+            if (!obj.IsShowing)
+            {
+                AllButtonHiddenEvent?.Invoke(this);
+            }
+            else
+            {
+                _showCount++;
+                if (_showCount == _showAmount)
+                {
+                    AllButtonShownEvent?.Invoke(this);
+                }
             }
         }
 
         private void OnButtonClicked(IButton obj)
         {
-            
         }
 
         public void ShowButtons()
         {
-            var n = Mathf.Min(buttonViews.Length, OptionNum);
-            _coroutine = this.TimingForLoop(.3f, n, i =>
+            var availableButtons = Buttons.Where(b => b.IsAvailable).ToArray();
+            _showAmount = availableButtons.Length;
+            _showCount = 0;
+            _coroutine = this.TimingForLoop(.3f, _showAmount, i =>
             {
-                buttonViews[i].ShowUp();
+                availableButtons[i].ShowUp();
                 _coroutine = null;
             });
         }
 
         public void HideButtons()
         {
-            for (var i = 0; i < Mathf.Min(buttonViews.Length, OptionNum); i++)
+            var hideCount = 0;
+            foreach (var t in Buttons)
             {
-                if (!buttonViews[i].Active) continue;
-                buttonViews[i].HideAway();
-                buttonViews[i].SetCommand(null);
+                if (t.IsShowing) hideCount++;
+                t.HideAway();
+            }
+
+            if (hideCount == 0)
+            {
+                AllButtonHiddenEvent?.Invoke(this);
             }
         }
 

@@ -4,7 +4,6 @@ using System.Linq;
 using Common.UnityExtend.Attribute;
 using Gameplay.Board;
 using Gameplay.GameInteract.Button;
-using TMPro;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
@@ -14,53 +13,73 @@ namespace Gameplay.GameInteract
         [SerializeField, TypeConstraint(typeof(IButtonContainer))]
         private UnityEngine.Object buttonContainer;
 
-        [SerializeField, TypeConstraint(typeof(IButtonContainer))]
-        private UnityEngine.Object buttonContainer2;
+        [SerializeField] private TileChoosingButton tileChoosingButtonPrefab;
 
         public IButtonContainer ButtonContainer => buttonContainer as IButtonContainer;
-        public IButtonContainer ButtonContainer2 => buttonContainer2 as IButtonContainer;
 
-        public void ChooseTile(IReadOnlyList<ICitizenTile> tiles, IEnumerable<ButtonCommand> commands)
+        private TileChoosingButton[] _tileChoosingButtons;
+        [field: System.NonSerialized] public ITile SelectedTile { get; private set; }
+        public event Action<TileChooser, SelectedTileEventArgs> SelectedTileChangedEvent;
+
+        public class SelectedTileEventArgs : EventArgs
         {
-            var bd = commands.Select(c => new ButtonData(c.SetButtonContainer2(ButtonContainer2).SetContainer(ButtonContainer),
-                new ButtonDisplayInfoSpecialAction())).ToArray();
-            foreach (var buttonCommand in commands)
+            public SelectedTileEventArgs(ITile prevSelectedTile)
             {
-                
+                PrevSelectedTile = prevSelectedTile;
             }
 
-            SetButtonsPositionAndRotation(tiles);
+            public ITile PrevSelectedTile { get; }
+        }
 
-            ButtonContainer.Setup(bd);
-            ButtonContainer.ShowButtons();
-            ButtonContainer2.Setup(bd);
-            ButtonContainer2.ShowButtons();
+        public void Setup(int numButtons)
+        {
+            _tileChoosingButtons = new TileChoosingButton[numButtons];
+            for (var i = 0; i < numButtons; i++)
+            {
+                _tileChoosingButtons[i] = Instantiate(tileChoosingButtonPrefab, transform);
+                _tileChoosingButtons[i].ClickedEvent += OnButtonClicked;
+            }
+
+            ButtonContainer.Setup(_tileChoosingButtons);
+        }
+
+        public void TearDown()
+        {
+            ButtonContainer.TearDown();
+            
+            foreach (var bt in _tileChoosingButtons)
+            {
+                bt.ClickedEvent -= OnButtonClicked;
+                Destroy(bt.gameObject);
+            }
+
+            _tileChoosingButtons = null;
         }
 
         public void ResetAll()
         {
             ButtonContainer.HideButtons();
-            ButtonContainer2.HideButtons();
         }
-        
-        private void SetButtonsPositionAndRotation(IReadOnlyList<ICitizenTile> optionTiles)
+
+        private void OnButtonClicked(IButton obj)
         {
-            for (var i = 0; i < optionTiles.Count; i++)
-            {
-                var tilePos = optionTiles[i].Transform.position;
-                var tileRot = optionTiles[i].Transform.rotation;
-                var pos = tilePos + optionTiles[i].Transform.forward * optionTiles[i].Size;
+            var prevTile = SelectedTile;
+            SelectedTile = (obj as TileChoosingButton)?.Tile;
+            SelectedTileChangedEvent?.Invoke(this, new SelectedTileEventArgs(prevTile));
 
-                ButtonContainer.Buttons[i].transform.position = pos;
-                ButtonContainer.Buttons[i].transform.rotation = tileRot;
-                ButtonContainer.Buttons[i].Display
-                    .SetDisplayInfo(new ButtonDisplayInfoText($"{optionTiles[i].HeldPieces.Count}"));
-
-                ButtonContainer2.Buttons[i].transform.position = tilePos;
-                ButtonContainer2.Buttons[i].transform.rotation = tileRot;
-            }
+            ButtonContainer.HideButtons();
         }
- 
+
+        public void ChooseTile(IReadOnlyList<ICitizenTile> tiles)
+        {
+            for (var i = 0; i < _tileChoosingButtons.Length; i++)
+            {
+                _tileChoosingButtons[i].SetTile(i >= tiles.Count ? null : tiles[i]);
+            }
+
+            ButtonContainer.ShowButtons();
+        }
+
         public class ButtonCommand : ButtonContainer.ButtonCommand
         {
             private IButtonContainer _buttonContainer2;
@@ -83,7 +102,7 @@ namespace Gameplay.GameInteract
                     }
                     else
                     {
-                        if (!bv.Active && bv.Command != null)
+                        if (!bv.IsShowing && bv.Command != null)
                         {
                             bv.ShowUp();
                         }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Gameplay.Board
@@ -26,5 +27,15 @@ namespace Gameplay.Board
         }
 
         public Transform Transform => transform;
+
+#if UNITY_EDITOR
+        [SerializeField] private bool drawGizmos;
+        private void OnDrawGizmos()
+        {
+            if (!drawGizmos) return;
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawWireCube(Vector3.up * .05f, new Vector3(size, 0.1f, size));
+        }
+#endif
     }
 }
