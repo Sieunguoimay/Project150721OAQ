@@ -10,7 +10,6 @@ namespace Gameplay.Board
         IMandarin Mandarin { get; }
         void SetMandarin(IMandarin mandarin);
         event Action<IMandarinTile> MandarinChangedEvent;
-        IEnumerable<IPiece> AllPieces { get; }
     }
 
     public class MandarinTile : Tile, IMandarinTile
@@ -26,22 +25,9 @@ namespace Gameplay.Board
 
         public event Action<IMandarinTile> MandarinChangedEvent;
 
-        public IEnumerable<IPiece> AllPieces
+        public override Vector3 GetGridPosition(int index, bool local = false)
         {
-            get
-            {
-                foreach (var p in HeldPieces)
-                {
-                    yield return p;
-                }
-
-                yield return Mandarin;
-            }
-        }
-
-        public override Vector3 GetPositionInFilledCircle(int index, bool local = false)
-        {
-            return base.GetPositionInFilledCircle(index + (HasMandarin ? 9 : 0), local);
+            return base.GetGridPosition(index + (HasMandarin ? 9 : 0), local);
         }
     }
 }

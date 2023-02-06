@@ -105,16 +105,13 @@ namespace Gameplay.Board
         {
             if (globalCellIndex < 0) return Vector2Int.zero;
 
-            var radiusFromNumCells = (Mathf.Sqrt(2 * (globalCellIndex + 1) - 1) - 1) / 2;
-
-            var ringIndex = Mathf.CeilToInt(radiusFromNumCells);
+            var ringIndex = Mathf.CeilToInt((Mathf.Sqrt(2 * (globalCellIndex + 1) - 1) - 1) / 2);
             if (ringIndex == 0) return Vector2Int.zero;
 
             var localCellIndex = 0;
             if (globalCellIndex > 0)
             {
-                var radiusFromCellIndex = (Mathf.Sqrt(2 * (globalCellIndex) - 1) - 1) / 2;
-                var r = Mathf.FloorToInt(radiusFromCellIndex);
+                var r = ringIndex - 1;
                 var numCellsInDisc = 1 + 2 * (r * r + r);
                 localCellIndex = globalCellIndex - numCellsInDisc;
             }

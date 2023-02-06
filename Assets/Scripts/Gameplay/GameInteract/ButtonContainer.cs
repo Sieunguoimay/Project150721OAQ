@@ -8,7 +8,8 @@ namespace Gameplay.GameInteract
 {
     public interface ICommand
     {
-        void Execute();
+        void Execute(IButton button);
+        event Action<ICommand, IButton> ExecutedEvent;
     }
 
     public interface IButtonContainer
@@ -16,14 +17,14 @@ namespace Gameplay.GameInteract
         void Setup(ButtonData[] buttons);
         void ShowButtons();
         void HideButtons();
-        OnGroundButton[] ButtonViews { get; }
+        OnGroundButton[] Buttons { get; }
     }
 
     public sealed class ButtonContainer : MonoBehaviour, IButtonContainer
     {
         [SerializeField] private OnGroundButton[] buttonViews;
         [field: System.NonSerialized] private int OptionNum { get; set; }
-        public OnGroundButton[] ButtonViews => buttonViews;
+        public OnGroundButton[] Buttons => buttonViews;
 
         private Coroutine _coroutine;
 
@@ -50,6 +51,16 @@ namespace Gameplay.GameInteract
                     buttonViews[i].SetCommand(null);
                 }
             }
+
+            foreach (var b in Buttons)
+            {
+                b.ClickedEvent+=OnButtonClicked;
+            }
+        }
+
+        private void OnButtonClicked(IButton obj)
+        {
+            
         }
 
         public void ShowButtons()
@@ -82,10 +93,13 @@ namespace Gameplay.GameInteract
                 return this;
             }
 
-            public virtual void Execute()
+            public virtual void Execute(IButton button)
             {
                 _container.HideButtons();
+                ExecutedEvent?.Invoke(this, button);
             }
+
+            public event Action<ICommand, IButton> ExecutedEvent;
         }
     }
 }

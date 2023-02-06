@@ -23,7 +23,16 @@ namespace Gameplay.GameInteract
             _commands[3] = new ButtonData(new SpecialMoveCommand(), new ButtonDisplayInfoSpecialAction());
             _commands[4] = new ButtonData(new SpecialMoveCommand(), new ButtonDisplayInfoSpecialAction());
             _commands[5] = new ButtonData(new SpecialMoveCommand(), new ButtonDisplayInfoSpecialAction());
-            foreach (var c in _commands) c.Command?.SetContainer(buttonContainer);
+            foreach (var c in _commands)
+            {
+                c.Command.ExecutedEvent -= OnButtonCommandExecuted;
+                c.Command.ExecutedEvent += OnButtonCommandExecuted;
+            }
+        }
+
+        private void OnButtonCommandExecuted(ICommand arg1, IButton arg2)
+        {
+            buttonContainer.HideButtons();
         }
 
         public void ShowUp()
@@ -45,19 +54,19 @@ namespace Gameplay.GameInteract
                 _interact = interact;
             }
 
-            public override void Execute()
+            public override void Execute(IButton button)
             {
-                base.Execute();
-                GameInteractManager.NotifyTilesAdapters(_interact.ChosenTile, false);
+                base.Execute(button);
+                GameInteractManager.NotifyTileSelectionListeners(_interact.CurrentChosenTile, false);
                 _interact.ShowTileChooser();
             }
         }
 
         private class SpecialMoveCommand : ButtonContainer.ButtonCommand
         {
-            public override void Execute()
+            public override void Execute(IButton button)
             {
-                base.Execute();
+                base.Execute(button);
                 Debug.Log("Here we execute a special move!!");
             }
         }

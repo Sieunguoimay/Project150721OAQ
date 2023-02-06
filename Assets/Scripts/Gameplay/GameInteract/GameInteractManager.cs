@@ -2,6 +2,7 @@
 using System.Linq;
 using Framework.Resolver;
 using Gameplay.Board;
+using Gameplay.GameInteract.Button;
 using SNM;
 using UnityEngine;
 
@@ -13,14 +14,8 @@ namespace Gameplay.GameInteract
         [SerializeField] private ActionChooser actionChooser;
 
         private ICitizenTile[] _tiles;
-        private BoardManager _boardManager;
         private TileChooser.ButtonCommand[] _choosingTileCommands;
-        [field: System.NonSerialized] public ICitizenTile ChosenTile { get; private set; }
-
-        protected override void OnInject(IResolver resolver)
-        {
-            _boardManager = resolver.Resolve<BoardManager>();
-        }
+        [field: System.NonSerialized] public ICitizenTile CurrentChosenTile { get; private set; }
 
         public void SetupInteract(BoardSide boardSide, MoveButtonCommand left, MoveButtonCommand right)
         {
@@ -33,7 +28,7 @@ namespace Gameplay.GameInteract
                 _choosingTileCommands[i] = new ButtonCommandChoosingTile().Setup(actionChooser, this, _tiles[i]);
             }
 
-            ChosenTile = null;
+            CurrentChosenTile = null;
             actionChooser.SetMoveCommands(left.Setup(this, false), right.Setup(this, true));
             actionChooser.SetupOtherCommands();
         }
@@ -44,7 +39,7 @@ namespace Gameplay.GameInteract
             actionChooser.HideAway();
         }
 
-        public static void NotifyTilesAdapters(ICitizenTile tile, bool selected)
+        public static void NotifyTileSelectionListeners(ICitizenTile tile, bool selected)
         {
             var selectionAdaptors = tile.GetSelectionAdaptors();
             foreach (var sa in selectionAdaptors)
@@ -92,16 +87,18 @@ namespace Gameplay.GameInteract
                 return this;
             }
 
-            public override void Execute()
+            public override void Execute(IButton button)
             {
-                base.Execute();
-                if (_interact.ChosenTile != null)
+                base.Execute(button);
+                if (_interact.CurrentChosenTile != null)
                 {
-                    NotifyTilesAdapters(_interact.ChosenTile, false);
+                    NotifyTileSelectionListeners(_interact.CurrentChosenTile, false);
                 }
+                
+                NotifyTileSelectionListeners(_tile, true);
 
-                var shouldHide = _actionChooser.ButtonContainer.ButtonViews.Any(bv => bv.Active);
-                if (shouldHide)
+                var shouldHideOthers = _actionChooser.ButtonContainer.Buttons.Any(bv => bv.Active);
+                if (shouldHideOthers)
                 {
                     _actionChooser.ButtonContainer.HideButtons();
                     _actionChooser.Delay(.15f, ShowDirectionChooser);
@@ -114,9 +111,8 @@ namespace Gameplay.GameInteract
 
             private void ShowDirectionChooser()
             {
-                NotifyTilesAdapters(_tile, true);
                 _interact.ShowDirectionChooserForTile(_tile);
-                _interact.ChosenTile = _tile;
+                _interact.CurrentChosenTile = _tile;
             }
         }
 
@@ -132,13 +128,13 @@ namespace Gameplay.GameInteract
                 return this;
             }
 
-            public override void Execute()
+            public override void Execute(IButton button)
             {
-                base.Execute();
+                base.Execute(button);
                 _interact.HideTileChooser();
-                if (_interact.ChosenTile != null)
+                if (_interact.CurrentChosenTile != null)
                 {
-                    Move(_interact.ChosenTile, _forward);
+                    Move(_interact.CurrentChosenTile, _forward);
                 }
             }
 

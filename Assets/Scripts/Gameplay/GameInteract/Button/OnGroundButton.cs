@@ -27,11 +27,18 @@ namespace Gameplay.GameInteract.Button
         public IButtonDisplayInfo DisplayInfo { get; }
     }
 
-    public class OnGroundButton : MonoBehaviour
+    public interface IButton
+    {
+        bool Active { get; }
+        event Action<IButton> ClickedEvent;
+    }
+
+    public class OnGroundButton : MonoBehaviour, IButton
     {
         [SerializeField] private ABoundsClicker visual;
         [SerializeField] private AButtonDisplay display;
         [field: NonSerialized] public bool Active { get; private set; }
+        public event Action<IButton> ClickedEvent;
 
         private float VisualHeight => visual.Bounds.size.y;
         public AButtonDisplay Display => display;
@@ -85,7 +92,9 @@ namespace Gameplay.GameInteract.Button
         public void OnClicked(EventArgs eventArgs)
         {
             HideAway(.05f);
-            this.Delay(.2f, () => { Command?.Execute(); });
+            Command?.Execute(this);
+            ClickedEvent?.Invoke(this);
+            // this.Delay(.2f, () => { Command?.Execute(); });
         }
     }
 }

@@ -64,8 +64,7 @@ namespace Gameplay.Board
                     {
                         var visitedTileIndex = _boardTraveller.GetIndexAtStep(j + 1, _forward);
                         var visitedTile = _board.Tiles[visitedTileIndex];
-                        var pos = visitedTile.GetPositionInFilledCircle(visitedTile.HeldPieces.Count + citizenIndex - j);
-                        yield return pos;
+                        yield return visitedTile.GetGridPosition(visitedTile.HeldPieces.Count + citizenIndex - j);
                     }
                 }
 
