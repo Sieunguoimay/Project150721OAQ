@@ -52,25 +52,27 @@ namespace Common.DecisionMaking
     {
         private bool _showStates;
 
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            _showStates = EditorGUILayout.Foldout(_showStates, "States",true);
-            if (_showStates)
-            {
-                var creator = target as StateMachineCreator;
 
-                if (creator is null) return;
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.Space(10,false);
-                EditorGUILayout.BeginVertical();
-                foreach (var state in creator.States)
-                {
-                    EditorGUILayout.LabelField(state.StateName);
-                }
-                EditorGUILayout.EndVertical();
-                EditorGUILayout.EndHorizontal();
+            _showStates = EditorGUILayout.Foldout(_showStates, "States", true);
+
+            if (!_showStates) return;
+            if (target is not StateMachineCreator creator) return;
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.Space(10, false);
+            EditorGUILayout.BeginVertical();
+            foreach (var state in creator.States)
+            {
+                var isCurrent = Application.isPlaying && (ActionState) creator.StateMachine.CurrentState == state;
+                EditorGUILayout.LabelField(state.StateName + (isCurrent ? "<-" : ""));
             }
+
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.EndHorizontal();
         }
     }
 #endif

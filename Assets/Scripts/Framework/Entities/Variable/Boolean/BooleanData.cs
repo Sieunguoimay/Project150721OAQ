@@ -4,7 +4,7 @@ using System;
 
 namespace Framework.Entities.Variable.Boolean
 {
-    public interface IBooleanData : IVariableData<bool>
+    public interface IBooleanData : IVariableEntityData<bool>
     {
     }
 
@@ -13,7 +13,7 @@ namespace Framework.Entities.Variable.Boolean
     }
 
     [CreateAssetMenu(menuName = "Entity/BooleanData")]
-    public class BooleanData : VariableData<bool>, IBooleanData
+    public class BooleanData : VariableEntityData<bool>, IBooleanData
     {
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal(IEntityLoader entityLoader)
         {
@@ -31,7 +31,7 @@ namespace Framework.Entities.Variable.Boolean
     [Serializable]
     public class BooleanSavedData : VariableSavedData<bool>, IBooleanSavedData
     {
-        public BooleanSavedData(IVariableData<bool> data) : base(data)
+        public BooleanSavedData(IVariableEntityData<bool> entityData) : base(entityData)
         {
         }
     }

@@ -34,12 +34,16 @@ namespace Gameplay.Board
             }
         }
 
+        public static bool IsTileEatable(ITile tile, Board board, bool forward)
+        {
+            return tile.HeldPieces.Count == 0
+                   && tile is not IMandarinTile
+                   && Board.GetSuccessTile(board.Tiles, tile, forward).HeldPieces.Count > 0;
+        }
+
         public void EatRecursively(ITile tile)
         {
-            var eatable = tile.HeldPieces.Count == 0
-                          && tile is not IMandarinTile
-                          && Board.GetSuccessTile(_board.Tiles, tile, _forward).HeldPieces.Count > 0;
-            if (eatable)
+            if (IsTileEatable(tile, _board, _forward))
             {
                 var successTile = Board.GetSuccessTile(_board.Tiles, tile, _forward);
 

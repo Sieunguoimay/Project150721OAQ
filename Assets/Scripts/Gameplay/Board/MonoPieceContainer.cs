@@ -13,13 +13,15 @@ namespace Gameplay.Board
         public void AddPiece(IPiece piece)
         {
             _heldPieces.Add(piece);
+            piece.Container.SetValue(this);
         }
 
-        public void RemoveLast()
+        public void RemovePiece(IPiece piece)
         {
-            if (_heldPieces.Count > 0)
+            _heldPieces.Remove(piece);
+            if (ReferenceEquals(piece.Container.Value, this))
             {
-                _heldPieces.RemoveAt(_heldPieces.Count - 1);
+                piece.Container.SetValue(null);
             }
         }
 

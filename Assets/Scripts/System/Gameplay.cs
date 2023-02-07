@@ -79,12 +79,16 @@ namespace System
 
         private void OnMove(ITile tile, bool forward)
         {
-            _dropper.Take(_board, tile, tile.HeldPieces.Count);
-            _dropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tile), forward);
+            _dropper.Take(tile, tile.HeldPieces.Count);
+            _dropper.SetMoveStartPoint(_board, tile, forward);
             _dropper.DropTillDawn(lastTile =>
             {
-                _eater.SetUpForEating(CurrentPlayer.PieceBench, forward, MakeDecision);
-                _eater.EatRecursively(Board.GetSuccessTile(_board.Tiles, lastTile, forward));
+                var nextTile = Board.GetSuccessTile(_board.Tiles, lastTile, forward);
+                if (PieceEater.IsTileEatable(nextTile, _board, forward))
+                {
+                    _eater.SetUpForEating(CurrentPlayer.PieceBench, forward, MakeDecision);
+                    _eater.EatRecursively(nextTile);
+                }
             });
         }
 
@@ -110,8 +114,8 @@ namespace System
                 }
 
                 //Take back pieces to board
-                _dropper.Take(_board, CurrentPlayer.PieceBench, tileGroup.CitizenTiles.Length);
-                _dropper.SetMoveStartPoint(Array.IndexOf(_board.Tiles, tileGroup.MandarinTile), true);
+                _dropper.Take(CurrentPlayer.PieceBench, tileGroup.CitizenTiles.Length);
+                _dropper.SetMoveStartPoint(_board, tileGroup.MandarinTile, true);
                 _dropper.DropOnce(_ =>
                 {
                     _interact.ShowTileChooser(_board.Sides[CurrentPlayer.Index].CitizenTiles);

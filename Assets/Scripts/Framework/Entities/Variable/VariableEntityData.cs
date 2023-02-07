@@ -1,10 +1,9 @@
-using Framework.Entities;
 using UnityEngine;
 using System;
 
 namespace Framework.Entities.Variable
 {
-    public interface IVariableData<out TPrimitive> : IEntityData
+    public interface IVariableEntityData<out TPrimitive> : IEntityData
     {
         TPrimitive InitialValue { get; }
     }
@@ -16,28 +15,28 @@ namespace Framework.Entities.Variable
     }
 
     [CreateAssetMenu(menuName = "Entity/VariableData")]
-    public class VariableData<TPrimitive> : EntityAsset<IVariable<TPrimitive>>, IVariableData<TPrimitive>
+    public class VariableEntityData<TPrimitive> : EntityAsset<IVariableEntity<TPrimitive>>, IVariableEntityData<TPrimitive>
     {
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal(IEntityLoader entityLoader)
         {
-            return new Variable<TPrimitive>(this, null); //new VariableSavedData<TPrimitive>(this));
+            return new VariableEntity<TPrimitive>(this, null);
         }
 
         [field: SerializeField] public TPrimitive InitialValue { get; private set; }
     }
 
     [Serializable]
-    public class VariableSavedData<TPrimitive> : BaseEntitySavedData<IVariableData<TPrimitive>>,
+    public class VariableSavedData<TPrimitive> : BaseEntitySavedData<IVariableEntityData<TPrimitive>>,
         IVariableSavedData<TPrimitive>
     {
-        public VariableSavedData(IVariableData<TPrimitive> data) : base(data)
+        public VariableSavedData(IVariableEntityData<TPrimitive> entityData) : base(entityData)
         {
         }
 
-        protected override void InitializeDefaultData(IVariableData<TPrimitive> data)
+        protected override void InitializeDefaultData(IVariableEntityData<TPrimitive> entityData)
         {
-            base.InitializeDefaultData(data);
-            Value = data.InitialValue;
+            base.InitializeDefaultData(entityData);
+            Value = entityData.InitialValue;
         }
 
         [field: SerializeField] public TPrimitive Value { get; private set; }

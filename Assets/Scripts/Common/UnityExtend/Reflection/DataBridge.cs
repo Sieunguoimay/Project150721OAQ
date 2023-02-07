@@ -162,7 +162,7 @@ namespace Common.UnityExtend.Reflection
 
             if (eventItemList != null)
             {
-                var events = SourceObjectType?.GetEvents().Concat(GetExtraEvents()).ToArray();
+                var events = ReflectionUtility.GetAllEvents(SourceObjectType).Concat(GetExtraEvents()).ToArray();
                 eventItemList.ValidateEventItems(events);
             }
         }

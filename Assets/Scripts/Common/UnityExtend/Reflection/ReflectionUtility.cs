@@ -140,31 +140,41 @@ namespace Common.UnityExtend.Reflection
             return obj.GetType().GetInterfaces().Concat(new[] {obj.GetType()});
         }
 
-        public static IEnumerable<MethodInfo> GetAllMethods(Type type)
+        public static IEnumerable<TInfo> GetAllInfos<TInfo>(Type type, Func<Type, IEnumerable<TInfo>> get)
         {
             var t = type;
-            IEnumerable<MethodInfo> methInfos = t.GetMethods(MethodFlags);
-            while (t.BaseType != null)
+            while (t != null)
             {
+                var methInfos = get.Invoke(type);
+
+                foreach (var method in methInfos)
+                {
+                    yield return method;
+                }
+
                 t = t.BaseType;
-                methInfos = methInfos.Concat(t.GetMethods(MethodFlags));
             }
 
-            foreach (var method in methInfos)
-            {
-                yield return method;
-            }
-
-            if (!type.IsInterface) yield break;
+            if (type is not {IsInterface: true}) yield break;
             {
                 foreach (var i in type.GetInterfaces())
                 {
-                    foreach (var method in GetAllMethods(i))
+                    foreach (var method in GetAllInfos(i, get))
                     {
                         yield return method;
                     }
                 }
             }
+        }
+
+        public static IEnumerable<EventInfo> GetAllEvents(Type type)
+        {
+            return GetAllInfos(type, t => t.GetEvents(MethodFlags));
+        }
+
+        public static IEnumerable<MethodInfo> GetAllMethods(Type type)
+        {
+            return GetAllInfos(type, t => t.GetMethods(MethodFlags));
         }
 
         public static IEnumerable<(Type, IEnumerable<MethodInfo>)> GetAllMethodsAndInterfaces(Type type)
@@ -174,56 +184,12 @@ namespace Common.UnityExtend.Reflection
 
         public static IEnumerable<PropertyInfo> GetAllProperties(Type type)
         {
-            var t = type;
-            IEnumerable<PropertyInfo> propInfos = t.GetProperties(PropertyFlags);
-            while (t.BaseType != null)
-            {
-                t = t.BaseType;
-                propInfos = propInfos.Concat(t.GetProperties(PropertyFlags));
-            }
-
-            foreach (var method in propInfos)
-            {
-                yield return method;
-            }
-
-            if (!type.IsInterface) yield break;
-            {
-                foreach (var i in type.GetInterfaces())
-                {
-                    foreach (var method in GetAllProperties(i))
-                    {
-                        yield return method;
-                    }
-                }
-            }
+            return GetAllInfos(type, t => t.GetProperties(PropertyFlags));
         }
 
         public static IEnumerable<FieldInfo> GetAllFields(Type type)
         {
-            var t = type;
-            IEnumerable<FieldInfo> fieldInfos = t.GetFields(FieldFlags);
-            while (t.BaseType != null)
-            {
-                t = t.BaseType;
-                fieldInfos = fieldInfos.Concat(t.GetFields(FieldFlags));
-            }
-
-            foreach (var method in fieldInfos)
-            {
-                yield return method;
-            }
-
-            if (!type.IsInterface) yield break;
-            {
-                foreach (var i in type.GetInterfaces())
-                {
-                    foreach (var method in GetAllFields(i))
-                    {
-                        yield return method;
-                    }
-                }
-            }
+            return GetAllInfos(type, t => t.GetFields(FieldFlags));
         }
 
         public static class FormatName

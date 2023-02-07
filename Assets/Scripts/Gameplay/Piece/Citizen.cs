@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Common.Activity;
 using Common.Animation;
+using Framework.Entities.Variable;
 using Gameplay.Board;
 using Gameplay.Piece.Activities;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace Gameplay.Piece
         CitizenMove CitizenMove { get; }
         Animator Animator { get; }
         IActivityQueue ActivityQueue { get; }
+        IVariable<ITile> TargetTile { get; } 
     }
 
     [SelectionBase]
@@ -42,6 +44,8 @@ namespace Gameplay.Piece
         public IActivityQueue ActivityQueue => _activityQueue;
         public ActivityFlocking.ConfigData FlockingConfigData => flockingConfigData;
 
+        public IVariable<ITile> TargetTile { get; } = new Variable<ITile>();
+        
         private void Awake()
         {
             _standUpActivities = new Activity[]
@@ -71,6 +75,7 @@ namespace Gameplay.Piece
         {
             Animator.Play(LegHashes.sit_down);
         }
+        
     }
 
     public class CitizenMove
@@ -113,8 +118,7 @@ namespace Gameplay.Piece
         {
             _citizen.ActivityQueue.Add(delay > 0f ? new ActivityDelay(delay) : null);
             _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.stand_up));
-            _citizen.ActivityQueue.Add(new ActivityFlocking(_citizen.FlockingConfigData, target, _citizen.transform,
-                null));
+            _citizen.ActivityQueue.Add(new ActivityFlocking(_citizen.FlockingConfigData, target, _citizen.transform,null));
             _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.sit_down));
             _citizen.ActivityQueue.Add(new ActivityCallback(() => ReachedTargetEvent?.Invoke(_citizen)));
             _citizen.ActivityQueue.Begin();

@@ -97,7 +97,7 @@ namespace Common.UnityExtend.Reflection
 
         public IEnumerable<string> GetMethodNames()
         {
-            if (targetObjectPath == null || targetObjectPath.PathFinalType == null) return null;
+            if (targetObjectPath?.PathFinalType == null) return null;
             var result = ReflectionUtility.GetAllMethodsAndInterfaces(targetObjectPath.PathFinalType);
             var valueTuples = result as (Type, IEnumerable<MethodInfo>)[] ?? result.ToArray();
             return valueTuples.Length > 1

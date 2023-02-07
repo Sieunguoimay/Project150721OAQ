@@ -43,6 +43,7 @@ namespace Gameplay
 
         public void OnSelectionChanged()
         {
+            if (!stageUnlock.Entity.Value) return;
             if (stageSelector.Entity.SelectedStage == stageView.Entity)
             {
                 //TransitionToSelectedState

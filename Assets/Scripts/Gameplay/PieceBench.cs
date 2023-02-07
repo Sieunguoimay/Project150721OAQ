@@ -7,10 +7,8 @@ using UnityEngine;
 
 namespace Gameplay
 {
-    public class PieceBench : MonoBehaviour, IPieceContainer
+    public class PieceBench : MonoPieceContainer
     {
-        private readonly List<IPiece> _pieces = new();
-
         private float _spacing;
         private int _perRow;
 
@@ -32,31 +30,6 @@ namespace Gameplay
             var offsetY = _spacing * y;
             pos = t.position + dirX * offsetX + dirY * offsetY;
             rot = rotation1;
-        }
-
-        public IReadOnlyList<IPiece> HeldPieces => _pieces;
-
-        public void AddPiece(IPiece piece)
-        {
-            _pieces.Add(piece);
-        }
-
-        public void RemoveLast()
-        {
-            if (_pieces.Count > 0)
-            {
-                _pieces.RemoveAt(_pieces.Count - 1);
-            }
-        }
-
-        public void Sort(Comparison<IPiece> comparison)
-        {
-            _pieces.Sort(comparison);
-        }
-
-        public void Clear()
-        {
-            _pieces.Clear();
         }
     }
 }

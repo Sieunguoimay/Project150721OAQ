@@ -2,7 +2,7 @@ using System;
 
 namespace Framework.Entities.Variable
 {
-    public class VariableEntityManualView<TPrimitive> : BaseEntityManualView<IVariable<TPrimitive>>
+    public class VariableEntityManualView<TPrimitive> : BaseEntityManualView<IVariableEntity<TPrimitive>>
     {
         protected override void OnSetup()
         {

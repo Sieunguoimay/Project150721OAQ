@@ -60,10 +60,10 @@ namespace Framework.Entities
 
         private TEntityData Data { get; set; }
 
-        protected BaseEntitySavedData(TEntityData data)
+        protected BaseEntitySavedData(TEntityData entityData)
         {
-            Data = data;
-            id = data.Id;
+            Data = entityData;
+            id = entityData.Id;
         }
 
         public virtual void Load(ISavedDataService savedDataService)

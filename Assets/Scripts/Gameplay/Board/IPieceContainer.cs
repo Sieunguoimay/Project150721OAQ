@@ -8,7 +8,7 @@ namespace Gameplay.Board
     {
         IReadOnlyList<IPiece> HeldPieces { get; }
         void AddPiece(IPiece piece);
-        void RemoveLast();
+        void RemovePiece(IPiece piece);
         void Sort(Comparison<IPiece> comparison);
         void Clear();
     }

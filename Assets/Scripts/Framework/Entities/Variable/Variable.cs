@@ -1,28 +1,33 @@
-using System;
-using Framework.Entities;
+﻿using System;
 
 namespace Framework.Entities.Variable
 {
-    public interface IVariable<TPrimitive> : IEntity<IVariableData<TPrimitive>, IVariableSavedData<TPrimitive>>
+    public interface IVariable<TValue>
     {
-        void SetValue(TPrimitive value);
-        TPrimitive Value { get; }
+        void SetValue(TValue value);
+        TValue Value { get; }
         event Action<object, EventArgs> ValueChanged;
     }
 
-    public class Variable<TPrimitive> : BaseEntity<IVariableData<TPrimitive>, IVariableSavedData<TPrimitive>>, IVariable<TPrimitive>
+    public class Variable<TValue> : IVariable<TValue>
     {
-        public Variable(IVariableData<TPrimitive> data, IVariableSavedData<TPrimitive> savedData) : base(data, savedData)
+        public TValue Value { get; private set; }
+        public event Action<object, EventArgs> ValueChanged;
+
+        public void SetValue(TValue value)
         {
-        }
-        
-        public void SetValue(TPrimitive value)
-        {
-            SavedData.SetValue(value);
-            ValueChanged?.Invoke(this, EventArgs.Empty);
+            Value = value;
+            ValueChanged?.Invoke(this, new ValueChangedEventArgs(Value));
         }
 
-        public TPrimitive Value => SavedData.Value;
-        public event Action<object, EventArgs> ValueChanged;
+        private class ValueChangedEventArgs : EventArgs
+        {
+            public ValueChangedEventArgs(TValue value)
+            {
+                Value = value;
+            }
+
+            public TValue Value { get; }
+        }
     }
 }

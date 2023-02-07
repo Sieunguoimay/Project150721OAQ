@@ -102,6 +102,7 @@ MonoBehaviour:
   onFalse:
     m_PersistentCalls:
       m_Calls: []
+  foldout: 0
 --- !u!1 &2453423506100255921
 GameObject:
   m_ObjectHideFlags: 0
@@ -153,6 +154,7 @@ MonoBehaviour:
   onFalse:
     m_PersistentCalls:
       m_Calls: []
+  foldout: 0
 --- !u!114 &2869304347668198514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,7 +169,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pathSelector:
     sourceObject: {fileID: 2453423506100255919}
-    path: 'Entity: IVariable`1'
+    path: 'Entity: IVariableEntity`1'
   eventItemList:
     eventItems:
     - eventName: ValueChanged(Object,EventArgs)
@@ -180,7 +182,7 @@ MonoBehaviour:
   - sourceObjectMethodName: 'Value: Boolean'
     targetObject:
       sourceObject: {fileID: 4187698457461236676}
-      path: 'Entity: IVariable`1'
+      path: 'Entity: IVariableEntity`1'
     targetMethodName: 'SetValue(Boolean): Void'
     formatType: 0
 --- !u!1 &2453423506486198347
@@ -321,6 +323,7 @@ MonoBehaviour:
   onFalse:
     m_PersistentCalls:
       m_Calls: []
+  foldout: 1
 --- !u!1 &3236828730179125039
 GameObject:
   m_ObjectHideFlags: 0
@@ -372,6 +375,7 @@ MonoBehaviour:
   onFalse:
     m_PersistentCalls:
       m_Calls: []
+  foldout: 0
 --- !u!114 &7641750173797798259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -386,7 +390,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pathSelector:
     sourceObject: {fileID: 7296788843734372043}
-    path: 'Entity: IVariable`1'
+    path: 'Entity: IVariableEntity`1'
   eventItemList:
     eventItems:
     - eventName: ValueChanged(Object,EventArgs)
@@ -399,7 +403,7 @@ MonoBehaviour:
   - sourceObjectMethodName: 'Value: Boolean'
     targetObject:
       sourceObject: {fileID: 1577136105926883034}
-      path: 'Entity: IVariable`1'
+      path: 'Entity: IVariableEntity`1'
     targetMethodName: 'SetValue(Boolean): Void'
     formatType: 0
 --- !u!1 &3467919302345769287
@@ -452,6 +456,7 @@ MonoBehaviour:
   onFalse:
     m_PersistentCalls:
       m_Calls: []
+  foldout: 0
 --- !u!1 &4635110045186290328
 GameObject:
   m_ObjectHideFlags: 0
@@ -555,6 +560,7 @@ MonoBehaviour:
   onFalse:
     m_PersistentCalls:
       m_Calls: []
+  foldout: 0
 --- !u!114 &8455430095616518289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -569,7 +575,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pathSelector:
     sourceObject: {fileID: 1167126638324058383}
-    path: 'Entity: IVariable`1'
+    path: 'Entity: IVariableEntity`1'
   eventItemList:
     eventItems:
     - eventName: ValueChanged(Object,EventArgs)
@@ -582,7 +588,7 @@ MonoBehaviour:
   - sourceObjectMethodName: 'Value: Boolean'
     targetObject:
       sourceObject: {fileID: 1289625657956560848}
-      path: 'Entity: IVariable`1'
+      path: 'Entity: IVariableEntity`1'
     targetMethodName: 'SetValue(Boolean): Void'
     formatType: 0
 --- !u!1 &4910712726780071072
@@ -636,6 +642,7 @@ MonoBehaviour:
   onFalse:
     m_PersistentCalls:
       m_Calls: []
+  foldout: 0
 --- !u!114 &9138746771330183165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -650,7 +657,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pathSelector:
     sourceObject: {fileID: 7433848536778397650}
-    path: 'Entity: IVariable`1'
+    path: 'Entity: IVariableEntity`1'
   eventItemList:
     eventItems:
     - eventName: ValueChanged(Object,EventArgs)
@@ -663,7 +670,7 @@ MonoBehaviour:
   - sourceObjectMethodName: 'Value: Boolean'
     targetObject:
       sourceObject: {fileID: 8148071784950572343}
-      path: 'Entity: IVariable`1'
+      path: 'Entity: IVariableEntity`1'
     targetMethodName: 'SetValue(Boolean): Void'
     formatType: 0
 --- !u!1 &5489758912336591856
@@ -716,6 +723,7 @@ MonoBehaviour:
   onFalse:
     m_PersistentCalls:
       m_Calls: []
+  foldout: 0
 --- !u!1 &7310478993111115738
 GameObject:
   m_ObjectHideFlags: 0
@@ -818,6 +826,7 @@ MonoBehaviour:
   onFalse:
     m_PersistentCalls:
       m_Calls: []
+  foldout: 0
 --- !u!1 &8611139239365150848
 GameObject:
   m_ObjectHideFlags: 0
@@ -868,6 +877,7 @@ MonoBehaviour:
   onFalse:
     m_PersistentCalls:
       m_Calls: []
+  foldout: 0
 --- !u!1 &9040842164523048304
 GameObject:
   m_ObjectHideFlags: 0
