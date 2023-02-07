@@ -122,24 +122,13 @@ namespace Gameplay.Board
                 (int) ((localCellIndexInEdge + 1f) / 2f * Mathf.Pow(-1f, localCellIndexInEdge));
             localCellIndexInEdge = Mathf.FloorToInt((ringIndex + 1) / 2f) + oscillatingIntegerSequence;
 
-            return LocalEdgeCellIndexToPosition(ringIndex, edgeIndex, localCellIndexInEdge);
+            return EdgeOrigins[edgeIndex] * ringIndex + EdgeDirections[edgeIndex] * localCellIndexInEdge;
         }
 
-        private static readonly Vector2Int[] EdgeDirections =
+        private static readonly Vector2Int[] EdgeOrigins =
             {new(1, 0), new(0, 1), new(-1, 0), new(0, -1)};
 
-        private static readonly Vector2Int[] PerpendicularDirections =
+        private static readonly Vector2Int[] EdgeDirections =
             {new(-1, 1), new(-1, -1), new(1, -1), new(1, 1)};
-
-        private static Vector2Int LocalEdgeCellIndexToPosition(int ringIndex, int edgeIndex,
-            int localCellIndexInEdge)
-        {
-            var edgeDirection = EdgeDirections[edgeIndex];
-            var perpendicularDirection = PerpendicularDirections[edgeIndex];
-            var ringIndexVector = edgeDirection * ringIndex;
-            var localCellIndexInEdgeVector = perpendicularDirection * localCellIndexInEdge;
-
-            return ringIndexVector + localCellIndexInEdgeVector;
-        }
     }
 }
