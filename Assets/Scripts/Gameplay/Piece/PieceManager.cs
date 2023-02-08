@@ -15,6 +15,7 @@ namespace Gameplay.Piece
         private Citizen[] _citizens;
 
         private int _numCitizensPerTile;
+
         private IEnumerable<Piece> AllPieces
         {
             get
@@ -63,7 +64,7 @@ namespace Gameplay.Piece
 
         public void ReleasePieces(Action onAllInPlace, Board.Board board)
         {
-            for (var i = 0; i < board.Sides.Length; i++)
+            for (var i = 0; i < board.Sides.Count; i++)
             {
                 var tg = board.Sides[i];
                 var numTilesPerSide = tg.CitizenTiles.Length;
@@ -79,7 +80,7 @@ namespace Gameplay.Piece
 
                         var delay = k * 0.1f;
                         var position = ct.GetGridPosition(Mathf.Max(0, ct.HeldPieces.Count - 1));
-                        p.CitizenMove.StraightMove(position,delay);
+                        p.CitizenMove.StraightMove(position, index == _citizens.Length - 1 ? ReachedTarget : null, delay);
                     }
                 }
 
@@ -87,12 +88,9 @@ namespace Gameplay.Piece
                 tg.MandarinTile.SetMandarin(_mandarins[i]);
             }
 
-            _citizens[^1].CitizenMove.ReachedTargetEvent += ReachedTarget;
-
             void ReachedTarget(ICitizen citizen)
             {
                 onAllInPlace?.Invoke();
-                citizen.CitizenMove.ReachedTargetEvent -= ReachedTarget;
             }
         }
     }

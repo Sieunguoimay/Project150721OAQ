@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Common;
 using Gameplay.Piece;
 using SNM;
@@ -9,21 +10,27 @@ namespace Gameplay.Board
     public class PieceEater
     {
         private PieceBench _bench;
-        private Board _board;
+        private IReadOnlyList<ITile> _tileSpace;
         private Coroutine _coroutine;
         private bool _forward;
-        private Action _done;
 
-        public void SetBoard(Board board)
+        public bool TryEat(IReadOnlyList<ITile> tiles, PieceBench bench, int index, bool forward, Action done)
         {
-            _board = board;
+            _tileSpace = tiles;
+            var nextTile = Board.GetSuccessTile(_tileSpace, index, forward);
+
+            if (!IsTileEatable(nextTile, _tileSpace, forward)) return false;
+
+            SetUpForEating(bench, forward, done);
+            EatRecursively(nextTile, done);
+
+            return true;
         }
 
-        public void SetUpForEating(PieceBench bench, bool forward, Action done)
+        private void SetUpForEating(PieceBench bench, bool forward, Action done)
         {
             _bench = bench;
             _forward = forward;
-            _done = done;
         }
 
         public void Cleanup()
@@ -34,18 +41,18 @@ namespace Gameplay.Board
             }
         }
 
-        public static bool IsTileEatable(ITile tile, Board board, bool forward)
+        private static bool IsTileEatable(ITile tile, IReadOnlyList<ITile> tiles, bool forward)
         {
             return tile.HeldPieces.Count == 0
                    && tile is not IMandarinTile
-                   && Board.GetSuccessTile(board.Tiles, tile, forward).HeldPieces.Count > 0;
+                   && Board.GetSuccessTile(tiles, tile.TileIndex, forward).HeldPieces.Count > 0;
         }
 
-        public void EatRecursively(ITile tile)
+        private void EatRecursively(ITile tile, Action done)
         {
-            if (IsTileEatable(tile, _board, _forward))
+            if (IsTileEatable(tile, _tileSpace, _forward))
             {
-                var successTile = Board.GetSuccessTile(_board.Tiles, tile, _forward);
+                var successTile = Board.GetSuccessTile(_tileSpace, tile.TileIndex, _forward);
 
                 EatCitizens(successTile);
                 if (successTile is IMandarinTile mt) EatMandarin(mt);
@@ -53,12 +60,12 @@ namespace Gameplay.Board
                 _coroutine = PublicExecutor.Instance.Delay(0.2f, () =>
                 {
                     _coroutine = null;
-                    EatRecursively(Board.GetSuccessTile(_board.Tiles, successTile, _forward));
+                    EatRecursively(Board.GetSuccessTile(_tileSpace, successTile.TileIndex, _forward), done);
                 });
             }
             else
             {
-                _done?.Invoke();
+                done?.Invoke();
             }
         }
 
@@ -100,7 +107,7 @@ namespace Gameplay.Board
             {
                 if (pieces[i] is ICitizen citizen)
                 {
-                    citizen.CitizenMove.StraightMove(positions[i], i * 0.2f);
+                    citizen.CitizenMove.StraightMove(positions[i], null, i * 0.2f);
                 }
             }
 

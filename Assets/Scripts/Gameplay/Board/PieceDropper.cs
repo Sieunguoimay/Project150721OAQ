@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Gameplay.Piece;
 using Gameplay.Piece.Activities;
 using UnityEngine;
@@ -10,19 +9,29 @@ namespace Gameplay.Board
     public interface IPieceDropper
     {
         void Take(IPieceContainer container, int amount);
-        void SetMoveStartPoint(Board board, ITile tile, bool forward);
+        void TakeAll(IPieceContainer container);
+        void SetMoveStartPoint(IReadOnlyList<TileAdapter> tiles, int index, bool forward);
         void DropOnce(Action<ITile> done);
-        void DropTillDawn(Action<ITile> onDone);
+        void DropTillDawn(Action<IPieceDropper,ITile> onDone);
         void Cleanup();
     }
 
+    public class TileAdapter
+    {
+        public TileAdapter(ITile tile)
+        {
+            Tile = tile;
+        }
+
+        public ITile Tile { get; }
+    }
     public class PieceDropper : IPieceDropper
     {
         private readonly BoardTraveller _boardTraveller = new();
         private readonly List<ICitizen> _citizens = new();
 
         private bool _forward;
-        private Board _board;
+        private IReadOnlyList<TileAdapter> _tileSpace;
         private Action<ITile> _done;
 
         public void Take(IPieceContainer container, int num)
@@ -30,12 +39,7 @@ namespace Gameplay.Board
             var available = container.HeldPieces.Count;
             if (num == available)
             {
-                foreach (var p in container.HeldPieces)
-                {
-                    if (p is ICitizen c) _citizens.Add(c);
-                }
-
-                container.Clear();
+                TakeAll(container);
             }
             else
             {
@@ -48,34 +52,47 @@ namespace Gameplay.Board
             }
         }
 
-        public void SetMoveStartPoint(Board board, ITile tile, bool forward)
+        public void TakeAll(IPieceContainer container)
         {
-            _board = board;
-            _boardTraveller.Init(Array.IndexOf(_board.Tiles, tile), _board.Tiles.Length, forward);
+            foreach (var p in container.HeldPieces)
+            {
+                if (p is ICitizen c) _citizens.Add(c);
+            }
+
+            container.Clear();
+        }
+
+        public void SetMoveStartPoint(IReadOnlyList<TileAdapter> tiles, int index, bool forward)
+        {
+            _tileSpace = tiles;
+            _boardTraveller.Init(index, _tileSpace.Count, forward);
             _forward = forward;
         }
 
         public void DropOnce(Action<ITile> done)
         {
+            if (_citizens.Count == 0)
+            {
+                Debug.LogError("Citizen List is empty. Please make sure you Take() the correct container");
+                return;
+            }
             for (var i = 0; i < _citizens.Count; i++)
             {
-                IEnumerable<Vector3> GetVisitedPoints(int citizenIndex)
+                IEnumerable<TileAdapter> GetVisitedPoints(int citizenIndex)
                 {
                     for (var j = 0; j < citizenIndex + 1; j++)
                     {
                         var visitedTileIndex = _boardTraveller.GetIndexAtStep(j + 1);
-                        var visitedTile = _board.Tiles[visitedTileIndex];
-                        yield return visitedTile.GetGridPosition(visitedTile.HeldPieces.Count + citizenIndex - j);
+                        var visitedTile = _tileSpace[visitedTileIndex];
+                        yield return visitedTile;//visitedTile.GetGridPosition(visitedTile.HeldPieces.Count + citizenIndex - j);
                     }
                 }
 
                 var citizen = _citizens[i];
-                
-                citizen.CitizenMove.JumpingMove(GetVisitedPoints(i), i * 0.15f);
-                citizen.CitizenMove.ReachedTargetEvent -= OnCitizenReachedTheTargetTile;
-                citizen.CitizenMove.ReachedTargetEvent += OnCitizenReachedTheTargetTile;
-                
-                var tile = _board.Tiles[_boardTraveller.GetIndexAtStep(i + 1)];
+
+                citizen.CitizenMove.JumpingMove(GetVisitedPoints(i),OnCitizenReachedTheTargetTile, i * 0.15f);
+
+                var tile = _tileSpace[_boardTraveller.GetIndexAtStep(i + 1)].Tile;
 
                 citizen.TargetTile.SetValue(tile);
             }
@@ -85,19 +102,18 @@ namespace Gameplay.Board
 
         private void OnCitizenReachedTheTargetTile(ICitizen citizen)
         {
-            citizen.CitizenMove.ReachedTargetEvent -= OnCitizenReachedTheTargetTile;
             citizen.TargetTile.Value.AddPiece(citizen);
             _citizens.Remove(citizen);
-            
+
             if (_citizens.Count == 0)
             {
                 _done?.Invoke(citizen.TargetTile.Value);
             }
         }
 
-        public void DropTillDawn(Action<ITile> onDone)
+        public void DropTillDawn(Action<IPieceDropper, ITile> onDone)
         {
-            DropOnce(t => ContinueDropping(onDone, t));
+            DropOnce(t => ContinueDropping(onDone, t.TileIndex));
         }
 
         public void Cleanup()
@@ -106,11 +122,14 @@ namespace Gameplay.Board
             {
                 _citizens.Clear();
             }
+
+            _tileSpace = null;
+            _done = null;
         }
 
-        private void ContinueDropping(Action<ITile> done, ITile tile)
+        private void ContinueDropping(Action<IPieceDropper, ITile> done, int index)
         {
-            var successTile = Board.GetSuccessTile(_board.Tiles, tile, _forward);
+            var successTile = _tileSpace[BoardTraveller.MoveNext(index, _tileSpace.Count, _forward)].Tile;
             var shouldContinue = successTile.HeldPieces.Count > 0 && successTile is ICitizenTile;
 
             if (shouldContinue)
@@ -123,13 +142,13 @@ namespace Gameplay.Board
                     }
                 }
 
-                Take(successTile, successTile.HeldPieces.Count);
-                SetMoveStartPoint(_board, successTile, _forward);
-                DropOnce(t => ContinueDropping(done, t));
+                TakeAll(successTile);
+                SetMoveStartPoint(_tileSpace, successTile.TileIndex, _forward);
+                DropOnce(t => ContinueDropping(done, t.TileIndex));
             }
             else
             {
-                done?.Invoke(tile);
+                done?.Invoke(this, _tileSpace[index].Tile);
             }
         }
     }

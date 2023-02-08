@@ -6,6 +6,7 @@ namespace Gameplay.Board
 {
     public interface ITile : IPieceContainer
     {
+        int TileIndex { get; }
         float Size { get; }
         Vector3 GetGridPosition(int index, bool local = false);
         Transform Transform { get; }
@@ -17,7 +18,13 @@ namespace Gameplay.Board
         [SerializeField, Min(0f)] private float size;
         [SerializeField, Min(0f)] private float cellSize = .15f;
 
+        public int TileIndex { get; private set; }
         public float Size => size;
+
+        public void SetIndex(int tileIndex)
+        {
+            TileIndex = tileIndex;
+        }
 
         public virtual Vector3 GetGridPosition(int index, bool local = false)
         {

@@ -32,7 +32,6 @@ namespace System
             _board = board;
             _players = players;
             _interact = interactManager;
-            _eater.SetBoard(_board);
 
             IsPlaying = false;
             IsGameOver = false;
@@ -79,17 +78,21 @@ namespace System
 
         private void OnMove(ITile tile, bool forward)
         {
-            _dropper.Take(tile, tile.HeldPieces.Count);
-            _dropper.SetMoveStartPoint(_board, tile, forward);
-            _dropper.DropTillDawn(lastTile =>
+            // _dropper.TakeAll(tile);
+            // _dropper.SetMoveStartPoint(_board.Tiles, tile.TileIndex, forward);
+            // _dropper.DropTillDawn((_, lastTile) =>
+            // {
+            //     if (!_eater.TryEat(_board, CurrentPlayer.PieceBench, lastTile.TileIndex, forward, MakeDecision))
+            //     {
+            //         MakeDecision();
+            //     }
+            // });
+
+            new MultiPieceDropper().DropConcurrently(_board.Tiles, _board.Tiles.Select(t => new TileAdapter(t)).ToArray(), CurrentPlayer.PieceBench, new Drop[]
             {
-                var nextTile = Board.GetSuccessTile(_board.Tiles, lastTile, forward);
-                if (PieceEater.IsTileEatable(nextTile, _board, forward))
-                {
-                    _eater.SetUpForEating(CurrentPlayer.PieceBench, forward, MakeDecision);
-                    _eater.EatRecursively(nextTile);
-                }
-            });
+                new() {TileIndex = tile.TileIndex, DropDirection = forward},
+                new() {TileIndex = BoardTraveller.MoveNext(tile.TileIndex, _board.Tiles.Count, forward, 2), DropDirection = forward},
+            }, MakeDecision);
         }
 
         private void MakeDecision()
@@ -115,11 +118,8 @@ namespace System
 
                 //Take back pieces to board
                 _dropper.Take(CurrentPlayer.PieceBench, tileGroup.CitizenTiles.Length);
-                _dropper.SetMoveStartPoint(_board, tileGroup.MandarinTile, true);
-                _dropper.DropOnce(_ =>
-                {
-                    _interact.ShowTileChooser(_board.Sides[CurrentPlayer.Index].CitizenTiles);
-                });
+                _dropper.SetMoveStartPoint(_board.Tiles.Select(t => new TileAdapter(t)).ToArray(), tileGroup.MandarinTile.TileIndex, true);
+                _dropper.DropOnce(_ => { _interact.ShowTileChooser(_board.Sides[CurrentPlayer.Index].CitizenTiles); });
                 return;
             }
 

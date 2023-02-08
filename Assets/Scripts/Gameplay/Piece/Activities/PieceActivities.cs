@@ -321,12 +321,12 @@ namespace Gameplay.Piece.Activities
     public class ActivityJumpTimeline : ActivityDelay
     {
         private readonly Citizen _p;
-        private readonly Vector3 _target;
+        private readonly Func<Vector3> _target;
 
         private TransformControlTrack _jumping;
         private TransformControlTrack _facing;
 
-        public ActivityJumpTimeline(Citizen p, Vector3 target) : base((float) p.JumpTimeline.duration)
+        public ActivityJumpTimeline(Citizen p, Func<Vector3> target) : base((float) p.JumpTimeline.duration)
         {
             _p = p;
             _target = target;
@@ -335,7 +335,9 @@ namespace Gameplay.Piece.Activities
         public override void Begin()
         {
             base.Begin();
-
+            
+            var target = _target.Invoke();
+            
             var tracks =
                 _p.JumpTimeline.playableAsset.outputs.Where(tr => tr.sourceObject is TransformControlTrack)
                     .Select(tr => tr.sourceObject as TransformControlTrack).ToArray();
@@ -346,10 +348,10 @@ namespace Gameplay.Piece.Activities
 
             _p.JumpTimeline.Stop();
             var euler = Quaternion
-                .LookRotation(_p.transform.InverseTransformDirection(_target - _p.transform.position))
+                .LookRotation(_p.transform.InverseTransformDirection(target - _p.transform.position))
                 .eulerAngles;
 
-            SetTrack(_jumping, _target.x, _target.z, 0);
+            SetTrack(_jumping, target.x, target.z, 0);
             SetTrack(_facing, 0, 0,
                 ClampEuler(euler.y, ((Transform) _p.JumpTimeline.GetGenericBinding(_facing)).localEulerAngles.y));
 

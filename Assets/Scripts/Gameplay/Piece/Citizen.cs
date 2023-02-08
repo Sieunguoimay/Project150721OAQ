@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Common.Activity;
 using Common.Animation;
 using Framework.Entities.Variable;
@@ -15,7 +16,7 @@ namespace Gameplay.Piece
         CitizenMove CitizenMove { get; }
         Animator Animator { get; }
         IActivityQueue ActivityQueue { get; }
-        IVariable<ITile> TargetTile { get; } 
+        IVariable<ITile> TargetTile { get; }
     }
 
     [SelectionBase]
@@ -45,7 +46,7 @@ namespace Gameplay.Piece
         public ActivityFlocking.ConfigData FlockingConfigData => flockingConfigData;
 
         public IVariable<ITile> TargetTile { get; } = new Variable<ITile>();
-        
+
         private void Awake()
         {
             _standUpActivities = new Activity[]
@@ -75,7 +76,12 @@ namespace Gameplay.Piece
         {
             Animator.Play(LegHashes.sit_down);
         }
-        
+
+
+        public Vector3 GetPositionInTile(ITile tile)
+        {
+            return tile.GetGridPosition(tile.HeldPieces.Count + (TargetTile.Value == tile ? 0 : 1));
+        }
     }
 
     public class CitizenMove
@@ -87,10 +93,35 @@ namespace Gameplay.Piece
             _citizen = citizen;
         }
 
-        public event Action<Citizen> ReachedTargetEvent;
+        // public event Action<Citizen> ReachedTargetEvent;
         public event Action<Citizen> MoveDoneEvent;
 
-        public void JumpingMove(IEnumerable<Vector3> targetSequence, float delay = 0f)
+        public void JumpingMove(IEnumerable<TileAdapter> targetSequence, Action<ICitizen> reachTargetCallback, float delay = 0f)
+        {
+            _citizen.ActivityQueue.Add(delay > 0 ? new ActivityDelay(delay) : null);
+
+            var firstTarget = true;
+            foreach (var target in targetSequence)
+            {
+                if (firstTarget)
+                {
+                    _citizen.ActivityQueue.Add(new ActivityRotateToTarget(_citizen.transform, target.Tile.Transform.position, .2f));
+                    firstTarget = false;
+                }
+
+                _citizen.ActivityQueue.Add(new ActivityJumpTimeline(_citizen, () => _citizen.GetPositionInTile(target.Tile)));
+                _citizen.ActivityQueue.Add(new ActivityCallback(() => reachTargetCallback?.Invoke(_citizen)));
+            }
+
+            _citizen.ActivityQueue.Add(new ActivityCallback(() => reachTargetCallback?.Invoke(_citizen)));
+            _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.land));
+            _citizen.ActivityQueue.Add(new ActivityTurnAway(_citizen.transform));
+            _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.sit_down));
+            _citizen.ActivityQueue.Add(new ActivityCallback(() => MoveDoneEvent?.Invoke(_citizen)));
+            _citizen.ActivityQueue.Begin();
+        }
+
+        public void JumpingMove(IEnumerable<Vector3> targetSequence, Action<ICitizen> reachTargetCallback, float delay = 0f)
         {
             _citizen.ActivityQueue.Add(delay > 0 ? new ActivityDelay(delay) : null);
 
@@ -103,10 +134,10 @@ namespace Gameplay.Piece
                     firstTarget = false;
                 }
 
-                _citizen.ActivityQueue.Add(new ActivityJumpTimeline(_citizen, target));
+                _citizen.ActivityQueue.Add(new ActivityJumpTimeline(_citizen, () => target));
             }
 
-            _citizen.ActivityQueue.Add(new ActivityCallback(() => ReachedTargetEvent?.Invoke(_citizen)));
+            _citizen.ActivityQueue.Add(new ActivityCallback(() => reachTargetCallback?.Invoke(_citizen)));
             _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.land));
             _citizen.ActivityQueue.Add(new ActivityTurnAway(_citizen.transform));
             _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.sit_down));
@@ -114,13 +145,13 @@ namespace Gameplay.Piece
             _citizen.ActivityQueue.Begin();
         }
 
-        public void StraightMove(Vector3 target, float delay)
+        public void StraightMove(Vector3 target, Action<ICitizen> reachTargetCallback, float delay)
         {
             _citizen.ActivityQueue.Add(delay > 0f ? new ActivityDelay(delay) : null);
             _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.stand_up));
-            _citizen.ActivityQueue.Add(new ActivityFlocking(_citizen.FlockingConfigData, target, _citizen.transform,null));
+            _citizen.ActivityQueue.Add(new ActivityFlocking(_citizen.FlockingConfigData, target, _citizen.transform, null));
             _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.sit_down));
-            _citizen.ActivityQueue.Add(new ActivityCallback(() => ReachedTargetEvent?.Invoke(_citizen)));
+            _citizen.ActivityQueue.Add(new ActivityCallback(() => reachTargetCallback?.Invoke(_citizen)));
             _citizen.ActivityQueue.Begin();
         }
     }
