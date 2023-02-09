@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Common.Activity;
 using Common.Animation;
 using Framework.Entities.Variable;
@@ -76,12 +75,6 @@ namespace Gameplay.Piece
         {
             Animator.Play(LegHashes.sit_down);
         }
-
-
-        public Vector3 GetPositionInTile(ITile tile)
-        {
-            return tile.GetGridPosition(tile.HeldPieces.Count + (TargetTile.Value == tile ? 0 : 1));
-        }
     }
 
     public class CitizenMove
@@ -92,12 +85,11 @@ namespace Gameplay.Piece
         {
             _citizen = citizen;
         }
-
-        // public event Action<Citizen> ReachedTargetEvent;
         public event Action<Citizen> MoveDoneEvent;
 
         public void JumpingMove(IEnumerable<TileAdapter> targetSequence, Action<ICitizen> reachTargetCallback, float delay = 0f)
         {
+            _citizen.ActivityQueue.End();
             _citizen.ActivityQueue.Add(delay > 0 ? new ActivityDelay(delay) : null);
 
             var firstTarget = true;
@@ -109,11 +101,13 @@ namespace Gameplay.Piece
                     firstTarget = false;
                 }
 
-                _citizen.ActivityQueue.Add(new ActivityJumpTimeline(_citizen, () => _citizen.GetPositionInTile(target.Tile)));
-                _citizen.ActivityQueue.Add(new ActivityCallback(() =>
+                _citizen.ActivityQueue.Add(new ActivityJumpTimeline(_citizen, () =>
                 {
-                    
+                    target.VisitorCount.SetValue(target.VisitorCount.Value + 1);
+                    var offset = _citizen.TargetTile.Value == target.Tile ? 0 : target.VisitorCount.Value - 1;
+                    return target.Tile.GetGridPosition(target.Tile.HeldPieces.Count + offset);
                 }));
+                _citizen.ActivityQueue.Add(new ActivityCallback(() => { target.VisitorCount.SetValue(target.VisitorCount.Value - 1); }));
             }
 
             _citizen.ActivityQueue.Add(new ActivityCallback(() => reachTargetCallback?.Invoke(_citizen)));

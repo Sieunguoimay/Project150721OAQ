@@ -32,11 +32,6 @@ namespace Gameplay.Board
             _tiles = tiles;
             Metadata = metadata;
         }
-
-        public static ITile GetSuccessTile(IReadOnlyList<ITile> tiles, int index, bool forward)
-        {
-            return tiles[BoardTraveller.MoveNext(index, tiles.Count, forward)];
-        }
     }
 
     public static class BoardCreator

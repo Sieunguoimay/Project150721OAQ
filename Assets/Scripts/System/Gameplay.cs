@@ -33,6 +33,8 @@ namespace System
             _players = players;
             _interact = interactManager;
 
+            _dropper.Setup(_board.Tiles);
+
             IsPlaying = false;
             IsGameOver = false;
             NextPlayer();
@@ -79,18 +81,19 @@ namespace System
         private void OnMove(ITile tile, bool forward)
         {
             // _dropper.TakeAll(tile);
-            // _dropper.SetMoveStartPoint(_board.Tiles, tile.TileIndex, forward);
+            // _dropper.SetMoveStartPoint(tile.TileIndex, forward);
             // _dropper.DropTillDawn((_, lastTile) =>
             // {
-            //     if (!_eater.TryEat(_board, CurrentPlayer.PieceBench, lastTile.TileIndex, forward, MakeDecision))
+            //     if (!_eater.TryEat(_board.Tiles, CurrentPlayer.PieceBench, lastTile.TileIndex, forward, MakeDecision))
             //     {
             //         MakeDecision();
             //     }
             // });
-
-            new MultiPieceDropper().DropConcurrently(_board.Tiles, _board.Tiles.Select(t => new TileAdapter(t)).ToArray(), CurrentPlayer.PieceBench, new Drop[]
+            //
+            new MultiPieceDropper().DropConcurrently(_board.Tiles, CurrentPlayer.PieceBench, new Drop[]
             {
                 new() {TileIndex = tile.TileIndex, DropDirection = forward},
+                // new() {TileIndex = BoardTraveller.MoveNext(tile.TileIndex, _board.Tiles.Count, forward), DropDirection = forward},
                 new() {TileIndex = BoardTraveller.MoveNext(tile.TileIndex, _board.Tiles.Count, forward, 2), DropDirection = forward},
             }, MakeDecision);
         }
@@ -118,7 +121,7 @@ namespace System
 
                 //Take back pieces to board
                 _dropper.Take(CurrentPlayer.PieceBench, tileGroup.CitizenTiles.Length);
-                _dropper.SetMoveStartPoint(_board.Tiles.Select(t => new TileAdapter(t)).ToArray(), tileGroup.MandarinTile.TileIndex, true);
+                _dropper.SetMoveStartPoint(tileGroup.MandarinTile.TileIndex, true);
                 _dropper.DropOnce(_ => { _interact.ShowTileChooser(_board.Sides[CurrentPlayer.Index].CitizenTiles); });
                 return;
             }
