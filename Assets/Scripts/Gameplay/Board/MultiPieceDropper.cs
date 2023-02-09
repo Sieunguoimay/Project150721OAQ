@@ -42,14 +42,19 @@ namespace Gameplay.Board
         private void OnDropDone(IPieceDropper dropper, ITile tile)
         {
             var i = Array.IndexOf(_pieceDroppers, dropper);
-            if (new PieceEater().TryEat(_tileSpace, _pieceBench, tile.TileIndex, _drops[i].DropDirection, () => _doneCount++))
+            if (!new PieceEater().TryEat(_tileSpace, _pieceBench, tile.TileIndex, _drops[i].DropDirection, OnEatDone))
             {
-                _doneCount++;
+                OnEatDone();
             }
 
-            if (_doneCount == _drops.Count)
+            void OnEatDone()
             {
-                _doneCallback?.Invoke();
+                _doneCount++;
+
+                if (_doneCount == _drops.Count)
+                {
+                    _doneCallback?.Invoke();
+                }
             }
         }
     }

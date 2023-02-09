@@ -110,7 +110,10 @@ namespace Gameplay.Piece
                 }
 
                 _citizen.ActivityQueue.Add(new ActivityJumpTimeline(_citizen, () => _citizen.GetPositionInTile(target.Tile)));
-                _citizen.ActivityQueue.Add(new ActivityCallback(() => reachTargetCallback?.Invoke(_citizen)));
+                _citizen.ActivityQueue.Add(new ActivityCallback(() =>
+                {
+                    
+                }));
             }
 
             _citizen.ActivityQueue.Add(new ActivityCallback(() => reachTargetCallback?.Invoke(_citizen)));

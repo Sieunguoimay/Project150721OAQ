@@ -54,11 +54,13 @@ namespace Gameplay.GameInteract
             }
 
             _tileChoosingButtons = null;
+            SelectedTile = null;
         }
 
         public void ResetAll()
         {
             ButtonContainer.HideButtons();
+            SelectedTile = null;
         }
 
         private void OnButtonClicked(IButton obj)
