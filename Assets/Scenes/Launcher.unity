@@ -883,6 +883,26 @@ PrefabInstance:
       propertyPath: m_ChildCameras.Array.size
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5592389154637034424, guid: 37681356262e09a4b84806d9f1b755e0, type: 3}
+      propertyPath: reset
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5592389154637034424, guid: 37681356262e09a4b84806d9f1b755e0, type: 3}
+      propertyPath: testIndex
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5592389154637034424, guid: 37681356262e09a4b84806d9f1b755e0, type: 3}
+      propertyPath: testIndex2
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5592389154637034424, guid: 37681356262e09a4b84806d9f1b755e0, type: 3}
+      propertyPath: testDirection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5592389154637034424, guid: 37681356262e09a4b84806d9f1b755e0, type: 3}
+      propertyPath: testDirection2
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5592389154637034425, guid: 37681356262e09a4b84806d9f1b755e0, type: 3}
       propertyPath: m_Name
       value: Main

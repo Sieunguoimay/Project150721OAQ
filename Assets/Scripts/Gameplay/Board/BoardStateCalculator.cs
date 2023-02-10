@@ -1,25 +1,24 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Gameplay.Board
 {
+    public class StepData
+    {
+        public readonly int State;
+        public readonly int TileIndex;
+        public readonly int Data;
+
+        public StepData(int state, int tileIndex, int data)
+        {
+            State = state;
+            TileIndex = tileIndex;
+            Data = data;
+        }
+    }
+
     public abstract class BoardStateCalculator
     {
-        public class StepData
-        {
-            public int state;
-            public int tileIndex;
-            public int data;
-
-            public StepData(int state, int tileIndex, int data)
-            {
-                this.state = state;
-                this.tileIndex = tileIndex;
-                this.data = data;
-            }
-        }
-
         public static IEnumerator<StepData> Calculate(int[] newState, int tileIndex, bool direction)
         {
             var totalEaten = 0;
@@ -35,6 +34,12 @@ namespace Gameplay.Board
             while (true)
             {
                 var takenPieces = newState[currentTileIndex];
+                if (takenPieces == 0)
+                {
+                    yield return new StepData(-1, currentTileIndex, 0);
+                    break;
+                }
+
                 newState[currentTileIndex] = 0;
                 yield return new StepData(0, currentTileIndex, 0);
 
@@ -62,18 +67,16 @@ namespace Gameplay.Board
                     while (newState[nextTileIndex] == 0 && nextTileIndex % halfSize != 0 &&
                            newState[nextTileIndex2] > 0)
                     {
-                        newState[nextTileIndex] = -1;
                         yield return new StepData(2, nextTileIndex, 0);
-                        newState[nextTileIndex] = 0;
 
                         var count = newState[nextTileIndex2];
                         totalEaten += count;
                         newState[nextTileIndex2] = 0;
 
+                        yield return new StepData(3, nextTileIndex2, count);
+
                         nextTileIndex = BoardTraveller.MoveNext(nextTileIndex2, newState.Length, direction);
                         nextTileIndex2 = BoardTraveller.MoveNext(nextTileIndex, newState.Length, direction);
-
-                        yield return new StepData(3, currentTileIndex, count);
                     }
 
                     break;
@@ -87,7 +90,6 @@ namespace Gameplay.Board
                 }
 
                 yield return new StepData(-1, currentTileIndex, 0);
-
                 break;
             }
         }

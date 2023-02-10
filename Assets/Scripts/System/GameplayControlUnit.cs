@@ -87,14 +87,22 @@ namespace System
         [SerializeField] private int testIndex;
         [SerializeField] private int testIndex2;
         [SerializeField] private bool testDirection;
+        [SerializeField] private bool reset;
 
         private int[] _state;
         [ContextMenu("TestLogState")]
         public void TestLogState()
         {
-            
-            _state ??= _boardManager.Board.Tiles
-                .Select(t => t.HeldPieces.Count + (t is IMandarinTile {Mandarin: { }} ? 10 : 0)).ToArray();
+            if (reset || _state == null || _state.Length == 0)
+            {
+                _state = new int[12];
+                for (var i = 0; i < 12; i++)
+                {
+                    _state[i] = i % 6 == 0 ? 10 : 5;
+                }
+
+                reset = false;
+            }
 
             var steps = BoardStateCalculator.Calculate(_state, testIndex, testDirection);
             var steps2 = BoardStateCalculator.Calculate(_state, testIndex2, testDirection);
@@ -103,16 +111,23 @@ namespace System
             {
                 var a = steps.MoveNext();
                 var b = steps2.MoveNext();
+                if (!a && !b) break;
+
                 var str = "";
                 for (var i = 0; i < _state.Length; i++)
                 {
-                    var s = steps.Current.state == 1 && i == steps.Current.tileIndex ? $"({steps.Current.data})" : "";
-                    var s2 = steps2.Current.state == 1 && i == steps2.Current.tileIndex ? $"({steps2.Current.data})" : "";
-                    str += $"{_state[i]}{s}{s2} - ";
+                    var s = steps.Current.State == 1 && i == steps.Current.TileIndex ? $"({steps.Current.Data})" : "";
+                    var s2 = steps2.Current.State == 1 && i == steps2.Current.TileIndex ? $"({steps2.Current.Data})" : "";
+                    var hit = a && steps.Current.State == 2 && i == steps.Current.TileIndex || b && steps2.Current.State == 2 && i == steps2.Current.TileIndex;
+                    var eat = a && steps.Current.State == 3 && i == steps.Current.TileIndex || b && steps2.Current.State == 3 && i == steps2.Current.TileIndex;
+                    str += $" {(eat ? "(" : "")}{(hit ? "X" : _state[i])}{(eat ? ")" : "")}{s}{s2} -";
                 }
 
-                Debug.Log($"{count++} ({steps.Current.state} {steps.Current.tileIndex}) ({steps2.Current.state} {steps2.Current.tileIndex}): {str}");
-                if (!a && !b) break;
+                var stepA = $"({steps.Current.State} {steps.Current.TileIndex})";
+                var stepB = $"&({steps2.Current.State} {steps2.Current.TileIndex})";
+                var eatenA = steps.Current.State == 3;
+                var eatenB = steps2.Current.State == 3;
+                Debug.Log($"{count++} {(a ? stepA : "")}{(b ? stepB : "")}: {str} {(eatenA ? $">[{steps.Current.Data}]" : "")}{(eatenB ? $">[{steps2.Current.Data}]" : "")}");
             }
         }
 #endif

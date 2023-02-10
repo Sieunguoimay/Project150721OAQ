@@ -36,6 +36,7 @@ namespace Gameplay.Board
 
     public static class BoardCreator
     {
+        
         public static Board CreateBoard(int numSides, int numTilesPerSide, MandarinTile mandarinTilePrefab, CitizenTile citizenTilePrefab, Transform parent)
         {
             var length = numTilesPerSide * citizenTilePrefab.Size;
@@ -43,7 +44,7 @@ namespace Gameplay.Board
 
             var spawnedTiles = new ITile[numSides * (numTilesPerSide + 1)];
             var tileGroups = new BoardSide[numSides];
-            for (var i = 0; i < polygon.Length; i++)
+            for (var i = 0; i < numSides; i++)
             {
                 var cornerPos = polygon[i];
                 var worldPos = parent.TransformPoint(ToVector3(cornerPos + cornerPos.normalized * mandarinTilePrefab.Size / 2f));
