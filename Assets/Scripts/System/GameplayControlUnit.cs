@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Linq;
 using Framework.Resolver;
 using Gameplay;
 using Gameplay.BambooStick;
@@ -54,10 +55,7 @@ namespace System
 
         private void StartGameCoroutine()
         {
-            GenerateMatch(_stageSelector.SelectedStage, () =>
-            {
-                _gameplay.StartNewMatch();
-            });
+            GenerateMatch(_stageSelector.SelectedStage, () => { _gameplay.StartNewMatch(); });
         }
 
         private void GenerateMatch(IStage stage, Action done)
@@ -84,5 +82,39 @@ namespace System
             _boardManager.DeleteBoard();
             GameplayEndEvent?.Invoke();
         }
+
+#if UNITY_EDITOR
+        [SerializeField] private int testIndex;
+        [SerializeField] private int testIndex2;
+        [SerializeField] private bool testDirection;
+
+        private int[] _state;
+        [ContextMenu("TestLogState")]
+        public void TestLogState()
+        {
+            
+            _state ??= _boardManager.Board.Tiles
+                .Select(t => t.HeldPieces.Count + (t is IMandarinTile {Mandarin: { }} ? 10 : 0)).ToArray();
+
+            var steps = BoardStateCalculator.Calculate(_state, testIndex, testDirection);
+            var steps2 = BoardStateCalculator.Calculate(_state, testIndex2, testDirection);
+            var count = 0;
+            while (true)
+            {
+                var a = steps.MoveNext();
+                var b = steps2.MoveNext();
+                var str = "";
+                for (var i = 0; i < _state.Length; i++)
+                {
+                    var s = steps.Current.state == 1 && i == steps.Current.tileIndex ? $"({steps.Current.data})" : "";
+                    var s2 = steps2.Current.state == 1 && i == steps2.Current.tileIndex ? $"({steps2.Current.data})" : "";
+                    str += $"{_state[i]}{s}{s2} - ";
+                }
+
+                Debug.Log($"{count++} ({steps.Current.state} {steps.Current.tileIndex}) ({steps2.Current.state} {steps2.Current.tileIndex}): {str}");
+                if (!a && !b) break;
+            }
+        }
+#endif
     }
 }
