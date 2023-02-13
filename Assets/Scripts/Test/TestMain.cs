@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Common.UnityExtend.Reflection;
 using Gameplay.Board;
 using InGame.Common;
@@ -51,64 +52,151 @@ namespace Test
         //     Debug.Log("Hello kitty " + _counter++);
         //
         // }
+        [SerializeField] private int testIndex;
+        [SerializeField] private bool testDirection;
+        [SerializeField] private bool reset;
 
         [ContextMenu("TestHorseGame")]
         public void TestHorseGame()
         {
+            if (reset)
+            {
+                _horses = DefaultHorses.ToArray();
+                _cells = DefaultCells.ToArray();
+            }
+
+            var steps = Move(testIndex, testDirection);
+            while (steps.MoveNext())
+            {
+                var cells = "";
+                for (var i = 0; i < _cells.Length; i++)
+                {
+                    var horse = "";
+                    for (var j = 0; j < _cells[i].Length; j++)
+                    {
+                        if (_cells[i][j] == -1)
+                        {
+                            break;
+                        }
+
+                        horse += $"({_horses[_cells[i][j]]})";
+                    }
+
+                    var travellingHorse = steps.Current.State == 1 && steps.Current.TileIndex == i
+                        ? $"({_horses[steps.Current.Data]})+"
+                        : "";
+                    var eatable = steps.Current.State == 2 && steps.Current.TileIndex == i ? "X" : "";
+                    var eating = steps.Current.State is 3 or 0 && steps.Current.TileIndex == i
+                        ? "+"
+                        : "";
+                    var isMandarin = i % (_cells.Length / 2) == 0;
+                    cells += $" {(isMandarin?"[":"")}{eating}{horse}{travellingHorse}{eatable}{eating}{(isMandarin?"]":"")} |";
+                }
+
+                var eat = steps.Current.State == 3 ? $"->{steps.Current.Data}" : "";
+
+                Debug.Log($"{cells}{eat}");
+            }
         }
 
-        private IEnumerable<StepData> Move(int cellIndex, bool direction)
+        private IEnumerator<StepData> Move(int cellIndex, bool direction)
         {
             var halfSize = _cells.Length / 2;
             var currentCellIndex = cellIndex;
 
-            var currentCell = _cells[currentCellIndex];
-            var horseIndex = currentCell[0];
-            var steps = _horses[horseIndex];
 
-            for (var i = 0; i < currentCell.Length - 1; i++)
+            while (true)
             {
-                currentCell[i] = currentCell[i + 1];
-                if (currentCell[i + 1] == -1) break;
-            }
+                var currentCell = _cells[currentCellIndex];
+                var horseIndex = currentCell[0];
 
-            for (var i = 0; i < steps; i++)
-            {
-                currentCellIndex = BoardTraveller.MoveNext(currentCellIndex, _cells.Length, direction);
-                _horses[horseIndex]--;
-                if (_cells[currentCellIndex][0] != -1)
+                if (horseIndex == -1)
                 {
-                    _horses[_cells[currentCellIndex][0]]++;
+                    yield return new StepData(-1, currentCellIndex, 0);
+                    break;
+                }
+
+                var steps = _horses[horseIndex];
+                if (steps == 0)
+                {
+                    yield return new StepData(-1, currentCellIndex, 0);
+                    break;
+                }
+
+                yield return new StepData(0, currentCellIndex, horseIndex);
+
+                for (var i = 0; i < _cells[currentCellIndex].Length - 1; i++)
+                {
+                    _cells[currentCellIndex][i] = _cells[currentCellIndex][i + 1];
+                    if (_cells[currentCellIndex][i + 1] == -1) break;
+                }
+
+                for (var i = 0; i < steps; i++)
+                {
+                    currentCellIndex = BoardTraveller.MoveNext(currentCellIndex, _cells.Length, direction);
+                    _horses[horseIndex]--;
+                    if (_cells[currentCellIndex][0] != -1)
+                    {
+                        _horses[_cells[currentCellIndex][0]]++;
+                    }
+
+                    yield return new StepData(1, currentCellIndex, horseIndex);
+                }
+
+                for (var i = 0; i < _cells[currentCellIndex].Length - 1; i++)
+                {
+                    if (_cells[currentCellIndex][i] != -1) continue;
+                    _cells[currentCellIndex][i] = horseIndex;
+                    break;
+                }
+
+                var nextCellIndex = BoardTraveller.MoveNext(currentCellIndex, _cells.Length, direction);
+                var nextCellIndex2 = BoardTraveller.MoveNext(nextCellIndex, _cells.Length, direction);
+                if (_cells[nextCellIndex][0] >= 0 && _horses[_cells[nextCellIndex][0]] == 0
+                    || nextCellIndex % halfSize == 0
+                    || _cells[nextCellIndex][0] == -1 && _cells[nextCellIndex2][0] == -1
+                    || _cells[nextCellIndex][0] == -1 && _cells[nextCellIndex2][0] != -1 &&
+                    _horses[_cells[nextCellIndex2][0]] == 0
+                )
+                {
+                    //Stop
+                    yield return new StepData(-1, nextCellIndex, 0);
+                    break;
+                }
+
+                if (_cells[nextCellIndex][0] == -1 && _cells[nextCellIndex2][0] != -1 &&
+                    _horses[_cells[nextCellIndex2][0]] > 0)
+                {
+                    //Eat
+                    while (_cells[nextCellIndex][0] == -1 && _cells[nextCellIndex2][0] != -1 &&
+                           _horses[_cells[nextCellIndex2][0]] > 0)
+                    {
+                        yield return new StepData(2, nextCellIndex, 0);
+
+                        var count = _horses[_cells[nextCellIndex2][0]];
+                        _horses[_cells[nextCellIndex2][0]] = 0;
+
+                        yield return new StepData(3, nextCellIndex2, count);
+
+                        nextCellIndex = BoardTraveller.MoveNext(nextCellIndex2, _cells.Length, direction);
+                        nextCellIndex2 = BoardTraveller.MoveNext(nextCellIndex, _cells.Length, direction);
+                    }
+
+                    break;
+                }
+
+                if (_cells[nextCellIndex][0] >= 0 && _horses[_cells[nextCellIndex][0]] > 0)
+                {
+                    //Continue;
+                    currentCellIndex = nextCellIndex;
                 }
             }
-
-            currentCellIndex = BoardTraveller.MoveNext(currentCellIndex, _cells.Length, direction);
-            var currentCellIndex2 = BoardTraveller.MoveNext(currentCellIndex, _cells.Length, direction);
-            if (_cells[currentCellIndex][0] >= 0 && _horses[_cells[currentCellIndex][0]] == 0
-                || currentCellIndex % halfSize == 0
-                || _cells[currentCellIndex][0] == -1 && _cells[currentCellIndex2][0] == -1
-                || _cells[currentCellIndex][0] == -1 && _cells[currentCellIndex2][0] != -1 && _horses[_cells[currentCellIndex2][0]] == 0
-            )
-            {
-                //Stop
-            }
-
-            if (_cells[currentCellIndex][0] == -1 && _cells[currentCellIndex2][0] != -1 && _horses[_cells[currentCellIndex2][0]] > 0)
-            {
-                //Eat
-            }
-
-            if (_cells[currentCellIndex][0] >= 0 && _horses[_cells[currentCellIndex][0]] > 0)
-            {
-                //Continue;
-            }
-
-            return null;  
         }
 
-        private int[] _horses = {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
+        private static int[] DefaultHorses => new[]
+            {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
 
-        private int[][] _cells =
+        private static int[][] DefaultCells => new[]
         {
             new[] {0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,},
             new[] {1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,},
@@ -123,5 +211,8 @@ namespace Test
             new[] {10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
             new[] {11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
         };
+
+        private int[] _horses = DefaultHorses.ToArray();
+        private int[][] _cells = DefaultCells.ToArray();
     }
 }
