@@ -61,19 +61,43 @@ namespace Gameplay.Piece
             _activityQueue.Update(Time.deltaTime);
         }
 
-        public void PlayAnimStandUp()
+        public void PlayAnimStandUp(Action completeHandler = null)
         {
-            foreach (var a in _standUpActivities)
+            ActivityQueue.Add(new ActivityAnimation(Animator, LegHashes.stand_up));
+            ActivityQueue.Add(new ActivityCallback(() =>
             {
-                ActivityQueue.Add(a);
-            }
+                Animator.Play(LegHashes.idle);
+                completeHandler?.Invoke();
+            }));
+            ActivityQueue.Begin();
+        }
 
+        public void StandUpAndRotateTo(Vector3 target, Action completeHandler)
+        {
+            ActivityQueue.Add(new ActivityAnimation(Animator, LegHashes.stand_up));
+            ActivityQueue.Add(new ActivityCallback(() => { Animator.Play(LegHashes.idle); }));
+            ActivityQueue.Add(new ActivityRotateToTarget(transform, target, .2f));
+            ActivityQueue.Add(new ActivityCallback(() => { completeHandler?.Invoke(); }));
             ActivityQueue.Begin();
         }
 
         public void PlayAnimSitDown()
         {
             Animator.Play(LegHashes.sit_down);
+        }
+
+        public void JumpTo(Vector3 target, Action completeHandler)
+        {
+            ActivityQueue.Add(new ActivityJumpTimeline(this, () => target));
+            ActivityQueue.Add(new ActivityCallback(() => { completeHandler?.Invoke(); }));
+            ActivityQueue.Begin();
+        }
+
+        public void RotateToward(Vector3 target, Action completeHandler)
+        {
+            ActivityQueue.Add(new ActivityRotateToTarget(transform, target, .2f));
+            ActivityQueue.Add(new ActivityCallback(() => { completeHandler?.Invoke(); }));
+            ActivityQueue.Begin();
         }
     }
 
@@ -85,9 +109,11 @@ namespace Gameplay.Piece
         {
             _citizen = citizen;
         }
+
         public event Action<Citizen> MoveDoneEvent;
 
-        public void JumpingMove(IEnumerable<TileAdapter> targetSequence, Action<ICitizen> reachTargetCallback, float delay = 0f)
+        public void JumpingMove(IEnumerable<TileAdapter> targetSequence, Action<ICitizen> reachTargetCallback,
+            float delay = 0f)
         {
             _citizen.ActivityQueue.End();
             _citizen.ActivityQueue.Add(delay > 0 ? new ActivityDelay(delay) : null);
@@ -97,7 +123,8 @@ namespace Gameplay.Piece
             {
                 if (firstTarget)
                 {
-                    _citizen.ActivityQueue.Add(new ActivityRotateToTarget(_citizen.transform, target.Tile.Transform.position, .2f));
+                    _citizen.ActivityQueue.Add(new ActivityRotateToTarget(_citizen.transform,
+                        target.Tile.Transform.position, .2f));
                     firstTarget = false;
                 }
 
@@ -107,7 +134,10 @@ namespace Gameplay.Piece
                     var offset = _citizen.TargetTile.Value == target.Tile ? 0 : target.VisitorCount.Value - 1;
                     return target.Tile.GetGridPosition(target.Tile.HeldPieces.Count + offset);
                 }));
-                _citizen.ActivityQueue.Add(new ActivityCallback(() => { target.VisitorCount.SetValue(target.VisitorCount.Value - 1); }));
+                _citizen.ActivityQueue.Add(new ActivityCallback(() =>
+                {
+                    target.VisitorCount.SetValue(target.VisitorCount.Value - 1);
+                }));
             }
 
             _citizen.ActivityQueue.Add(new ActivityCallback(() => reachTargetCallback?.Invoke(_citizen)));
@@ -118,7 +148,8 @@ namespace Gameplay.Piece
             _citizen.ActivityQueue.Begin();
         }
 
-        public void JumpingMove(IEnumerable<Vector3> targetSequence, Action<ICitizen> reachTargetCallback, float delay = 0f)
+        public void JumpingMove(IEnumerable<Vector3> targetSequence, Action<ICitizen> reachTargetCallback,
+            float delay = 0f)
         {
             _citizen.ActivityQueue.Add(delay > 0 ? new ActivityDelay(delay) : null);
 
@@ -146,7 +177,8 @@ namespace Gameplay.Piece
         {
             _citizen.ActivityQueue.Add(delay > 0f ? new ActivityDelay(delay) : null);
             _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.stand_up));
-            _citizen.ActivityQueue.Add(new ActivityFlocking(_citizen.FlockingConfigData, target, _citizen.transform, null));
+            _citizen.ActivityQueue.Add(new ActivityFlocking(_citizen.FlockingConfigData, target, _citizen.transform,
+                null));
             _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.sit_down));
             _citizen.ActivityQueue.Add(new ActivityCallback(() => reachTargetCallback?.Invoke(_citizen)));
             _citizen.ActivityQueue.Begin();

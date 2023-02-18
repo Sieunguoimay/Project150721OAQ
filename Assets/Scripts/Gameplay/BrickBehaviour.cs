@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Common.DecisionMaking;
+﻿using Common.DecisionMaking;
 using Framework.Entities.Variable.Boolean;
 using Gameplay.Entities.Stage;
 using Gameplay.Entities.Stage.StageSelector;
@@ -15,17 +13,17 @@ namespace Gameplay
         [SerializeField] private StageSelectorEntityView stageSelector;
         [SerializeField] private StateMachineCreator stateMachine;
 
-        private int _state2;
-        private int _stateBlend2To3;
-        private int _state3;
-        private int _stateBlend3To2;
+        private IState _state2;
+        private IState _stateBlend2To3;
+        private IState _state3;
+        private IState _stateBlend3To2;
 
         private void Start()
         {
-            _state2 = stateMachine.GetIndex("state_2");
-            _state3 = stateMachine.GetIndex("state_3");
-            _stateBlend2To3 = stateMachine.GetIndex("state_blend_2_3");
-            _stateBlend3To2 = stateMachine.GetIndex("state_blend_3_2");
+            _state2 = stateMachine.GetState("state_2");
+            _state3 = stateMachine.GetState("state_3");
+            _stateBlend2To3 = stateMachine.GetState("state_blend_2_3");
+            _stateBlend3To2 = stateMachine.GetState("state_blend_3_2");
         }
 
         public void OnClick()
@@ -56,11 +54,11 @@ namespace Gameplay
             }
         }
 
-        private void ForceTransitionToState(int state, int blendToState)
+        private void ForceTransitionToState(IState state, IState blendToState)
         {
             if (
-                stateMachine.StateMachine.CurrentStateIndex != state &&
-                stateMachine.StateMachine.CurrentStateIndex != blendToState)
+                stateMachine.StateMachine.CurrentState != state &&
+                stateMachine.StateMachine.CurrentState != blendToState)
             {
                 stateMachine.StateMachine.ChangeState(blendToState);
             }

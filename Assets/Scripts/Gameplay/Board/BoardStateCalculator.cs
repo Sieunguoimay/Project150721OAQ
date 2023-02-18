@@ -21,7 +21,6 @@ namespace Gameplay.Board
     {
         public static IEnumerator<StepData> Calculate(int[] newState, int tileIndex, bool direction)
         {
-            var totalEaten = 0;
             var halfSize = newState.Length / 2;
             if (tileIndex % halfSize == 0)
             {
@@ -70,7 +69,6 @@ namespace Gameplay.Board
                         yield return new StepData(2, nextTileIndex, 0);
 
                         var count = newState[nextTileIndex2];
-                        totalEaten += count;
                         newState[nextTileIndex2] = 0;
 
                         yield return new StepData(3, nextTileIndex2, count);

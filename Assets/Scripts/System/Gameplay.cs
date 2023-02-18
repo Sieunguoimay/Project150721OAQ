@@ -27,6 +27,11 @@ namespace System
 
         public ActivityQueue ActivityQueue { get; } = new();
 
+        private IBoardStateDriver _concurrentBoardStateDriver;
+        private IBoardStateDriver _boardStateDriver;
+        private BoardActionExecutor _boardActionExecutor;
+        private BoardActionExecutor[] _concurrentBoardActionExecutors;
+
         public void Setup(Player[] players, Board board, GameInteractManager interactManager)
         {
             _board = board;
@@ -47,6 +52,17 @@ namespace System
         {
             IsPlaying = true;
             _interact.ShowTileChooser(_board.Sides[CurrentPlayer.Index].CitizenTiles);
+            _concurrentBoardActionExecutors = new BoardActionExecutor[2];
+            for (var i = 0; i < _concurrentBoardActionExecutors.Length; i++)
+            {
+                _concurrentBoardActionExecutors[i] = new BoardActionExecutor();
+            }
+
+            _boardActionExecutor = new BoardActionExecutor();
+            _boardStateDriver = new BoardStateDriver(_boardActionExecutor);
+            _concurrentBoardStateDriver = new ConcurrentBoardStateDriver(_concurrentBoardActionExecutors);
+            _boardStateDriver.EndEvent += OnBoardStateDriverEnd;
+            _concurrentBoardStateDriver.EndEvent += OnBoardStateDriverEnd;
         }
 
         public void ClearGame()
@@ -90,10 +106,42 @@ namespace System
             //     }
             // });
             //
-            new MultiPieceDropper().DropConcurrently(_board.Tiles, CurrentPlayer.PieceBench, new[]
+            // new MultiPieceDropper().DropConcurrently(_board.Tiles, CurrentPlayer.PieceBench, new[]
+            // {
+            //     tile.TileIndex, BoardTraveller.MoveNext(tile.TileIndex, _board.Tiles.Count, forward, 2),
+            // }, MakeDecision, forward);
+            
+            Drop2TilesConcurrently(tile.TileIndex,
+                BoardTraveller.MoveNext(tile.TileIndex, _board.Tiles.Count, forward, 2), forward);
+        }
+
+        private void DropSingleTile(int tileIndex, bool direction)
+        {
+            _boardActionExecutor.Initialize(CreateBoardActionExecutorArgument(tileIndex,direction));
+            _boardStateDriver.NextAction();
+        }
+
+        private void Drop2TilesConcurrently(int tileIndex1, int tileIndex2, bool direction)
+        {
+            _concurrentBoardActionExecutors[0].Initialize(CreateBoardActionExecutorArgument(tileIndex1,direction));
+            _concurrentBoardActionExecutors[1].Initialize(CreateBoardActionExecutorArgument(tileIndex2,direction));
+            _concurrentBoardStateDriver.NextAction();
+        }
+
+        private BoardActionExecutor.Argument CreateBoardActionExecutorArgument(int tileIndex, bool direction)
+        {
+            return new()
             {
-                tile.TileIndex, BoardTraveller.MoveNext(tile.TileIndex, _board.Tiles.Count, forward, 2),
-            }, MakeDecision, forward);
+                board = _board,
+                bench = CurrentPlayer.PieceBench,
+                direction = direction,
+                singleActionDuration = 1,
+                tileIndex = tileIndex
+            };
+        }
+        private void OnBoardStateDriverEnd(IBoardStateDriver obj)
+        {
+            MakeDecision();
         }
 
         private void MakeDecision()

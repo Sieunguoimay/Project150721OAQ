@@ -37,13 +37,17 @@ namespace Common.DecisionMaking
         {
             foreach (var tr in StateTransitions)
             {
-                tr.Setup(StateMachine, GetIndex(tr.TargetState), GetIndex(tr.CurrentState));
+                tr.Setup(StateMachine, GetState(tr.TargetState), GetState(tr.CurrentState));
             }
         }
 
         public int GetIndex(string stateName)
         {
             return States.Select((s, i) => (s, i)).FirstOrDefault(t => t.s.StateName.Equals(stateName)).i;
+        }
+        public IState GetState(string stateName)
+        {
+            return States.FirstOrDefault(t => t.StateName.Equals(stateName));
         }
     }
 #if UNITY_EDITOR

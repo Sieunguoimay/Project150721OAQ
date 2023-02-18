@@ -25,10 +25,10 @@ namespace Common.DecisionMaking.Actions
         public string TargetState { get; private set; }
 
         private StateMachine _stateMachine;
-        private int _index;
-        private int _constraintStateIndex;
+        private IState _index;
+        private IState _constraintStateIndex;
 
-        public void Setup(StateMachine stateMachine, int index, int constraintStateIndex)
+        public void Setup(StateMachine stateMachine, IState index, IState constraintStateIndex)
         {
             _stateMachine = stateMachine;
             _index = index;
@@ -38,7 +38,7 @@ namespace Common.DecisionMaking.Actions
         [ContextMenu("Transition")]
         public void Transition()
         {
-            if (stateConstraint && (!stateConstraint || _stateMachine.CurrentStateIndex != _constraintStateIndex)) return;
+            if (stateConstraint && (!stateConstraint || _stateMachine.CurrentState != _constraintStateIndex)) return;
 
             _stateMachine.ChangeState(_index);
         } 
