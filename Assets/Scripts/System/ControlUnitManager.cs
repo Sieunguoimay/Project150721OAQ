@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace System
 {
-    public class ControlHub : MonoBehaviour
+    public class ControlUnitManager : MonoBehaviour
     {
         [SerializeField] private GameObject[] prefabs;
 
@@ -24,15 +24,15 @@ namespace System
             _resolver = MonoInstaller.Instance.Resolver;
             _binder = _resolver.Resolve<IBinder>();
 
-            SpawnGame();
+            Spawn();
         }
 
         private void OnDestroy()
         {
-            DestroyGame();
+            Cleanup();
         }
 
-        private void SpawnGame()
+        private void Spawn()
         {
             var allControlUnits = new List<IControlUnit>();
 
@@ -69,7 +69,7 @@ namespace System
             }
         }
 
-        private void DestroyGame()
+        private void Cleanup()
         {
             foreach (var b in _controlUnits)
             {

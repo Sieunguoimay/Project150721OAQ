@@ -118,7 +118,7 @@ namespace Gameplay.GameInteract
 
         public void ShowTileChooser(ICitizenTile[] tiles)
         {
-            tileChooser.ChooseTile(tiles);
+            tileChooser.ShowChoosingTileButtons(tiles);
         }
     }
 }

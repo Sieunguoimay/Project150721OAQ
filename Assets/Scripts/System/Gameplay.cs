@@ -13,8 +13,8 @@ namespace System
 
     public class Gameplay : IGameplay
     {
-        private readonly IPieceDropper _dropper = new PieceDropper();
-        private readonly PieceEater _eater = new();
+        // private readonly IPieceDropper _dropper = new PieceDropper();
+        // private readonly PieceEater _eater = new();
 
         private Player[] _players;
         private Board _board;
@@ -38,7 +38,7 @@ namespace System
             _players = players;
             _interact = interactManager;
 
-            _dropper.Setup(_board.Tiles);
+            // _dropper.Setup(_board.Tiles);
 
             IsPlaying = false;
             IsGameOver = false;
@@ -69,8 +69,8 @@ namespace System
         {
             IsGameOver = false;
             IsPlaying = false;
-            _dropper.Cleanup();
-            _eater.Cleanup();
+            // _dropper.Cleanup();
+            // _eater.Cleanup();
             CurrentPlayer = null;
             _interact.ResetAll();
             _interact.MoveEvent -= OnMove;
@@ -166,9 +166,9 @@ namespace System
                 }
 
                 //Take back pieces to board
-                _dropper.Take(CurrentPlayer.PieceBench, tileGroup.CitizenTiles.Length);
-                _dropper.SetMoveStartPoint(tileGroup.MandarinTile.TileIndex, true);
-                _dropper.DropOnce(_ => { _interact.ShowTileChooser(_board.Sides[CurrentPlayer.Index].CitizenTiles); });
+                // _dropper.Take(CurrentPlayer.PieceBench, tileGroup.CitizenTiles.Length);
+                // _dropper.SetMoveStartPoint(tileGroup.MandarinTile.TileIndex, true);
+                // _dropper.DropOnce(_ => { _interact.ShowTileChooser(_board.Sides[CurrentPlayer.Index].CitizenTiles); });
                 return;
             }
 

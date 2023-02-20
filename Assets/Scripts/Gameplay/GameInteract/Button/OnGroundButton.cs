@@ -14,19 +14,6 @@ namespace Gameplay.GameInteract.Button
     {
         public abstract void SetDisplayInfo(IButtonDisplayInfo displayInfo);
     }
-
-    public class ButtonData
-    {
-        public ButtonData(ButtonContainer.ButtonCommand command, IButtonDisplayInfo displayInfo)
-        {
-            Command = command;
-            DisplayInfo = displayInfo;
-        }
-
-        public ButtonContainer.ButtonCommand Command { get; }
-        public IButtonDisplayInfo DisplayInfo { get; }
-    }
-
     public interface IButton
     {
         bool IsShowing { get; }
@@ -44,8 +31,6 @@ namespace Gameplay.GameInteract.Button
 
         private float VisualHeight => visual.Bounds.size.y;
         public AButtonDisplay Display => display;
-
-        [field: System.NonSerialized] public ICommand Command { get; private set; }
 
         public virtual bool IsAvailable => true;
         
@@ -100,7 +85,6 @@ namespace Gameplay.GameInteract.Button
         {
             if (!IsShowing) return;
             HideAway(.05f);
-            Command?.Execute(this);
             ClickedEvent?.Invoke(this);
         }
     }

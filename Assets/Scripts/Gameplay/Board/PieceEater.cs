@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Gameplay.Board
 {
+    [Obsolete]
     public class PieceEater
     {
         private IReadOnlyList<ITile> _tileSpace;

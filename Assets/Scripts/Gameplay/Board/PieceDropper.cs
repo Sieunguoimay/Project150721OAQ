@@ -10,6 +10,7 @@ using UnityEngine;
 
 namespace Gameplay.Board
 {
+    [Obsolete]
     public interface IPieceDropper
     {
         void Setup(IReadOnlyList<ITile> tileSpace);
@@ -21,7 +22,8 @@ namespace Gameplay.Board
         void Cleanup();
         bool Direction { get; }
     }
-
+    
+    [Obsolete]
     public class TileAdapter
     {
         public TileAdapter(ITile tile)

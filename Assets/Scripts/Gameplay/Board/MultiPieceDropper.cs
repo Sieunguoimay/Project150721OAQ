@@ -4,11 +4,13 @@ using System.Linq;
 
 namespace Gameplay.Board
 {
+    [Obsolete]
     public interface IMultiPieceDropper
     {
         void DropConcurrently(IReadOnlyList<ITile> tileSpace, PieceBench pieceBench, IReadOnlyList<int> drops, Action doneCallback, bool direction);
     }
 
+    [Obsolete]
     public class MultiPieceDropper : IMultiPieceDropper
     {
         private IReadOnlyList<int> _drops;
@@ -57,5 +59,4 @@ namespace Gameplay.Board
             }
         }
     }
-
 }

@@ -66,51 +66,22 @@ namespace Gameplay.GameInteract
         private void OnButtonClicked(IButton obj)
         {
             var prevTile = SelectedTile;
-            SelectedTile = (obj as TileChoosingButton)?.Tile;
+            // SelectedTile = (obj as TileChoosingButton)?.Tile;
             SelectedTileChangedEvent?.Invoke(this, new SelectedTileEventArgs(prevTile));
 
             ButtonContainer.HideButtons();
         }
 
-        public void ChooseTile(IReadOnlyList<ICitizenTile> tiles)
+        public void ShowChoosingTileButtons(IReadOnlyList<ICitizenTile> tiles)
         {
             for (var i = 0; i < _tileChoosingButtons.Length; i++)
             {
-                _tileChoosingButtons[i].SetTile(i >= tiles.Count ? null : tiles[i]);
+                // _tileChoosingButtons[i].SetTile(i >= tiles.Count ? null : tiles[i]);
+                _tileChoosingButtons[i].SetPosition(tiles[i].Transform, tiles[i].Size);
+                _tileChoosingButtons[i].SetAvailable(tiles[i].HeldPieces.Count>0);
             }
 
             ButtonContainer.ShowButtons();
-        }
-
-        public class ButtonCommand : ButtonContainer.ButtonCommand
-        {
-            private IButtonContainer _buttonContainer2;
-
-            public ButtonCommand SetButtonContainer2(IButtonContainer buttonContainer)
-            {
-                _buttonContainer2 = buttonContainer;
-                return this;
-            }
-
-            public override void Execute(IButton button)
-            {
-                base.Execute(button);
-
-                foreach (var bv in _buttonContainer2.Buttons)
-                {
-                    if (bv.Command == this)
-                    {
-                        bv.HideAway();
-                    }
-                    else
-                    {
-                        if (!bv.IsShowing && bv.Command != null)
-                        {
-                            bv.ShowUp();
-                        }
-                    }
-                }
-            }
         }
     }
 }
