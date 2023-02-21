@@ -92,7 +92,7 @@ namespace Gameplay.GameInteract
             }
         }
 
-        public static void NotifyTileSelectionListeners(ICitizenTile tile, bool selected)
+        private static void NotifyTileSelectionListeners(ICitizenTile tile, bool selected)
         {
             var selectionAdaptors = tile.GetSelectionAdaptors();
             foreach (var sa in selectionAdaptors)
