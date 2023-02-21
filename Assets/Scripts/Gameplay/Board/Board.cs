@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -8,7 +7,7 @@ namespace Gameplay.Board
     public class BoardSide
     {
         public IMandarinTile MandarinTile;
-        public ICitizenTile[] CitizenTiles;
+        public IReadOnlyList<ICitizenTile> CitizenTiles;
     }
 
     public class BoardMetadata
@@ -36,7 +35,6 @@ namespace Gameplay.Board
 
     public static class BoardCreator
     {
-        
         public static Board CreateBoard(int numSides, int numTilesPerSide, MandarinTile mandarinTilePrefab, CitizenTile citizenTilePrefab, Transform parent)
         {
             var length = numTilesPerSide * citizenTilePrefab.Size;
@@ -53,22 +51,24 @@ namespace Gameplay.Board
                 var mandarinTile =
                     SpawnTile(spawnedTiles, mandarinTilePrefab, worldPos, worldRot, parent, i * (numTilesPerSide + 1))
                         as IMandarinTile;
-                tileGroups[i] = new BoardSide {MandarinTile = mandarinTile, CitizenTiles = new ICitizenTile[numTilesPerSide]};
 
                 var p0 = polygon[i];
                 var p1 = polygon[(i + 1) % polygon.Length];
                 var dir = (p1 - p0).normalized;
                 var normal = new Vector2(dir.y, -dir.x); //clockwise 90
 
+                var citizenTiles = new ICitizenTile[numTilesPerSide];
                 for (var j = 0; j < numTilesPerSide; j++)
                 {
                     var pj = p0 + (j + 0.5f) * citizenTilePrefab.Size * dir;
                     worldPos = parent.TransformPoint(ToVector3(pj + normal * citizenTilePrefab.Size / 2f));
                     worldRot = parent.rotation * Quaternion.LookRotation(ToVector3(normal));
-                    tileGroups[i].CitizenTiles[j] =
+                    citizenTiles[j] =
                         SpawnTile(spawnedTiles, citizenTilePrefab, worldPos, worldRot, parent, i * (numTilesPerSide + 1) + j + 1)
                             as ICitizenTile;
                 }
+
+                tileGroups[i] = new BoardSide {MandarinTile = mandarinTile, CitizenTiles = citizenTiles};
             }
 
             return new Board

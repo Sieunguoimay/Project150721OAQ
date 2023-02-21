@@ -6,60 +6,55 @@ namespace Gameplay.GameInteract
 {
     public class ActionChooser : MonoBehaviour
     {
-        [SerializeField] private OnGroundButton left;
-        [SerializeField] private OnGroundButton right;
-        [SerializeField] private ButtonContainer buttonContainer;
-        public ButtonContainer ButtonContainer => buttonContainer;
-
-        public event Action<ActionChooser, DirectionSelectArgs> DirectionSelectedEvent;
-
-        public class DirectionSelectArgs : EventArgs
-        {
-            public DirectionSelectArgs(bool direction)
-            {
-                Direction = direction;
-            }
-
-            public bool Direction { get; }
-        }
+        [SerializeField] private ButtonOnGround left;
+        [SerializeField] private ButtonOnGround right;
+        [SerializeField] private ButtonGroup buttonGroup;
+        public event Action DirectionSelectedEvent;
+        public bool SelectedDirection { get; private set; }
 
         public void Setup()
         {
             var buttons = new[] {left, right};
-            
+
             foreach (var bt in buttons)
             {
                 bt.ClickedEvent -= OnClicked;
                 bt.ClickedEvent += OnClicked;
             }
 
-            buttonContainer.Setup(buttons);
+            buttonGroup.Setup(buttons);
         }
 
         public void TearDown()
         {
-            foreach (var bt in buttonContainer.Buttons)
+            foreach (var bt in buttonGroup.Buttons)
             {
                 bt.ClickedEvent -= OnClicked;
             }
 
-            buttonContainer.TearDown();
+            buttonGroup.TearDown();
         }
 
         private void OnClicked(IButton obj)
         {
-            DirectionSelectedEvent?.Invoke(this, new DirectionSelectArgs(right == (OnGroundButton) obj));
+            SelectedDirection = right == (ButtonOnGround) obj;
+            DirectionSelectedEvent?.Invoke();
             HideAway();
         }
 
-        public void ShowUp()
+        public void ShowUp(Transform tileTransform, float offset)
         {
-            buttonContainer.ShowButtons();
+            var tileRotation = tileTransform.rotation;
+            var pos = tileTransform.position + tileRotation * Vector3.forward * offset;
+            
+            transform.SetPositionAndRotation(pos, tileRotation);
+            
+            buttonGroup.ShowButtons();
         }
 
         public void HideAway()
         {
-            buttonContainer.HideButtons();
+            buttonGroup.HideButtons();
         }
     }
 }

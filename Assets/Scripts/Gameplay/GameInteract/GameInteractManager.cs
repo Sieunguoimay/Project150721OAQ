@@ -4,121 +4,83 @@ using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
-    public class GameInteractManager : MonoControlUnitBase<GameInteractManager>
+    public interface IGameInteractManager
+    {
+        void ShowUp();
+        event Action<GameInteractResult> ResultEvent;
+    }
+
+    public class GameInteractResult
+    {
+        public GameInteractResult(ITile selectedTile, bool direction)
+        {
+            SelectedTile = selectedTile;
+            Direction = direction;
+        }
+
+        public ITile SelectedTile { get; }
+        public bool Direction { get; }
+    }
+
+    public class GameInteractManager : MonoControlUnitBase<GameInteractManager>, IGameInteractManager
     {
         [SerializeField] private TileChooser tileChooser;
         [SerializeField] private ActionChooser actionChooser;
 
-        private bool _waitingForAlLTileChoosingButtonHiddenAway;
-        private GameplayControlUnit _gameplayControl;
-
-        public event Action<ITile, bool> MoveEvent;
+        private BoardManager _boardManager;
+        private PlayersManager _playersManager;
 
         protected override void OnSetup()
         {
             base.OnSetup();
-            
+
+            _boardManager = Resolver.Resolve<BoardManager>();
+            _playersManager = Resolver.Resolve<PlayersManager>();
+
             tileChooser.SelectedTileChangedEvent -= OnSelectedTileChanged;
             tileChooser.SelectedTileChangedEvent += OnSelectedTileChanged;
-            tileChooser.ButtonContainer.AllButtonHiddenEvent -= OnAllTileChoosingButtonsHidden;
-            tileChooser.ButtonContainer.AllButtonHiddenEvent += OnAllTileChoosingButtonsHidden;
 
-            actionChooser.Setup();
             actionChooser.DirectionSelectedEvent -= OnDirectionSelected;
             actionChooser.DirectionSelectedEvent += OnDirectionSelected;
-            _gameplayControl = Resolver.Resolve<GameplayControlUnit>();
-            
-            _gameplayControl.GameplayBeginEvent -= OnGameBegin;
-            _gameplayControl.GameplayBeginEvent += OnGameBegin;
-            _gameplayControl.GameplayEndEvent -= OnGameEnd;
-            _gameplayControl.GameplayEndEvent += OnGameEnd;
         }
-
 
         protected override void OnTearDown()
         {
             base.OnTearDown();
-            _gameplayControl.GameplayBeginEvent -= OnGameBegin;
-            _gameplayControl.GameplayEndEvent -= OnGameEnd;
-            
+
             actionChooser.DirectionSelectedEvent -= OnDirectionSelected;
-            tileChooser.ButtonContainer.AllButtonHiddenEvent -= OnAllTileChoosingButtonsHidden;
             tileChooser.SelectedTileChangedEvent -= OnSelectedTileChanged;
-            actionChooser.TearDown();
         }
 
-        private void OnGameBegin()
+        public void SetupOnGameStart()
         {
-            tileChooser.Setup(Resolver.Resolve<BoardManager>().Board.Metadata.NumCitizenTilesPerSide);
+            tileChooser.Setup(_boardManager.Board, _playersManager);
+            actionChooser.Setup();
         }
 
-        private void OnGameEnd()
-        {
-            tileChooser.TearDown();
-        }
-        
-        private void OnDirectionSelected(ActionChooser arg1, ActionChooser.DirectionSelectArgs arg2)
-        {
-            MoveEvent?.Invoke(tileChooser.SelectedTile, arg2.Direction);
-        }
-
-        public void ResetAll()
+        public void TearDownOnGameClear()
         {
             tileChooser.ResetAll();
             actionChooser.HideAway();
+            actionChooser.TearDown();
+            tileChooser.TearDown();
         }
 
-        private void OnSelectedTileChanged(TileChooser obj, TileChooser.SelectedTileEventArgs selectedTileEventArgs)
+        public void ShowUp()
         {
-            _waitingForAlLTileChoosingButtonHiddenAway = true;
-
-            if (selectedTileEventArgs.PrevSelectedTile != null)
-            {
-                NotifyTileSelectionListeners(selectedTileEventArgs.PrevSelectedTile as ICitizenTile, false);
-            }
-
-            if (tileChooser.SelectedTile != null)
-            {
-                NotifyTileSelectionListeners(tileChooser.SelectedTile as ICitizenTile, true);
-            }
+            tileChooser.ShowUp();
         }
 
-        private void OnAllTileChoosingButtonsHidden(IButtonContainer obj)
+        private void OnSelectedTileChanged()
         {
-            if (_waitingForAlLTileChoosingButtonHiddenAway && tileChooser.SelectedTile != null)
-            {
-                _waitingForAlLTileChoosingButtonHiddenAway = false;
-                ShowDirectionChooserForTile(tileChooser.SelectedTile);
-            }
+            actionChooser.ShowUp(tileChooser.SelectedTile.Transform, tileChooser.SelectedTile.Size);
         }
 
-        private static void NotifyTileSelectionListeners(ICitizenTile tile, bool selected)
+        private void OnDirectionSelected()
         {
-            var selectionAdaptors = tile.GetSelectionAdaptors();
-            foreach (var sa in selectionAdaptors)
-            {
-                if (selected)
-                    sa.OnTileSelected();
-                else
-                    sa.OnTileDeselected(false);
-            }
+            ResultEvent?.Invoke(new GameInteractResult(tileChooser.SelectedTile, actionChooser.SelectedDirection));
         }
 
-        public void ShowDirectionChooserForTile(ITile tile)
-        {
-            var tileTransform = tile.Transform;
-            var tileRotation = tileTransform.rotation;
-            var pos = tileTransform.position + tileRotation * Vector3.forward * tile.Size;
-            var t = actionChooser.transform;
-            t.position = pos;
-            t.rotation = tileRotation;
-
-            actionChooser.ShowUp();
-        }
-
-        public void ShowTileChooser(ICitizenTile[] tiles)
-        {
-            tileChooser.ShowChoosingTileButtons(tiles);
-        }
+        public event Action<GameInteractResult> ResultEvent;
     }
 }

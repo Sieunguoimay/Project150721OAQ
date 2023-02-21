@@ -32,7 +32,7 @@ namespace SNM
             var index = 0;
             return mb.TimeProgress(duration, p =>
             {
-                if (!(p >= index * (1f / (n - 1)))) return;
+                if (p < index * (1f / (n - 1))) return;
 
                 onIteration?.Invoke(index);
                 index++;

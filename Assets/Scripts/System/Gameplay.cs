@@ -16,11 +16,9 @@ namespace System
         // private readonly IPieceDropper _dropper = new PieceDropper();
         // private readonly PieceEater _eater = new();
 
-        private Player[] _players;
+        private PlayersManager _playersManager;
         private Board _board;
         private GameInteractManager _interact;
-
-        private Player CurrentPlayer { get; set; }
 
         private bool IsGameOver { get; set; }
         public bool IsPlaying { get; private set; }
@@ -32,26 +30,30 @@ namespace System
         private BoardActionExecutor _boardActionExecutor;
         private BoardActionExecutor[] _concurrentBoardActionExecutors;
 
-        public void Setup(Player[] players, Board board, GameInteractManager interactManager)
+        public void Setup(PlayersManager playersManager, Board board, GameInteractManager interactManager)
         {
             _board = board;
-            _players = players;
+            _playersManager = playersManager;
             _interact = interactManager;
-
-            // _dropper.Setup(_board.Tiles);
 
             IsPlaying = false;
             IsGameOver = false;
-            NextPlayer();
-            _interact.MoveEvent -= OnMove;
-            _interact.MoveEvent += OnMove;
+            
+            _interact.ResultEvent -= OnGameInteractResult;
+            _interact.ResultEvent += OnGameInteractResult;
         }
 
+        public void TearDown()
+        {
+            _interact.ResultEvent -= OnGameInteractResult;
+        }
 
         public void StartNewMatch()
         {
             IsPlaying = true;
-            _interact.ShowTileChooser(_board.Sides[CurrentPlayer.Index].CitizenTiles);
+            _playersManager.NextPlayer();
+            _interact.SetupOnGameStart();
+            _interact.ShowUp();
             _concurrentBoardActionExecutors = new BoardActionExecutor[2];
             for (var i = 0; i < _concurrentBoardActionExecutors.Length; i++)
             {
@@ -69,62 +71,27 @@ namespace System
         {
             IsGameOver = false;
             IsPlaying = false;
-            // _dropper.Cleanup();
-            // _eater.Cleanup();
-            CurrentPlayer = null;
-            _interact.ResetAll();
-            _interact.MoveEvent -= OnMove;
+            _interact.TearDownOnGameClear();
         }
 
         #region PRIVATE_METHODS
 
-        private void NextPlayer()
+        private void OnGameInteractResult(GameInteractResult gameInteractResult)
         {
-            if (CurrentPlayer == null)
-            {
-                CurrentPlayer = _players[0];
-            }
-            else
-            {
-                CurrentPlayer.ReleaseTurn();
-                CurrentPlayer = _players[(CurrentPlayer.Index + 1) % _players.Length];
-            }
-
-            CurrentPlayer.AcquireTurn();
-        }
-
-
-        private void OnMove(ITile tile, bool forward)
-        {
-            // _dropper.TakeAll(tile);
-            // _dropper.SetMoveStartPoint(tile.TileIndex, forward);
-            // _dropper.DropTillDawn((_, lastTile) =>
-            // {
-            //     if (!_eater.TryEat(_board.Tiles, CurrentPlayer.PieceBench, lastTile.TileIndex, forward, MakeDecision))
-            //     {
-            //         MakeDecision();
-            //     }
-            // });
-            //
-            // new MultiPieceDropper().DropConcurrently(_board.Tiles, CurrentPlayer.PieceBench, new[]
-            // {
-            //     tile.TileIndex, BoardTraveller.MoveNext(tile.TileIndex, _board.Tiles.Count, forward, 2),
-            // }, MakeDecision, forward);
-            
-            Drop2TilesConcurrently(tile.TileIndex,
-                BoardTraveller.MoveNext(tile.TileIndex, _board.Tiles.Count, forward, 2), forward);
+            Drop2TilesConcurrently(gameInteractResult.SelectedTile.TileIndex,
+                BoardTraveller.MoveNext(gameInteractResult.SelectedTile.TileIndex, _board.Tiles.Count, gameInteractResult.Direction, 2), gameInteractResult.Direction);
         }
 
         private void DropSingleTile(int tileIndex, bool direction)
         {
-            _boardActionExecutor.Initialize(CreateBoardActionExecutorArgument(tileIndex,direction));
+            _boardActionExecutor.Initialize(CreateBoardActionExecutorArgument(tileIndex, direction));
             _boardStateDriver.NextAction();
         }
 
         private void Drop2TilesConcurrently(int tileIndex1, int tileIndex2, bool direction)
         {
-            _concurrentBoardActionExecutors[0].Initialize(CreateBoardActionExecutorArgument(tileIndex1,direction));
-            _concurrentBoardActionExecutors[1].Initialize(CreateBoardActionExecutorArgument(tileIndex2,direction));
+            _concurrentBoardActionExecutors[0].Initialize(CreateBoardActionExecutorArgument(tileIndex1, direction));
+            _concurrentBoardActionExecutors[1].Initialize(CreateBoardActionExecutorArgument(tileIndex2, direction));
             _concurrentBoardStateDriver.NextAction();
         }
 
@@ -133,12 +100,13 @@ namespace System
             return new()
             {
                 board = _board,
-                bench = CurrentPlayer.PieceBench,
+                bench = _playersManager.CurrentPlayer.PieceBench,
                 direction = direction,
                 singleActionDuration = 1,
                 tileIndex = tileIndex
             };
         }
+
         private void OnBoardStateDriverEnd(IBoardStateDriver obj)
         {
             MakeDecision();
@@ -153,13 +121,13 @@ namespace System
                 return;
             }
 
-            NextPlayer();
+            _playersManager.NextPlayer();
 
-            var tileGroup = _board.Sides[CurrentPlayer.Index];
+            var tileGroup = _board.Sides[_playersManager.CurrentPlayer.Index];
             var isNewPlayerAllEmpty = tileGroup.CitizenTiles.All(t => t.HeldPieces.Count <= 0);
             if (isNewPlayerAllEmpty)
             {
-                if (CurrentPlayer.PieceBench.HeldPieces.Count <= 0)
+                if (_playersManager.CurrentPlayer.PieceBench.HeldPieces.Count <= 0)
                 {
                     GameOver();
                     return;
@@ -172,7 +140,7 @@ namespace System
                 return;
             }
 
-            _interact.ShowTileChooser(_board.Sides[CurrentPlayer.Index].CitizenTiles);
+            _interact.ShowUp();
         }
 
         private void GameOver()
@@ -187,7 +155,7 @@ namespace System
 
         private void EvaluateWinner()
         {
-            for (var i = 0; i < _players.Length; i++)
+            for (var i = 0; i < _playersManager.Players.Count; i++)
             {
                 foreach (var tile in _board.Sides[i].CitizenTiles)
                 {

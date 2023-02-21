@@ -21,7 +21,7 @@ namespace Gameplay.GameInteract.Button
         event Action<IButton> ActiveChangedEvent;
     }
 
-    public class OnGroundButton : MonoBehaviour, IButton
+    public class ButtonOnGround : MonoBehaviour, IButton
     {
         [SerializeField] private ABoundsClicker visual;
         [SerializeField] private AButtonDisplay display;
@@ -31,8 +31,6 @@ namespace Gameplay.GameInteract.Button
 
         private float VisualHeight => visual.Bounds.size.y;
         public AButtonDisplay Display => display;
-
-        public virtual bool IsAvailable => true;
         
         private void Start()
         {

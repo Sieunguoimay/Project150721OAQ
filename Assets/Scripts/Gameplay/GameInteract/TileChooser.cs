@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Common.UnityExtend.Attribute;
 using Gameplay.Board;
 using Gameplay.GameInteract.Button;
 using UnityEngine;
@@ -10,78 +7,80 @@ namespace Gameplay.GameInteract
 {
     public class TileChooser : MonoBehaviour
     {
-        [SerializeField, TypeConstraint(typeof(IButtonContainer))]
-        private UnityEngine.Object buttonContainer;
+        [SerializeField] private ButtonGroup buttonGroup;
+        [SerializeField] private ButtonOnGround tileChoosingButtonPrefab;
 
-        [SerializeField] private TileChoosingButton tileChoosingButtonPrefab;
-
-        public IButtonContainer ButtonContainer => buttonContainer as IButtonContainer;
-
-        private TileChoosingButton[] _tileChoosingButtons;
+        private ButtonOnGround[] _buttons;
+        private Board.Board _board;
+        private PlayersManager _playerManager;
         [field: System.NonSerialized] public ITile SelectedTile { get; private set; }
-        public event Action<TileChooser, SelectedTileEventArgs> SelectedTileChangedEvent;
+        public event Action SelectedTileChangedEvent;
 
-        public class SelectedTileEventArgs : EventArgs
+        public void Setup(Board.Board board, PlayersManager playerManager)
         {
-            public SelectedTileEventArgs(ITile prevSelectedTile)
+            _board = board;
+            _playerManager = playerManager;
+
+            _buttons = new ButtonOnGround[_board.Metadata.NumCitizenTilesPerSide];
+
+            for (var i = 0; i < _board.Metadata.NumCitizenTilesPerSide; i++)
             {
-                PrevSelectedTile = prevSelectedTile;
+                _buttons[i] = Instantiate(tileChoosingButtonPrefab, transform);
+                _buttons[i].ClickedEvent += OnButtonClicked;
             }
 
-            public ITile PrevSelectedTile { get; }
-        }
-
-        public void Setup(int numButtons)
-        {
-            _tileChoosingButtons = new TileChoosingButton[numButtons];
-            for (var i = 0; i < numButtons; i++)
-            {
-                _tileChoosingButtons[i] = Instantiate(tileChoosingButtonPrefab, transform);
-                _tileChoosingButtons[i].ClickedEvent += OnButtonClicked;
-            }
-
-            ButtonContainer.Setup(_tileChoosingButtons);
+            buttonGroup.Setup(_buttons);
         }
 
         public void TearDown()
         {
-            ButtonContainer.TearDown();
-            
-            foreach (var bt in _tileChoosingButtons)
+            buttonGroup.TearDown();
+
+            foreach (var bt in _buttons)
             {
                 bt.ClickedEvent -= OnButtonClicked;
                 Destroy(bt.gameObject);
             }
 
-            _tileChoosingButtons = null;
+            _buttons = null;
             SelectedTile = null;
         }
 
         public void ResetAll()
         {
-            ButtonContainer.HideButtons();
+            buttonGroup.HideButtons();
             SelectedTile = null;
         }
 
         private void OnButtonClicked(IButton obj)
         {
-            var prevTile = SelectedTile;
-            // SelectedTile = (obj as TileChoosingButton)?.Tile;
-            SelectedTileChangedEvent?.Invoke(this, new SelectedTileEventArgs(prevTile));
+            if (obj is not TileChoosingButton btn) return;
 
-            ButtonContainer.HideButtons();
+            SelectedTile?.Transform.GetComponent<TileSelectable>()?.Unselect();
+            SelectedTile = _board.Sides[_playerManager.CurrentPlayer.Index].CitizenTiles[Array.IndexOf(_buttons, btn)];
+            SelectedTile?.Transform.GetComponent<TileSelectable>()?.Select();
+
+            SelectedTileChangedEvent?.Invoke();
+
+            buttonGroup.HideButtons();
         }
 
-        public void ShowChoosingTileButtons(IReadOnlyList<ICitizenTile> tiles)
+        public void ShowUp()
         {
-            for (var i = 0; i < _tileChoosingButtons.Length; i++)
-            {
-                // _tileChoosingButtons[i].SetTile(i >= tiles.Count ? null : tiles[i]);
-                _tileChoosingButtons[i].SetPosition(tiles[i].Transform, tiles[i].Size);
-                _tileChoosingButtons[i].SetAvailable(tiles[i].HeldPieces.Count>0);
-            }
+            UpdateSide();
+            buttonGroup.ShowButtons();
+        }
 
-            ButtonContainer.ShowButtons();
+        private void UpdateSide()
+        {
+            var tiles = _board.Sides[_playerManager.CurrentPlayer.Index].CitizenTiles;
+            for (var i = 0; i < tiles.Count; i++)
+            {
+                var target = tiles[i].Transform;
+                var tilePos = target.position;
+                var tileRot = target.rotation;
+                _buttons[i].transform.SetPositionAndRotation(tilePos + target.forward * tiles[i].Size, tileRot);
+            }
         }
     }
 }

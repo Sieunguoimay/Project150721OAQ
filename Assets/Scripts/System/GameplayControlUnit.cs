@@ -28,18 +28,27 @@ namespace System
         private PieceManager _pieceManager;
         private GameInteractManager _interact;
         private IStageSelector _stageSelector;
-
         public event Action GameplayBeginEvent;
         public event Action GameplayEndEvent;
-
-        protected override void OnInject(IResolver resolver)
+        
+        protected override void OnSetup()
         {
-            _playersManager = resolver.Resolve<PlayersManager>();
-            _boardManager = resolver.Resolve<BoardManager>();
-            _pieceManager = resolver.Resolve<PieceManager>();
-            _bambooFamily = resolver.Resolve<BambooFamilyManager>();
-            _stageSelector = resolver.Resolve<IStageSelector>("stage_selector");
-            _interact = resolver.Resolve<GameInteractManager>();
+            base.OnSetup();
+            
+            _playersManager = Resolver.Resolve<PlayersManager>();
+            _boardManager = Resolver.Resolve<BoardManager>();
+            _pieceManager = Resolver.Resolve<PieceManager>();
+            _bambooFamily = Resolver.Resolve<BambooFamilyManager>();
+            _stageSelector = Resolver.Resolve<IStageSelector>("stage_selector");
+            _interact = Resolver.Resolve<GameInteractManager>();
+            
+            _gameplay.Setup(_playersManager, _boardManager.Board, _interact);
+        }
+
+        protected override void OnTearDown()
+        {
+            base.OnTearDown();
+            _gameplay.TearDown();
         }
 
         private void Update()
@@ -61,11 +70,9 @@ namespace System
         private void GenerateMatch(IStage stage, Action done)
         {
             _boardManager.CreateBoard(stage.Data.PlayerNum, stage.Data.TilesPerGroup);
-
+  
             _playersManager.FillWithFakePlayers(stage.Data.PlayerNum);
             _playersManager.CreatePieceBench(_boardManager.Board);
-
-            _gameplay.Setup(_playersManager.Players, _boardManager.Board, _interact);
 
             _pieceManager.SpawnPieces(stage.Data.PlayerNum, stage.Data.TilesPerGroup, stage.Data.NumCitizensInTile);
             _pieceManager.ReleasePieces(done, _boardManager.Board);

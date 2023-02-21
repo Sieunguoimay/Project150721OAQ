@@ -67,7 +67,7 @@ namespace Gameplay.Piece
             for (var i = 0; i < board.Sides.Count; i++)
             {
                 var tg = board.Sides[i];
-                var numTilesPerSide = tg.CitizenTiles.Length;
+                var numTilesPerSide = tg.CitizenTiles.Count;
                 for (var j = 0; j < numTilesPerSide; j++)
                 {
                     var ct = tg.CitizenTiles[j];
