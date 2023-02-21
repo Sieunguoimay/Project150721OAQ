@@ -49,7 +49,6 @@ namespace Gameplay.Entities.MagicFlower
         public string PayoutCurrencyId { get; private set; }
 
         [field: SerializeField, Min(0)] public int PayoutAmountPerFlower { get; private set; }
-        [SerializeField, ChildAsset] private StageData Test2;
     }
 
     [Serializable]

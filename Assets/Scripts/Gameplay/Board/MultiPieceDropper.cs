@@ -6,12 +6,12 @@ namespace Gameplay.Board
 {
     public interface IMultiPieceDropper
     {
-        void DropConcurrently(IReadOnlyList<ITile> tileSpace, PieceBench pieceBench, IReadOnlyList<Drop> drops, Action doneCallback);
+        void DropConcurrently(IReadOnlyList<ITile> tileSpace, PieceBench pieceBench, IReadOnlyList<int> drops, Action doneCallback, bool direction);
     }
 
     public class MultiPieceDropper : IMultiPieceDropper
     {
-        private IReadOnlyList<Drop> _drops;
+        private IReadOnlyList<int> _drops;
 
         private IPieceDropper[] _pieceDroppers;
 
@@ -20,21 +20,20 @@ namespace Gameplay.Board
         private int _doneCount;
         private Action _doneCallback;
 
-        public void DropConcurrently(IReadOnlyList<ITile> tileSpace, PieceBench pieceBench, IReadOnlyList<Drop> drops, Action doneCallback)
+        public void DropConcurrently(IReadOnlyList<ITile> tileSpace, PieceBench pieceBench, IReadOnlyList<int> drops, Action doneCallback, bool direction)
         {
             _doneCount = 0;
             _tileSpace = tileSpace;
             _pieceBench = pieceBench;
-            _drops = drops.Where(d => _tileSpace[d.TileIndex].HeldPieces.Count > 0).ToArray();
+            _drops = drops.Where(d => _tileSpace[d].HeldPieces.Count > 0).ToArray();
             _doneCallback = doneCallback;
             _pieceDroppers = new IPieceDropper[_drops.Count];
             for (var i = 0; i < _drops.Count; i++)
             {
-                _drops[i].DropIndex = i;
                 _pieceDroppers[i] = new PieceDropper();
                 _pieceDroppers[i].Setup(tileSpace);
-                _pieceDroppers[i].TakeAll(tileSpace[_drops[i].TileIndex]);
-                _pieceDroppers[i].SetMoveStartPoint(_drops[i].TileIndex, _drops[i].DropDirection);
+                _pieceDroppers[i].TakeAll(tileSpace[_drops[i]]);
+                _pieceDroppers[i].SetMoveStartPoint(_drops[i], direction);
                 _pieceDroppers[i].DropTillDawn(OnDropDone);
             }
         }
@@ -42,7 +41,7 @@ namespace Gameplay.Board
         private void OnDropDone(IPieceDropper dropper, ITile tile)
         {
             var i = Array.IndexOf(_pieceDroppers, dropper);
-            if (!new PieceEater().TryEat(_tileSpace, _pieceBench, tile.TileIndex, _drops[i].DropDirection, OnEatDone))
+            if (!new PieceEater().TryEat(_tileSpace, _pieceBench, tile.TileIndex, dropper.Direction, OnEatDone))
             {
                 OnEatDone();
             }
@@ -59,10 +58,4 @@ namespace Gameplay.Board
         }
     }
 
-    public class Drop
-    {
-        public int TileIndex;
-        public bool DropDirection;
-        public int DropIndex;
-    }
 }

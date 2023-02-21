@@ -90,12 +90,10 @@ namespace System
             //     }
             // });
             //
-            new MultiPieceDropper().DropConcurrently(_board.Tiles, CurrentPlayer.PieceBench, new Drop[]
+            new MultiPieceDropper().DropConcurrently(_board.Tiles, CurrentPlayer.PieceBench, new[]
             {
-                new() {TileIndex = tile.TileIndex, DropDirection = forward},
-                // new() {TileIndex = BoardTraveller.MoveNext(tile.TileIndex, _board.Tiles.Count, forward), DropDirection = forward},
-                new() {TileIndex = BoardTraveller.MoveNext(tile.TileIndex, _board.Tiles.Count, forward, 2), DropDirection = forward},
-            }, MakeDecision);
+                tile.TileIndex, BoardTraveller.MoveNext(tile.TileIndex, _board.Tiles.Count, forward, 2),
+            }, MakeDecision, forward);
         }
 
         private void MakeDecision()

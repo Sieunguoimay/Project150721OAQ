@@ -19,6 +19,7 @@ namespace Gameplay.Board
         void DropOnce(Action<ITile> done);
         void DropTillDawn(Action<IPieceDropper, ITile> onDone);
         void Cleanup();
+        bool Direction { get; }
     }
 
     public class TileAdapter
@@ -37,7 +38,6 @@ namespace Gameplay.Board
         private readonly BoardTraveller _boardTraveller = new();
         private readonly List<ICitizen> _citizens = new();
 
-        private bool _forward;
         private IReadOnlyList<TileAdapter> _tileSpace;
         private Action<ITile> _done;
 
@@ -77,7 +77,7 @@ namespace Gameplay.Board
         public void SetMoveStartPoint(int index, bool forward)
         {
             _boardTraveller.Init(index, _tileSpace.Count, forward);
-            _forward = forward;
+            Direction = forward;
         }
 
         public void DropOnce(Action<ITile> done)
@@ -134,9 +134,11 @@ namespace Gameplay.Board
             _done = null;
         }
 
+        public bool Direction { get; private set; }
+
         private void ContinueDropping(Action<IPieceDropper, ITile> done, int index)
         {
-            var successTile = _tileSpace[BoardTraveller.MoveNext(index, _tileSpace.Count, _forward)].Tile;
+            var successTile = _tileSpace[BoardTraveller.MoveNext(index, _tileSpace.Count, Direction)].Tile;
             var shouldContinue = successTile.HeldPieces.Count > 0 && successTile is ICitizenTile;
 
             if (shouldContinue)
@@ -150,7 +152,7 @@ namespace Gameplay.Board
                 }
 
                 TakeAll(successTile);
-                SetMoveStartPoint(successTile.TileIndex, _forward);
+                SetMoveStartPoint(successTile.TileIndex, Direction);
                 DropOnce(t => ContinueDropping(done, t.TileIndex));
             }
             else
