@@ -5,41 +5,50 @@ using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
-    public class TileChooser : MonoBehaviour
+    public interface ITileChooser
     {
-        [SerializeField] private ButtonGroup buttonGroup;
+        void Setup(Board.Board board, PlayersManager playerManager);
+        void TearDown();
+        void ResetAll();
+        void ShowUp();
+    }
+
+    public class TileChooser : MonoBehaviour, ITileChooser
+    {
         [SerializeField] private ButtonOnGround tileChoosingButtonPrefab;
 
-        private ButtonOnGround[] _buttons;
+        private IButton[] _buttons;
+
         private Board.Board _board;
         private PlayersManager _playerManager;
+        private ButtonGroup _buttonGroup;
+
         [field: System.NonSerialized] public ITile SelectedTile { get; private set; }
         public event Action SelectedTileChangedEvent;
+        private IButtonFactory _buttonFactory;
 
         public void Setup(Board.Board board, PlayersManager playerManager)
         {
             _board = board;
             _playerManager = playerManager;
-
-            _buttons = new ButtonOnGround[_board.Metadata.NumCitizenTilesPerSide];
+            _buttonFactory = new ButtonFactory(tileChoosingButtonPrefab, transform);
+            _buttons = new IButton[_board.Metadata.NumCitizenTilesPerSide];
 
             for (var i = 0; i < _board.Metadata.NumCitizenTilesPerSide; i++)
             {
-                _buttons[i] = Instantiate(tileChoosingButtonPrefab, transform);
+                _buttons[i] = _buttonFactory.Spawn();
                 _buttons[i].ClickedEvent += OnButtonClicked;
             }
 
-            buttonGroup.Setup(_buttons);
+            _buttonGroup = new ButtonGroup(_buttons);
         }
 
         public void TearDown()
         {
-            buttonGroup.TearDown();
-
             foreach (var bt in _buttons)
             {
                 bt.ClickedEvent -= OnButtonClicked;
-                Destroy(bt.gameObject);
+                _buttonFactory.Destroy(bt);
             }
 
             _buttons = null;
@@ -48,39 +57,42 @@ namespace Gameplay.GameInteract
 
         public void ResetAll()
         {
-            buttonGroup.HideButtons();
+            _buttonGroup.HideButtons();
             SelectedTile = null;
         }
 
-        private void OnButtonClicked(IButton obj)
+        private void OnButtonClicked(IButton btn)
         {
-            if (obj is not TileChoosingButton btn) return;
-
             SelectedTile?.Transform.GetComponent<TileSelectable>()?.Unselect();
-            SelectedTile = _board.Sides[_playerManager.CurrentPlayer.Index].CitizenTiles[Array.IndexOf(_buttons, btn)];
+            SelectedTile = _board.Sides[_playerManager.CurrentPlayer.Index].CitizenTiles[Array.IndexOf(_buttons, (ButtonOnGround) btn)];
             SelectedTile?.Transform.GetComponent<TileSelectable>()?.Select();
 
             SelectedTileChangedEvent?.Invoke();
 
-            buttonGroup.HideButtons();
+            _buttonGroup.HideButtons();
         }
 
         public void ShowUp()
         {
-            UpdateSide();
-            buttonGroup.ShowButtons();
+            UpdateButtonPositionOnCurrentSide();
+            _buttonGroup.ShowButtons();
         }
 
-        private void UpdateSide()
+        private void UpdateButtonPositionOnCurrentSide()
         {
-            var tiles = _board.Sides[_playerManager.CurrentPlayer.Index].CitizenTiles;
-            for (var i = 0; i < tiles.Count; i++)
+            var tilesOnSide = _board.Sides[_playerManager.CurrentPlayer.Index].CitizenTiles;
+            for (var i = 0; i < tilesOnSide.Count; i++)
             {
-                var target = tiles[i].Transform;
-                var tilePos = target.position;
+                var target = tilesOnSide[i].Transform;
                 var tileRot = target.rotation;
-                _buttons[i].transform.SetPositionAndRotation(tilePos + target.forward * tiles[i].Size, tileRot);
+                var pos = CalculateButtonPosition(target, tilesOnSide[i].Size);
+                _buttons[i].SetPositionAndRotation(pos, tileRot);
             }
+        }
+
+        private static Vector3 CalculateButtonPosition(Transform target, float offset)
+        {
+            return target.position + target.forward * offset;
         }
     }
 }

@@ -12,48 +12,43 @@ using UnityEngine;
 
 namespace System
 {
+    public interface IGameplayControlUnit
+    {
+        void StartGame();
+        void ClearGame();
+    }
+
     /// <summary>
     /// Only use event when:
     /// the listeners are sequentially independent of each other, otherwise, their states would be changed
     /// on handle the event, any one that relies on a specific state of a listener might get into
     /// trouble. Is there any solution for this problem?
     /// </summary>
-    public class GameplayControlUnit : MonoControlUnitBase<GameplayControlUnit>
+    public class GameplayControlUnit : MonoControlUnitBase<GameplayControlUnit>, IGameplayControlUnit
     {
-        private readonly Gameplay _gameplay = new();
+        private IGameplay _gameplay;
 
         private BambooFamilyManager _bambooFamily;
-        private PlayersManager _playersManager;
+        private IPlayerManager _playersManager;
         private BoardManager _boardManager;
         private PieceManager _pieceManager;
-        private GameInteractManager _interact;
+        private IPlayerInteract _interact;
         private IStageSelector _stageSelector;
         public event Action GameplayBeginEvent;
         public event Action GameplayEndEvent;
-        
+
         protected override void OnSetup()
         {
             base.OnSetup();
-            
+
             _playersManager = Resolver.Resolve<PlayersManager>();
             _boardManager = Resolver.Resolve<BoardManager>();
             _pieceManager = Resolver.Resolve<PieceManager>();
             _bambooFamily = Resolver.Resolve<BambooFamilyManager>();
             _stageSelector = Resolver.Resolve<IStageSelector>("stage_selector");
-            _interact = Resolver.Resolve<GameInteractManager>();
-            
-            _gameplay.Setup(_playersManager, _boardManager.Board, _interact);
-        }
+            _interact = Resolver.Resolve<PlayerInteract>();
 
-        protected override void OnTearDown()
-        {
-            base.OnTearDown();
-            _gameplay.TearDown();
-        }
-
-        private void Update()
-        {
-            _gameplay.ActivityQueue.Update(Time.deltaTime);
+            _gameplay = new Gameplay(_playersManager, _boardManager, _interact);
         }
 
         public void StartGame()
@@ -64,27 +59,35 @@ namespace System
 
         private void StartGameCoroutine()
         {
-            GenerateMatch(_stageSelector.SelectedStage, () => { _gameplay.StartNewMatch(); });
+            GenerateMatch(_stageSelector.SelectedStage);
         }
 
-        private void GenerateMatch(IStage stage, Action done)
+        private void GenerateMatch(IStage stage)
         {
             _boardManager.CreateBoard(stage.Data.PlayerNum, stage.Data.TilesPerGroup);
-  
-            _playersManager.FillWithFakePlayers(stage.Data.PlayerNum);
+
+            _playersManager.FillUpWithFakePlayers(stage.Data.PlayerNum);
             _playersManager.CreatePieceBench(_boardManager.Board);
 
             _pieceManager.SpawnPieces(stage.Data.PlayerNum, stage.Data.TilesPerGroup, stage.Data.NumCitizensInTile);
-            _pieceManager.ReleasePieces(done, _boardManager.Board);
+            _pieceManager.ReleasePieces(OnAllPiecesInPlace, _boardManager.Board);
 
             _bambooFamily.BeginAnimSequence();
+            _interact.Initialize();
+            _gameplay.Initialize();
+        }
+
+        private void OnAllPiecesInPlace()
+        {
+            _gameplay.Start();
         }
 
         public void ClearGame()
         {
+            _interact.Cleanup();
             _bambooFamily.ResetAll();
             _pieceManager.DeletePieces();
-            _gameplay.ClearGame();
+            _gameplay.Cleanup();
             _playersManager.DeletePlayers();
             _boardManager.DeleteBoard();
             GameplayEndEvent?.Invoke();

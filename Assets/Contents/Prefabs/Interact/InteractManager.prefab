@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5489322093061719942}
   - component: {fileID: 5074255739390356247}
-  - component: {fileID: 1570599263379640571}
   m_Layer: 0
   m_Name: TileChooser
   m_TagString: Untagged
@@ -45,20 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94aed3bfed91478993494be32e667201, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttonGroup: {fileID: 1570599263379640571}
   tileChoosingButtonPrefab: {fileID: 6872908592761627781, guid: f3ae0c2532e44d544b441b46f8a10c5b, type: 3}
---- !u!114 &1570599263379640571
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5702460568963870545}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6ed5aeba8334b39968fff378f2a9b0a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &7752851157717061877
 GameObject:
   m_ObjectHideFlags: 0
@@ -165,20 +151,10 @@ PrefabInstance:
     - target: {fileID: 6694377760158592686, guid: ce5c03dcc71982b45a468df1aea1c6d3, type: 3}
       propertyPath: buttonGroup
       value: 
-      objectReference: {fileID: 1415599371302857105}
-    m_RemovedComponents: []
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 3254807417599810693, guid: ce5c03dcc71982b45a468df1aea1c6d3, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: ce5c03dcc71982b45a468df1aea1c6d3, type: 3}
---- !u!114 &1415599371302857105 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3254807417599810693, guid: ce5c03dcc71982b45a468df1aea1c6d3, type: 3}
-  m_PrefabInstance: {fileID: 4507643883543475476}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6ed5aeba8334b39968fff378f2a9b0a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &7091316873556728762 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6694377760158592686, guid: ce5c03dcc71982b45a468df1aea1c6d3, type: 3}

@@ -4,15 +4,25 @@ using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
-    public class ActionChooser : MonoBehaviour
+    public interface IActionChooser
+    {
+        void ShowUp();
+        void HideAway();
+        event Action DirectionSelectedEvent;
+        bool SelectedDirection { get; }
+        void SetPositionAndRotation(Vector3 pos, Quaternion rot);
+    }
+
+    public class ActionChooser : MonoBehaviour, IActionChooser
     {
         [SerializeField] private ButtonOnGround left;
         [SerializeField] private ButtonOnGround right;
-        [SerializeField] private ButtonGroup buttonGroup;
+
+        private ButtonGroup _buttonGroup;
         public event Action DirectionSelectedEvent;
         public bool SelectedDirection { get; private set; }
 
-        public void Setup()
+        private void OnEnable()
         {
             var buttons = new[] {left, right};
 
@@ -22,17 +32,15 @@ namespace Gameplay.GameInteract
                 bt.ClickedEvent += OnClicked;
             }
 
-            buttonGroup.Setup(buttons);
+            _buttonGroup = new ButtonGroup(buttons);
         }
 
-        public void TearDown()
+        public void OnDisable()
         {
-            foreach (var bt in buttonGroup.Buttons)
+            foreach (var bt in _buttonGroup.Buttons)
             {
                 bt.ClickedEvent -= OnClicked;
             }
-
-            buttonGroup.TearDown();
         }
 
         private void OnClicked(IButton obj)
@@ -42,19 +50,19 @@ namespace Gameplay.GameInteract
             HideAway();
         }
 
-        public void ShowUp(Transform tileTransform, float offset)
+        public void SetPositionAndRotation(Vector3 pos, Quaternion rot)
         {
-            var tileRotation = tileTransform.rotation;
-            var pos = tileTransform.position + tileRotation * Vector3.forward * offset;
-            
-            transform.SetPositionAndRotation(pos, tileRotation);
-            
-            buttonGroup.ShowButtons();
+            transform.SetPositionAndRotation(pos, rot);
+        }
+
+        public void ShowUp()
+        {
+            _buttonGroup.ShowButtons();
         }
 
         public void HideAway()
         {
-            buttonGroup.HideButtons();
+            _buttonGroup.HideButtons();
         }
     }
 }

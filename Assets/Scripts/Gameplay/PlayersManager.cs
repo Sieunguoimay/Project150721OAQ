@@ -4,7 +4,25 @@ using UnityEngine;
 
 namespace Gameplay
 {
-    public class PlayersManager : MonoControlUnitBase<PlayersManager>
+    public interface IPlayerManager
+    {
+        IReadOnlyList<Player> Players { get; }
+        Player CurrentPlayer { get; }
+        void NextPlayer();
+        void ChangePlayer(Player newPlayer);
+        void FillUpWithFakePlayers(int n);
+        void DeletePlayers();
+
+        PieceBench GetCurrentPlayerBench();
+        void CreatePieceBench(Board.Board board);
+    }
+
+    public interface ICurrentPlayer
+    {
+        
+    }
+    
+    public class PlayersManager : MonoControlUnitBase<PlayersManager>,IPlayerManager
     {
         [field: System.NonSerialized] public IReadOnlyList<Player> Players { get; private set; }
         public Player CurrentPlayer { get; private set; }
@@ -15,6 +33,11 @@ namespace Gameplay
         {
             base.OnSetup();
             _mainPlayer = new Player(0);
+        }
+
+        public PieceBench GetCurrentPlayerBench()
+        {
+            return CurrentPlayer.PieceBench;
         }
 
         public void NextPlayer()
@@ -31,7 +54,7 @@ namespace Gameplay
             PlayerChangedEvent?.Invoke();
         }
 
-        public void FillWithFakePlayers(int n)
+        public void FillUpWithFakePlayers(int n)
         {
             var players = new Player[n];
             for (var i = 0; i < n; i++)

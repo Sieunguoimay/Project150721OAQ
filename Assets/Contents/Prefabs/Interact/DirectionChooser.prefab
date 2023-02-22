@@ -56,7 +56,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5022494931438511283}
-  - component: {fileID: 3254807417599810693}
   - component: {fileID: 6694377760158592686}
   m_Layer: 0
   m_Name: DirectionChooser
@@ -86,18 +85,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3254807417599810693
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5222203370293044899}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6ed5aeba8334b39968fff378f2a9b0a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &6694377760158592686
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112,7 +99,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   left: {fileID: 6822241401117982030}
   right: {fileID: 6607401244212472737}
-  buttonContainer: {fileID: 3254807417599810693}
 --- !u!1 &6938310398636424269
 GameObject:
   m_ObjectHideFlags: 0
