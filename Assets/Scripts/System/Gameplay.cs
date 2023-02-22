@@ -17,7 +17,7 @@ namespace System
         // private readonly PieceEater _eater = new();
 
         private PlayersManager _playersManager;
-        private Board _board;
+        private BoardManager _boardManager;
         private GameInteractManager _interact;
 
         private bool IsGameOver { get; set; }
@@ -30,9 +30,9 @@ namespace System
         private BoardActionExecutor _boardActionExecutor;
         private BoardActionExecutor[] _concurrentBoardActionExecutors;
 
-        public void Setup(PlayersManager playersManager, Board board, GameInteractManager interactManager)
+        public void Setup(PlayersManager playersManager, BoardManager boardManager, GameInteractManager interactManager)
         {
-            _board = board;
+            _boardManager = boardManager;
             _playersManager = playersManager;
             _interact = interactManager;
 
@@ -52,7 +52,6 @@ namespace System
         {
             IsPlaying = true;
             _playersManager.NextPlayer();
-            _interact.SetupOnGameStart();
             _interact.ShowUp();
             _concurrentBoardActionExecutors = new BoardActionExecutor[2];
             for (var i = 0; i < _concurrentBoardActionExecutors.Length; i++)
@@ -71,7 +70,6 @@ namespace System
         {
             IsGameOver = false;
             IsPlaying = false;
-            _interact.TearDownOnGameClear();
         }
 
         #region PRIVATE_METHODS
@@ -79,7 +77,7 @@ namespace System
         private void OnGameInteractResult(GameInteractResult gameInteractResult)
         {
             Drop2TilesConcurrently(gameInteractResult.SelectedTile.TileIndex,
-                BoardTraveller.MoveNext(gameInteractResult.SelectedTile.TileIndex, _board.Tiles.Count, gameInteractResult.Direction, 2), gameInteractResult.Direction);
+                BoardTraveller.MoveNext(gameInteractResult.SelectedTile.TileIndex, _boardManager.Board.Tiles.Count, gameInteractResult.Direction, 2), gameInteractResult.Direction);
         }
 
         private void DropSingleTile(int tileIndex, bool direction)
@@ -97,9 +95,9 @@ namespace System
 
         private BoardActionExecutor.Argument CreateBoardActionExecutorArgument(int tileIndex, bool direction)
         {
-            return new()
+            return new BoardActionExecutor.Argument
             {
-                board = _board,
+                board = _boardManager.Board,
                 bench = _playersManager.CurrentPlayer.PieceBench,
                 direction = direction,
                 singleActionDuration = 1,
@@ -114,7 +112,7 @@ namespace System
 
         private void MakeDecision()
         {
-            var allMandarinTilesEmpty = _board.Sides.All(tg => tg.MandarinTile.HeldPieces.Count <= 0);
+            var allMandarinTilesEmpty = _boardManager.Board.Sides.All(tg => tg.MandarinTile.HeldPieces.Count <= 0);
             if (allMandarinTilesEmpty)
             {
                 GameOver();
@@ -123,7 +121,7 @@ namespace System
 
             _playersManager.NextPlayer();
 
-            var tileGroup = _board.Sides[_playersManager.CurrentPlayer.Index];
+            var tileGroup = _boardManager.Board.Sides[_playersManager.CurrentPlayer.Index];
             var isNewPlayerAllEmpty = tileGroup.CitizenTiles.All(t => t.HeldPieces.Count <= 0);
             if (isNewPlayerAllEmpty)
             {
@@ -157,7 +155,7 @@ namespace System
         {
             for (var i = 0; i < _playersManager.Players.Count; i++)
             {
-                foreach (var tile in _board.Sides[i].CitizenTiles)
+                foreach (var tile in _boardManager.Board.Sides[i].CitizenTiles)
                 {
                     // _players[i].PieceBench.HeldPieces.AddRange(tile.HeldPieces);
                     tile.Clear();

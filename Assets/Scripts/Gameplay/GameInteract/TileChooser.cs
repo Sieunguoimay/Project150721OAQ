@@ -54,10 +54,8 @@ namespace Gameplay.GameInteract
 
         private void OnButtonClicked(IButton obj)
         {
-            if (obj is not TileChoosingButton btn) return;
-
             SelectedTile?.Transform.GetComponent<TileSelectable>()?.Unselect();
-            SelectedTile = _board.Sides[_playerManager.CurrentPlayer.Index].CitizenTiles[Array.IndexOf(_buttons, btn)];
+            SelectedTile = _board.Sides[_playerManager.CurrentPlayer.Index].CitizenTiles[Array.IndexOf(_buttons, (ButtonOnGround)obj)];
             SelectedTile?.Transform.GetComponent<TileSelectable>()?.Select();
 
             SelectedTileChangedEvent?.Invoke();

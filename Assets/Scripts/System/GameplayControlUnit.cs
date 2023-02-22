@@ -28,8 +28,6 @@ namespace System
         private PieceManager _pieceManager;
         private GameInteractManager _interact;
         private IStageSelector _stageSelector;
-        public event Action GameplayBeginEvent;
-        public event Action GameplayEndEvent;
         
         protected override void OnSetup()
         {
@@ -42,7 +40,7 @@ namespace System
             _stageSelector = Resolver.Resolve<IStageSelector>("stage_selector");
             _interact = Resolver.Resolve<GameInteractManager>();
             
-            _gameplay.Setup(_playersManager, _boardManager.Board, _interact);
+            _gameplay.Setup(_playersManager, _boardManager, _interact);
         }
 
         protected override void OnTearDown()
@@ -59,7 +57,6 @@ namespace System
         public void StartGame()
         {
             StartGameCoroutine();
-            GameplayBeginEvent?.Invoke();
         }
 
         private void StartGameCoroutine()
@@ -78,16 +75,17 @@ namespace System
             _pieceManager.ReleasePieces(done, _boardManager.Board);
 
             _bambooFamily.BeginAnimSequence();
+            _interact.SetupOnGameStart();
         }
 
         public void ClearGame()
         {
+            _interact.TearDownOnGameClear();
             _bambooFamily.ResetAll();
             _pieceManager.DeletePieces();
             _gameplay.ClearGame();
             _playersManager.DeletePlayers();
             _boardManager.DeleteBoard();
-            GameplayEndEvent?.Invoke();
         }
 
 #if UNITY_EDITOR
