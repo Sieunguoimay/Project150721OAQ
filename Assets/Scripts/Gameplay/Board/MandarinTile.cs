@@ -25,9 +25,9 @@ namespace Gameplay.Board
 
         public event Action<IMandarinTile> MandarinChangedEvent;
 
-        public override Vector3 GetGridPosition(int index, bool local = false)
+        public override Vector3 GetPositionAtGridCellIndex(int index, bool local = false)
         {
-            return base.GetGridPosition(index + (HasMandarin ? 9 : 0), local);
+            return base.GetPositionAtGridCellIndex(index + (HasMandarin ? 9 : 0), local);
         }
     }
 }

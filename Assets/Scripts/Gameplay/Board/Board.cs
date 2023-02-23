@@ -36,11 +36,6 @@ namespace Gameplay.Board
         {
             return Tiles[tileIndex];
         }
-
-        public void ClearTile(ITile tile)
-        {
-            tile.Clear();
-        }
     }
 
     public static class BoardCreator

@@ -12,14 +12,9 @@ namespace Gameplay
         void ChangePlayer(Player newPlayer);
         void FillUpWithFakePlayers(int n);
         void DeletePlayers();
-
+  
         PieceBench GetCurrentPlayerBench();
         void CreatePieceBench(Board.Board board);
-    }
-
-    public interface ICurrentPlayer
-    {
-        
     }
     
     public class PlayersManager : MonoControlUnitBase<PlayersManager>,IPlayerManager

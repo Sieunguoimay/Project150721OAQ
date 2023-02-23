@@ -11,7 +11,7 @@ namespace Gameplay.Board
         event Action<IBoardStateDriver> EndEvent;
     }
 
-    public abstract class BaseBoardStateDriver : IBoardStateDriver
+    public abstract class BaseBoardStateMachine : IBoardStateDriver
     {
         /*
          * Action List:
@@ -201,7 +201,10 @@ namespace Gameplay.Board
 
             private IState GetNextState()
             {
-                return Executor.GetSuccessStateAfterDrop(_stateIdle, _slamAndEat, _graspATile);
+                if (Executor.IsGraspable()) return _graspATile;
+                if (Executor.IsEatable()) return _slamAndEat;
+                if (Executor.HasReachDeadEnd()) return _stateIdle;
+                throw new Exception("Invalid condition");
             }
 
             private bool Drop()
@@ -262,7 +265,7 @@ namespace Gameplay.Board
                     }
                     else
                     {
-                        if (CanEatMore())
+                        if (Executor.IsEatable())
                         {
                             //Move next
                             _slam = true;
@@ -276,19 +279,14 @@ namespace Gameplay.Board
                     }
                 }
             }
-
-            private bool CanEatMore()
-            {
-                return Executor.CanEatMore();
-            }
         }
     }
 
-    public class BoardStateDriver : BaseBoardStateDriver
+    public class BoardStateMachine : BaseBoardStateMachine
     {
         private readonly StateMachine _stateMachine = new();
 
-        public BoardStateDriver(IMoveMaker executor)
+        public BoardStateMachine(IMoveMaker executor)
         {
             SetupStateMachine(_stateMachine, executor);
         }

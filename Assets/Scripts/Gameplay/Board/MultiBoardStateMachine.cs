@@ -4,13 +4,13 @@ using Common.DecisionMaking;
 
 namespace Gameplay.Board
 {
-    public class ConcurrentBoardStateDriver : BaseBoardStateDriver
+    public class MultiBoardStateMachine : BaseBoardStateMachine
     {
         private readonly IStateMachine[] _stateMachines;
         private int _anyActionCompleteCount;
 
         private readonly List<IStateMachine> _completedStateMachines = new();
-        public ConcurrentBoardStateDriver(IReadOnlyList<IMoveMaker> executors)
+        public MultiBoardStateMachine(IReadOnlyList<IMoveMaker> executors)
         {
             _stateMachines = new IStateMachine[executors.Count];
             for (var i = 0; i < executors.Count; i++)

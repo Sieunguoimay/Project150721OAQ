@@ -112,42 +112,6 @@ namespace Gameplay.Piece
 
         public event Action<Citizen> MoveDoneEvent;
 
-        public void JumpingMove(IEnumerable<TileAdapter> targetSequence, Action<ICitizen> reachTargetCallback,
-            float delay = 0f)
-        {
-            _citizen.ActivityQueue.End();
-            _citizen.ActivityQueue.Add(delay > 0 ? new ActivityDelay(delay) : null);
-
-            var firstTarget = true;
-            foreach (var target in targetSequence)
-            {
-                if (firstTarget)
-                {
-                    _citizen.ActivityQueue.Add(new ActivityRotateToTarget(_citizen.transform,
-                        target.Tile.Transform.position, .2f));
-                    firstTarget = false;
-                }
-
-                _citizen.ActivityQueue.Add(new ActivityJumpTimeline(_citizen, () =>
-                {
-                    target.VisitorCount.SetValue(target.VisitorCount.Value + 1);
-                    var offset = _citizen.TargetTile.Value == target.Tile ? 0 : target.VisitorCount.Value - 1;
-                    return target.Tile.GetGridPosition(target.Tile.HeldPieces.Count + offset);
-                }));
-                _citizen.ActivityQueue.Add(new ActivityCallback(() =>
-                {
-                    target.VisitorCount.SetValue(target.VisitorCount.Value - 1);
-                }));
-            }
-
-            _citizen.ActivityQueue.Add(new ActivityCallback(() => reachTargetCallback?.Invoke(_citizen)));
-            _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.land));
-            _citizen.ActivityQueue.Add(new ActivityTurnAway(_citizen.transform));
-            _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.sit_down));
-            _citizen.ActivityQueue.Add(new ActivityCallback(() => MoveDoneEvent?.Invoke(_citizen)));
-            _citizen.ActivityQueue.Begin();
-        }
-
         public void JumpingMove(IEnumerable<Vector3> targetSequence, Action<ICitizen> reachTargetCallback,
             float delay = 0f)
         {

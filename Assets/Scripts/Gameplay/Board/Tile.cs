@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 namespace Gameplay.Board
 {
@@ -6,9 +7,10 @@ namespace Gameplay.Board
     {
         int TileIndex { get; }
         float Size { get; }
-        Vector3 GetGridPosition(int index, bool local = false);
+        Vector3 GetPositionAtGridCellIndex(int index, bool local = false);
         Transform Transform { get; }
         Vector3 GetPosition();
+        int GetPiecesCount();
     }
 
     [SelectionBase]
@@ -25,7 +27,7 @@ namespace Gameplay.Board
             TileIndex = tileIndex;
         }
 
-        public virtual Vector3 GetGridPosition(int index, bool local = false)
+        public virtual Vector3 GetPositionAtGridCellIndex(int index, bool local = false)
         {
             var pos2D = GridNeighborLocator.GetPositionAtCellIndex(index);
             var localPos = new Vector3(pos2D.x * cellSize, 0, pos2D.y * cellSize);
@@ -36,6 +38,11 @@ namespace Gameplay.Board
         public Vector3 GetPosition()
         {
             return transform.position;
+        }
+
+        public int GetPiecesCount()
+        {
+            return HeldPieces.Count;
         }
 
 #if UNITY_EDITOR

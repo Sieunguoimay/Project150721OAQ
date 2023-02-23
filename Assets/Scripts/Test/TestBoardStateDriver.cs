@@ -5,26 +5,26 @@ namespace Test
 {
     public class TestBoardStateDriver : MonoBehaviour
     {
-        private BoardStateDriver _boardStateDriver;
+        private BoardStateMachine _boardStateMachine;
 
         [ContextMenu("NextAction")]
         private void NextAction()
         {
-            _boardStateDriver.NextAction();
+            _boardStateMachine.NextAction();
         }
 
         [ContextMenu("Next5Actions")]
         private void Next5Actions()
         {
-            if (_boardStateDriver == null)
+            if (_boardStateMachine == null)
             {
-                _boardStateDriver = new BoardStateDriver(new MoveMaker(null, 0));
-                _boardStateDriver.EndEvent += OnEndEvent;
+                _boardStateMachine = new BoardStateMachine(new MoveMaker(null, 0));
+                _boardStateMachine.EndEvent += OnEndEvent;
             }
 
             for (var i = 0; i < 5; i++)
             {
-                _boardStateDriver.NextAction();
+                _boardStateMachine.NextAction();
             }
         }
 

@@ -1,6 +1,4 @@
 ﻿using System;
-using Gameplay.Board;
-using Gameplay.GameInteract;
 
 namespace Gameplay
 {

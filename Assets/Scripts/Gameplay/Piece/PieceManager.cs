@@ -79,12 +79,12 @@ namespace Gameplay.Piece
                         ct.AddPiece(p);
 
                         var delay = k * 0.1f;
-                        var position = ct.GetGridPosition(Mathf.Max(0, ct.HeldPieces.Count - 1));
+                        var position = ct.GetPositionAtGridCellIndex(Mathf.Max(0, ct.HeldPieces.Count - 1));
                         p.CitizenMove.StraightMove(position, index == _citizens.Length - 1 ? ReachedTarget : null, delay);
                     }
                 }
 
-                _mandarins[i].transform.position = tg.MandarinTile.GetGridPosition(0);
+                _mandarins[i].transform.position = tg.MandarinTile.GetPositionAtGridCellIndex(0);
                 tg.MandarinTile.SetMandarin(_mandarins[i]);
             }
 

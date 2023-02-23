@@ -39,7 +39,7 @@ namespace System
         public void Initialize()
         {
             _board = _boardManager.Board;
-            _dropRunner = new DropRunner(this, new DropRunner.ActionArgumentCreator(_playersManager), _board);
+            _dropRunner = new DropRunner(this, new DropRunner.MoveStartingDataCreator(_playersManager), _board);
         }
 
         public void Cleanup()
@@ -127,30 +127,24 @@ namespace System
     public class DropRunner
     {
         private readonly Gameplay _gameplay;
-        private readonly ActionArgumentCreator _argumentCreator;
+        private readonly MoveStartingDataCreator _moveStartingDataCreator;
 
         private readonly IBoardStateDriver _concurrentBoardStateDriver;
         private readonly IBoardStateDriver _boardStateDriver;
 
         private readonly MoveMaker _moveMaker;
-        private readonly MoveMaker[] _concurrentBoardActionExecutors;
+        private readonly MoveMaker[] _twoMoveMakers;
 
-        public DropRunner(Gameplay gameplay, ActionArgumentCreator argumentCreator, Board board)
+        public DropRunner(Gameplay gameplay, MoveStartingDataCreator moveStartingDataCreator, Board board)
         {
             _gameplay = gameplay;
-            _argumentCreator = argumentCreator;
+            _moveStartingDataCreator = moveStartingDataCreator;
 
-            _concurrentBoardActionExecutors = new MoveMaker[2];
-
-            for (var i = 0; i < _concurrentBoardActionExecutors.Length; i++)
-            {
-                _concurrentBoardActionExecutors[i] = new MoveMaker(board, 1);
-            }
-
+            _twoMoveMakers = new MoveMaker[] {new(board, 1), new(board, 1)};
             _moveMaker = new MoveMaker(board, 1);
 
-            _boardStateDriver = new BoardStateDriver(_moveMaker);
-            _concurrentBoardStateDriver = new ConcurrentBoardStateDriver(_concurrentBoardActionExecutors);
+            _boardStateDriver = new BoardStateMachine(_moveMaker);
+            _concurrentBoardStateDriver = new MultiBoardStateMachine(_twoMoveMakers);
 
             _boardStateDriver.EndEvent += OnBoardStateDriverEnd;
             _concurrentBoardStateDriver.EndEvent += OnBoardStateDriverEnd;
@@ -169,34 +163,32 @@ namespace System
 
         public void DropSingleTile(int tileIndex, bool direction)
         {
-            _moveMaker.Initialize(_argumentCreator.Create(tileIndex, direction));
+            _moveMaker.Initialize(_moveStartingDataCreator.Create(tileIndex, direction));
             _boardStateDriver.NextAction();
         }
 
         public void Drop2TilesConcurrently(int tileIndex1, int tileIndex2, bool direction)
         {
-            _concurrentBoardActionExecutors[0].Initialize(_argumentCreator.Create(tileIndex1, direction));
-            _concurrentBoardActionExecutors[1].Initialize(_argumentCreator.Create(tileIndex2, direction));
+            _twoMoveMakers[0].Initialize(_moveStartingDataCreator.Create(tileIndex1, direction));
+            _twoMoveMakers[1].Initialize(_moveStartingDataCreator.Create(tileIndex2, direction));
             _concurrentBoardStateDriver.NextAction();
         }
 
-        public class ActionArgumentCreator
+        public class MoveStartingDataCreator
         {
             private readonly IPlayerManager _playersManager;
 
-            public ActionArgumentCreator(IPlayerManager playersManager)
+            public MoveStartingDataCreator(IPlayerManager playersManager)
             {
                 _playersManager = playersManager;
             }
 
-            public MoveMaker.Argument Create(int tileIndex, bool direction)
+            public MoveMaker.MoveConfig Create(int tileIndex, bool direction)
             {
-                return new MoveMaker.Argument
+                return new()
                 {
-                    // Board = _board,
                     Bench = _playersManager.GetCurrentPlayerBench(),
                     Direction = direction,
-                    // SingleActionDuration = 1,
                     StartingTileIndex = tileIndex
                 };
             }
