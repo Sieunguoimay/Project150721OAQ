@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Test
 {
-    public class TestBoardStateDriver:MonoBehaviour
+    public class TestBoardStateDriver : MonoBehaviour
     {
         private BoardStateDriver _boardStateDriver;
 
@@ -18,10 +18,10 @@ namespace Test
         {
             if (_boardStateDriver == null)
             {
-                _boardStateDriver = new BoardStateDriver(new BoardActionExecutor());
+                _boardStateDriver = new BoardStateDriver(new MoveMaker(null, 0));
                 _boardStateDriver.EndEvent += OnEndEvent;
             }
-            
+
             for (var i = 0; i < 5; i++)
             {
                 _boardStateDriver.NextAction();

@@ -10,7 +10,7 @@ namespace Gameplay.Board
         private int _anyActionCompleteCount;
 
         private readonly List<IStateMachine> _completedStateMachines = new();
-        public ConcurrentBoardStateDriver(IReadOnlyList<IBoardActionExecutor> executors)
+        public ConcurrentBoardStateDriver(IReadOnlyList<IMoveMaker> executors)
         {
             _stateMachines = new IStateMachine[executors.Count];
             for (var i = 0; i < executors.Count; i++)

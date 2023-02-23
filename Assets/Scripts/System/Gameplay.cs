@@ -29,7 +29,6 @@ namespace System
 
             _playerInteract.ResultEvent -= OnPlayerInteractResult;
             _playerInteract.ResultEvent += OnPlayerInteractResult;
-            
         }
 
         ~Gameplay()
@@ -40,7 +39,7 @@ namespace System
         public void Initialize()
         {
             _board = _boardManager.Board;
-            _dropRunner = new DropRunner(this, new DropRunner.ActionArgumentCreator(_playersManager, _board));
+            _dropRunner = new DropRunner(this, new DropRunner.ActionArgumentCreator(_playersManager), _board);
         }
 
         public void Cleanup()
@@ -57,13 +56,15 @@ namespace System
 
         private void OnPlayerInteractResult(PlayerInteractResult playerInteractResult)
         {
-            _dropRunner.Drop2TilesConcurrently(playerInteractResult.SelectedTile.TileIndex,
-                BoardTraveller.MoveNext(playerInteractResult.SelectedTile.TileIndex, _board.Tiles.Count, playerInteractResult.Direction, 2), playerInteractResult.Direction);
+            var index = playerInteractResult.SelectedTile.TileIndex;
+            var nextIndex = BoardTraveller.MoveNext(index, _board.Tiles.Count, playerInteractResult.Direction, 2);
+            _dropRunner.Drop2TilesConcurrently(index, nextIndex, playerInteractResult.Direction);
         }
 
         public void MakeDecision()
         {
-            var anyMandarinTilesHasPieces = _board.Sides.Any(tg => tg.MandarinTile.Mandarin != null || tg.MandarinTile.HeldPieces.Count > 0);
+            var anyMandarinTilesHasPieces = _board.Sides.Any(tg =>
+                tg.MandarinTile.Mandarin != null || tg.MandarinTile.HeldPieces.Count > 0);
             if (anyMandarinTilesHasPieces)
             {
                 _playersManager.NextPlayer();
@@ -77,7 +78,8 @@ namespace System
 
         private void CheckTilesOnCurrentPlayerSide()
         {
-            var anyTileHasPieces = _board.Sides[_playersManager.CurrentPlayer.Index].CitizenTiles.Any(t => t.HeldPieces.Count > 0);
+            var anyTileHasPieces = _board.Sides[_playersManager.CurrentPlayer.Index].CitizenTiles
+                .Any(t => t.HeldPieces.Count > 0);
             if (anyTileHasPieces)
             {
                 ContinuePlaying();
@@ -130,23 +132,26 @@ namespace System
         private readonly IBoardStateDriver _concurrentBoardStateDriver;
         private readonly IBoardStateDriver _boardStateDriver;
 
-        private readonly BoardActionExecutor _boardActionExecutor;
-        private readonly BoardActionExecutor[] _concurrentBoardActionExecutors;
+        private readonly MoveMaker _moveMaker;
+        private readonly MoveMaker[] _concurrentBoardActionExecutors;
 
-        public DropRunner(Gameplay gameplay, ActionArgumentCreator argumentCreator)
+        public DropRunner(Gameplay gameplay, ActionArgumentCreator argumentCreator, Board board)
         {
             _gameplay = gameplay;
             _argumentCreator = argumentCreator;
 
-            _concurrentBoardActionExecutors = new BoardActionExecutor[2];
+            _concurrentBoardActionExecutors = new MoveMaker[2];
+
             for (var i = 0; i < _concurrentBoardActionExecutors.Length; i++)
             {
-                _concurrentBoardActionExecutors[i] = new BoardActionExecutor();
+                _concurrentBoardActionExecutors[i] = new MoveMaker(board, 1);
             }
 
-            _boardActionExecutor = new BoardActionExecutor();
-            _boardStateDriver = new BoardStateDriver(_boardActionExecutor);
+            _moveMaker = new MoveMaker(board, 1);
+
+            _boardStateDriver = new BoardStateDriver(_moveMaker);
             _concurrentBoardStateDriver = new ConcurrentBoardStateDriver(_concurrentBoardActionExecutors);
+
             _boardStateDriver.EndEvent += OnBoardStateDriverEnd;
             _concurrentBoardStateDriver.EndEvent += OnBoardStateDriverEnd;
         }
@@ -164,7 +169,7 @@ namespace System
 
         public void DropSingleTile(int tileIndex, bool direction)
         {
-            _boardActionExecutor.Initialize(_argumentCreator.Create(tileIndex, direction));
+            _moveMaker.Initialize(_argumentCreator.Create(tileIndex, direction));
             _boardStateDriver.NextAction();
         }
 
@@ -178,23 +183,21 @@ namespace System
         public class ActionArgumentCreator
         {
             private readonly IPlayerManager _playersManager;
-            private readonly Board _board;
 
-            public ActionArgumentCreator(IPlayerManager playersManager, Board board)
+            public ActionArgumentCreator(IPlayerManager playersManager)
             {
                 _playersManager = playersManager;
-                _board = board;
             }
 
-            public BoardActionExecutor.Argument Create(int tileIndex, bool direction)
+            public MoveMaker.Argument Create(int tileIndex, bool direction)
             {
-                return new()
+                return new MoveMaker.Argument
                 {
-                    board = _board,
-                    bench = _playersManager.GetCurrentPlayerBench(),
-                    direction = direction,
-                    singleActionDuration = 1,
-                    tileIndex = tileIndex
+                    // Board = _board,
+                    Bench = _playersManager.GetCurrentPlayerBench(),
+                    Direction = direction,
+                    // SingleActionDuration = 1,
+                    StartingTileIndex = tileIndex
                 };
             }
         }

@@ -31,6 +31,16 @@ namespace Gameplay.Board
             _tiles = tiles;
             Metadata = metadata;
         }
+
+        public ITile GetTileAtIndex(int tileIndex)
+        {
+            return Tiles[tileIndex];
+        }
+
+        public void ClearTile(ITile tile)
+        {
+            tile.Clear();
+        }
     }
 
     public static class BoardCreator

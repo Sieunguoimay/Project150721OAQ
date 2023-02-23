@@ -8,6 +8,7 @@ namespace Gameplay.Board
         float Size { get; }
         Vector3 GetGridPosition(int index, bool local = false);
         Transform Transform { get; }
+        Vector3 GetPosition();
     }
 
     [SelectionBase]
@@ -32,6 +33,10 @@ namespace Gameplay.Board
         }
 
         public Transform Transform => transform;
+        public Vector3 GetPosition()
+        {
+            return transform.position;
+        }
 
 #if UNITY_EDITOR
         [SerializeField] private bool drawGizmos;

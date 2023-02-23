@@ -37,7 +37,7 @@ namespace Gameplay.Board
          * - EndEvent: Action
          */
 
-        protected void SetupStateMachine(IStateMachine stateMachine, IBoardActionExecutor executor)
+        protected void SetupStateMachine(IStateMachine stateMachine, IMoveMaker executor)
         {
             var boardStates = new BaseBoardState[]
             {
@@ -72,7 +72,7 @@ namespace Gameplay.Board
 
         protected abstract class BaseBoardState : BaseState
         {
-            protected IBoardActionExecutor Executor { get; private set; }
+            protected IMoveMaker Executor { get; private set; }
             private Action _actionCompleteHandler;
 
             protected BaseBoardState(IStateMachine stateMachine) : base(stateMachine)
@@ -82,7 +82,7 @@ namespace Gameplay.Board
             protected abstract void OnSetup();
             public abstract void NextAction();
 
-            public void Setup(Action actionCompleteHandler, IBoardActionExecutor executor)
+            public void Setup(Action actionCompleteHandler, IMoveMaker executor)
             {
                 Executor = executor;
                 _actionCompleteHandler = actionCompleteHandler;
@@ -288,7 +288,7 @@ namespace Gameplay.Board
     {
         private readonly StateMachine _stateMachine = new();
 
-        public BoardStateDriver(IBoardActionExecutor executor)
+        public BoardStateDriver(IMoveMaker executor)
         {
             SetupStateMachine(_stateMachine, executor);
         }
