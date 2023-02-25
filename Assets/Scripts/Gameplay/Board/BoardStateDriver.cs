@@ -201,9 +201,9 @@ namespace Gameplay.Board
 
             private IState GetNextState()
             {
+                if (Executor.HasReachDeadEnd()) return _stateIdle;
                 if (Executor.IsGraspable()) return _graspATile;
                 if (Executor.IsEatable()) return _slamAndEat;
-                if (Executor.HasReachDeadEnd()) return _stateIdle;
                 throw new Exception("Invalid condition");
             }
 

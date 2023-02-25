@@ -35,7 +35,9 @@ namespace Gameplay.Board
         }
 
         private MoveConfig _moveConfig;
-        private int _currentTileIndex;
+        private ITile _currentTile;
+        private ITile _nextTile;
+        private ITile _nextTile2;
         private List<Citizen> _graspedCitizens;
 
         public MoveMaker(Board board, float singleMoveDuration)
@@ -47,28 +49,20 @@ namespace Gameplay.Board
         public void Initialize(MoveConfig moveConfig)
         {
             _moveConfig = moveConfig;
-            _currentTileIndex = _moveConfig.StartingTileIndex;
+            UpdateCurrentTileIndex(_moveConfig.StartingTileIndex);
         }
 
         public void Grasp(Action doneHandler)
         {
-            var tile = _board.GetTileAtIndex(_currentTileIndex);
-            var nextTile = GetNextTile(_currentTileIndex);
 
-            var tileGrasper = new GroupFacingAnim(tile, nextTile);
+            var tileGrasper = new GroupFacingAnim(_currentTile, _nextTile);
             tileGrasper.FaceTowardNextTile();
 
             PublicExecutor.Instance.Delay(_singleMoveDuration, () =>
             {
-                ClaimAllPiecesOwnership(tile);
+                ClaimAllPiecesOwnership(_currentTile);
                 doneHandler?.Invoke();
             });
-        }
-
-        private ITile GetNextTile(int currentTileIndex)
-        {
-            var nextTileIndex = BoardTraveller.MoveNext(currentTileIndex, _board.Tiles.Count, _moveConfig.Direction);
-            return _board.GetTileAtIndex(nextTileIndex);
         }
 
         private void ClaimAllPiecesOwnership(IPieceContainer tile)
@@ -79,19 +73,19 @@ namespace Gameplay.Board
 
         public void Drop(Action doneHandler)
         {
-            var nextTile = GetNextTile(_currentTileIndex);
 
             for (var i = 0; i < _graspedCitizens.Count; i++)
             {
-                var target = nextTile.GetPositionAtGridCellIndex(nextTile.GetPiecesCount() + i);
+                var target = _nextTile.GetPositionAtGridCellIndex(_nextTile.GetPiecesCount() + i);
                 _graspedCitizens[i].JumpTo(target, null);
             }
 
             PublicExecutor.Instance.Delay(_singleMoveDuration, () =>
             {
-                DeliverFirstPieceOwnership(nextTile);
+                DeliverFirstPieceOwnership(_nextTile);
 
-                _currentTileIndex = nextTile.TileIndex;
+                UpdateCurrentTileIndex(_nextTile.TileIndex);
+                
                 doneHandler?.Invoke();
             });
         }
@@ -110,13 +104,11 @@ namespace Gameplay.Board
 
         public void Eat(Action doneHandler)
         {
-            var tileToEat = GetNextTile(_currentTileIndex);
-
-            EatCitizensAtTile(tileToEat);
+            EatCitizensAtTile(_nextTile);
 
             PublicExecutor.Instance.Delay(_singleMoveDuration, () =>
             {
-                _currentTileIndex = tileToEat.TileIndex;
+                UpdateCurrentTileIndex(_nextTile.TileIndex);
                 doneHandler?.Invoke();
             });
         }
@@ -129,7 +121,7 @@ namespace Gameplay.Board
             SortByDistanceToPoint(pieceContainer, centerPoint);
             MoveAllPiecesToCorrespondingPositions(pieceContainer, positions);
             IPieceContainer.TransferAllPiecesOwnership(pieceContainer, _moveConfig.Bench);
-        } 
+        }
 
         private Vector3[] GetNextPositionsInBench(int n)
         {
@@ -159,7 +151,8 @@ namespace Gameplay.Board
             });
         }
 
-        private static void MoveAllPiecesToCorrespondingPositions(IPieceContainer container, IReadOnlyList<Vector3> positions)
+        private static void MoveAllPiecesToCorrespondingPositions(IPieceContainer container,
+            IReadOnlyList<Vector3> positions)
         {
             var pieces = container.HeldPieces;
             for (var i = 0; i < pieces.Count; i++)
@@ -173,33 +166,42 @@ namespace Gameplay.Board
 
         public bool IsValidGrasp()
         {
-            return _board.Tiles[_currentTileIndex].GetPiecesCount() > 0;
+            return _currentTile.GetPiecesCount() > 0;
         }
 
         public bool HasReachDeadEnd()
         {
-            var nextTile = GetNextTile(_currentTileIndex);
-            var nextTile2 = GetNextTile(nextTile.TileIndex);
-            return nextTile.GetPiecesCount() == 0 && nextTile2.GetPiecesCount() == 0 || nextTile is IMandarinTile;
+            return _nextTile.GetPiecesCount() == 0 && _nextTile2.GetPiecesCount() == 0 || _nextTile is IMandarinTile;
         }
 
         public bool IsEatable()
         {
-            var nextTile = GetNextTile(_currentTileIndex);
-            var nextTile2 = GetNextTile(nextTile.TileIndex);
-            return nextTile.GetPiecesCount() == 0 && nextTile2.GetPiecesCount() > 0;
+            return _nextTile.GetPiecesCount() == 0 && _nextTile2.GetPiecesCount() > 0;
         }
 
         public bool IsGraspable()
         {
-            var nextTile = GetNextTile(_currentTileIndex);
-            return nextTile.GetPiecesCount() > 0 && nextTile is not IMandarinTile;
+            return _nextTile.GetPiecesCount() > 0 && _nextTile is not IMandarinTile;
         }
 
         public bool CanDrop()
         {
             return _graspedCitizens.Count > 0;
         }
+
+        private void UpdateCurrentTileIndex(int currentTileIndex)
+        {
+            _currentTile = _board.GetTileAtIndex(currentTileIndex);
+            _nextTile = GetNextTile(_currentTile.TileIndex);
+            _nextTile2 = GetNextTile(_nextTile.TileIndex);
+        }
+        
+        private ITile GetNextTile(int currentTileIndex)
+        {
+            var nextTileIndex = BoardTraveller.MoveNext(currentTileIndex, _board.Tiles.Count, _moveConfig.Direction);
+            return _board.GetTileAtIndex(nextTileIndex);
+        }
+
     }
 
     public class GroupFacingAnim
