@@ -1,5 +1,6 @@
 ﻿using System;
 using Gameplay.Board;
+using Gameplay.Player;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
@@ -24,18 +25,18 @@ namespace Gameplay.GameInteract
         public bool Direction { get; }
     }
 
-    public class PlayerInteract : MonoControlUnitBase<PlayerInteract>, IPlayerInteract
+    public class PlayerInteract : BaseGenericDependencyInversionUnit<PlayerInteract>, IPlayerInteract
     {
         [SerializeField] private TileChooser tileChooser;
         [SerializeField] private ActionChooser actionChooser;
 
-        private PlayersManager _playersManager;
+        private PlayerController _playerController;
         private IActionChooser ActionChooser => actionChooser;
 
         public void Initialize()
         {
             var boardManager = Resolver.Resolve<BoardManager>();
-            _playersManager = Resolver.Resolve<PlayersManager>();
+            _playerController = Resolver.Resolve<PlayerController>();
 
             tileChooser.SelectedTileChangedEvent -= OnSelectedTileChanged;
             tileChooser.SelectedTileChangedEvent += OnSelectedTileChanged;
@@ -43,7 +44,7 @@ namespace Gameplay.GameInteract
             ActionChooser.DirectionSelectedEvent -= OnDirectionSelected;
             ActionChooser.DirectionSelectedEvent += OnDirectionSelected;
             
-            tileChooser.Setup(boardManager.Board, _playersManager);
+            tileChooser.Setup(boardManager.Board, _playerController);
         }
 
         public void Cleanup()

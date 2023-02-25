@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Gameplay.Piece
 {
-    public class PieceManager : MonoControlUnitBase<PieceManager>
+    public class PieceManager : BaseGenericDependencyInversionUnit<PieceManager>
     {
         [SerializeField] private Mandarin mandarinPrefab;
         [SerializeField] private Citizen citizenPrefab;

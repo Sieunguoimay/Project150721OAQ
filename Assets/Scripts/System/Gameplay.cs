@@ -2,6 +2,7 @@
 using Gameplay;
 using Gameplay.Board;
 using Gameplay.GameInteract;
+using Gameplay.Player;
 
 namespace System
 {
@@ -10,6 +11,7 @@ namespace System
         void Initialize();
         void Cleanup();
         void Start();
+        event Action<IGameplay> GameOverEvent;
     }
 
     public class Gameplay : IGameplay
@@ -51,6 +53,8 @@ namespace System
         {
             MakeDecision();
         }
+
+        public event Action<IGameplay> GameOverEvent;
 
         #region PRIVATE_METHODS
 
@@ -119,6 +123,7 @@ namespace System
         private void GameOver()
         {
             // EvaluateWinner();
+            GameOverEvent?.Invoke(this);
         }
 
         #endregion

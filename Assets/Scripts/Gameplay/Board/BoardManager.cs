@@ -10,7 +10,7 @@ namespace Gameplay.Board
         void DeleteBoard();
     }
 
-    public class BoardManager : MonoControlUnitBase<BoardManager>, IBoardManager
+    public class BoardManager : BaseGenericDependencyInversionUnit<BoardManager>, IBoardManager
     {
         [SerializeField] private MandarinTile mandarinTilePrefab;
         [SerializeField] private CitizenTile citizenTilePrefab;

@@ -1,13 +1,14 @@
 ﻿using System;
 using Gameplay.Board;
 using Gameplay.GameInteract.Button;
+using Gameplay.Player;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
     public interface ITileChooser
     {
-        void Setup(Board.Board board, PlayersManager playerManager);
+        void Setup(Board.Board board, PlayerController playerManager);
         void TearDown();
         void ResetAll();
         void ShowUp();
@@ -20,14 +21,14 @@ namespace Gameplay.GameInteract
         private IButton[] _buttons;
 
         private Board.Board _board;
-        private PlayersManager _playerManager;
+        private PlayerController _playerManager;
         private ButtonGroup _buttonGroup;
 
         [field: System.NonSerialized] public ITile SelectedTile { get; private set; }
         public event Action SelectedTileChangedEvent;
         private IButtonFactory _buttonFactory;
 
-        public void Setup(Board.Board board, PlayersManager playerManager)
+        public void Setup(Board.Board board, PlayerController playerManager)
         {
             _board = board;
             _playerManager = playerManager;

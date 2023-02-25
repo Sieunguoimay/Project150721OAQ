@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Gameplay.Camera
 {
-    public class CameraManager : MonoControlUnitBase<CameraManager>
+    public class CameraManager : BaseGenericDependencyInversionUnit<CameraManager>
     {
         private UnityEngine.Camera _camera = null;
         public UnityEngine.Camera Camera => _camera ? _camera : _camera = GetComponent<UnityEngine.Camera>();

@@ -179,6 +179,7 @@ GameObject:
   - component: {fileID: 640686542525155091}
   - component: {fileID: 3623392433999234504}
   - component: {fileID: 3997321847051494313}
+  - component: {fileID: 5292132770929842441}
   m_Layer: 0
   m_Name: StartTheGame
   m_TagString: Untagged
@@ -245,6 +246,21 @@ MonoBehaviour:
       path: 'Entity: IGamePlayRunner'
     targetMethodName: 'Play(IStage): Void'
     formatType: 0
+--- !u!114 &5292132770929842441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2823996112839478050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5d9ae73d4f44175a5914be5e7fc8eb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pathSelector:
+    sourceObject: {fileID: 11400000, guid: 6b927e127a77d1c40aaad702d410946e, type: 2}
+    path: null
 --- !u!1 &3516461878864128858
 GameObject:
   m_ObjectHideFlags: 0

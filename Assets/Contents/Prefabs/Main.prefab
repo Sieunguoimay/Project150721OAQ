@@ -103,7 +103,6 @@ GameObject:
   m_Component:
   - component: {fileID: 965798591932148838}
   - component: {fileID: 5551847278260814366}
-  - component: {fileID: 8611696674720200181}
   m_Layer: 0
   m_Name: Views
   m_TagString: Untagged
@@ -139,52 +138,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entityId: game_play_runner
-  viewDataPairs:
-  - view: {fileID: 8611696674720200181}
-    subId: is_started
---- !u!114 &8611696674720200181
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4289493137403277938}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  onTrue:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5592389154637034424}
-        m_TargetAssemblyTypeName: System.GameManager, Assembly-CSharp
-        m_MethodName: StartGame
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  onFalse:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5592389154637034424}
-        m_TargetAssemblyTypeName: System.GameManager, Assembly-CSharp
-        m_MethodName: ClearGame
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  foldout: 0
+  viewDataPairs: []
 --- !u!1 &5592389154637034425
 GameObject:
   m_ObjectHideFlags: 0
@@ -201,7 +155,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5592389154637034431
 Transform:
   m_ObjectHideFlags: 0

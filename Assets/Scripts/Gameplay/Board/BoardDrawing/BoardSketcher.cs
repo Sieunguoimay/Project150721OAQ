@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Common.Algorithm;
 using Common.DrawLine;
 using UnityEngine;
 
 namespace Gameplay.Board.BoardDrawing
 {
-    public class BoardSketcher : MonoControlUnitBase<BoardSketcher>
+    public class BoardSketcher : BaseGenericDependencyInversionUnit<BoardSketcher>
     {
         [SerializeField] private VisualPen[] pens;
         [SerializeField] private DrawingSurface[] surfaces;

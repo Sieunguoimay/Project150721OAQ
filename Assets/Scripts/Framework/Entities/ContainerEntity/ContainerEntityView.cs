@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.UnityExtend.Attribute;
 using Common.UnityExtend.Reflection;
+using Framework.Resolver;
 using Framework.Services.Data;
 using UnityEditor;
 using UnityEngine;
@@ -16,9 +17,9 @@ namespace Framework.Entities.ContainerEntity
     {
         [SerializeField] private DataViewPair[] viewDataPairs;
 
-        protected override void OnSetup()
+        protected override void OnInject(IResolver resolver)
         {
-            base.OnSetup();
+            base.OnInject(resolver);
             foreach (var pair in viewDataPairs)
             {
                 var data = Entity?.Components?.FirstOrDefault(c => c.Data.Id.Equals(pair.subId));

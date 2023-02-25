@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Gameplay.BambooStick
 {
-    public class BambooFamilyManager : MonoControlUnitBase<BambooFamilyManager>
+    public class BambooFamilyManager : BaseGenericDependencyInversionUnit<BambooFamilyManager>
     {
         [SerializeField] private BambooStickSpace[] bambooSticks;
         [SerializeField] private Transform[] bambooStickVisualTransforms;

@@ -140,14 +140,19 @@ namespace Common.UnityExtend.Attribute
             if (types.Length > 0)
             {
                 var interfaces = types.Concat(new[] {type});
-                var methods = interfaces.SelectMany(i => i.GetMethods().Where(WhereMethod).Select(mi => $"{i.Name}/{ReflectionUtility.FormatName.FormatMethodName(mi)}"));
-                var props = interfaces.SelectMany(i => i.GetProperties().Select(pi => $"{i.Name}/{ReflectionUtility.FormatName.FormatPropertyName(pi)}"));
-                var fields = interfaces.SelectMany(i => i.GetFields().Select(fi => $"{i.Name}/{ReflectionUtility.FormatName.FormatFieldName(fi)}"));
+                var methods = interfaces.SelectMany(i =>
+                    i.GetMethods().Where(WhereMethod)
+                        .Select(mi => $"{i.Name}/{ReflectionUtility.FormatName.FormatMethodName(mi)}"));
+                var props = interfaces.SelectMany(i =>
+                    i.GetProperties().Select(pi => $"{i.Name}/{ReflectionUtility.FormatName.FormatPropertyName(pi)}"));
+                var fields = interfaces.SelectMany(i =>
+                    i.GetFields().Select(fi => $"{i.Name}/{ReflectionUtility.FormatName.FormatFieldName(fi)}"));
                 return new string[0].Concat(methods).Concat(props).Concat(fields);
             }
             else
             {
-                var methods = type.GetMethods().Where(WhereMethod).Select(ReflectionUtility.FormatName.FormatMethodName);
+                var methods = type.GetMethods().Where(WhereMethod)
+                    .Select(ReflectionUtility.FormatName.FormatMethodName);
                 var props = type.GetProperties().Select(ReflectionUtility.FormatName.FormatPropertyName);
                 var fields = type.GetFields().Select(ReflectionUtility.FormatName.FormatFieldName);
                 return new string[0].Concat(methods).Concat(props).Concat(fields);
@@ -155,7 +160,10 @@ namespace Common.UnityExtend.Attribute
 
             bool WhereMethod(MethodInfo m)
             {
-                return !m.Name.StartsWith("get_") && (!isGetPath || m.GetParameters().Length == 0 && m.ReturnType != typeof(void));
+                var hasParams = m.GetParameters().Length == 0;
+                var hasReturnValue = m.ReturnType != typeof(void);
+                var isGetProperty = m.Name.StartsWith("get_");
+                return !isGetProperty && (!isGetPath || !hasParams && hasReturnValue);
             }
         }
 

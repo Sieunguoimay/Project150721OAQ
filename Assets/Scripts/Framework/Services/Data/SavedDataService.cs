@@ -90,7 +90,7 @@ namespace Framework.Services.Data
         [MenuItem("Data/Clear Saved Data")]
         public static void ClearSavedData()
         {
-            var files = Directory.GetFiles(Path.Combine(MonoInstaller.ProjectPath, "SavedData"));
+            var files = Directory.GetFiles(Path.Combine(EntityController.ProjectPath, "SavedData"));
             foreach (var file in files)
             {
                 File.Delete(file);
