@@ -50,12 +50,17 @@ namespace Gameplay.GameState
             GameState.SetState(GameState.State.Ended);
         }
 
-        public void ConfirmState()
+        public void TryEnterPlayingState()
         {
             if (_stageSelector.SelectedStage != null)
             {
                 GameState.SetState(GameState.State.Playing);
             }
+        }
+
+        public void ForceQuitToMenuState()
+        {
+            GameState.SetState(GameState.State.InMenu);
         }
     }
 }

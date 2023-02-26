@@ -4,17 +4,17 @@ namespace Gameplay.GameState
 {
     public interface IGameState
     {
-        GameState.State CurrentSate { get; }
+        GameState.State CurrentState { get; }
         event Action<GameState> StateChangedEvent;
     }
 
     public class GameState : IGameState
     {
-        public State CurrentSate { get; private set; }
+        public State CurrentState { get; private set; }
 
         public void SetState(State newState)
         {
-            CurrentSate = newState;
+            CurrentState = newState;
             StateChangedEvent?.Invoke(this);
         }
 

@@ -202,7 +202,6 @@ namespace Gameplay.Board
             var nextTileIndex = BoardTraveller.MoveNext(currentTileIndex, _board.Tiles.Count, _moveConfig.Direction);
             return _board.GetTileAtIndex(nextTileIndex);
         }
-
     }
 
     public class GroupFacingAnim

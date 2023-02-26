@@ -190,7 +190,7 @@ namespace System
 
             public MoveMaker.MoveConfig Create(int tileIndex, bool direction)
             {
-                return new()
+                return new MoveMaker.MoveConfig
                 {
                     Bench = _playersManager.GetCurrentPlayerBench(),
                     Direction = direction,

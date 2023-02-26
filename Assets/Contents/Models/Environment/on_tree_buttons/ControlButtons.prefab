@@ -177,8 +177,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 640686542525155091}
-  - component: {fileID: 3623392433999234504}
-  - component: {fileID: 3997321847051494313}
   - component: {fileID: 5292132770929842441}
   m_Layer: 0
   m_Name: StartTheGame
@@ -202,50 +200,6 @@ Transform:
   m_Father: {fileID: 6751363274920353443}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3623392433999234504
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2823996112839478050}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc067b88c4446eb4a91d4dd456a4c6a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  entityId: game_play_runner
-  viewDataPairs: []
---- !u!114 &3997321847051494313
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2823996112839478050}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pathSelector:
-    sourceObject: {fileID: 1732845382351416717}
-    path: 'Entity: IStageSelector'
-  eventItemList:
-    eventItems:
-    - eventName: Selected(EventArgs)
-      use: 0
-    - eventName: ThisEnabled()
-      use: 0
-    - eventName: ThisDisabled()
-      use: 0
-  items:
-  - sourceObjectMethodName: 'SelectedStage: IStage'
-    targetObject:
-      sourceObject: {fileID: 3623392433999234504}
-      path: 'Entity: IGamePlayRunner'
-    targetMethodName: 'Play(IStage): Void'
-    formatType: 0
 --- !u!114 &5292132770929842441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258,9 +212,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5d9ae73d4f44175a5914be5e7fc8eb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pathSelector:
-    sourceObject: {fileID: 11400000, guid: 6b927e127a77d1c40aaad702d410946e, type: 2}
-    path: null
+  sourceObject: {fileID: 11400000, guid: 6b927e127a77d1c40aaad702d410946e, type: 2}
+  methodName: 'TryEnterPlayingState(): Void'
 --- !u!1 &3516461878864128858
 GameObject:
   m_ObjectHideFlags: 0
@@ -849,7 +802,7 @@ PrefabInstance:
     - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
       propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 3997321847051494313}
+      objectReference: {fileID: 5292132770929842441}
     - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
       propertyPath: click.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
@@ -864,7 +817,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
       propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: Transfer
+      value: Invoke
       objectReference: {fileID: 0}
     - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
       propertyPath: click.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
@@ -872,7 +825,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
       propertyPath: click.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: Common.UnityExtend.Reflection.DataBridge, Assembly-CSharp
+      value: Common.UnityExtend.Reflection.MethodInvoker, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 8926470324444371840, guid: 1d8c1a2086f837a4792b859c80c85bfe, type: 3}
       propertyPath: click.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName

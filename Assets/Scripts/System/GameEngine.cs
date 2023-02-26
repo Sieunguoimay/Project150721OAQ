@@ -29,7 +29,7 @@ namespace System
 
         private void OnApplicationQuit()
         {
-            entityController.SaveEntities();
+            entityController.UnloadServices();
         }
 
         private void OnApplicationFocus(bool hasFocus)
@@ -39,7 +39,7 @@ namespace System
             }
             else
             {
-                entityController.SaveEntities();
+                entityController.UnloadServices();
             }
         }
 

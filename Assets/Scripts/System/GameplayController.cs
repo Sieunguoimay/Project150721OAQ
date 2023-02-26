@@ -59,8 +59,8 @@ namespace System
             _gameplay = new Gameplay(_playersManager, _boardManager, _interact);
             _gameplay.GameOverEvent -= OnGameOver;
             _gameplay.GameOverEvent += OnGameOver;
+            
             _gameState = Resolver.Resolve<IGameState>();
-
             _gameState.StateChangedEvent -= OnGameStateChanged;
             _gameState.StateChangedEvent += OnGameStateChanged;
         }
@@ -69,7 +69,6 @@ namespace System
         {
             base.OnTearDownDependencies();
             _gameState.StateChangedEvent -= OnGameStateChanged;
-            _gameState.StateChangedEvent += OnGameStateChanged;
             _gameplay.GameOverEvent -= OnGameOver;
         }
 
@@ -80,11 +79,11 @@ namespace System
 
         private void OnGameStateChanged(GameState gameState)
         {
-            if (gameState.CurrentSate == GameState.State.Playing)
+            if (gameState.CurrentState == GameState.State.Playing)
             {
                 StartGame();
             }
-            else if (gameState.CurrentSate == GameState.State.InMenu)
+            else if (gameState.CurrentState == GameState.State.InMenu)
             {
                 ClearGame();
             }

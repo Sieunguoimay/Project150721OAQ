@@ -44,21 +44,21 @@ namespace Framework.Entities.ContainerEntity
             _entityLoader = resolver.Resolve<IEntityLoader>();
         }
 
-        public override void Initialize()
+        public override void SetupDependencies()
         {
-            base.Initialize();
+            base.SetupDependencies();
             foreach (var component in Components)
             {
-                component.Initialize();
+                component.SetupDependencies();
             }
         }
 
-        public override void Terminate()
+        public override void TearDownDependencies()
         {
-            base.Terminate();
+            base.TearDownDependencies();
             foreach (var component in Components)
             {
-                component.Terminate();
+                component.TearDownDependencies();
             }
 
             foreach (var la in Children)

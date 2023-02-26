@@ -27,11 +27,13 @@ namespace Framework
         public static string ProjectPath => Path.GetDirectoryName(Application.dataPath);
         public string SavedDataPath => Path.Combine(ProjectPath, saveFolder);
 #else
+        //Todo:..
 #endif
 
         public static IInstaller Instance { get; private set; }
 
         private readonly IContainer _container = new Container();
+        public IResolver Resolver => _container;
 
         //Services
 
@@ -41,13 +43,8 @@ namespace Framework
         {
             Instance = this;
             BindServices();
+            InjectServices();
             LoadEntities();
-        }
-
-        public void Unload()
-        {
-            UnloadEntities();
-            UnbindServices();
         }
 
         private void BindServices()
@@ -59,6 +56,40 @@ namespace Framework
             _container.Bind<IEntityLoader>(_entityLoader);
         }
 
+        private void InjectServices()
+        {
+            _entityLoader.Inject(Resolver);
+        }
+        
+        private void LoadEntities()
+        {
+            LoadGameContent();
+        }
+
+        private void LoadGameContent()
+        {
+            var gameContent=_entityLoader.CreateEntity(gameContentId);
+            gameContent.Inject(Resolver);
+            gameContent.SetupDependencies();
+        }
+        
+        public void Unload()
+        {
+            UnloadServices();
+            UnloadEntities();
+            UnbindServices();
+        }
+        
+        public void UnloadServices()
+        {
+            _container.Resolve<ISavedDataService>().WriteToStorage();
+        }
+        
+        private void UnloadEntities()
+        {
+            _entityLoader.DestroyEntity(_container.Resolve<IGameContent>(gameContentId));
+        }
+
         private void UnbindServices()
         {
             _container.Unbind<IEntityLoader>();
@@ -67,25 +98,5 @@ namespace Framework
             _container.Unbind<IMessageService>();
             _container.Unbind<IBinder>();
         }
-
-        private void LoadEntities()
-        {
-            _entityLoader.Inject(_container);
-            _entityLoader.CreateEntity(gameContentId);
-            _entityLoader.SetupEntities();
-        }
-
-        private void UnloadEntities()
-        {
-            SaveEntities();
-            _entityLoader.DestroyEntity(_container.Resolve<IGameContent>(gameContentId));
-        }
-
-        public void SaveEntities()
-        {
-            _container.Resolve<ISavedDataService>().WriteToStorage();
-        }
-
-        public IResolver Resolver => _container;
     }
 }

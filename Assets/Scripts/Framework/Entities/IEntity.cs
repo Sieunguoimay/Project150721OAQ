@@ -14,9 +14,9 @@ namespace Framework.Entities
         /// <summary>
         /// Initialize is called in order to setup inner stuff
         /// </summary>
-        void Initialize();
+        void SetupDependencies();
 
-        void Terminate();
+        void TearDownDependencies();
     }
 
     public interface IEntityData
@@ -113,11 +113,11 @@ namespace Framework.Entities
         public TData Data { get; }
         public TSavedData SavedData { get; }
 
-        public virtual void Initialize()
+        public virtual void SetupDependencies()
         {
         }
 
-        public virtual void Terminate()
+        public virtual void TearDownDependencies()
         {
         }
     }

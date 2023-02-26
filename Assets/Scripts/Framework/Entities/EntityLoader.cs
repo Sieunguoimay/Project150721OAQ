@@ -37,42 +37,18 @@ namespace Framework.Entities
             _entitiesTobeSetup = new List<IEntity<IEntityData, IEntitySavedData>>();
         }
 
-        public void SetupEntities()
-        {
-            foreach (var entity in _entitiesTobeSetup)
-            {
-                entity.Inject(_resolver);
-            }
-
-            foreach (var entity in _entitiesTobeSetup)
-            {
-                entity.Initialize();
-            }
-
-            _entitiesTobeSetup.Clear();
-            _entitiesTobeSetup = null;
-        }
-
         public IEntity<IEntityData, IEntitySavedData> CreateEntity(string entityDataId)
         {
             var entityAsset = _dataService.Load<IEntityData>(entityDataId);
             var entity = entityAsset.CreateEntity(this);
             _binder.Bind(entity.Data.GetEntityType(), entity.Data.Id, entity);
             entity.SavedData?.Load(_savedDataService);
-
-            if (_entitiesTobeSetup == null)
-            {
-                Debug.LogError("EntityLoader has already committed. You better call CreateEntity() earlier");
-                return entity;
-            }
-
-            _entitiesTobeSetup.Add(entity);
             return entity;
         }
 
         public void DestroyEntity(IEntity<IEntityData, IEntitySavedData> entity)
         {
-            entity.Terminate();
+            entity.TearDownDependencies();
 
             _binder.Unbind(entity.Data.GetEntityType(), entity.Data.Id);
         }

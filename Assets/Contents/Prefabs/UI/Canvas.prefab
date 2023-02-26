@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5071301021803229450}
-  - component: {fileID: 5963900810306584117}
-  - component: {fileID: 1753650448988267947}
-  - component: {fileID: 4202264273140985150}
+  - component: {fileID: 6595554357195925294}
+  - component: {fileID: 4824466187111025750}
+  - component: {fileID: 4205324325800249411}
   m_Layer: 5
   m_Name: Views
   m_TagString: Untagged
@@ -39,7 +39,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &5963900810306584117
+--- !u!114 &6595554357195925294
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -48,14 +48,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1858663503343865602}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc067b88c4446eb4a91d4dd456a4c6a4, type: 3}
+  m_Script: {fileID: 11500000, guid: d744bb8e52884e7bba84d13bba5bcf16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: game_play_runner
-  viewDataPairs:
-  - view: {fileID: 1753650448988267947}
-    subId: is_started
---- !u!114 &1753650448988267947
+--- !u!114 &4824466187111025750
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -64,17 +60,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 1858663503343865602}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0f68d6a628155a49b582a09d3ea21ee, type: 3}
+  m_Script: {fileID: 11500000, guid: 3edb98c0cccc46a5b6bea435daff8256, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onTrue:
-    m_PersistentCalls:
-      m_Calls: []
-  onFalse:
-    m_PersistentCalls:
-      m_Calls: []
-  foldout: 0
---- !u!114 &4202264273140985150
+  sourceObject: {fileID: 6595554357195925294}
+  path: 'GameState: IGameState'
+  extraEvents: 0
+  itemList:
+    eventItems:
+    - eventName: StateChangedEvent(GameState)
+      methodItems:
+      - targetObjectPath:
+          sourceObject: {fileID: 4205324325800249411}
+          path: 
+        methodName: 'Transfer(): Void'
+  useSameTypeSourceObjects: 0
+  sameTypeSourceObjects: []
+--- !u!114 &4205324325800249411
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -87,23 +89,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pathSelector:
-    sourceObject: {fileID: 1753650448988267947}
-    path: 'Entity: IVariableEntity`1'
+    sourceObject: {fileID: 6595554357195925294}
+    path: 
   eventItemList:
     eventItems:
-    - eventName: ValueChanged(Object,EventArgs)
-      use: 1
     - eventName: ThisEnabled()
-      use: 0
+      use: 1
     - eventName: ThisDisabled()
       use: 0
   items:
-  - sourceObjectMethodName: 'Value: Boolean'
+  - sourceObjectMethodName: 'IsInMenu: Boolean'
     targetObject:
       sourceObject: {fileID: 8195534748308815408}
       path: 
     targetMethodName: 'SetActive(Boolean): Void'
-    formatType: 0
+    formatType: 5
 --- !u!1 &2227529355583146870
 GameObject:
   m_ObjectHideFlags: 0
@@ -116,6 +116,7 @@ GameObject:
   - component: {fileID: 7095115899580223250}
   - component: {fileID: 8134587601883470072}
   - component: {fileID: 7025290353957934968}
+  - component: {fileID: 5766277685211925619}
   m_Layer: 5
   m_Name: Quit
   m_TagString: Untagged
@@ -226,11 +227,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1753650448988267947}
-        m_TargetAssemblyTypeName: Framework.Entities.Variable.VariableEntityManualView`1[[System.Boolean,
-          mscorlib
-        m_MethodName: SetValue
-        m_Mode: 6
+      - m_Target: {fileID: 5766277685211925619}
+        m_TargetAssemblyTypeName: Common.UnityExtend.Reflection.MethodInvoker, Assembly-CSharp
+        m_MethodName: Invoke
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -239,6 +239,20 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &5766277685211925619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2227529355583146870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5d9ae73d4f44175a5914be5e7fc8eb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sourceObject: {fileID: 11400000, guid: 6b927e127a77d1c40aaad702d410946e, type: 2}
+  methodName: 'ForceQuitToMenuState(): Void'
 --- !u!1 &3105528086314623859
 GameObject:
   m_ObjectHideFlags: 0
