@@ -44,7 +44,7 @@ namespace Framework.Entities.ContainerEntity
             _entityLoader = resolver.Resolve<IEntityLoader>();
         }
 
-        public override void SetupDependencies()
+        protected override void OnSetupDependencies()
         {
             base.SetupDependencies();
             foreach (var component in Components)
@@ -53,7 +53,7 @@ namespace Framework.Entities.ContainerEntity
             }
         }
 
-        public override void TearDownDependencies()
+        protected override void OnTearDownDependencies()
         {
             base.TearDownDependencies();
             foreach (var component in Components)

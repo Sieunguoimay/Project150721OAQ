@@ -102,12 +102,14 @@ namespace System
 
         private void GenerateMatch(IStage stage)
         {
-            _boardManager.CreateBoard(stage.Data.PlayerNum, stage.Data.TilesPerGroup);
+            var matchData = stage.Data.MatchData;
+            
+            _boardManager.CreateBoard(matchData.playerNum, matchData.tilesPerGroup);
 
-            _playersManager.FillUpWithFakePlayers(stage.Data.PlayerNum);
-            _playersManager.CreatePieceBench(_boardManager.Board);
+            // _playersManager.FillUpWithFakePlayers(matchData.playerNum);
+            // _playersManager.CreatePieceBench(_boardManager.Board);
 
-            _pieceManager.SpawnPieces(stage.Data.PlayerNum, stage.Data.TilesPerGroup, stage.Data.NumCitizensInTile);
+            _pieceManager.SpawnPieces(matchData.playerNum, matchData.tilesPerGroup, matchData.numCitizensInTile);
             _pieceManager.ReleasePieces(OnAllPiecesInPlace, _boardManager.Board);
 
             _bambooFamily.BeginAnimSequence();

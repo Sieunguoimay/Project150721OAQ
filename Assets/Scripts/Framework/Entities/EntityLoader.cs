@@ -41,7 +41,8 @@ namespace Framework.Entities
         {
             var entityAsset = _dataService.Load<IEntityData>(entityDataId);
             var entity = entityAsset.CreateEntity(this);
-            _binder.Bind(entity.Data.GetEntityType(), entity.Data.Id, entity);
+            // _binder.Bind(entity.Data.GetEntityType(), entity.Data.Id, entity);
+            entity.Bind(_binder);
             entity.SavedData?.Load(_savedDataService);
             return entity;
         }
@@ -49,8 +50,8 @@ namespace Framework.Entities
         public void DestroyEntity(IEntity<IEntityData, IEntitySavedData> entity)
         {
             entity.TearDownDependencies();
-
-            _binder.Unbind(entity.Data.GetEntityType(), entity.Data.Id);
+            entity.Unbind(_binder);
+            // _binder.Unbind(entity.Data.GetEntityType(), entity.Data.Id);
         }
     }
 }

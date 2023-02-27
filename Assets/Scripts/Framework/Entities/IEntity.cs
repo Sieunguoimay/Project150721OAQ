@@ -5,18 +5,11 @@ using UnityEngine;
 
 namespace Framework.Entities
 {
-    public interface IEntity<out TData, out TSavedData> : IInjectable
+    public interface IEntity<out TData, out TSavedData> : IDependencyInversionUnit
         where TData : IEntityData where TSavedData : IEntitySavedData
     {
         TData Data { get; }
         TSavedData SavedData { get; }
-
-        /// <summary>
-        /// Initialize is called in order to setup inner stuff
-        /// </summary>
-        void SetupDependencies();
-
-        void TearDownDependencies();
     }
 
     public interface IEntityData
@@ -113,11 +106,42 @@ namespace Framework.Entities
         public TData Data { get; }
         public TSavedData SavedData { get; }
 
-        public virtual void SetupDependencies()
+        public void Bind(IBinder binder)
+        {
+            OnBind(binder);
+            binder.Bind(Data.GetEntityType(), Data.Id, this);
+        }
+
+        public void SetupDependencies()
+        {
+            OnSetupDependencies();
+        }
+        protected virtual void OnSetupDependencies()
         {
         }
 
-        public virtual void TearDownDependencies()
+        public void TearDownDependencies()
+        {
+            OnTearDownDependencies();
+        }
+
+        protected virtual void OnTearDownDependencies()
+        {
+            
+        }
+
+        public void Unbind(IBinder binder)
+        {
+            binder.Unbind(Data.GetEntityType(), Data.Id);
+            OnUnbind(binder);
+        }
+
+        protected virtual void OnBind(IBinder binder)
+        {
+            
+        }
+
+        protected virtual void OnUnbind(IBinder binder)
         {
         }
     }

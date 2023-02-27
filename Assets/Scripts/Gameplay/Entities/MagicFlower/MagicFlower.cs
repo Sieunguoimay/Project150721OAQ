@@ -29,7 +29,7 @@ namespace Gameplay.Entities.MagicFlower
             }
         }
 
-        public override void SetupDependencies()
+        protected override void OnSetupDependencies()
         {
             base.SetupDependencies();
             PayoutCurrency = Resolver.Resolve<ICurrency>(Data.PayoutCurrencyId);
@@ -37,7 +37,8 @@ namespace Gameplay.Entities.MagicFlower
 
         public void GrantBlossom(int blossomIndex)
         {
-            SavedData.SetBlossomTimeStamp(blossomIndex, TimerService.GameTimeStampInSeconds + (long) Data.ToBlossomDuration);
+            SavedData.SetBlossomTimeStamp(blossomIndex,
+                TimerService.GameTimeStampInSeconds + (long) Data.ToBlossomDuration);
             SavedData.SetCollectablePayoutAmount(SavedData.CollectablePayoutAmount + Data.PayoutAmountPerFlower);
             GrantedBlossom?.Invoke(EventArgs.Empty);
         }
@@ -50,7 +51,8 @@ namespace Gameplay.Entities.MagicFlower
                 return;
             }
 
-            SavedData.SetCollectablePayoutAmount(Mathf.Max(SavedData.CollectablePayoutAmount - Data.PayoutAmountPerFlower, 0));
+            SavedData.SetCollectablePayoutAmount(
+                Mathf.Max(SavedData.CollectablePayoutAmount - Data.PayoutAmountPerFlower, 0));
             PayoutCurrency.Add(Data.PayoutAmountPerFlower);
         }
 

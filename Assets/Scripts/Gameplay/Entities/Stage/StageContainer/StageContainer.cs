@@ -13,9 +13,9 @@ namespace Gameplay.Entities.Stage.StageContainer
         {
         }
 
-        public override void SetupDependencies()
+        protected override void OnSetupDependencies()
         {
-            base.SetupDependencies();
+            base.OnSetupDependencies();
             var index = 0;
             foreach (var child in Children)
             {

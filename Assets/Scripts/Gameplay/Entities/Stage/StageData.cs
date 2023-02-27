@@ -7,9 +7,6 @@ namespace Gameplay.Entities.Stage
 {
     public interface IStageData : IContainerEntityData
     {
-        int PlayerNum { get; }
-        int TilesPerGroup { get; }
-        int NumCitizensInTile { get; }
         MatchData MatchData { get; }
     }
 
@@ -26,22 +23,7 @@ namespace Gameplay.Entities.Stage
         {
             return new Stage(this, new StageSavedData(this));
         }
-
-        [field: SerializeField, Min(2)] public int PlayerNum { get; private set; } = 2;
-        [field: SerializeField, Min(3)] public int TilesPerGroup { get; private set; } = 5;
-        [field: SerializeField, Min(1)] public int NumCitizensInTile { get; private set; } = 5;
-
         public MatchData MatchData => matchData;
-
-#if UNITY_EDITOR
-        [ContextMenu("UpdateMatchData")]
-        private void UpdateMatchData()
-        {
-            matchData.playerNum = PlayerNum;
-            matchData.tilesPerGroup = TilesPerGroup;
-            matchData.numCitizensInTile = NumCitizensInTile;
-        }
-#endif
     }
 
     [Serializable]
