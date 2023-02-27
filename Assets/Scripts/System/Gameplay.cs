@@ -1,32 +1,21 @@
 ﻿using System.Linq;
-using Gameplay;
 using Gameplay.Board;
 using Gameplay.GameInteract;
-using Gameplay.Player;
+using Gameplay.PlayTurn;
 
 namespace System
 {
-    public interface IGameplay
+    public class Gameplay
     {
-        void Initialize();
-        void Cleanup();
-        void Start();
-        event Action<IGameplay> GameOverEvent;
-    }
-
-    public class Gameplay : IGameplay
-    {
-        private readonly IPlayerManager _playersManager;
-        private readonly IBoardManager _boardManager;
+        private readonly IPlayTurnTeller _turnTeller;
         private readonly IPlayerInteract _playerInteract;
 
         private Board _board;
         private DropRunner _dropRunner;
 
-        public Gameplay(IPlayerManager playersManager, IBoardManager boardManager, IPlayerInteract playerInteract)
+        public Gameplay(IPlayTurnTeller turnTeller, IPlayerInteract playerInteract)
         {
-            _playersManager = playersManager;
-            _boardManager = boardManager;
+            _turnTeller = turnTeller;
             _playerInteract = playerInteract;
 
             _playerInteract.ResultEvent -= OnPlayerInteractResult;
@@ -38,10 +27,10 @@ namespace System
             _playerInteract.ResultEvent -= OnPlayerInteractResult;
         }
 
-        public void Initialize()
+        public void Initialize(Board board)
         {
-            _board = _boardManager.Board;
-            _dropRunner = new DropRunner(this, new DropRunner.MoveStartingDataCreator(_playersManager), _board);
+            _board = board;
+            _dropRunner = new DropRunner(this, new DropRunner.MoveStartingDataCreator(_turnTeller), _board);
         }
 
         public void Cleanup()
@@ -54,7 +43,7 @@ namespace System
             MakeDecision();
         }
 
-        public event Action<IGameplay> GameOverEvent;
+        public event Action<Gameplay> GameOverEvent;
 
         #region PRIVATE_METHODS
 
@@ -71,7 +60,7 @@ namespace System
                 tg.MandarinTile.Mandarin != null || tg.MandarinTile.HeldPieces.Count > 0);
             if (anyMandarinTilesHasPieces)
             {
-                _playersManager.NextPlayer();
+                _turnTeller.NextTurn();
                 CheckTilesOnCurrentPlayerSide();
             }
             else
@@ -82,7 +71,7 @@ namespace System
 
         private void CheckTilesOnCurrentPlayerSide()
         {
-            var anyTileHasPieces = _board.Sides[_playersManager.CurrentPlayer.Index].CitizenTiles
+            var anyTileHasPieces = _turnTeller.CurrentTurn.BoardSide.CitizenTiles
                 .Any(t => t.HeldPieces.Count > 0);
             if (anyTileHasPieces)
             {
@@ -101,7 +90,7 @@ namespace System
 
         private void CheckCurrentPlayerBench()
         {
-            var anyPieceOnBench = _playersManager.CurrentPlayer.PieceBench.HeldPieces.Count > 0;
+            var anyPieceOnBench = _turnTeller.CurrentTurn.PieceBench.HeldPieces.Count > 0;
             if (anyPieceOnBench)
             {
                 TakePiecesBackToBoard();
@@ -181,18 +170,18 @@ namespace System
 
         public class MoveStartingDataCreator
         {
-            private readonly IPlayerManager _playersManager;
+            private readonly IPlayTurnTeller _turnTeller;
 
-            public MoveStartingDataCreator(IPlayerManager playersManager)
+            public MoveStartingDataCreator(IPlayTurnTeller turnTeller)
             {
-                _playersManager = playersManager;
+                _turnTeller = turnTeller;
             }
 
             public MoveMaker.MoveConfig Create(int tileIndex, bool direction)
             {
-                return new MoveMaker.MoveConfig
+                return new()
                 {
-                    Bench = _playersManager.GetCurrentPlayerBench(),
+                    Bench = _turnTeller.CurrentTurn.PieceBench,
                     Direction = direction,
                     StartingTileIndex = tileIndex
                 };

@@ -2,13 +2,14 @@
 using Gameplay.Board;
 using Gameplay.GameInteract.Button;
 using Gameplay.Player;
+using Gameplay.PlayTurn;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
     public interface ITileChooser
     {
-        void Setup(Board.Board board, PlayerController playerManager);
+        void Setup(IPlayTurnTeller turnTeller);
         void TearDown();
         void ResetAll();
         void ShowUp();
@@ -20,22 +21,21 @@ namespace Gameplay.GameInteract
 
         private IButton[] _buttons;
 
-        private Board.Board _board;
-        private PlayerController _playerManager;
         private ButtonGroup _buttonGroup;
-
-        [field: System.NonSerialized] public ITile SelectedTile { get; private set; }
+        private IPlayTurnTeller _turnTeller;
+        [field: System.NonSerialized] public Tile SelectedTile { get; private set; }
         public event Action SelectedTileChangedEvent;
         private IButtonFactory _buttonFactory;
 
-        public void Setup(Board.Board board, PlayerController playerManager)
+        public void Setup(IPlayTurnTeller turnTeller)
         {
-            _board = board;
-            _playerManager = playerManager;
-            _buttonFactory = new ButtonFactory(tileChoosingButtonPrefab, transform);
-            _buttons = new IButton[_board.Metadata.NumCitizenTilesPerSide];
+            _turnTeller = turnTeller;
 
-            for (var i = 0; i < _board.Metadata.NumCitizenTilesPerSide; i++)
+            var btnNum = _turnTeller.CurrentTurn.BoardSide.CitizenTiles.Count;
+            _buttonFactory = new ButtonFactory(tileChoosingButtonPrefab, transform);
+            _buttons = new IButton[btnNum];
+
+            for (var i = 0; i < btnNum; i++)
             {
                 _buttons[i] = _buttonFactory.Spawn();
                 _buttons[i].ClickedEvent += OnButtonClicked;
@@ -65,7 +65,7 @@ namespace Gameplay.GameInteract
         private void OnButtonClicked(IButton btn)
         {
             SelectedTile?.Transform.GetComponent<TileSelectable>()?.Unselect();
-            SelectedTile = _board.Sides[_playerManager.CurrentPlayer.Index].CitizenTiles[Array.IndexOf(_buttons, (ButtonOnGround) btn)];
+            SelectedTile = _turnTeller.CurrentTurn.BoardSide.CitizenTiles[Array.IndexOf(_buttons, (ButtonOnGround) btn)];
             SelectedTile?.Transform.GetComponent<TileSelectable>()?.Select();
 
             SelectedTileChangedEvent?.Invoke();
@@ -81,7 +81,7 @@ namespace Gameplay.GameInteract
 
         private void UpdateButtonPositionOnCurrentSide()
         {
-            var tilesOnSide = _board.Sides[_playerManager.CurrentPlayer.Index].CitizenTiles;
+            var tilesOnSide =  _turnTeller.CurrentTurn.BoardSide.CitizenTiles;
             for (var i = 0; i < tilesOnSide.Count; i++)
             {
                 var target = tilesOnSide[i].Transform;

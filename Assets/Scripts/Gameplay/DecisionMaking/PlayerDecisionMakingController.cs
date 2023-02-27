@@ -1,5 +1,4 @@
 ﻿using System;
-using Gameplay.GameState;
 using Gameplay.PlayTurn;
 
 namespace Gameplay.DecisionMaking

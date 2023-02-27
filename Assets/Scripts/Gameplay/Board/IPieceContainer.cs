@@ -6,12 +6,11 @@ namespace Gameplay.Board
 {
     public interface IPieceContainer
     {
-        IReadOnlyList<IPiece> HeldPieces { get; }
-        void AddPiece(IPiece piece);
-        void RemovePiece(IPiece piece);
-        void Sort(Comparison<IPiece> comparison);
+        IReadOnlyList<Piece.Piece> HeldPieces { get; }
+        void AddPiece(Piece.Piece piece);
+        void RemovePiece(Piece.Piece piece);
+        void Sort(Comparison<Piece.Piece> comparison);
         void Clear();
-
 
         public static void TransferAllPiecesOwnership(IPieceContainer @from, IPieceContainer to)
         {

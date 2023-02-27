@@ -31,7 +31,7 @@ namespace Gameplay.Entities.MagicFlower
 
         protected override void OnSetupDependencies()
         {
-            base.SetupDependencies();
+            base.OnSetupDependencies();
             PayoutCurrency = Resolver.Resolve<ICurrency>(Data.PayoutCurrencyId);
         }
 

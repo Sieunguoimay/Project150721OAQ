@@ -50,3 +50,4 @@ MonoBehaviour:
   - {fileID: 2453423506486198347, guid: 98a5fddcc076cbf4398f90c4314d41ca, type: 3}
   scriptableObjects:
   - {fileID: 11400000, guid: 6b927e127a77d1c40aaad702d410946e, type: 2}
+  - {fileID: 11400000, guid: 3ac59b8d3a577254d81d88595db86666, type: 2}

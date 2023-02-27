@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Resolver;
@@ -46,7 +47,7 @@ namespace Framework.Entities.ContainerEntity
 
         protected override void OnSetupDependencies()
         {
-            base.SetupDependencies();
+            base.OnSetupDependencies();
             foreach (var component in Components)
             {
                 component.SetupDependencies();
@@ -55,15 +56,22 @@ namespace Framework.Entities.ContainerEntity
 
         protected override void OnTearDownDependencies()
         {
-            base.TearDownDependencies();
+            base.OnTearDownDependencies();
             foreach (var component in Components)
             {
                 component.TearDownDependencies();
             }
 
-            foreach (var la in Children)
+            try
             {
-                _entityLoader.DestroyEntity(la);
+                foreach (var la in Children)
+                {
+                    _entityLoader.DestroyEntity(la);
+                }
+            }
+            catch (Exception e)
+            {
+                //
             }
         }
 

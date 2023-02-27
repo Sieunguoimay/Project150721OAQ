@@ -138,7 +138,7 @@ namespace Framework.Entities
 
         protected virtual void OnBind(IBinder binder)
         {
-            
+                
         }
 
         protected virtual void OnUnbind(IBinder binder)

@@ -1,4 +1,5 @@
 ﻿using Gameplay.Board;
+using UnityEngine;
 
 namespace Gameplay.DecisionMaking
 {
@@ -18,6 +19,7 @@ namespace Gameplay.DecisionMaking
 
         public void MakeDecision()
         {
+            Debug.Log("Make Decision here..");
         }
     }
 }

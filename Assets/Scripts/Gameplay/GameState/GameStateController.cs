@@ -13,7 +13,6 @@ namespace Gameplay.GameState
         private string stageSelectorId;
 
         private IStageSelector _stageSelector;
-        private IGameplayController _gameplayController;
         [field: System.NonSerialized] public GameState GameState { get; private set; }
         protected override void OnBind(IBinder binder)
         {
@@ -33,23 +32,13 @@ namespace Gameplay.GameState
             base.OnSetupDependencies();
 
             _stageSelector = Resolver.Resolve<IStageSelector>(stageSelectorId);
-
-            _gameplayController = Resolver.Resolve<IGameplayController>();
-            _gameplayController.GameEndedEvent -= OnGameplayEnded;
-            _gameplayController.GameEndedEvent += OnGameplayEnded;
         }
 
-        protected override void OnTearDownDependencies()
-        {
-            base.OnTearDownDependencies();
-            _gameplayController.GameEndedEvent -= OnGameplayEnded;
-        }
-
-        private void OnGameplayEnded(IGameplayController obj)
+        public void EndGame()
         {
             GameState.SetState(GameState.State.Ended);
         }
-
+        
         public void TryEnterPlayingState()
         {
             if (_stageSelector.SelectedStage != null)

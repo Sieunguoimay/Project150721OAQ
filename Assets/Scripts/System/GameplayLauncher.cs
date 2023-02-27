@@ -1,65 +1,50 @@
-﻿using System.Collections;
-using System.Linq;
-using Framework.Resolver;
-using Gameplay;
-using Gameplay.BambooStick;
+﻿using Gameplay.BambooStick;
 using Gameplay.Board;
 using Gameplay.Entities.Stage;
 using Gameplay.Entities.Stage.StageSelector;
 using Gameplay.GameInteract;
 using Gameplay.GameState;
 using Gameplay.Piece;
-using Gameplay.Player;
+using Gameplay.PlayTurn;
 using UnityEngine;
 
 namespace System
 {
-    public interface IGameplayController
-    {
-        void StartGame();
-        void ClearGame();
-        event Action<IGameplayController> StartedGameEvent;
-        event Action<IGameplayController> ClearedGameEvent;
-        event Action<IGameplayController> GameEndedEvent;
-    }
-
     /// <summary>
     /// Only use event when:
     /// the listeners are sequentially independent of each other, otherwise, their states would be changed
     /// on handle the event, any one that relies on a specific state of a listener might get into
     /// trouble. Is there any solution for this problem?
     /// </summary>
-    public class GameplayController : BaseGenericDependencyInversionUnit<IGameplayController>, IGameplayController
+    public class GameplayLauncher : BaseDependencyInversionUnit
     {
-        private IGameplay _gameplay;
+        private Gameplay _gameplay;
 
         private BambooFamilyManager _bambooFamily;
-        private IPlayerManager _playersManager;
         private BoardManager _boardManager;
         private PieceManager _pieceManager;
         private IPlayerInteract _interact;
         private IStageSelector _stageSelector;
         private IGameState _gameState;
-
-        public event Action<IGameplayController> StartedGameEvent;
-        public event Action<IGameplayController> ClearedGameEvent;
-        public event Action<IGameplayController> GameEndedEvent;
+        private GameStateController _gameStateController;
+        private PlayTurnDataGenerator _playTurnDataGenerator;
 
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
 
-            _playersManager = Resolver.Resolve<PlayerController>();
             _boardManager = Resolver.Resolve<BoardManager>();
             _pieceManager = Resolver.Resolve<PieceManager>();
             _bambooFamily = Resolver.Resolve<BambooFamilyManager>();
             _stageSelector = Resolver.Resolve<IStageSelector>("stage_selector");
             _interact = Resolver.Resolve<PlayerInteract>();
-
-            _gameplay = new Gameplay(_playersManager, _boardManager, _interact);
+            _playTurnDataGenerator = Resolver.Resolve<PlayTurnDataGenerator>();
+            _gameStateController = Resolver.Resolve<GameStateController>();
+            
+            _gameplay = new Gameplay(Resolver.Resolve<IPlayTurnTeller>(), _interact);
             _gameplay.GameOverEvent -= OnGameOver;
             _gameplay.GameOverEvent += OnGameOver;
-            
+
             _gameState = Resolver.Resolve<IGameState>();
             _gameState.StateChangedEvent -= OnGameStateChanged;
             _gameState.StateChangedEvent += OnGameStateChanged;
@@ -72,9 +57,9 @@ namespace System
             _gameplay.GameOverEvent -= OnGameOver;
         }
 
-        private void OnGameOver(IGameplay obj)
+        private void OnGameOver(Gameplay obj)
         {
-            GameEndedEvent?.Invoke(this);
+            _gameStateController.EndGame();
         }
 
         private void OnGameStateChanged(GameState gameState)
@@ -89,13 +74,7 @@ namespace System
             }
         }
 
-        public void StartGame()
-        {
-            StartGameCoroutine();
-            StartedGameEvent?.Invoke(this);
-        }
-
-        private void StartGameCoroutine()
+        private void StartGame()
         {
             GenerateMatch(_stageSelector.SelectedStage);
         }
@@ -103,8 +82,9 @@ namespace System
         private void GenerateMatch(IStage stage)
         {
             var matchData = stage.Data.MatchData;
-            
+
             _boardManager.CreateBoard(matchData.playerNum, matchData.tilesPerGroup);
+            _playTurnDataGenerator.Generate(matchData.playerNum);
 
             // _playersManager.FillUpWithFakePlayers(matchData.playerNum);
             // _playersManager.CreatePieceBench(_boardManager.Board);
@@ -114,7 +94,7 @@ namespace System
 
             _bambooFamily.BeginAnimSequence();
             _interact.Initialize();
-            _gameplay.Initialize();
+            _gameplay.Initialize(_boardManager.Board);
         }
 
         private void OnAllPiecesInPlace()
@@ -122,15 +102,13 @@ namespace System
             _gameplay.Start();
         }
 
-        public void ClearGame()
+        private void ClearGame()
         {
             _interact.Cleanup();
             _bambooFamily.ResetAll();
             _pieceManager.DeletePieces();
             _gameplay.Cleanup();
-            _playersManager.DeletePlayers();
             _boardManager.DeleteBoard();
-            ClearedGameEvent?.Invoke(this);
         }
 
 #if UNITY_EDITOR

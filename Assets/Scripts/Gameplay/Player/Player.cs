@@ -1,45 +1,27 @@
-﻿using System;
-using Gameplay.Board;
+﻿using Gameplay.Board;
 using Gameplay.DecisionMaking;
 using UnityEngine;
 
 namespace Gameplay.Player
 {
-    [Serializable]
-    public class Player
+    public interface IPlayer
     {
-        public PieceBench PieceBench { get; set; }
-        public int Index { get; private set; }
+    }
 
-        public Player(int index)
-        {
-            Index = index;
-        }
-
-        public virtual void ResetAll()
-        {
-            PieceBench.Clear();
-        }
-
-        public virtual void ReleaseTurn()
-        {
-        }
-
-        public virtual void AcquireTurn()
-        {
-        }
+    public class BasePlayer : IPlayer
+    {
     }
 
     public interface IPlayerFactory
     {
-        Player CreatePlayer();
+        IPlayer CreatePlayer();
         IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSide boardSide);
         PieceBench CreatePieceBench(BoardSide boardSide);
     }
 
     public abstract class BasePlayerFactory : IPlayerFactory
     {
-        public abstract Player CreatePlayer();
+        public abstract IPlayer CreatePlayer();
         public abstract IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSide boardSide);
         public abstract PieceBench CreatePieceBench(BoardSide boardSide);
 
@@ -64,9 +46,9 @@ namespace Gameplay.Player
 
     public class RealPlayerFactory : BasePlayerFactory
     {
-        public override Player CreatePlayer()
+        public override IPlayer CreatePlayer()
         {
-            return new(-1);
+            return new BasePlayer();
         }
 
         public override IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSide boardSide)
@@ -82,9 +64,9 @@ namespace Gameplay.Player
 
     public class FakePlayerFactory : BasePlayerFactory
     {
-        public override Player CreatePlayer()
+        public override IPlayer CreatePlayer()
         {
-            return new(-1);
+            return new BasePlayer();
         }
 
         public override IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSide boardSide)

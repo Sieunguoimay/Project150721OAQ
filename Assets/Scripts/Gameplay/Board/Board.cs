@@ -6,8 +6,8 @@ namespace Gameplay.Board
 {
     public class BoardSide
     {
-        public IMandarinTile MandarinTile;
-        public IReadOnlyList<ICitizenTile> CitizenTiles;
+        public MandarinTile MandarinTile;
+        public IReadOnlyList<CitizenTile> CitizenTiles;
     }
 
     public class BoardMetadata
@@ -19,66 +19,55 @@ namespace Gameplay.Board
 
     public class Board
     {
-        private readonly ITile[] _tiles;
-        private readonly BoardSide[] _sides;
-        public IReadOnlyList<ITile> Tiles => _tiles;
-        public IReadOnlyList<BoardSide> Sides => _sides;
+        public IReadOnlyList<Tile> Tiles { get; }
+        public IReadOnlyList<BoardSide> Sides { get; }
         public BoardMetadata Metadata { get; }
 
-        public Board(BoardSide[] sides, ITile[] tiles, BoardMetadata metadata)
+        public Board(IReadOnlyList<BoardSide> sides, IReadOnlyList<Tile> tiles, BoardMetadata metadata)
         {
-            _sides = sides;
-            _tiles = tiles;
+            Sides = sides;
+            Tiles = tiles;
             Metadata = metadata;
-        }
-
-        public ITile GetTileAtIndex(int tileIndex)
-        {
-            return Tiles[tileIndex];
         }
     }
 
     public static class BoardCreator
     {
-        public static Board CreateBoard(int numSides, int numTilesPerSide, MandarinTile mandarinTilePrefab, CitizenTile citizenTilePrefab, Transform parent)
+        public static Board CreateBoard(int numSides, int numTilesPerSide,
+            CitizenTile citizenTilePrefab, ITileFactory tileFactory)
         {
             var length = numTilesPerSide * citizenTilePrefab.Size;
             var polygon = CreatePolygon(numSides, length);
 
-            var spawnedTiles = new ITile[numSides * (numTilesPerSide + 1)];
-            var tileGroups = new BoardSide[numSides];
+            var spawnedTiles = new Tile[numSides * (numTilesPerSide + 1)];
+            var boardSides = new BoardSide[numSides];
             for (var i = 0; i < numSides; i++)
             {
                 var cornerPos = polygon[i];
-                var worldPos = parent.TransformPoint(ToVector3(cornerPos + cornerPos.normalized * mandarinTilePrefab.Size / 2f));
-                var worldRot = parent.rotation * Quaternion.LookRotation(ToVector3(cornerPos));
+                var index = i * (numTilesPerSide + 1);
+                var mandarinTile = tileFactory.CreateMandarinTile(cornerPos);
+                mandarinTile.SetIndex(index);
+                spawnedTiles[index] = mandarinTile;
 
-                var mandarinTile =
-                    SpawnTile(spawnedTiles, mandarinTilePrefab, worldPos, worldRot, parent, i * (numTilesPerSide + 1))
-                        as IMandarinTile;
-
-                var p0 = polygon[i];
-                var p1 = polygon[(i + 1) % polygon.Length];
-                var dir = (p1 - p0).normalized;
+                var nextCornerPos = polygon[(i + 1) % polygon.Length];
+                var dir = (nextCornerPos - cornerPos).normalized;
                 var normal = new Vector2(dir.y, -dir.x); //clockwise 90
 
-                var citizenTiles = new ICitizenTile[numTilesPerSide];
+                var citizenTiles = new CitizenTile[numTilesPerSide];
                 for (var j = 0; j < numTilesPerSide; j++)
                 {
-                    var pj = p0 + (j + 0.5f) * citizenTilePrefab.Size * dir;
-                    worldPos = parent.TransformPoint(ToVector3(pj + normal * citizenTilePrefab.Size / 2f));
-                    worldRot = parent.rotation * Quaternion.LookRotation(ToVector3(normal));
-                    citizenTiles[j] =
-                        SpawnTile(spawnedTiles, citizenTilePrefab, worldPos, worldRot, parent, i * (numTilesPerSide + 1) + j + 1)
-                            as ICitizenTile;
+                    index = i * (numTilesPerSide + 1) + j + 1;
+                    citizenTiles[j] = tileFactory.CreateCitizenTile(cornerPos, normal * 0.5f, dir * (j + 0.5f));
+                    citizenTiles[j].SetIndex(index);
+                    spawnedTiles[index] = citizenTiles[j];
                 }
 
-                tileGroups[i] = new BoardSide {MandarinTile = mandarinTile, CitizenTiles = citizenTiles};
+                boardSides[i] = new BoardSide {MandarinTile = mandarinTile, CitizenTiles = citizenTiles};
             }
 
             return new Board
             (
-                tileGroups,
+                boardSides,
                 spawnedTiles,
                 new BoardMetadata
                 {
@@ -89,16 +78,7 @@ namespace Gameplay.Board
             );
         }
 
-        private static Tile SpawnTile(IList<ITile> container, Tile tilePrefab, Vector3 position, Quaternion rotation, Transform parent, int index)
-        {
-            var tile = Object.Instantiate(tilePrefab, parent);
-            tile.transform.SetPositionAndRotation(position, rotation);
-            tile.SetIndex(index);
-            container[index] = tile;
-            return tile;
-        }
-
-        private static Vector3 ToVector3(Vector2 v) => new(v.x, 0, v.y);
+        public static Vector3 ToVector3(Vector2 v) => new(v.x, 0, v.y);
 
         private static Vector2[] CreatePolygon(int vertexNum, float edgeLength = 1f)
         {

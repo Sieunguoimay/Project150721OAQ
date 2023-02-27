@@ -59,6 +59,7 @@ namespace Gameplay.Board
         {
             OnHandleIdleStateEnter(baseBoardState.StateMachine);
         }
+
         protected abstract void OnHandleIdleStateEnter(IStateMachine stateMachine);
 
         protected abstract void HandleAnyActionComplete();
@@ -305,5 +306,18 @@ namespace Gameplay.Board
         {
             (_stateMachine.CurrentState as BaseBoardState)?.NextAction();
         }
+    }
+
+    public interface IMoveMaker
+    {
+        void Grasp(Action doneHandler);
+        void Drop(Action doneHandler);
+        void Slam(Action doneHandler);
+        void Eat(Action doneHandler);
+        bool IsValidGrasp();
+        bool CanDrop();
+        bool HasReachDeadEnd();
+        bool IsGraspable();
+        bool IsEatable();
     }
 }

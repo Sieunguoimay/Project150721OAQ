@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common;
-using Common.DecisionMaking;
 using Gameplay.Piece;
 using Gameplay.Player;
 using SNM;
@@ -10,19 +9,6 @@ using UnityEngine;
 
 namespace Gameplay.Board
 {
-    public interface IMoveMaker
-    {
-        void Grasp(Action doneHandler);
-        void Drop(Action doneHandler);
-        void Slam(Action doneHandler);
-        void Eat(Action doneHandler);
-        bool IsValidGrasp();
-        bool CanDrop();
-        bool HasReachDeadEnd();
-        bool IsGraspable();
-        bool IsEatable();
-    }
-
     public class MoveMaker : IMoveMaker
     {
         private readonly Board _board;
@@ -36,9 +22,9 @@ namespace Gameplay.Board
         }
 
         private MoveConfig _moveConfig;
-        private ITile _currentTile;
-        private ITile _nextTile;
-        private ITile _nextTile2;
+        private Tile _currentTile;
+        private Tile _nextTile;
+        private Tile _nextTile2;
         private List<Citizen> _graspedCitizens;
 
         public MoveMaker(Board board, float singleMoveDuration)
@@ -55,7 +41,6 @@ namespace Gameplay.Board
 
         public void Grasp(Action doneHandler)
         {
-
             var tileGrasper = new GroupFacingAnim(_currentTile, _nextTile);
             tileGrasper.FaceTowardNextTile();
 
@@ -74,7 +59,6 @@ namespace Gameplay.Board
 
         public void Drop(Action doneHandler)
         {
-
             for (var i = 0; i < _graspedCitizens.Count; i++)
             {
                 var target = _nextTile.GetPositionAtGridCellIndex(_nextTile.GetPiecesCount() + i);
@@ -86,7 +70,7 @@ namespace Gameplay.Board
                 DeliverFirstPieceOwnership(_nextTile);
 
                 UpdateCurrentTileIndex(_nextTile.TileIndex);
-                
+
                 doneHandler?.Invoke();
             });
         }
@@ -158,7 +142,7 @@ namespace Gameplay.Board
             var pieces = container.HeldPieces;
             for (var i = 0; i < pieces.Count; i++)
             {
-                if (pieces[i] is ICitizen citizen)
+                if (pieces[i] is Citizen citizen)
                 {
                     citizen.CitizenMove.StraightMove(positions[i], null, i * 0.2f);
                 }
@@ -172,7 +156,7 @@ namespace Gameplay.Board
 
         public bool HasReachDeadEnd()
         {
-            return _nextTile.GetPiecesCount() == 0 && _nextTile2.GetPiecesCount() == 0 || _nextTile is IMandarinTile;
+            return _nextTile.GetPiecesCount() == 0 && _nextTile2.GetPiecesCount() == 0 || _nextTile is MandarinTile;
         }
 
         public bool IsEatable()
@@ -182,7 +166,7 @@ namespace Gameplay.Board
 
         public bool IsGraspable()
         {
-            return _nextTile.GetPiecesCount() > 0 && _nextTile is not IMandarinTile;
+            return _nextTile.GetPiecesCount() > 0 && _nextTile is not MandarinTile;
         }
 
         public bool CanDrop()
@@ -192,24 +176,24 @@ namespace Gameplay.Board
 
         private void UpdateCurrentTileIndex(int currentTileIndex)
         {
-            _currentTile = _board.GetTileAtIndex(currentTileIndex);
+            _currentTile = _board.Tiles[currentTileIndex];
             _nextTile = GetNextTile(_currentTile.TileIndex);
             _nextTile2 = GetNextTile(_nextTile.TileIndex);
         }
-        
-        private ITile GetNextTile(int currentTileIndex)
+
+        private Tile GetNextTile(int currentTileIndex)
         {
             var nextTileIndex = BoardTraveller.MoveNext(currentTileIndex, _board.Tiles.Count, _moveConfig.Direction);
-            return _board.GetTileAtIndex(nextTileIndex);
+            return _board.Tiles[nextTileIndex];
         }
     }
 
     public class GroupFacingAnim
     {
-        private readonly ITile _tile;
-        private readonly ITile _nextTile;
+        private readonly Tile _tile;
+        private readonly Tile _nextTile;
 
-        public GroupFacingAnim(ITile tile, ITile nextTile)
+        public GroupFacingAnim(Tile tile, Tile nextTile)
         {
             _tile = tile;
             _nextTile = nextTile;

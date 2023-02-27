@@ -88,7 +88,7 @@ namespace Gameplay.Piece
                 tg.MandarinTile.SetMandarin(_mandarins[i]);
             }
 
-            void ReachedTarget(ICitizen citizen)
+            void ReachedTarget(Citizen citizen)
             {
                 onAllInPlace?.Invoke();
             }

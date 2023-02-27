@@ -5,25 +5,18 @@ using UnityEngine;
 
 namespace Gameplay.Board
 {
-    public interface IMandarinTile : ITile
+    public class MandarinTile : Tile
     {
-        IMandarin Mandarin { get; }
-        void SetMandarin(IMandarin mandarin);
-        event Action<IMandarinTile> MandarinChangedEvent;
-    }
-
-    public class MandarinTile : Tile, IMandarinTile
-    {
-        [field: NonSerialized] public IMandarin Mandarin { get; private set; }
+        [field: NonSerialized] public Mandarin Mandarin { get; private set; }
         public bool HasMandarin => Mandarin != null;
 
-        public void SetMandarin(IMandarin mandarin)
+        public void SetMandarin(Mandarin mandarin)
         {
             Mandarin = mandarin;
             MandarinChangedEvent?.Invoke(this);
         }
 
-        public event Action<IMandarinTile> MandarinChangedEvent;
+        public event Action<MandarinTile> MandarinChangedEvent;
 
         public override Vector3 GetPositionAtGridCellIndex(int index, bool local = false)
         {

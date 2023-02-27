@@ -17,9 +17,10 @@ MonoBehaviour:
   - {fileID: 5344825299520027165}
   - {fileID: 8325577148411905454}
   loadAlongEntityIds: []
-  <PlayerNum>k__BackingField: 4
-  <TilesPerGroup>k__BackingField: 5
-  <NumCitizensInTile>k__BackingField: 5
+  matchData:
+    playerNum: 2
+    tilesPerGroup: 5
+    numCitizensInTile: 5
 --- !u!114 &5344825299520027165
 MonoBehaviour:
   m_ObjectHideFlags: 0

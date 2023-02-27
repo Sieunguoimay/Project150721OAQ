@@ -3,14 +3,13 @@ using Framework.Resolver;
 using Gameplay.Board;
 using Gameplay.Entities.Stage;
 using Gameplay.Player;
+using UnityEngine;
 
 namespace Gameplay.PlayTurn
 {
-    public class PlayTurnDataGenerator : BaseDependencyInversionScriptableObject
+    [CreateAssetMenu(menuName = "Generator/PlayTurnGenerator")]
+    public class PlayTurnDataGenerator : BaseGenericDependencyInversionScriptableObject<PlayTurnDataGenerator>
     {
-        private GameState.GameState _gameState;
-        private MatchData _matchData;
-        private IPlayTurnData[] _turns;
         private readonly PlayTurnTeller _playTurnTeller = new();
 
         protected override void OnBind(IBinder binder)
@@ -19,48 +18,24 @@ namespace Gameplay.PlayTurn
             binder.Bind<IPlayTurnTeller>(_playTurnTeller);
         }
 
-        protected override void OnSetupDependencies()
+        public void Generate(int turnNum)
         {
-            base.OnSetupDependencies();
-            _gameState.StateChangedEvent -= OnGameStateChanged;
-            _gameState.StateChangedEvent += OnGameStateChanged;
-            _matchData = Resolver.Resolve<MatchData>();
+            var turns = CreateTurns(turnNum);
+            _playTurnTeller.SetTurns(turns, 0);
         }
 
-        protected override void OnTearDownDependencies()
+        private PlayTurnData[] CreateTurns(int turnNum)
         {
-            base.OnTearDownDependencies();
-            _gameState.StateChangedEvent -= OnGameStateChanged;
-        }
+            var turns = new PlayTurnData[turnNum];
 
-        private void OnGameStateChanged(GameState.GameState gameState)
-        {
-            if (gameState.CurrentState == GameState.GameState.State.Playing)
+            turns[0] = CreatePlayTurnDataForRealPlayer(0);
+
+            for (var i = 1; i < turnNum; i++)
             {
-                CreateTurns();
-                _playTurnTeller.SetTurns(_turns, 0);
+                turns[i] = CreatePlayTurnDataForFakePlayer(i);
             }
-            else if (gameState.CurrentState == GameState.GameState.State.InMenu)
-            {
-                CleanupTurns();
-            }
-        }
 
-        private void CreateTurns()
-        {
-            _turns = new IPlayTurnData[_matchData.playerNum];
-
-            _turns[0] = CreatePlayTurnDataForRealPlayer(0);
-
-            for (var i = 0; i < _matchData.playerNum; i++)
-            {
-                _turns[i] = CreatePlayTurnDataForFakePlayer(i);
-            }
-        }
-
-        private void CleanupTurns()
-        {
-            _turns = null;
+            return turns;
         }
 
         private PlayTurnData CreatePlayTurnDataForRealPlayer(int turnIndex)
@@ -81,7 +56,7 @@ namespace Gameplay.PlayTurn
             var player = playerFactory.CreatePlayer();
             var decisionMaking = playerFactory.CreatePlayerDecisionMaking(boardSide);
             var pieceBench = playerFactory.CreatePieceBench(boardSide);
-            
+
             return new PlayTurnData(player, boardSide, decisionMaking, pieceBench);
         }
     }

@@ -3,18 +3,9 @@ using UnityEngine;
 
 namespace Gameplay.Board
 {
-    public interface ITile : IPieceContainer
-    {
-        int TileIndex { get; }
-        float Size { get; }
-        Vector3 GetPositionAtGridCellIndex(int index, bool local = false);
-        Transform Transform { get; }
-        Vector3 GetPosition();
-        int GetPiecesCount();
-    }
 
     [SelectionBase]
-    public class Tile : MonoPieceContainer, ITile
+    public class Tile : MonoPieceContainer
     {
         [SerializeField, Min(0f)] private float size;
         [SerializeField, Min(0f)] private float cellSize = .15f;

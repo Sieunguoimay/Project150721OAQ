@@ -10,16 +10,8 @@ using UnityEngine.Playables;
 
 namespace Gameplay.Piece
 {
-    public interface ICitizen : IPiece
-    {
-        CitizenMove CitizenMove { get; }
-        Animator Animator { get; }
-        IActivityQueue ActivityQueue { get; }
-        IVariable<ITile> TargetTile { get; }
-    }
-
     [SelectionBase]
-    public class Citizen : Piece, ICitizen
+    public class Citizen : Piece
     {
         [SerializeField] private AnimatorListener animatorListener;
         [SerializeField] private PlayableDirector jumpTimeline;
@@ -44,7 +36,7 @@ namespace Gameplay.Piece
         public IActivityQueue ActivityQueue => _activityQueue;
         public ActivityFlocking.ConfigData FlockingConfigData => flockingConfigData;
 
-        public IVariable<ITile> TargetTile { get; } = new Variable<ITile>();
+        public IVariable<Tile> TargetTile { get; } = new Variable<Tile>();
 
         private void Awake()
         {
@@ -112,7 +104,7 @@ namespace Gameplay.Piece
 
         public event Action<Citizen> MoveDoneEvent;
 
-        public void JumpingMove(IEnumerable<Vector3> targetSequence, Action<ICitizen> reachTargetCallback,
+        public void JumpingMove(IEnumerable<Vector3> targetSequence, Action<Citizen> reachTargetCallback,
             float delay = 0f)
         {
             _citizen.ActivityQueue.Add(delay > 0 ? new ActivityDelay(delay) : null);
@@ -137,7 +129,7 @@ namespace Gameplay.Piece
             _citizen.ActivityQueue.Begin();
         }
 
-        public void StraightMove(Vector3 target, Action<ICitizen> reachTargetCallback, float delay)
+        public void StraightMove(Vector3 target, Action<Citizen> reachTargetCallback, float delay)
         {
             _citizen.ActivityQueue.Add(delay > 0f ? new ActivityDelay(delay) : null);
             _citizen.ActivityQueue.Add(new ActivityAnimation(_citizen.Animator, LegHashes.stand_up));

@@ -4,27 +4,19 @@ using Gameplay.Player;
 
 namespace Gameplay.PlayTurn
 {
-    public interface IPlayTurnData
+    public class PlayTurnData
     {
-        Player.Player Player { get; }
-        BoardSide BoardSide { get; }
-        IPlayerDecisionMaking DecisionMaking { get; }
-        PieceBench PieceBenche { get; }
-    }
-
-    public class PlayTurnData : IPlayTurnData
-    {
-        public PlayTurnData(Player.Player player, BoardSide boardSide, IPlayerDecisionMaking decisionMaking, PieceBench pieceBenche)
+        public PlayTurnData(IPlayer player, BoardSide boardSide, IPlayerDecisionMaking decisionMaking, PieceBench pieceBench)
         {
             Player = player;
             BoardSide = boardSide;
             DecisionMaking = decisionMaking;
-            PieceBenche = pieceBenche;
+            PieceBench = pieceBench;
         }
 
-        public Player.Player Player { get; }
+        public IPlayer Player { get; }
         public BoardSide BoardSide { get; }
         public IPlayerDecisionMaking DecisionMaking { get; }
-        public PieceBench PieceBenche { get; }
+        public PieceBench PieceBench { get; }
     }
 }

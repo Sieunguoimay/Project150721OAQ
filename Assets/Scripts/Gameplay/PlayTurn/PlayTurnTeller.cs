@@ -5,27 +5,32 @@ namespace Gameplay.PlayTurn
     public interface IPlayTurnTeller
     {
         event Action<IPlayTurnTeller> TurnChangedEvent;
-        public IPlayTurnData CurrentTurn { get; }
+        public PlayTurnData CurrentTurn { get; }
         public void NextTurn();
     }
 
     public class PlayTurnTeller : IPlayTurnTeller
     {
-        private IPlayTurnData[] _turns;
+        private PlayTurnData[] _turns;
         private int _turnIndex;
-        public IPlayTurnData CurrentTurn { get; private set; }
+        public PlayTurnData CurrentTurn { get; private set; }
         public event Action<IPlayTurnTeller> TurnChangedEvent;
 
-        public void SetTurns(IPlayTurnData[] turns, int initialTurnIndex)
+        public void SetTurns(PlayTurnData[] turns, int initialTurnIndex)
         {
             _turns = turns;
-            _turnIndex = initialTurnIndex;
-            TurnChangedEvent?.Invoke(this);
+            SetCurrentTurn(initialTurnIndex);
         }
 
         public void NextTurn()
         {
-            _turnIndex = (_turnIndex + 1) % _turns.Length;
+            var nextTurnIndex = (_turnIndex + 1) % _turns.Length;
+            SetCurrentTurn(nextTurnIndex);
+        }
+
+        private void SetCurrentTurn(int index)
+        {
+            _turnIndex = index;
             CurrentTurn = _turns[_turnIndex];
             TurnChangedEvent?.Invoke(this);
         }

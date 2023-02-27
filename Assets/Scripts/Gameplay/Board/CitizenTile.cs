@@ -4,11 +4,7 @@ using Gameplay.Piece;
 
 namespace Gameplay.Board
 {
-    public interface ICitizenTile : ITile
-    {
-    }
-
-    public class CitizenTile : Tile, ICitizenTile
+    public class CitizenTile : Tile
     {
     }
 }

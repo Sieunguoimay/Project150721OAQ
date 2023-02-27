@@ -22,7 +22,6 @@ namespace Framework.Entities
     public class EntityLoader : IEntityLoader, IInjectable
     {
         private IDataService _dataService;
-        private IResolver _resolver;
         private IBinder _binder;
         private ISavedDataService _savedDataService;
 
@@ -30,7 +29,6 @@ namespace Framework.Entities
 
         public void Inject(IResolver resolver)
         {
-            _resolver = resolver;
             _dataService = resolver.Resolve<IDataService>();
             _binder = resolver.Resolve<IBinder>();
             _savedDataService = resolver.Resolve<ISavedDataService>();
@@ -41,7 +39,6 @@ namespace Framework.Entities
         {
             var entityAsset = _dataService.Load<IEntityData>(entityDataId);
             var entity = entityAsset.CreateEntity(this);
-            // _binder.Bind(entity.Data.GetEntityType(), entity.Data.Id, entity);
             entity.Bind(_binder);
             entity.SavedData?.Load(_savedDataService);
             return entity;
@@ -51,7 +48,6 @@ namespace Framework.Entities
         {
             entity.TearDownDependencies();
             entity.Unbind(_binder);
-            // _binder.Unbind(entity.Data.GetEntityType(), entity.Data.Id);
         }
     }
 }

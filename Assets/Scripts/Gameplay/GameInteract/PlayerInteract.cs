@@ -1,6 +1,7 @@
 ﻿using System;
 using Gameplay.Board;
 using Gameplay.Player;
+using Gameplay.PlayTurn;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
@@ -15,13 +16,13 @@ namespace Gameplay.GameInteract
 
     public class PlayerInteractResult
     {
-        public PlayerInteractResult(ITile selectedTile, bool direction)
+        public PlayerInteractResult(Tile selectedTile, bool direction)
         {
             SelectedTile = selectedTile;
             Direction = direction;
         }
 
-        public ITile SelectedTile { get; }
+        public Tile SelectedTile { get; }
         public bool Direction { get; }
     }
 
@@ -29,29 +30,25 @@ namespace Gameplay.GameInteract
     {
         [SerializeField] private TileChooser tileChooser;
         [SerializeField] private ActionChooser actionChooser;
-
-        private PlayerController _playerController;
         private IActionChooser ActionChooser => actionChooser;
 
         public void Initialize()
         {
-            var boardManager = Resolver.Resolve<BoardManager>();
-            _playerController = Resolver.Resolve<PlayerController>();
-
             tileChooser.SelectedTileChangedEvent -= OnSelectedTileChanged;
             tileChooser.SelectedTileChangedEvent += OnSelectedTileChanged;
 
             ActionChooser.DirectionSelectedEvent -= OnDirectionSelected;
             ActionChooser.DirectionSelectedEvent += OnDirectionSelected;
-            
-            tileChooser.Setup(boardManager.Board, _playerController);
+
+            var turnTeller = Resolver.Resolve<IPlayTurnTeller>();
+            tileChooser.Setup(turnTeller);
         }
 
         public void Cleanup()
         {
             ActionChooser.DirectionSelectedEvent -= OnDirectionSelected;
             tileChooser.SelectedTileChangedEvent -= OnSelectedTileChanged;
-            
+
             tileChooser.ResetAll();
             ActionChooser.HideAway();
             tileChooser.TearDown();
