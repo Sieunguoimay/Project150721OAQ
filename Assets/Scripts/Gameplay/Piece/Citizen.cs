@@ -28,23 +28,14 @@ namespace Gameplay.Piece
         private Animator _animator;
         public Animator Animator => _animator ??= animatorListener.GetComponent<Animator>();
         public PlayableDirector JumpTimeline => jumpTimeline;
-
-        private Activity[] _standUpActivities;
         public CitizenMove CitizenMove { get; private set; }
 
         private readonly ActivityQueue _activityQueue = new();
         public IActivityQueue ActivityQueue => _activityQueue;
         public ActivityFlocking.ConfigData FlockingConfigData => flockingConfigData;
 
-        public IVariable<Tile> TargetTile { get; } = new Variable<Tile>();
-
         private void Awake()
         {
-            _standUpActivities = new Activity[]
-            {
-                new ActivityAnimation(Animator, LegHashes.stand_up),
-                new ActivityCallback(() => Animator.Play(LegHashes.idle))
-            };
             CitizenMove = new CitizenMove(this);
         }
 
