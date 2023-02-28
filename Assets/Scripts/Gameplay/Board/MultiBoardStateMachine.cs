@@ -10,20 +10,20 @@ namespace Gameplay.Board
         private int _anyActionCompleteCount;
 
         private readonly List<IStateMachine> _completedStateMachines = new();
+
         public MultiBoardStateMachine(IReadOnlyList<IMoveMaker> executors)
         {
             _stateMachines = new IStateMachine[executors.Count];
             for (var i = 0; i < executors.Count; i++)
             {
-                _stateMachines[i] = new StateMachine();
-                SetupStateMachine(_stateMachines[i], executors[i]);
+                _stateMachines[i] = SetupStateMachine(executors[i]);
             }
         }
 
         protected override void OnHandleIdleStateEnter(IStateMachine stateMachine)
         {
             _completedStateMachines.Add(stateMachine);
-            
+
             if (_completedStateMachines.Count == _stateMachines.Length)
             {
                 InvokeEndEvent();

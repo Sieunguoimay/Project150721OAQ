@@ -50,8 +50,8 @@ namespace System
         private void OnPlayerInteractResult(PlayerInteractResult playerInteractResult)
         {
             var index = playerInteractResult.SelectedTile.TileIndex;
-            var nextIndex = BoardTraveller.MoveNext(index, _board.Tiles.Count, playerInteractResult.Direction, 2);
-            _dropRunner.Drop2TilesConcurrently(index, nextIndex, playerInteractResult.Direction);
+            // var nextIndex = BoardTraveller.MoveNext(index, _board.Tiles.Count, playerInteractResult.Direction, 2);
+            _dropRunner.DropSingleTile(index, playerInteractResult.Direction);
         }
 
         public void MakeDecision()

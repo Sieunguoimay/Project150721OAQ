@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Common.DecisionMaking;
 using UnityEngine;
@@ -37,8 +38,9 @@ namespace Gameplay.Board
          * - EndEvent: Action
          */
 
-        protected void SetupStateMachine(IStateMachine stateMachine, IMoveMaker executor)
+        protected IStateMachine SetupStateMachine(IMoveMaker executor)
         {
+            var stateMachine = new StateMachine();
             var boardStates = new BaseBoardState[]
             {
                 new StateIdle(stateMachine, HandleIdleStateEnter),
@@ -53,6 +55,8 @@ namespace Gameplay.Board
             {
                 s.Setup(HandleAnyActionComplete, executor);
             }
+
+            return stateMachine;
         }
 
         private void HandleIdleStateEnter(BaseBoardState baseBoardState)
@@ -139,7 +143,7 @@ namespace Gameplay.Board
 
             protected override void OnEnter()
             {
-                if (Executor.IsValidGrasp())
+                if (Executor.MoveInnerRules.IsThereAnyPiece())
                 {
                     Debug.Log("Perform Action: Grasp a tile");
                     Executor.Grasp(InvokeActionCompleteHandler);
@@ -202,9 +206,9 @@ namespace Gameplay.Board
 
             private IState GetNextState()
             {
-                if (Executor.HasReachDeadEnd()) return _stateIdle;
-                if (Executor.IsGraspable()) return _graspATile;
-                if (Executor.IsEatable()) return _slamAndEat;
+                if (Executor.MoveInnerRules.HasReachDeadEnd()) return _stateIdle;
+                if (Executor.MoveInnerRules.IsGraspable()) return _graspATile;
+                if (Executor.MoveInnerRules.IsEatable()) return _slamAndEat;
                 throw new Exception("Invalid condition");
             }
 
@@ -266,7 +270,7 @@ namespace Gameplay.Board
                     }
                     else
                     {
-                        if (Executor.IsEatable())
+                        if (Executor.MoveInnerRules.IsEatable())
                         {
                             //Move next
                             _slam = true;
@@ -285,11 +289,11 @@ namespace Gameplay.Board
 
     public class BoardStateMachine : BaseBoardStateMachine
     {
-        private readonly StateMachine _stateMachine = new();
+        private readonly IStateMachine _stateMachine;
 
         public BoardStateMachine(IMoveMaker executor)
         {
-            SetupStateMachine(_stateMachine, executor);
+            _stateMachine = SetupStateMachine(executor);
         }
 
         protected override void OnHandleIdleStateEnter(IStateMachine stateMachine)
@@ -314,10 +318,86 @@ namespace Gameplay.Board
         void Drop(Action doneHandler);
         void Slam(Action doneHandler);
         void Eat(Action doneHandler);
-        bool IsValidGrasp();
         bool CanDrop();
+        IMoveInnerRules MoveInnerRules { get; }
+    }
+
+    public interface IMoveInnerRules
+    {
+        bool IsThereAnyPiece();
         bool HasReachDeadEnd();
-        bool IsGraspable();
         bool IsEatable();
+        bool IsGraspable();
+    }
+
+    public class MoveInnerRules<TTile> : IMoveInnerRules
+    {
+        private readonly IMoveRuleDataHelper _ruleDataHelper;
+
+        public MoveInnerRules(IMoveRuleDataHelper ruleDataHelper)
+        {
+            _ruleDataHelper = ruleDataHelper;
+        }
+
+        public bool IsThereAnyPiece()
+        {
+            return CurrentTileCount > 0;
+        }
+
+        public bool HasReachDeadEnd()
+        {
+            return CurrentTileCount == 0 && NextTileCount == 0 || IsCurrentTileMandarinTile;
+        }
+
+        public bool IsEatable()
+        {
+            return CurrentTileCount == 0 && NextTileCount > 0;
+        }
+
+        public bool IsGraspable()
+        {
+            return IsThereAnyPiece() && !IsCurrentTileMandarinTile;
+        }
+
+        private int CurrentTileCount => _ruleDataHelper.GetNumPiecesInTile(_ruleDataHelper.TileIterator.CurrentTile);
+        private int NextTileCount => _ruleDataHelper.GetNumPiecesInTile(_ruleDataHelper.TileIterator.NextTile);
+        private int NextTile2Count => _ruleDataHelper.GetNumPiecesInTile(_ruleDataHelper.TileIterator.NextTile2);
+        private bool IsCurrentTileMandarinTile => _ruleDataHelper.IsMandarinTile(_ruleDataHelper.TileIterator.CurrentTile);
+
+        public interface IMoveRuleDataHelper
+        {
+            TileIterator<TTile> TileIterator { get; }
+            int GetNumPiecesInTile(TTile tile);
+            bool IsMandarinTile(TTile tile);
+        }
+    }
+
+    public class TileIterator<TTile>
+    {
+        private readonly IReadOnlyList<TTile> _tiles;
+        public TTile CurrentTile { get; private set; }
+        public TTile NextTile { get; private set; }
+        public TTile NextTile2 { get; private set; }
+        private readonly bool _direction;
+
+        public TileIterator(IReadOnlyList<TTile> tiles, bool direction)
+        {
+            _tiles = tiles;
+            _direction = direction;
+        }
+        public void UpdateCurrentTileIndex(int currentTileIndex)
+        {
+            var nextTileIndex = GetNextTileIndex(currentTileIndex);
+            var nextTileIndex2 = GetNextTileIndex(nextTileIndex);
+
+            CurrentTile = _tiles[currentTileIndex];
+            NextTile = _tiles[nextTileIndex];
+            NextTile2 = _tiles[nextTileIndex2];
+        }
+
+        private int GetNextTileIndex(int currentTileIndex)
+        {
+            return BoardTraveller.MoveNext(currentTileIndex, _tiles.Count, _direction);
+        }
     }
 }
