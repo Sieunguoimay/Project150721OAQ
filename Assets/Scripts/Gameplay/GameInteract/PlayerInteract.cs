@@ -1,7 +1,7 @@
 ﻿using System;
-using Gameplay.Board;
 using Gameplay.Player;
 using Gameplay.PlayTurn;
+using Gameplay.Visual.Board;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
@@ -40,7 +40,7 @@ namespace Gameplay.GameInteract
             ActionChooser.DirectionSelectedEvent -= OnDirectionSelected;
             ActionChooser.DirectionSelectedEvent += OnDirectionSelected;
 
-            var turnTeller = Resolver.Resolve<IPlayTurnTeller>();
+            var turnTeller = Resolver.Resolve<IGameplayContainer>().PlayTurnTeller;
             tileChooser.Setup(turnTeller);
         }
 
@@ -67,9 +67,9 @@ namespace Gameplay.GameInteract
 
         private void UpdateActionChooserPosition()
         {
-            var tileTransform = tileChooser.SelectedTile.Transform;
+            var tileTransform = tileChooser.SelectedTile.transform;
             var rot = tileTransform.rotation;
-            var pos = tileTransform.position + rot * Vector3.forward * tileChooser.SelectedTile.Size;
+            var pos = tileTransform.position + rot * Vector3.forward;
 
             ActionChooser.SetPositionAndRotation(pos, rot);
         }

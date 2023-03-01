@@ -1,4 +1,4 @@
-﻿using Gameplay.Board;
+﻿using Gameplay.Visual.Board;
 using UnityEngine;
 
 namespace Gameplay.DecisionMaking

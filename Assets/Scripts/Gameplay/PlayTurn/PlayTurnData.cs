@@ -1,6 +1,6 @@
-﻿using Gameplay.Board;
-using Gameplay.DecisionMaking;
+﻿using Gameplay.DecisionMaking;
 using Gameplay.Player;
+using Gameplay.Visual.Board;
 
 namespace Gameplay.PlayTurn
 {

@@ -1,7 +1,9 @@
 ﻿using System.Linq;
-using Gameplay.Board;
+using Gameplay.CoreGameplay.Interactors.Simulation;
 using Gameplay.GameInteract;
+using Gameplay.Helpers;
 using Gameplay.PlayTurn;
+using Gameplay.Visual.Board;
 
 namespace System
 {
@@ -9,14 +11,16 @@ namespace System
     {
         private readonly IPlayTurnTeller _turnTeller;
         private readonly IPlayerInteract _playerInteract;
+        private readonly GridLocator _gridLocator;
 
         private Board _board;
         private DropRunner _dropRunner;
 
-        public Gameplay(IPlayTurnTeller turnTeller, IPlayerInteract playerInteract)
+        public Gameplay(IPlayTurnTeller turnTeller, IPlayerInteract playerInteract, GridLocator gridLocator)
         {
             _turnTeller = turnTeller;
             _playerInteract = playerInteract;
+            _gridLocator = gridLocator;
 
             _playerInteract.ResultEvent -= OnPlayerInteractResult;
             _playerInteract.ResultEvent += OnPlayerInteractResult;
@@ -30,7 +34,7 @@ namespace System
         public void Initialize(Board board)
         {
             _board = board;
-            _dropRunner = new DropRunner(this, new DropRunner.MoveStartingDataCreator(_turnTeller), _board);
+            _dropRunner = new DropRunner(this, new DropRunner.MoveStartingDataCreator(_turnTeller), _board, _gridLocator);
         }
 
         public void Cleanup()
@@ -129,13 +133,13 @@ namespace System
         private readonly MoveMaker _moveMaker;
         private readonly MoveMaker[] _twoMoveMakers;
 
-        public DropRunner(Gameplay gameplay, MoveStartingDataCreator moveStartingDataCreator, Board board)
+        public DropRunner(Gameplay gameplay, MoveStartingDataCreator moveStartingDataCreator, Board board, GridLocator gridLocator)
         {
             _gameplay = gameplay;
             _moveStartingDataCreator = moveStartingDataCreator;
 
-            _twoMoveMakers = new MoveMaker[] {new(board, 1), new(board, 1)};
-            _moveMaker = new MoveMaker(board, 1);
+            _twoMoveMakers = new MoveMaker[] {new(board, 1, gridLocator), new(board, 1, gridLocator)};
+            _moveMaker = new MoveMaker(board, 1, gridLocator);
 
             _boardStateDriver = new BoardStateMachine(_moveMaker);
             _concurrentBoardStateDriver = new MultiBoardStateMachine(_twoMoveMakers);

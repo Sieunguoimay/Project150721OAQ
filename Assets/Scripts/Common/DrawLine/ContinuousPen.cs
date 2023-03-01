@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common.Algorithm;
-using Gameplay.Piece;
-using Gameplay.Piece.Activities;
+using Gameplay.Visual.Piece.Activities;
 using UnityEngine;
 
 namespace Common.DrawLine

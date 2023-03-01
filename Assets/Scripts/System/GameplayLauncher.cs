@@ -1,11 +1,12 @@
-﻿using Gameplay.BambooStick;
-using Gameplay.Board;
-using Gameplay.Entities.Stage;
+﻿using Framework.Resolver;
+using Gameplay.BambooStick;
 using Gameplay.Entities.Stage.StageSelector;
 using Gameplay.GameInteract;
 using Gameplay.GameState;
-using Gameplay.Piece;
+using Gameplay.Helpers;
 using Gameplay.PlayTurn;
+using Gameplay.Visual.Board;
+using Gameplay.Visual.Piece;
 using UnityEngine;
 
 namespace System
@@ -21,29 +22,40 @@ namespace System
         private Gameplay _gameplay;
 
         private BambooFamilyManager _bambooFamily;
-        private BoardManager _boardManager;
-        private PieceManager _pieceManager;
+        private BoardCreator _boardCreator;
+        private PieceGenerator _pieceGenerator;
         private IPlayerInteract _interact;
         private IStageSelector _stageSelector;
         private IGameState _gameState;
         private GameStateController _gameStateController;
         private PlayTurnDataGenerator _playTurnDataGenerator;
+        private GridLocator _gridLocator;
+        private readonly GameplayContainer _container = new();
+
+        protected override void OnBind(IBinder binder)
+        {
+            base.OnBind(binder);
+            binder.Bind<IGameplayContainer>(_container);
+        }
+
+        protected override void OnUnbind(IBinder binder)
+        {
+            base.OnUnbind(binder);
+            binder.Unbind<IGameplayContainer>();
+        }
 
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
 
-            _boardManager = Resolver.Resolve<BoardManager>();
-            _pieceManager = Resolver.Resolve<PieceManager>();
+            _boardCreator = Resolver.Resolve<BoardCreator>();
+            _pieceGenerator = Resolver.Resolve<PieceGenerator>();
             _bambooFamily = Resolver.Resolve<BambooFamilyManager>();
             _stageSelector = Resolver.Resolve<IStageSelector>("stage_selector");
             _interact = Resolver.Resolve<PlayerInteract>();
             _playTurnDataGenerator = Resolver.Resolve<PlayTurnDataGenerator>();
             _gameStateController = Resolver.Resolve<GameStateController>();
-            
-            _gameplay = new Gameplay(Resolver.Resolve<IPlayTurnTeller>(), _interact);
-            _gameplay.GameOverEvent -= OnGameOver;
-            _gameplay.GameOverEvent += OnGameOver;
+            _gridLocator = Resolver.Resolve<GridLocator>();
 
             _gameState = Resolver.Resolve<IGameState>();
             _gameState.StateChangedEvent -= OnGameStateChanged;
@@ -76,25 +88,22 @@ namespace System
 
         private void StartGame()
         {
-            GenerateMatch(_stageSelector.SelectedStage);
-        }
+            var matchData = _stageSelector.SelectedStage.Data.MatchData;
 
-        private void GenerateMatch(IStage stage)
-        {
-            var matchData = stage.Data.MatchData;
+            _container.PublicBoard(_boardCreator.CreateBoard(matchData.playerNum, matchData.tilesPerGroup));
+            _container.PublicPlayTurnTeller(_playTurnDataGenerator.Generate(matchData.playerNum));
 
-            _boardManager.CreateBoard(matchData.playerNum, matchData.tilesPerGroup);
-            _playTurnDataGenerator.Generate(matchData.playerNum);
-
-            // _playersManager.FillUpWithFakePlayers(matchData.playerNum);
-            // _playersManager.CreatePieceBench(_boardManager.Board);
-
-            _pieceManager.SpawnPieces(matchData.playerNum, matchData.tilesPerGroup, matchData.numCitizensInTile);
-            _pieceManager.ReleasePieces(OnAllPiecesInPlace, _boardManager.Board);
+            _pieceGenerator.SpawnPieces(matchData.playerNum, matchData.tilesPerGroup, matchData.numCitizensInTile);
+            _pieceGenerator.ReleasePieces(OnAllPiecesInPlace, _container.Board, _gridLocator);
 
             _bambooFamily.BeginAnimSequence();
             _interact.Initialize();
-            _gameplay.Initialize(_boardManager.Board);
+
+
+            _gameplay = new Gameplay(_container.PlayTurnTeller, _interact, _gridLocator);
+            _gameplay.GameOverEvent -= OnGameOver;
+            _gameplay.GameOverEvent += OnGameOver;
+            _gameplay.Initialize(_container.Board);
         }
 
         private void OnAllPiecesInPlace()
@@ -104,11 +113,13 @@ namespace System
 
         private void ClearGame()
         {
+            _gameplay.GameOverEvent -= OnGameOver;
             _interact.Cleanup();
             _bambooFamily.ResetAll();
-            _pieceManager.DeletePieces();
+            _pieceGenerator.DeletePieces();
             _gameplay.Cleanup();
-            _boardManager.DeleteBoard();
+            BoardCreator.DeleteBoard(_container.Board);
+            _container.Cleanup();
         }
 
 #if UNITY_EDITOR

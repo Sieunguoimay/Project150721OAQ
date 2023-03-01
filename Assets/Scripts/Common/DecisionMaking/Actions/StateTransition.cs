@@ -2,7 +2,7 @@
 using System.Linq;
 using Common.Activity;
 using Common.UnityExtend.Attribute;
-using Gameplay.Piece.Activities;
+using Gameplay.Visual.Piece.Activities;
 using UnityEngine;
 
 namespace Common.DecisionMaking.Actions

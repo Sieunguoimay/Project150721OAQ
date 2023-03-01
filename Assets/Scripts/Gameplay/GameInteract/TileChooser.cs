@@ -1,8 +1,8 @@
 ﻿using System;
-using Gameplay.Board;
 using Gameplay.GameInteract.Button;
 using Gameplay.Player;
 using Gameplay.PlayTurn;
+using Gameplay.Visual.Board;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
@@ -64,9 +64,9 @@ namespace Gameplay.GameInteract
 
         private void OnButtonClicked(IButton btn)
         {
-            SelectedTile?.Transform.GetComponent<TileSelectable>()?.Unselect();
+            SelectedTile?.GetComponent<TileSelectable>()?.Unselect();
             SelectedTile = _turnTeller.CurrentTurn.BoardSide.CitizenTiles[Array.IndexOf(_buttons, (ButtonOnGround) btn)];
-            SelectedTile?.Transform.GetComponent<TileSelectable>()?.Select();
+            SelectedTile.GetComponent<TileSelectable>()?.Select();
 
             SelectedTileChangedEvent?.Invoke();
 
@@ -84,9 +84,9 @@ namespace Gameplay.GameInteract
             var tilesOnSide =  _turnTeller.CurrentTurn.BoardSide.CitizenTiles;
             for (var i = 0; i < tilesOnSide.Count; i++)
             {
-                var target = tilesOnSide[i].Transform;
+                var target = tilesOnSide[i].transform;
                 var tileRot = target.rotation;
-                var pos = CalculateButtonPosition(target, tilesOnSide[i].Size);
+                var pos = CalculateButtonPosition(target, 1);
                 _buttons[i].SetPositionAndRotation(pos, tileRot);
             }
         }

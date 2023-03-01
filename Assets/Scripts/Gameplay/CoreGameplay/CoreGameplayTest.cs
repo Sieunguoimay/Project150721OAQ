@@ -1,5 +1,5 @@
 ﻿using Gameplay.CoreGameplay.Controllers;
-using Gameplay.CoreGameplay.Interactors;
+using Gameplay.CoreGameplay.Interactors.Simulation;
 using Gameplay.CoreGameplay.Presenters;
 using UnityEditor;
 using UnityEngine;

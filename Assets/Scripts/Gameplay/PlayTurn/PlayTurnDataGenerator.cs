@@ -1,8 +1,8 @@
 ﻿using System;
 using Framework.Resolver;
-using Gameplay.Board;
 using Gameplay.Entities.Stage;
 using Gameplay.Player;
+using Gameplay.Visual.Board;
 using UnityEngine;
 
 namespace Gameplay.PlayTurn
@@ -10,18 +10,12 @@ namespace Gameplay.PlayTurn
     [CreateAssetMenu(menuName = "Generator/PlayTurnGenerator")]
     public class PlayTurnDataGenerator : BaseGenericDependencyInversionScriptableObject<PlayTurnDataGenerator>
     {
-        private readonly PlayTurnTeller _playTurnTeller = new();
-
-        protected override void OnBind(IBinder binder)
+        public PlayTurnTeller Generate(int turnNum)
         {
-            base.OnBind(binder);
-            binder.Bind<IPlayTurnTeller>(_playTurnTeller);
-        }
-
-        public void Generate(int turnNum)
-        {
+            var playTurnTeller = new PlayTurnTeller();
             var turns = CreateTurns(turnNum);
-            _playTurnTeller.SetTurns(turns, 0);
+            playTurnTeller.SetTurns(turns, 0);
+            return playTurnTeller;
         }
 
         private PlayTurnData[] CreateTurns(int turnNum)
@@ -50,7 +44,7 @@ namespace Gameplay.PlayTurn
 
         private PlayTurnData CreatePlayTurnData(int turnIndex, IPlayerFactory playerFactory)
         {
-            var board = Resolver.Resolve<BoardManager>().Board;
+            var board = Resolver.Resolve<IGameplayContainer>().Board;
             var boardSide = board.Sides[turnIndex];
 
             var player = playerFactory.CreatePlayer();

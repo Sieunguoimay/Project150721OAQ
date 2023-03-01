@@ -93,6 +93,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mandarinTilePrefab: {fileID: 6506848365546645831, guid: a0c9f3be3038f2c48b96c6d52d196e0b, type: 3}
   citizenTilePrefab: {fileID: 2106036659000400842, guid: 039c12b9678732843a8cd5fd08787dab, type: 3}
+  tileSize: 2
 --- !u!1 &4289493137403277938
 GameObject:
   m_ObjectHideFlags: 0

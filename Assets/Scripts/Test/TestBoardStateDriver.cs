@@ -1,4 +1,5 @@
-﻿using Gameplay.Board;
+﻿using Gameplay.CoreGameplay.Interactors.Simulation;
+using Gameplay.Visual.Board;
 using UnityEngine;
 
 namespace Test
@@ -16,16 +17,16 @@ namespace Test
         [ContextMenu("Next5Actions")]
         private void Next5Actions()
         {
-            if (_boardStateMachine == null)
-            {
-                _boardStateMachine = new BoardStateMachine(new MoveMaker(null, 0));
-                _boardStateMachine.EndEvent += OnEndEvent;
-            }
-
-            for (var i = 0; i < 5; i++)
-            {
-                _boardStateMachine.NextAction();
-            }
+            // if (_boardStateMachine == null)
+            // {
+            //     _boardStateMachine = new BoardStateMachine(new MoveMaker(null, 0));
+            //     _boardStateMachine.EndEvent += OnEndEvent;
+            // }
+            //
+            // for (var i = 0; i < 5; i++)
+            // {
+            //     _boardStateMachine.NextAction();
+            // }
         }
 
         private static void OnEndEvent(IBoardStateDriver obj)

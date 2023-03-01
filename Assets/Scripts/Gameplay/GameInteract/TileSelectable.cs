@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Gameplay.Board;
-using Gameplay.Piece;
+using Gameplay.Visual.Board;
+using Gameplay.Visual.Piece;
 using UnityEngine;
 
 namespace Gameplay.GameInteract
@@ -19,7 +19,7 @@ namespace Gameplay.GameInteract
             var selectionAdaptors = _tile.HeldPieces.OfType<Citizen>();
             foreach (var sa in selectionAdaptors)
             {
-                sa.PlayAnimStandUp();
+                sa.Animator.PlayAnimStandUp();
             }
         }
 
@@ -28,7 +28,7 @@ namespace Gameplay.GameInteract
             var selectionAdaptors = _tile.HeldPieces.OfType<Citizen>();
             foreach (var sa in selectionAdaptors)
             {
-                sa.PlayAnimSitDown();
+                sa.Animator.PlayAnimSitDown();
             }
         }
     }

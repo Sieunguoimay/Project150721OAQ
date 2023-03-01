@@ -4,8 +4,7 @@ using Common.Algorithm;
 using Common.Curve;
 using DG.Tweening;
 using DG.Tweening.Core.Easing;
-using Gameplay.Board.BoardDrawing;
-using Gameplay.Piece.Activities;
+using Gameplay.Visual.Piece.Activities;
 using SNM.Easings;
 using UnityEngine;
 

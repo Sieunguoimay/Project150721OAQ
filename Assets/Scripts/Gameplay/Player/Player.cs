@@ -1,5 +1,5 @@
-﻿using Gameplay.Board;
-using Gameplay.DecisionMaking;
+﻿using Gameplay.DecisionMaking;
+using Gameplay.Visual.Board;
 using UnityEngine;
 
 namespace Gameplay.Player
@@ -27,8 +27,8 @@ namespace Gameplay.Player
 
         protected static PieceBench CreatePieceBench(BoardSide boardSide, Transform transform)
         {
-            var pos1 = boardSide.CitizenTiles[0].Transform.position;
-            var pos2 = boardSide.CitizenTiles[^1].Transform.position;
+            var pos1 = boardSide.CitizenTiles[0].transform.position;
+            var pos2 = boardSide.CitizenTiles[^1].transform.position;
             var diff = pos2 - pos1;
             var pos = pos1 + new Vector3(diff.z, diff.y, -diff.x) * 0.5f;
             var rot = Quaternion.LookRotation(pos1 - pos, Vector3.up);

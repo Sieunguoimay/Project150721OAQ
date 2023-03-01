@@ -1,5 +1,6 @@
 ﻿using Gameplay.CoreGameplay.Controllers;
 using Gameplay.CoreGameplay.Entities;
+using Gameplay.CoreGameplay.Interactors.Simulation;
 
 namespace Gameplay.CoreGameplay.Interactors
 {
@@ -19,7 +20,6 @@ namespace Gameplay.CoreGameplay.Interactors
             var boardData = dataAccess.GetBoardData();
             _board = CoreEntitiesFactory.CreateBoardEntity(boardData);
             _innerPiecesInteractor = new PiecesInteractor.InnerPiecesInteractor(_board);
-
         }
 
         public void InstallRefreshRequest(IRefreshResultHandler resultHandler)

@@ -1,4 +1,5 @@
 ﻿using Gameplay.CoreGameplay.Interactors;
+using Gameplay.CoreGameplay.Interactors.Simulation;
 using Gameplay.CoreGameplay.Presenters;
 
 namespace Gameplay.CoreGameplay.Controllers

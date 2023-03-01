@@ -1,5 +1,5 @@
 ﻿using Common.Activity;
-using Gameplay.Piece.Activities;
+using Gameplay.Visual.Piece.Activities;
 using UnityEngine;
 using UnityEngine.Events;
 
