@@ -1,4 +1,5 @@
-﻿using Gameplay.PlayTurn;
+﻿using Gameplay.Entities.Stage;
+using Gameplay.PlayTurn;
 using Gameplay.Visual.Board;
 
 namespace System
@@ -13,6 +14,7 @@ namespace System
     {
         public Board Board { get; private set; }
         public IPlayTurnTeller PlayTurnTeller { get; private set; }
+        public MatchData MatchData { get; private set; }
 
         public void PublicBoard(Board board)
         {
@@ -23,6 +25,12 @@ namespace System
         {
             PlayTurnTeller = playTurnTeller;
         }
+
+        public void PublicMatchData(MatchData matchData)
+        {
+            MatchData = matchData;
+        }
+
         public void Cleanup()
         {
             Board = null;

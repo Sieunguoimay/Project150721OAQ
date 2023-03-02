@@ -27,9 +27,24 @@ namespace Gameplay.CoreGameplay.Interactors
 
         private RefreshData CreateRefreshData()
         {
-            var piecesInTiles = _boardEntity.Sides.SelectMany(s => new[] {s.MandarinTile.PieceEntities.Count}.Concat(s.CitizenTiles.Select(c => c.PieceEntities.Count)));
-            var piecesInPockets = _boardEntity.Sides.Select(s => s.Pocket.PieceEntities.Count);
-            return new RefreshData {PiecesInTiles = piecesInTiles.ToArray(), PiecesInPockets = piecesInPockets.ToArray()};
+            var piecesInTiles = _boardEntity.Sides
+                .SelectMany(s => new[] {CreatePieceStatistics(s.MandarinTile)}
+                    .Concat(s.CitizenTiles.Select(CreatePieceStatistics)));
+            var piecesInPockets = _boardEntity.Sides.Select(s => CreatePieceStatistics(s.Pocket));
+            return new RefreshData
+            {
+                PiecesInTiles = piecesInTiles.ToArray(),
+                PiecesInPockets = piecesInPockets.ToArray()
+            };
+        }
+
+        private static RefreshData.PieceStatistics CreatePieceStatistics(PieceContainerEntity tile)
+        {
+            return new()
+            {
+                CitizenPieces = tile.PieceEntities.Count(p => p.PieceType == PieceType.Citizen),
+                MandarinPieces = tile.PieceEntities.Count(p => p.PieceType == PieceType.Mandarin)
+            };
         }
     }
 
@@ -40,7 +55,13 @@ namespace Gameplay.CoreGameplay.Interactors
 
     public class RefreshData
     {
-        public int[] PiecesInTiles;
-        public int[] PiecesInPockets;
+        public PieceStatistics[] PiecesInTiles;
+        public PieceStatistics[] PiecesInPockets;
+
+        public class PieceStatistics
+        {
+            public int CitizenPieces;
+            public int MandarinPieces;
+        }
     }
 }

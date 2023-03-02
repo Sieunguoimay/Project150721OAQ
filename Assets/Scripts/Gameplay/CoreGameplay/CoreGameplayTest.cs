@@ -1,4 +1,5 @@
 ﻿using Gameplay.CoreGameplay.Controllers;
+using Gameplay.CoreGameplay.Gateway;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 using Gameplay.CoreGameplay.Presenters;
 using UnityEditor;
@@ -12,11 +13,10 @@ namespace Gameplay.CoreGameplay
         public static void Test()
         {
             var installController = new CoreGameplayInstallController();
-            installController.Install();
-
             var container = installController.Container;
+            var presenter = new SimpleInteractResultPresenter(container);
+            installController.Install(presenter,new BoardConfigDatabase());
 
-            var presenter = installController.RefreshResultPresenter;
             var view = new CoreGameplayDataView(presenter);
 
             // container.RefreshRequester.Refresh();
@@ -47,17 +47,30 @@ namespace Gameplay.CoreGameplay
             installController.Uninstall();
         }
 
+        private class BoardConfigDatabase : ICoreGameplayDataAccess
+        {
+            public BoardData GetBoardData()
+            {
+                return new()
+                {
+                    NumSides = 2,
+                    TilesPerSide = 5,
+                    PiecesPerTile = 5
+                };
+            }
+        }
+
         private class CoreGameplayDataView
         {
-            public CoreGameplayDataView(RefreshResultPresenter presenter)
+            public CoreGameplayDataView(SimpleInteractResultPresenter presenter)
             {
                 presenter.RefreshDataAvailableEvent += HandleRefreshData;
             }
 
-            private static void HandleRefreshData(RefreshResultPresenter refreshResultPresenter)
+            private static void HandleRefreshData(SimpleInteractResultPresenter interactResultPresenter)
             {
                 var str = "Pocket:";
-                foreach (var piecesInTile in refreshResultPresenter.RefreshData.PiecesInPockets)
+                foreach (var piecesInTile in interactResultPresenter.RefreshData.PiecesInPockets)
                 {
                     str += " " + piecesInTile;
                 }
@@ -65,7 +78,7 @@ namespace Gameplay.CoreGameplay
                 Debug.Log(str);
                 
                 str = "Tiles:";
-                foreach (var piecesInTile in refreshResultPresenter.RefreshData.PiecesInTiles)
+                foreach (var piecesInTile in interactResultPresenter.RefreshData.PiecesInTiles)
                 {
                     str += " " + piecesInTile;
                 }

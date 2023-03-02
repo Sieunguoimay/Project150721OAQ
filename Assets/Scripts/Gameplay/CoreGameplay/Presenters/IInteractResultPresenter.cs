@@ -6,13 +6,17 @@ using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Presenters
 {
-    public class RefreshResultPresenter : IRefreshResultHandler, IPieceInteractResultHandler, IBoardMoveSimulationResultHandler
+    public interface IInteractResultPresenter : IRefreshResultHandler, IPieceInteractResultHandler,
+        IBoardMoveSimulationResultHandler
+    {
+    }
+    public class SimpleInteractResultPresenter : IInteractResultPresenter
     {
         private readonly CoreGameplayContainer _container;
-        public event Action<RefreshResultPresenter> RefreshDataAvailableEvent;
+        public event Action<SimpleInteractResultPresenter> RefreshDataAvailableEvent;
         public RefreshData RefreshData { get; private set; }
 
-        public RefreshResultPresenter(CoreGameplayContainer container)
+        public SimpleInteractResultPresenter(CoreGameplayContainer container)
         {
             _container = container;
         }

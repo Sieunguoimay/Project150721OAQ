@@ -1,5 +1,6 @@
 ﻿using Gameplay.CoreGameplay.Controllers;
 using Gameplay.CoreGameplay.Entities;
+using Gameplay.CoreGameplay.Gateway;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 
 namespace Gameplay.CoreGameplay.Interactors
@@ -15,7 +16,7 @@ namespace Gameplay.CoreGameplay.Interactors
             _container = container;
         }
 
-        public void InstallEntities(IEntitiesDataAccess dataAccess)
+        public void InstallEntities(ICoreGameplayDataAccess dataAccess)
         {
             var boardData = dataAccess.GetBoardData();
             _board = CoreEntitiesFactory.CreateBoardEntity(boardData);
@@ -37,6 +38,13 @@ namespace Gameplay.CoreGameplay.Interactors
         {
             var simulator = new BoardMoveSimulator(_board, simulationResultHandler, _innerPiecesInteractor);
             _container.BoardMoveSimulator = simulator;
+        }
+
+        public void Uninstall()
+        {
+            _container.RefreshRequester = null;
+            _container.PiecesInteractor = null;
+            _container.BoardMoveSimulator = null;
         }
     }
 }

@@ -6,7 +6,15 @@ namespace Gameplay.CoreGameplay.Entities
     {
         public List<PieceEntity> PieceEntities;
     }
-    public class TileEntity:PieceContainerEntity
+
+    public class TileEntity : PieceContainerEntity
     {
+        public TileType TileType;
+    }
+
+    public enum TileType
+    {
+        CitizenTile,
+        MandarinTile
     }
 }

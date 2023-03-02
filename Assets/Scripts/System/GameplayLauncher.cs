@@ -21,15 +21,15 @@ namespace System
     {
         private Gameplay _gameplay;
 
-        private BambooFamilyManager _bambooFamily;
-        private BoardCreator _boardCreator;
-        private PieceGenerator _pieceGenerator;
+        // private BambooFamilyManager _bambooFamily;
+        // private BoardCreator _boardCreator;
+        // private PieceGenerator _pieceGenerator;
+        private GridLocator _gridLocator;
         private IPlayerInteract _interact;
         private IStageSelector _stageSelector;
         private IGameState _gameState;
         private GameStateController _gameStateController;
         private PlayTurnDataGenerator _playTurnDataGenerator;
-        private GridLocator _gridLocator;
         private readonly GameplayContainer _container = new();
 
         protected override void OnBind(IBinder binder)
@@ -48,23 +48,26 @@ namespace System
         {
             base.OnSetupDependencies();
 
-            _boardCreator = Resolver.Resolve<BoardCreator>();
-            _pieceGenerator = Resolver.Resolve<PieceGenerator>();
-            _bambooFamily = Resolver.Resolve<BambooFamilyManager>();
             _stageSelector = Resolver.Resolve<IStageSelector>("stage_selector");
             _interact = Resolver.Resolve<PlayerInteract>();
             _playTurnDataGenerator = Resolver.Resolve<PlayTurnDataGenerator>();
             _gameStateController = Resolver.Resolve<GameStateController>();
+            // _boardCreator = Resolver.Resolve<BoardCreator>();
+            // _pieceGenerator = Resolver.Resolve<PieceGenerator>();
+            // _bambooFamily = Resolver.Resolve<BambooFamilyManager>();
             _gridLocator = Resolver.Resolve<GridLocator>();
 
             _gameState = Resolver.Resolve<IGameState>();
             _gameState.StateChangedEvent -= OnGameStateChanged;
             _gameState.StateChangedEvent += OnGameStateChanged;
+            _stageSelector.Selected -= OnStageSelectedChanged;
+            _stageSelector.Selected += OnStageSelectedChanged;
         }
 
         protected override void OnTearDownDependencies()
         {
             base.OnTearDownDependencies();
+            _stageSelector.Selected -= OnStageSelectedChanged;
             _gameState.StateChangedEvent -= OnGameStateChanged;
             _gameplay.GameOverEvent -= OnGameOver;
         }
@@ -86,17 +89,23 @@ namespace System
             }
         }
 
+        private void OnStageSelectedChanged(EventArgs obj)
+        {
+            _container.PublicMatchData(_stageSelector.SelectedStage.Data.MatchData);
+        }
+
         private void StartGame()
         {
-            var matchData = _stageSelector.SelectedStage.Data.MatchData;
+            var matchData = _container.MatchData;
 
-            _container.PublicBoard(_boardCreator.CreateBoard(matchData.playerNum, matchData.tilesPerGroup));
+            // _container.PublicBoard(_boardCreator.CreateBoard(matchData.playerNum, matchData.tilesPerGroup));
             _container.PublicPlayTurnTeller(_playTurnDataGenerator.Generate(matchData.playerNum));
 
-            _pieceGenerator.SpawnPieces(matchData.playerNum, matchData.tilesPerGroup, matchData.numCitizensInTile);
-            _pieceGenerator.ReleasePieces(OnAllPiecesInPlace, _container.Board, _gridLocator);
-
-            _bambooFamily.BeginAnimSequence();
+            // _pieceGenerator.SpawnPieces(matchData.playerNum, matchData.tilesPerGroup, matchData.numCitizensInTile);
+            // new PieceRelease(_pieceGenerator.Citizens, _pieceGenerator.Mandarins, matchData.numCitizensInTile,
+            //     _container.Board, _gridLocator, OnAllPiecesInPlace).ReleasePieces();
+            //
+            // _bambooFamily.BeginAnimSequence();
             _interact.Initialize();
 
 
@@ -115,8 +124,8 @@ namespace System
         {
             _gameplay.GameOverEvent -= OnGameOver;
             _interact.Cleanup();
-            _bambooFamily.ResetAll();
-            _pieceGenerator.DeletePieces();
+            // _bambooFamily.ResetAll();
+            // _pieceGenerator.DeletePieces();
             _gameplay.Cleanup();
             BoardCreator.DeleteBoard(_container.Board);
             _container.Cleanup();

@@ -1,6 +1,6 @@
-﻿namespace Gameplay.CoreGameplay.Interactors
+﻿namespace Gameplay.CoreGameplay.Gateway
 {
-    public interface IEntitiesDataAccess
+    public interface ICoreGameplayDataAccess
     {
         BoardData GetBoardData();
     }

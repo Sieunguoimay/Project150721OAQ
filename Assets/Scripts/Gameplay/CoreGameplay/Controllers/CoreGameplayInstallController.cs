@@ -1,4 +1,5 @@
-﻿using Gameplay.CoreGameplay.Interactors;
+﻿using Gameplay.CoreGameplay.Gateway;
+using Gameplay.CoreGameplay.Interactors;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 using Gameplay.CoreGameplay.Presenters;
 
@@ -6,40 +7,22 @@ namespace Gameplay.CoreGameplay.Controllers
 {
     public class CoreGameplayInstallController
     {
-        public CoreGameplayContainer Container { get; private set; }
-        public RefreshResultPresenter RefreshResultPresenter { get; private set; }
-
-        public void Install()
+        public CoreGameplayContainer Container { get; } = new();
+        
+        private CoreGameplayInstaller _installer;
+        public void Install(IInteractResultPresenter resultPresenter, ICoreGameplayDataAccess dataAccess)
         {
-            Container = new CoreGameplayContainer();
+            _installer = new CoreGameplayInstaller(Container);
 
-            var installer = new CoreGameplayInstaller(Container);
-            var dataAccess = new BoardConfigDatabase();
-            RefreshResultPresenter = new RefreshResultPresenter(Container);
-
-            installer.InstallEntities(dataAccess);
-            installer.InstallRefreshRequest(RefreshResultPresenter);
-            installer.InstallPiecesInteract(RefreshResultPresenter);
-            installer.InstallBoardMoveSimulation(RefreshResultPresenter);
+            _installer.InstallEntities(dataAccess);
+            _installer.InstallRefreshRequest(resultPresenter);
+            _installer.InstallPiecesInteract(resultPresenter);
+            _installer.InstallBoardMoveSimulation(resultPresenter);
         }
 
         public void Uninstall()
         {
-            Container.RefreshRequester = null;
-            Container = null;
-        }
-
-        private class BoardConfigDatabase : IEntitiesDataAccess
-        {
-            public BoardData GetBoardData()
-            {
-                return new()
-                {
-                    NumSides = 2,
-                    TilesPerSide = 5,
-                    PiecesPerTile = 5
-                };
-            }
+            _installer.Uninstall();
         }
     }
 
