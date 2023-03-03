@@ -13,7 +13,7 @@ namespace System
         private readonly IPlayerInteract _playerInteract;
         private readonly GridLocator _gridLocator;
 
-        private Board _board;
+        public IGameplayContainer Container { get; private set; }
         private DropRunner _dropRunner;
 
         public Gameplay(IPlayTurnTeller turnTeller, IPlayerInteract playerInteract, GridLocator gridLocator)
@@ -31,10 +31,10 @@ namespace System
             _playerInteract.ResultEvent -= OnPlayerInteractResult;
         }
 
-        public void Initialize(Board board)
+        public void Initialize(IGameplayContainer container)
         {
-            _board = board;
-            _dropRunner = new DropRunner(this, new DropRunner.MoveStartingDataCreator(_turnTeller), _board, _gridLocator);
+            Container = container;
+            _dropRunner = new DropRunner(this, new DropRunner.MoveStartingDataCreator(_turnTeller), Container.Board, _gridLocator);
         }
 
         public void Cleanup()
@@ -60,7 +60,7 @@ namespace System
 
         public void MakeDecision()
         {
-            var anyMandarinTilesHasPieces = _board.Sides.Any(tg =>
+            var anyMandarinTilesHasPieces = Container.Board.Sides.Any(tg =>
                 tg.MandarinTile.Mandarin != null || tg.MandarinTile.HeldPieces.Count > 0);
             if (anyMandarinTilesHasPieces)
             {

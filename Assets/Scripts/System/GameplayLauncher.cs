@@ -31,17 +31,19 @@ namespace System
         private GameStateController _gameStateController;
         private PlayTurnDataGenerator _playTurnDataGenerator;
         private readonly GameplayContainer _container = new();
-
+        private readonly GameplayLoadingHost _loadingHost = new();
         protected override void OnBind(IBinder binder)
         {
             base.OnBind(binder);
             binder.Bind<IGameplayContainer>(_container);
+            binder.Bind<IGameplayLoadingHost>(_loadingHost);
         }
 
         protected override void OnUnbind(IBinder binder)
         {
             base.OnUnbind(binder);
             binder.Unbind<IGameplayContainer>();
+            binder.Unbind<IGameplayLoadingHost>();
         }
 
         protected override void OnSetupDependencies()
@@ -97,7 +99,6 @@ namespace System
         private void StartGame()
         {
             var matchData = _container.MatchData;
-
             // _container.PublicBoard(_boardCreator.CreateBoard(matchData.playerNum, matchData.tilesPerGroup));
             _container.PublicPlayTurnTeller(_playTurnDataGenerator.Generate(matchData.playerNum));
 
@@ -106,13 +107,14 @@ namespace System
             //     _container.Board, _gridLocator, OnAllPiecesInPlace).ReleasePieces();
             //
             // _bambooFamily.BeginAnimSequence();
+            _loadingHost.LoadAllUnits();
             _interact.Initialize();
 
 
             _gameplay = new Gameplay(_container.PlayTurnTeller, _interact, _gridLocator);
             _gameplay.GameOverEvent -= OnGameOver;
             _gameplay.GameOverEvent += OnGameOver;
-            _gameplay.Initialize(_container.Board);
+            _gameplay.Initialize(_container);
         }
 
         private void OnAllPiecesInPlace()
@@ -122,6 +124,7 @@ namespace System
 
         private void ClearGame()
         {
+            _loadingHost.UnloadAllUnits();
             _gameplay.GameOverEvent -= OnGameOver;
             _interact.Cleanup();
             // _bambooFamily.ResetAll();

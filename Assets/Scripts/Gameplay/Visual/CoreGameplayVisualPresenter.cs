@@ -20,7 +20,8 @@ namespace Gameplay.Visual
         private BoardCreator _boardCreator;
         private PieceGenerator _pieceGenerator;
         private GridLocator _gridLocator;
-        
+        private IGameplayLoadingHost _loadingHost;
+
         public event Action<CoreGameplayVisualPresenter> VisualReadyEvent;
 
         protected override void OnSetupDependencies()
@@ -28,11 +29,32 @@ namespace Gameplay.Visual
             base.OnSetupDependencies();
             _coreGameplayContainer = Resolver.Resolve<CoreGameplayContainer>();
             _container = Resolver.Resolve<GameplayContainer>();
-            
+
             _bambooFamily = Resolver.Resolve<BambooFamilyManager>();
             _boardCreator = Resolver.Resolve<BoardCreator>();
             _pieceGenerator = Resolver.Resolve<PieceGenerator>();
             _gridLocator = Resolver.Resolve<GridLocator>();
+            _loadingHost = Resolver.Resolve<IGameplayLoadingHost>();
+
+            _loadingHost.LoadingDoneEvent += OnLoadingDone;
+            _loadingHost.UnloadBeginEvent += OnUnloadBegin;
+        }
+
+        protected override void OnTearDownDependencies()
+        {
+            base.OnTearDownDependencies();
+            _loadingHost.LoadingDoneEvent -= OnLoadingDone;
+            _loadingHost.UnloadBeginEvent -= OnUnloadBegin;
+        }
+
+        private void OnLoadingDone(GameplayLoadingHost obj)
+        {
+            Initialize();
+        }
+
+        private void OnUnloadBegin(GameplayLoadingHost obj)
+        {
+            Cleanup();
         }
 
         public void Initialize()
@@ -45,15 +67,14 @@ namespace Gameplay.Visual
             _bambooFamily.ResetAll();
             _pieceGenerator.DeletePieces();
         }
-        
+
         public void HandleRefreshData(RefreshData refreshData)
         {
             var matchData = _container.MatchData;
-
             var numSides = matchData.playerNum;
             var tilesPerSide = matchData.tilesPerGroup;
             var piecesPerTile = matchData.numCitizensInTile;
-            
+
             _container.PublicBoard(_boardCreator.CreateBoard(numSides, tilesPerSide));
             _pieceGenerator.SpawnPieces(numSides, tilesPerSide, piecesPerTile);
             new PieceRelease(_pieceGenerator.Citizens, _pieceGenerator.Mandarins, piecesPerTile,

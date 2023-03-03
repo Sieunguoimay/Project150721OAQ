@@ -3,15 +3,16 @@ using Framework.Resolver;
 using Gameplay.CoreGameplay.Controllers;
 using Gameplay.CoreGameplay.Gateway;
 using Gameplay.Entities.Stage;
-using Gameplay.GameState;
+using Gameplay.Visual;
 
 namespace Gameplay.CoreGameplay
 {
-    public class CoreGameplayInjectable : BaseDependencyInversionScriptableObject
+    public class CoreGameplayInjectable : BaseDependencyInversionScriptableObject, IGameplayLoadingUnit
     {
         private CoreGameplayInstallController _installController;
-        private IGameState _gameState;
         private GameplayContainer _gameplayContainer;
+        private CoreGameplayVisualPresenter _presenter;
+        private IGameplayLoadingHost _loadingHost;
 
         protected override void OnBind(IBinder binder)
         {
@@ -29,30 +30,30 @@ namespace Gameplay.CoreGameplay
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
-            _gameState = Resolver.Resolve<IGameState>();
+            _loadingHost = Resolver.Resolve<IGameplayLoadingHost>();
             _gameplayContainer = Resolver.Resolve<GameplayContainer>();
-            _gameState.StateChangedEvent -= OnGameStateChanged;
-            _gameState.StateChangedEvent += OnGameStateChanged;
+            _presenter = Resolver.Resolve<CoreGameplayVisualPresenter>();
+            // _gameState.StateChangedEvent -= OnGameStateChanged;
+            // _gameState.StateChangedEvent += OnGameStateChanged;
+            _loadingHost.Register(this);
         }
 
         protected override void OnTearDownDependencies()
         {
             base.OnTearDownDependencies();
-            _gameState.StateChangedEvent -= OnGameStateChanged;
         }
 
-        private void OnGameStateChanged(GameState.GameState obj)
+        public void Load(GameplayLoadingHost host)
         {
-            if (_gameState.CurrentState == GameState.GameState.State.Playing)
-            {
-                _installController.Install(null, new CoreGameplayDataAccess(_gameplayContainer.MatchData));
-            }
-            else
-            {
-                _installController.Uninstall();
-            }
+            _installController.Install(_presenter, new CoreGameplayDataAccess(_gameplayContainer.MatchData));
+            _loadingHost.NotifyUnitLoadingDone(this);
         }
 
+        public void Unload(GameplayLoadingHost host)
+        {
+            _installController.Uninstall();
+            _loadingHost.NotifyUnitUnloadingDone(this);
+        }
         private class CoreGameplayDataAccess : ICoreGameplayDataAccess
         {
             private readonly MatchData _matchData;
@@ -72,5 +73,6 @@ namespace Gameplay.CoreGameplay
                 };
             }
         }
+
     }
 }
