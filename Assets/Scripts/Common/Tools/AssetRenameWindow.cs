@@ -17,6 +17,28 @@ namespace Common.Tools
         private string _param2Replace;
         private string _propertyName;
 
+        private readonly NoParamsModification _toLowerCaseAndUnderscore = new(
+            "To Lowercase & Underscore",
+            s => s.ToLower().Replace(" ", "_")
+        );
+
+        private readonly TwoParamsModification _prefixModification = new(
+            "Prefix",
+            s => $"{s.Item2}{s.Item1}"
+        );
+
+        private readonly TwoParamsModification _suffixModification = new(
+            "Suffix", s => $"{s.Item1}{s.Item2}"
+        );
+
+        private readonly TwoParamsModification _replaceModification = new("Replace", s =>
+        {
+            var originStr = s.Item1;
+            var key = s.Item2;
+            var newKey = s.Item3;
+            return originStr.Replace(key, newKey);
+        });
+
         private string[] _referencePrefixes =
         {
             "prefix",
@@ -42,27 +64,19 @@ namespace Common.Tools
 
             if (_tab == 0)
             {
-                DrawNameModifier(ModifyNameOfSelected, ref _param1Prefix, "Prefix", s => $"{s.Item2}{s.Item1}", false);
-                DrawNameModifier(ModifyNameOfSelected, ref _param1Suffix, "Suffix", s => $"{s.Item1}{s.Item2}", false);
-                DrawNameModifier2Params(ModifyNameOfSelected, ref _param1Replace, ref _param2Replace, "Replace", s =>
-                {
-                    var originStr = s.Item1;
-                    var key = s.Item2;
-                    var newKey = s.Item3;
-                    return originStr.Replace(key, newKey);
-                });
+                Draw2ParamsModifier(ModifyNameOfSelected, _prefixModification, ref _param1Prefix, false);
+                Draw2ParamsModifier(ModifyNameOfSelected, _suffixModification, ref _param1Suffix, false);
+                DrawNameModifier2Params(ModifyNameOfSelected, _replaceModification, ref _param1Replace, ref _param2Replace);
+                DrawNoParamsModifier(ModifyNameOfSelected, _toLowerCaseAndUnderscore);
             }
             else if (_tab == 1)
             {
-                DrawNameModifier(ModifyStringFieldOfReferenced, ref _param1Prefix, "Prefix", s => $"{s.Item2}{s.Item1}", false);
-                DrawNameModifier(ModifyStringFieldOfReferenced, ref _param1Suffix, "Suffix", s => $"{s.Item1}{s.Item2}", false);
-                DrawNameModifier2Params(ModifyStringFieldOfReferenced, ref _param1Replace, ref _param2Replace, "Replace", s =>
-                {
-                    var originStr = s.Item1;
-                    var key = s.Item2;
-                    var newKey = s.Item3;
-                    return originStr.Replace(key, newKey);
-                });
+                Draw2ParamsModifier(ModifyStringFieldOfReferenced, _prefixModification, ref _param1Prefix, false);
+                Draw2ParamsModifier(ModifyStringFieldOfReferenced, _suffixModification, ref _param1Suffix, false);
+                DrawNameModifier2Params(ModifyStringFieldOfReferenced, _replaceModification, ref _param1Replace,
+                    ref _param2Replace);
+                DrawNoParamsModifier(ModifyStringFieldOfReferenced, _toLowerCaseAndUnderscore);
+
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button("Replace Tag"))
                 {
@@ -78,22 +92,29 @@ namespace Common.Tools
             }
             else if (_tab == 2)
             {
-                DrawNameModifier(RenamePrefabs, ref _param1Prefix, "Prefix", s => $"{s.Item2}{s.Item1}", false);
-                DrawNameModifier(RenamePrefabs, ref _param1Suffix, "Suffix", s => $"{s.Item1}{s.Item2}", false);
-                DrawNameModifier2Params(RenamePrefabs, ref _param1Replace, ref _param2Replace, "Replace", s =>
-                {
-                    var originStr = s.Item1;
-                    var key = s.Item2;
-                    var newKey = s.Item3;
-                    return originStr.Replace(key, newKey);
-                });
+                Draw2ParamsModifier(RenamePrefabs, _prefixModification, ref _param1Prefix, false);
+                Draw2ParamsModifier(RenamePrefabs, _suffixModification, ref _param1Suffix, false);
+                DrawNameModifier2Params(RenamePrefabs, _replaceModification, ref _param1Replace, ref _param2Replace);
             }
             else if (_tab == 3)
             {
                 DrawReplaceReferences();
             }
+
+            DrawFooter();
         }
 
+        private void DrawFooter()
+        {
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Open Script"))
+            {
+                EditorGUIUtility.PingObject(MonoScript.FromScriptableObject(this));
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
 
         private void DrawTabs()
         {
@@ -159,36 +180,12 @@ namespace Common.Tools
             {
                 _referencePrefixes = new[]
                 {
-                    "UI-ev-LJ",
-                    "ev-LJ",
-                    "LJ-",
-                    "lj-",
-                    "lj",
-                    "LJ",
-
-                    "UI-mi-FL",
-                    "mi-FL",
-                    "FL-",
-                    "fl-",
-                    "fl",
-                    "FL",
+                    "ReferencePrefix_"
                 };
 
                 _assetPrefixes = new[]
                 {
-                    "UI-ev-SM;sm",
-                    "ev-SM;sm;SM",
-                    "SM-;sm_",
-                    "sm-;sm_",
-                    "sm",
-                    "SM",
-
-                    "UI-ev-SM;sm",
-                    "ev-SM;sm;SM",
-                    "SM-;sm_",
-                    "sm-;sm_",
-                    "sm",
-                    "SM",
+                    "AssetPrefix_"
                 };
             }
 
@@ -233,11 +230,49 @@ namespace Common.Tools
             return map;
         }
 
-        private void DrawNameModifier(Action<Func<string, string>> modifier, ref string param1, string label, Func<(string, string, string), string> modify, bool useParam2 = true)
+        private class NoParamsModification
+        {
+            public Func<string, string> modify;
+            public string label;
+
+            public NoParamsModification(string l, Func<string, string> m)
+            {
+                label = l;
+                modify = m;
+            }
+        }
+
+        private static void DrawNoParamsModifier(Action<Func<string, string>> modifier,
+            NoParamsModification modification)
+        {
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button(modification.label))
+            {
+                modifier?.Invoke(s => modification.modify?.Invoke(s));
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private class TwoParamsModification
+        {
+            public string label;
+            public Func<(string, string, string), string> modify;
+
+            public TwoParamsModification(string l, Func<(string, string, string), string> m)
+            {
+                label = l;
+                modify = m;
+            }
+        }
+
+        private void Draw2ParamsModifier(Action<Func<string, string>> modifier, TwoParamsModification modification,
+            ref string param1,
+            bool useParam2 = true)
         {
             EditorGUILayout.BeginHorizontal();
 
-            param1 = EditorGUILayout.TextField(label, param1);
+            param1 = EditorGUILayout.TextField(modification.label, param1);
             if (useParam2)
             {
                 _param2Replace = EditorGUILayout.TextField(_param2Replace);
@@ -248,18 +283,20 @@ namespace Common.Tools
                 if (!string.IsNullOrEmpty(param1))
                 {
                     var p1 = param1;
-                    modifier?.Invoke(s => modify?.Invoke((s, p1, _param2Replace)));
+                    modifier?.Invoke(s => modification.modify?.Invoke((s, p1, _param2Replace)));
                 }
             }
 
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawNameModifier2Params(Action<Func<string, string>> modifier, ref string param1, ref string param2, string label, Func<(string, string, string), string> modify)
+        private void DrawNameModifier2Params(Action<Func<string, string>> modifier, TwoParamsModification modification,
+            ref string param1,
+            ref string param2)
         {
             EditorGUILayout.BeginHorizontal();
 
-            param1 = EditorGUILayout.TextField(label, param1);
+            param1 = EditorGUILayout.TextField(modification.label, param1);
             param2 = EditorGUILayout.TextField(param2);
 
             if (GUILayout.Button("Apply", GUILayout.Width(100)))
@@ -268,7 +305,7 @@ namespace Common.Tools
                 {
                     var p1 = param1;
                     var p2 = param2;
-                    modifier?.Invoke(s => modify?.Invoke((s, p1, p2)));
+                    modifier?.Invoke(s => modification.modify?.Invoke((s, p1, p2)));
                 }
             }
 
@@ -354,15 +391,16 @@ namespace Common.Tools
             foreach (var asset in Selection.objects)
             {
                 var serializedObject = new SerializedObject(asset);
-                var props=EnumerateSerializedProperties(serializedObject);
-                    foreach(var p in props)
+                var props = EnumerateSerializedProperties(serializedObject);
+                foreach (var p in props)
+                {
+                    if (p.propertyType == SerializedPropertyType.String && !string.IsNullOrEmpty(p.stringValue))
                     {
-                        if (p.propertyType == SerializedPropertyType.String && !string.IsNullOrEmpty(p.stringValue))
-                        {
-                            p.stringValue = modify.Invoke(p.stringValue);
-                            Debug.Log(p.name + ": " + p.stringValue);
-                        }
+                        p.stringValue = modify.Invoke(p.stringValue);
+                        Debug.Log(p.name + ": " + p.stringValue);
                     }
+                }
+
                 serializedObject.ApplyModifiedProperties();
             }
 
@@ -373,8 +411,8 @@ namespace Common.Tools
         {
             foreach (var asset in Selection.objects)
             {
-                var props=EnumerateSerializedProperties(asset);
-                foreach(var p in props)
+                var props = EnumerateSerializedProperties(asset);
+                foreach (var p in props)
                 {
                     if (p.propertyType == SerializedPropertyType.String && !string.IsNullOrEmpty(p.stringValue))
                     {
@@ -400,7 +438,8 @@ namespace Common.Tools
                         {
                             if (modifications[i].propertyPath.Equals(propertyName))
                             {
-                                Debug.Log(modifications[i].propertyPath + " " + AssetDatabase.GetAssetPath(modifications[i].objectReference));
+                                Debug.Log(modifications[i].propertyPath + " " +
+                                          AssetDatabase.GetAssetPath(modifications[i].objectReference));
                                 var prop = modifications[i];
                                 if (!string.IsNullOrEmpty(modifications[i].value))
                                 {
@@ -428,38 +467,39 @@ namespace Common.Tools
             foreach (var asset in Selection.objects)
             {
                 var serializedObject = new SerializedObject(asset);
-                    // .Where(ContextMenuOpenListener.IsAssetReferenceProperty)
-                    var props=EnumerateSerializedProperties(serializedObject);
-                    foreach(var p in props)
+                // .Where(ContextMenuOpenListener.IsAssetReferenceProperty)
+                var props = EnumerateSerializedProperties(serializedObject);
+                foreach (var p in props)
+                {
+                    if (IsAssetReferenceProperty(p))
                     {
-                        if (IsAssetReferenceProperty(p))
+                        var refAsset = p.FindPropertyRelative("m_AssetGUID");
+                        var path = AssetDatabase.GUIDToAssetPath(refAsset.stringValue);
+                        var newAsset = FindNewAsset(path, map);
+
+                        if (newAsset.Equals(path)) return;
+
+                        refAsset.stringValue = AssetDatabase.AssetPathToGUID(newAsset);
+
+                        Debug.Log(p.name + ": " + $"{path}->{newAsset}");
+                    }
+                    else if (p.propertyType == SerializedPropertyType.ObjectReference)
+                    {
+                        if (p.objectReferenceValue != null)
                         {
-                            var refAsset = p.FindPropertyRelative("m_AssetGUID");
-                            var path = AssetDatabase.GUIDToAssetPath(refAsset.stringValue);
-                            var newAsset = FindNewAsset(path, map);
-
-                            if (newAsset.Equals(path)) return;
-
-                            refAsset.stringValue = AssetDatabase.AssetPathToGUID(newAsset);
-
-                            Debug.Log(p.name + ": " + $"{path}->{newAsset}");
+                            var oldAssetPath = AssetDatabase.GetAssetPath(p.objectReferenceValue);
+                            var newAssetPath = FindNewAsset(oldAssetPath, map);
+                            if (newAssetPath.Equals(oldAssetPath)) return;
+                            Debug.Log(p.name + ": " + $"{oldAssetPath}->{newAssetPath}");
+                            p.objectReferenceValue = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(newAssetPath);
                         }
-                        else if (p.propertyType == SerializedPropertyType.ObjectReference)
+                        else
                         {
-                            if (p.objectReferenceValue != null)
-                            {
-                                var oldAssetPath = AssetDatabase.GetAssetPath(p.objectReferenceValue);
-                                var newAssetPath = FindNewAsset(oldAssetPath, map);
-                                if (newAssetPath.Equals(oldAssetPath)) return;
-                                Debug.Log(p.name + ": " + $"{oldAssetPath}->{newAssetPath}");
-                                p.objectReferenceValue = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(newAssetPath);
-                            }
-                            else
-                            {
-                                Debug.Log(p.name + ": none");
-                            }
+                            Debug.Log(p.name + ": none");
                         }
                     }
+                }
+
                 serializedObject.ApplyModifiedProperties();
             }
 
@@ -469,22 +509,6 @@ namespace Common.Tools
 
         private static string FindNewAsset(string path, Dictionary<string, string[]> map)
         {
-            // var map = new Dictionary<string, string[]>
-            // {
-            //     {"UI-ev-LJ", new[] {"UI-ev-SM", "sm"}},
-            //     {"ev-LJ", new[] {"ev-SM", "sm", "SM"}},
-            //     {"LJ-", new[] {"SM-", "sm_"}},
-            //     {"lj-", new[] {"sm-", "sm_"}},
-            //     {"lj", new[] {"sm"}},
-            //     {"LJ", new[] {"SM"}},
-            //
-            //     {"UI-mi-FL", new[] {"UI-ev-SM", "sm"}},
-            //     {"mi-FL", new[] {"ev-SM", "sm", "SM"}},
-            //     {"FL-", new[] {"SM-", "sm_"}},
-            //     {"fl-", new[] {"sm-", "sm_"}},
-            //     {"fl", new[] {"sm"}},
-            //     {"FL", new[] {"SM"}},
-            // };
             var oldNameWithoutExt = Path.GetFileNameWithoutExtension(path);
             var oldNameExt = Path.GetExtension(path);
 
@@ -492,18 +516,19 @@ namespace Common.Tools
             {
                 var l = d.Key.Length;
                 if (oldNameWithoutExt.Length < l) continue;
-                var prefixMatched = oldNameWithoutExt.Substring(0, l).Equals(d.Key);
+                var prefixMatched = oldNameWithoutExt[..l].Equals(d.Key);
 
-                if (prefixMatched)
+                if (!prefixMatched) continue;
+                foreach (var v in d.Value)
                 {
-                    foreach (var v in d.Value)
+                    var newName = oldNameWithoutExt.Replace(d.Key, v);
+                    var foundObject = AssetDatabase.FindAssets(newName).Select(AssetDatabase.GUIDToAssetPath)
+                        .FirstOrDefault(p =>
+                            Path.GetFileNameWithoutExtension(p).Equals(newName) &&
+                            Path.GetExtension(p).Equals(oldNameExt));
+                    if (!string.IsNullOrEmpty(foundObject))
                     {
-                        var newName = oldNameWithoutExt.Replace(d.Key, v);
-                        var foundObject = AssetDatabase.FindAssets(newName).Select(AssetDatabase.GUIDToAssetPath).FirstOrDefault(p => Path.GetFileNameWithoutExtension(p).Equals(newName) && Path.GetExtension(p).Equals(oldNameExt));
-                        if (!string.IsNullOrEmpty(foundObject))
-                        {
-                            return foundObject;
-                        }
+                        return foundObject;
                     }
                 }
             }
@@ -511,25 +536,25 @@ namespace Common.Tools
             return path;
         }
 
-        public static IEnumerable<SerializedProperty> EnumerateSerializedProperties(SerializedObject serializedObject)
+        private static IEnumerable<SerializedProperty> EnumerateSerializedProperties(SerializedObject serializedObject)
         {
-            var iter = serializedObject.GetIterator();
-            while (iter.Next(true))
+            var iterator = serializedObject.GetIterator();
+            while (iterator.Next(true))
             {
-                yield return iter;
+                yield return iterator;
             }
         }
 
-        public static IEnumerable<SerializedProperty> EnumerateSerializedProperties(Object @object)
+        private static IEnumerable<SerializedProperty> EnumerateSerializedProperties(Object @object)
         {
             return EnumerateSerializedProperties(new SerializedObject(@object));
         }
-        public static bool IsAssetReferenceProperty(SerializedProperty property)
+
+        private static bool IsAssetReferenceProperty(SerializedProperty property)
         {
             return property.FindPropertyRelative("m_AssetGUID") != null &&
                    property.FindPropertyRelative("m_SubObjectName") != null;
         }
-
     }
 #endif
 }

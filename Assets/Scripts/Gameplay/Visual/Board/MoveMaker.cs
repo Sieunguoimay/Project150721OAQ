@@ -15,6 +15,8 @@ namespace Gameplay.Visual.Board
     {
         private readonly Board _board;
         private readonly float _singleMoveDuration;
+        private List<Citizen> _graspedCitizens;
+        private readonly GridLocator _gridLocator;
 
         public class MoveConfig
         {
@@ -24,9 +26,6 @@ namespace Gameplay.Visual.Board
         }
 
         private MoveConfig _moveConfig;
-
-        private List<Citizen> _graspedCitizens;
-        private readonly GridLocator _gridLocator;
 
         public MoveMaker(Board board, float singleMoveDuration, GridLocator gridLocator)
         {

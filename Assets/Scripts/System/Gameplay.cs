@@ -1,8 +1,11 @@
 ﻿using System.Linq;
+using Gameplay.CoreGameplay.Controllers;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 using Gameplay.GameInteract;
 using Gameplay.Helpers;
+using Gameplay.Player;
 using Gameplay.PlayTurn;
+using Gameplay.Visual;
 using Gameplay.Visual.Board;
 
 namespace System
@@ -11,35 +14,37 @@ namespace System
     {
         private readonly IPlayTurnTeller _turnTeller;
         private readonly IPlayerInteract _playerInteract;
-        private readonly GridLocator _gridLocator;
 
-        public IGameplayContainer Container { get; private set; }
+        private Board _board;
         private DropRunner _dropRunner;
+        private readonly BoardStatePresenter _boardStatePresenter;
+        private readonly ICoreGameplayController _controller;
+        private readonly CoreGameplayVisualPresenter _coreGameplayVisualPresenter;
 
-        public Gameplay(IPlayTurnTeller turnTeller, IPlayerInteract playerInteract, GridLocator gridLocator)
+        public Gameplay(IPlayTurnTeller turnTeller, IPlayerInteract playerInteract, 
+            BoardStatePresenter boardStatePresenter, ICoreGameplayController controller,
+            CoreGameplayVisualPresenter coreGameplayVisualPresenter)
         {
             _turnTeller = turnTeller;
             _playerInteract = playerInteract;
-            _gridLocator = gridLocator;
+            _boardStatePresenter = boardStatePresenter;
+            _controller = controller;
+            _coreGameplayVisualPresenter = coreGameplayVisualPresenter;
 
             _playerInteract.ResultEvent -= OnPlayerInteractResult;
             _playerInteract.ResultEvent += OnPlayerInteractResult;
         }
 
-        ~Gameplay()
+        public void Initialize(Board board)
         {
-            _playerInteract.ResultEvent -= OnPlayerInteractResult;
-        }
-
-        public void Initialize(IGameplayContainer container)
-        {
-            Container = container;
-            _dropRunner = new DropRunner(this, new DropRunner.MoveStartingDataCreator(_turnTeller), Container.Board, _gridLocator);
+            _board = board;
+            _dropRunner = new DropRunner(this);
         }
 
         public void Cleanup()
         {
             _dropRunner.CleanUp();
+            _playerInteract.ResultEvent -= OnPlayerInteractResult;
         }
 
         public void Start()
@@ -51,21 +56,13 @@ namespace System
 
         #region PRIVATE_METHODS
 
-        private void OnPlayerInteractResult(PlayerInteractResult playerInteractResult)
-        {
-            var index = playerInteractResult.SelectedTile.TileIndex;
-            // var nextIndex = BoardTraveller.MoveNext(index, _board.Tiles.Count, playerInteractResult.Direction, 2);
-            _dropRunner.DropSingleTile(index, playerInteractResult.Direction);
-        }
-
         public void MakeDecision()
         {
-            var anyMandarinTilesHasPieces = Container.Board.Sides.Any(tg =>
-                tg.MandarinTile.Mandarin != null || tg.MandarinTile.HeldPieces.Count > 0);
+            var anyMandarinTilesHasPieces = _boardStatePresenter.BoardStateViewData.AnyMandarinTileHasPieces;
             if (anyMandarinTilesHasPieces)
             {
                 _turnTeller.NextTurn();
-                CheckTilesOnCurrentPlayerSide();
+                MakeDecisionBaseOnPiecesInBoardSide();
             }
             else
             {
@@ -73,10 +70,9 @@ namespace System
             }
         }
 
-        private void CheckTilesOnCurrentPlayerSide()
+        private void MakeDecisionBaseOnPiecesInBoardSide()
         {
-            var anyTileHasPieces = _turnTeller.CurrentTurn.BoardSide.CitizenTiles
-                .Any(t => t.HeldPieces.Count > 0);
+            var anyTileHasPieces = _turnTeller.CurrentTurn.AnyCitizenTileHasPieces();
             if (anyTileHasPieces)
             {
                 ContinuePlaying();
@@ -92,9 +88,17 @@ namespace System
             _playerInteract.Show();
         }
 
+        private void OnPlayerInteractResult(PlayerInteractResult playerInteractResult)
+        {
+            var index = playerInteractResult.SelectedTile.TileIndex;
+            // var nextIndex = BoardTraveller.MoveNext(index, _board.Tiles.Count, playerInteractResult.Direction, 2);
+
+            _dropRunner.DropSingleTile(index, playerInteractResult.Direction, _turnTeller.CurrentTurn.PieceBench);
+        }
+
         private void CheckCurrentPlayerBench()
         {
-            var anyPieceOnBench = _turnTeller.CurrentTurn.PieceBench.HeldPieces.Count > 0;
+            var anyPieceOnBench = _turnTeller.CurrentTurn.AnyPieceOnBench();
             if (anyPieceOnBench)
             {
                 TakePiecesBackToBoard();
@@ -119,77 +123,49 @@ namespace System
             GameOverEvent?.Invoke(this);
         }
 
-        #endregion
-    }
-
-    public class DropRunner
-    {
-        private readonly Gameplay _gameplay;
-        private readonly MoveStartingDataCreator _moveStartingDataCreator;
-
-        private readonly IBoardStateDriver _concurrentBoardStateDriver;
-        private readonly IBoardStateDriver _boardStateDriver;
-
-        private readonly MoveMaker _moveMaker;
-        private readonly MoveMaker[] _twoMoveMakers;
-
-        public DropRunner(Gameplay gameplay, MoveStartingDataCreator moveStartingDataCreator, Board board, GridLocator gridLocator)
+        private class DropRunner
         {
-            _gameplay = gameplay;
-            _moveStartingDataCreator = moveStartingDataCreator;
+            private readonly Gameplay _gameplay;
+            private bool _lock;
 
-            _twoMoveMakers = new MoveMaker[] {new(board, 1, gridLocator), new(board, 1, gridLocator)};
-            _moveMaker = new MoveMaker(board, 1, gridLocator);
-
-            _boardStateDriver = new BoardStateMachine(_moveMaker);
-            _concurrentBoardStateDriver = new MultiBoardStateMachine(_twoMoveMakers);
-
-            _boardStateDriver.EndEvent += OnBoardStateDriverEnd;
-            _concurrentBoardStateDriver.EndEvent += OnBoardStateDriverEnd;
-        }
-
-        public void CleanUp()
-        {
-            _boardStateDriver.EndEvent -= OnBoardStateDriverEnd;
-            _concurrentBoardStateDriver.EndEvent -= OnBoardStateDriverEnd;
-        }
-
-        private void OnBoardStateDriverEnd(IBoardStateDriver obj)
-        {
-            _gameplay.MakeDecision();
-        }
-
-        public void DropSingleTile(int tileIndex, bool direction)
-        {
-            _moveMaker.Initialize(_moveStartingDataCreator.Create(tileIndex, direction));
-            _boardStateDriver.NextAction();
-        }
-
-        public void Drop2TilesConcurrently(int tileIndex1, int tileIndex2, bool direction)
-        {
-            _twoMoveMakers[0].Initialize(_moveStartingDataCreator.Create(tileIndex1, direction));
-            _twoMoveMakers[1].Initialize(_moveStartingDataCreator.Create(tileIndex2, direction));
-            _concurrentBoardStateDriver.NextAction();
-        }
-
-        public class MoveStartingDataCreator
-        {
-            private readonly IPlayTurnTeller _turnTeller;
-
-            public MoveStartingDataCreator(IPlayTurnTeller turnTeller)
+            public DropRunner(Gameplay gameplay)
             {
-                _turnTeller = turnTeller;
+                _gameplay = gameplay;
+                _gameplay._coreGameplayVisualPresenter.MovingRunner.AllMovingStepsExecutedEvent -= OnAllMovingStepsDone;
+                _gameplay._coreGameplayVisualPresenter.MovingRunner.AllMovingStepsExecutedEvent += OnAllMovingStepsDone;
             }
 
-            public MoveMaker.MoveConfig Create(int tileIndex, bool direction)
+            public void CleanUp()
             {
-                return new()
+                _gameplay._coreGameplayVisualPresenter.MovingRunner.AllMovingStepsExecutedEvent -= OnAllMovingStepsDone;
+            }
+
+            private void OnAllMovingStepsDone(PiecesMovingRunner obj)
+            {
+                _gameplay._controller.RequestRefresh(_gameplay._boardStatePresenter);
+
+                BoardStateMatchVisualVerify.Verify(_gameplay._boardStatePresenter.BoardStateViewData, _gameplay._board);
+
+                _gameplay.MakeDecision();
+
+                _lock = false;
+            }
+
+            public void DropSingleTile(int tileIndex, bool direction, PieceBench bench)
+            {
+                if (!_lock)
                 {
-                    Bench = _turnTeller.CurrentTurn.PieceBench,
-                    Direction = direction,
-                    StartingTileIndex = tileIndex
-                };
+                    _lock = true;
+                    _gameplay._controller.RunSimulation(new MoveSimulationInputData
+                    {
+                        Direction = direction,
+                        SideIndex = _gameplay._turnTeller.CurrentTurn.SideIndex,
+                        StartingTileIndex = tileIndex
+                    });
+                }
             }
         }
+
+        #endregion
     }
 }

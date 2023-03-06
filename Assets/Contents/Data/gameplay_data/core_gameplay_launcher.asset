@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d89a2d3b6f047a5b85d466700dbec27, type: 3}
-  m_Name: play_turn_data_generator
+  m_Script: {fileID: 11500000, guid: 8f33d6e4cb4a4b8e87a1bfe9857377ac, type: 3}
+  m_Name: core_gameplay_launcher
   m_EditorClassIdentifier: 

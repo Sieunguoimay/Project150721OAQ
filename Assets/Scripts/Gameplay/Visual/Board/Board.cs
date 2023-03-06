@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Gameplay.Visual.Board
 {
-    public class BoardSide
+    public class BoardSideVisual
     {
         public MandarinTile MandarinTile;
         public IReadOnlyList<CitizenTile> CitizenTiles;
@@ -19,12 +19,12 @@ namespace Gameplay.Visual.Board
     public class Board : MonoBehaviour
     {
         public IReadOnlyList<Tile> Tiles { get; private set; }
-        public IReadOnlyList<BoardSide> Sides { get; private set;}
+        public IReadOnlyList<BoardSideVisual> SideVisuals { get; private set;}
         public BoardMetadata Metadata { get; private set;}
 
-        public void SetReferences(IReadOnlyList<BoardSide> sides, IReadOnlyList<Tile> tiles, BoardMetadata metadata)
+        public void SetReferences(IReadOnlyList<BoardSideVisual> sides, IReadOnlyList<Tile> tiles, BoardMetadata metadata)
         {
-            Sides = sides;
+            SideVisuals = sides;
             Tiles = tiles;
             Metadata = metadata;
         }

@@ -1,107 +1,105 @@
 ﻿using System;
+using System.Collections.Generic;
+using Framework.Resolver;
 using Gameplay.BambooStick;
-using Gameplay.CoreGameplay.Controllers;
 using Gameplay.CoreGameplay.Interactors;
 using Gameplay.CoreGameplay.Interactors.Simulation;
-using Gameplay.CoreGameplay.Presenters;
 using Gameplay.Helpers;
 using Gameplay.Visual.Board;
 using Gameplay.Visual.Piece;
+using UnityEngine;
 
 namespace Gameplay.Visual
 {
+    [CreateAssetMenu]
     public class CoreGameplayVisualPresenter :
-        BaseGenericDependencyInversionScriptableObject<CoreGameplayVisualPresenter>, IInteractResultPresenter
+        BaseGenericDependencyInversionScriptableObject<CoreGameplayVisualPresenter>,
+        IRefreshResultHandler
     {
-        private CoreGameplayContainer _coreGameplayContainer;
-        private GameplayContainer _container;
-
+        private IGameplayContainer _container;
         private BambooFamilyManager _bambooFamily;
         private BoardCreator _boardCreator;
         private PieceGenerator _pieceGenerator;
         private GridLocator _gridLocator;
-        private IGameplayLoadingHost _loadingHost;
+        public PiecesMovingRunner MovingRunner { get; private set; }
+        private SimulationResultPresenter _simulationResultPresenter;
 
         public event Action<CoreGameplayVisualPresenter> VisualReadyEvent;
+        public Board.Board BoardVisual { get; private set; }
+
+        protected override void OnBind(IBinder binder)
+        {
+            base.OnBind(binder);
+            _simulationResultPresenter = new SimulationResultPresenter(this);
+            binder.Bind<BoardStatePresenter>(new BoardStatePresenter());
+            binder.Bind<IBoardMoveSimulationResultHandler>(_simulationResultPresenter);
+        }
+
+        protected override void OnUnbind(IBinder binder)
+        {
+            base.OnUnbind(binder);
+            binder.Unbind<BoardStatePresenter>();
+            binder.Unbind<IBoardMoveSimulationResultHandler>();
+        }
 
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
-            _coreGameplayContainer = Resolver.Resolve<CoreGameplayContainer>();
-            _container = Resolver.Resolve<GameplayContainer>();
 
+            _container = Resolver.Resolve<IGameplayContainer>();
             _bambooFamily = Resolver.Resolve<BambooFamilyManager>();
             _boardCreator = Resolver.Resolve<BoardCreator>();
             _pieceGenerator = Resolver.Resolve<PieceGenerator>();
             _gridLocator = Resolver.Resolve<GridLocator>();
-            _loadingHost = Resolver.Resolve<IGameplayLoadingHost>();
+            MovingRunner = new PiecesMovingRunner(_gridLocator, Resolver.Resolve<IGameplayContainer>());
 
-            _loadingHost.LoadingDoneEvent += OnLoadingDone;
-            _loadingHost.UnloadBeginEvent += OnUnloadBegin;
+            _simulationResultPresenter.MoveStepsAvailableEvent -= OnMoveStepsAvailable;
+            _simulationResultPresenter.MoveStepsAvailableEvent += OnMoveStepsAvailable;
         }
 
         protected override void OnTearDownDependencies()
         {
             base.OnTearDownDependencies();
-            _loadingHost.LoadingDoneEvent -= OnLoadingDone;
-            _loadingHost.UnloadBeginEvent -= OnUnloadBegin;
+            _simulationResultPresenter.MoveStepsAvailableEvent -= OnMoveStepsAvailable;
         }
 
-        private void OnLoadingDone(GameplayLoadingHost obj)
+        private void OnMoveStepsAvailable(SimulationResultPresenter arg1, IReadOnlyList<MovingStep> movingSteps)
         {
-            Initialize();
-        }
-
-        private void OnUnloadBegin(GameplayLoadingHost obj)
-        {
-            Cleanup();
-        }
-
-        public void Initialize()
-        {
-            _coreGameplayContainer.RefreshRequester.Refresh();
-        }
-
-        public void Cleanup()
-        {
-            _bambooFamily.ResetAll();
-            _pieceGenerator.DeletePieces();
+            MovingRunner.RunTheMoves(movingSteps);
         }
 
         public void HandleRefreshData(RefreshData refreshData)
+        {
+            GenerateBoardVisual();
+        }
+
+        private void GenerateBoardVisual()
         {
             var matchData = _container.MatchData;
             var numSides = matchData.playerNum;
             var tilesPerSide = matchData.tilesPerGroup;
             var piecesPerTile = matchData.numCitizensInTile;
 
-            _container.PublicBoard(_boardCreator.CreateBoard(numSides, tilesPerSide));
+            BoardVisual = _boardCreator.CreateBoard(numSides, tilesPerSide);
+
             _pieceGenerator.SpawnPieces(numSides, tilesPerSide, piecesPerTile);
+
             new PieceRelease(_pieceGenerator.Citizens, _pieceGenerator.Mandarins, piecesPerTile,
-                _container.Board, _gridLocator, OnAllPiecesInPlace).ReleasePieces();
+                BoardVisual, _gridLocator, OnAllPiecesInPlace).ReleasePieces();
 
             _bambooFamily.BeginAnimSequence();
+        }
+
+        public void Cleanup()
+        {
+            _bambooFamily.ResetAll();
+            _pieceGenerator.DeletePieces();
+            BoardCreator.DeleteBoard(BoardVisual);
         }
 
         private void OnAllPiecesInPlace()
         {
             VisualReadyEvent?.Invoke(this);
-        }
-
-        public void OnMovePieceToNewTileDone(PieceInteractResultData resultData)
-        {
-        }
-
-        public void OnMoveAllPiecesToPocketDone(PieceInteractResultData resultData)
-        {
-        }
-
-        public void OnSimulationResult(MoveSimulationOutputData result)
-        {
-        }
-
-        public void OnSimulationProgress(MoveSimulationOutputData result)
-        {
         }
     }
 }

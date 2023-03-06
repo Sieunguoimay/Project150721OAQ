@@ -10,9 +10,9 @@ namespace Gameplay.DecisionMaking
 
     public class PlayerDecisionMaking : IPlayerDecisionMaking
     {
-        protected readonly BoardSide BoardSide;
+        protected readonly BoardSideVisual BoardSide;
 
-        public PlayerDecisionMaking(BoardSide boardSide)
+        public PlayerDecisionMaking(BoardSideVisual boardSide)
         {
             BoardSide = boardSide;
         }

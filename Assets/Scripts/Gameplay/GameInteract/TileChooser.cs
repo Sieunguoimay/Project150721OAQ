@@ -24,6 +24,7 @@ namespace Gameplay.GameInteract
         private ButtonGroup _buttonGroup;
         private IPlayTurnTeller _turnTeller;
         [field: System.NonSerialized] public Tile SelectedTile { get; private set; }
+        private Transform[] _cachedCitizenTileTransforms;
         public event Action SelectedTileChangedEvent;
         private IButtonFactory _buttonFactory;
 
@@ -31,7 +32,8 @@ namespace Gameplay.GameInteract
         {
             _turnTeller = turnTeller;
 
-            var btnNum = _turnTeller.CurrentTurn.BoardSide.CitizenTiles.Count;
+            _cachedCitizenTileTransforms = _turnTeller.CurrentTurn.GetCitizenTilesTransform();
+            var btnNum = _cachedCitizenTileTransforms.Length;
             _buttonFactory = new ButtonFactory(tileChoosingButtonPrefab, transform);
             _buttons = new IButton[btnNum];
 
@@ -65,9 +67,9 @@ namespace Gameplay.GameInteract
         private void OnButtonClicked(IButton btn)
         {
             SelectedTile?.GetComponent<TileSelectable>()?.Unselect();
-            SelectedTile = _turnTeller.CurrentTurn.BoardSide.CitizenTiles[Array.IndexOf(_buttons, (ButtonOnGround) btn)];
-            SelectedTile.GetComponent<TileSelectable>()?.Select();
-
+            var tr = _cachedCitizenTileTransforms[Array.IndexOf(_buttons, (ButtonOnGround) btn)];
+            tr.GetComponent<TileSelectable>()?.Select();
+            SelectedTile = tr.GetComponent<CitizenTile>();
             SelectedTileChangedEvent?.Invoke();
 
             _buttonGroup.HideButtons();
@@ -81,10 +83,10 @@ namespace Gameplay.GameInteract
 
         private void UpdateButtonPositionOnCurrentSide()
         {
-            var tilesOnSide =  _turnTeller.CurrentTurn.BoardSide.CitizenTiles;
-            for (var i = 0; i < tilesOnSide.Count; i++)
+            _cachedCitizenTileTransforms = _turnTeller.CurrentTurn.GetCitizenTilesTransform();
+            for (var i = 0; i < _cachedCitizenTileTransforms.Length; i++)
             {
-                var target = tilesOnSide[i].transform;
+                var target = _cachedCitizenTileTransforms[i];
                 var tileRot = target.rotation;
                 var pos = CalculateButtonPosition(target, 1);
                 _buttons[i].SetPositionAndRotation(pos, tileRot);

@@ -1,19 +1,25 @@
 ﻿using System;
-using Framework.Resolver;
-using Gameplay.Entities.Stage;
 using Gameplay.Player;
+using Gameplay.Visual;
 using Gameplay.Visual.Board;
-using UnityEngine;
 
 namespace Gameplay.PlayTurn
 {
-    [CreateAssetMenu(menuName = "Generator/PlayTurnGenerator")]
-    public class PlayTurnDataGenerator : BaseGenericDependencyInversionScriptableObject<PlayTurnDataGenerator>
+    public class PlayTurnDataGenerator
     {
-        public PlayTurnTeller Generate(int turnNum)
+        private readonly BoardStateView _boardStateView;
+        private readonly CoreGameplayVisualPresenter _presenter;
+
+        public PlayTurnDataGenerator(CoreGameplayVisualPresenter presenter, BoardStateView boardStateView)
+        {
+            _presenter = presenter;
+            _boardStateView = boardStateView;
+        }
+
+        public PlayTurnTeller Generate()
         {
             var playTurnTeller = new PlayTurnTeller();
-            var turns = CreateTurns(turnNum);
+            var turns = CreateTurns(_boardStateView.NumSides);
             playTurnTeller.SetTurns(turns, 0);
             return playTurnTeller;
         }
@@ -44,14 +50,19 @@ namespace Gameplay.PlayTurn
 
         private PlayTurnData CreatePlayTurnData(int turnIndex, IPlayerFactory playerFactory)
         {
-            var board = Resolver.Resolve<IGameplayContainer>().Board;
-            var boardSide = board.Sides[turnIndex];
-
+            var boardSide = GetBoardSideVisual(turnIndex);
             var player = playerFactory.CreatePlayer();
             var decisionMaking = playerFactory.CreatePlayerDecisionMaking(boardSide);
             var pieceBench = playerFactory.CreatePieceBench(boardSide);
 
-            return new PlayTurnData(player, boardSide, decisionMaking, pieceBench);
+            return new PlayTurnData(player, boardSide, decisionMaking, pieceBench,
+                _boardStateView, turnIndex);
+        }
+
+        private BoardSideVisual GetBoardSideVisual(int sideIndex)
+        {
+            var board = _presenter.BoardVisual;
+            return board.SideVisuals[sideIndex];
         }
     }
 }

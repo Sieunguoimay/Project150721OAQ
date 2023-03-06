@@ -23,9 +23,9 @@ namespace Gameplay.CoreGameplay.Interactors
             _innerPiecesInteractor = new PiecesInteractor.InnerPiecesInteractor(_board);
         }
 
-        public void InstallRefreshRequest(IRefreshResultHandler resultHandler)
+        public void InstallRefreshRequest()
         {
-            var refreshRequester = new RefreshRequester(_board, resultHandler);
+            var refreshRequester = new RefreshRequester(_board);
             _container.RefreshRequester = refreshRequester;
         }
 

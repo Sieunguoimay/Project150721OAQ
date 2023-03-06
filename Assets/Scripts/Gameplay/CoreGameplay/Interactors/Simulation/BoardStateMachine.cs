@@ -313,12 +313,16 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
         }
     }
 
-    public interface IMoveMaker
+    public interface IBoardPrimitiveMove
     {
         void Grasp(Action doneHandler);
         void Drop(Action doneHandler);
         void Slam(Action doneHandler);
         void Eat(Action doneHandler);
+    }
+
+    public interface IMoveMaker : IBoardPrimitiveMove
+    {
         bool CanDrop();
         IMoveInnerRules MoveInnerRules { get; }
     }
@@ -363,7 +367,9 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
         private int CurrentTileCount => _ruleDataHelper.GetNumPiecesInTile(_ruleDataHelper.TileIterator.CurrentTile);
         private int NextTileCount => _ruleDataHelper.GetNumPiecesInTile(_ruleDataHelper.TileIterator.NextTile);
         private int NextTile2Count => _ruleDataHelper.GetNumPiecesInTile(_ruleDataHelper.TileIterator.NextTile2);
-        private bool IsCurrentTileMandarinTile => _ruleDataHelper.IsMandarinTile(_ruleDataHelper.TileIterator.CurrentTile);
+
+        private bool IsCurrentTileMandarinTile =>
+            _ruleDataHelper.IsMandarinTile(_ruleDataHelper.TileIterator.CurrentTile);
 
         public interface IMoveRuleDataHelper
         {
@@ -380,12 +386,14 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
         public TTile NextTile { get; private set; }
         public TTile NextTile2 { get; private set; }
         private readonly bool _direction;
+        public int CurrentTileIndex { get; private set; }
 
         public TileIterator(IReadOnlyList<TTile> tiles, bool direction)
         {
             _tiles = tiles;
             _direction = direction;
         }
+
         public void UpdateCurrentTileIndex(int currentTileIndex)
         {
             var nextTileIndex = GetNextTileIndex(currentTileIndex);
@@ -394,6 +402,8 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
             CurrentTile = _tiles[currentTileIndex];
             NextTile = _tiles[nextTileIndex];
             NextTile2 = _tiles[nextTileIndex2];
+
+            CurrentTileIndex = currentTileIndex;
         }
 
         private int GetNextTileIndex(int currentTileIndex)

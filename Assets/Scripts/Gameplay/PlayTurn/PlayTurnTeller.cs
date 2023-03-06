@@ -19,16 +19,16 @@ namespace Gameplay.PlayTurn
         public void SetTurns(PlayTurnData[] turns, int initialTurnIndex)
         {
             _turns = turns;
-            SetCurrentTurn(initialTurnIndex);
+            SetCurrentTurnByIndex(initialTurnIndex);
         }
 
         public void NextTurn()
         {
             var nextTurnIndex = (_turnIndex + 1) % _turns.Length;
-            SetCurrentTurn(nextTurnIndex);
+            SetCurrentTurnByIndex(nextTurnIndex);
         }
 
-        private void SetCurrentTurn(int index)
+        private void SetCurrentTurnByIndex(int index)
         {
             _turnIndex = index;
             CurrentTurn = _turns[_turnIndex];

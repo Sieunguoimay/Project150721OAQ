@@ -93,7 +93,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mandarinTilePrefab: {fileID: 6506848365546645831, guid: a0c9f3be3038f2c48b96c6d52d196e0b, type: 3}
   citizenTilePrefab: {fileID: 2106036659000400842, guid: 039c12b9678732843a8cd5fd08787dab, type: 3}
-  tileSize: 2
+  tileSize: 1
 --- !u!1 &4289493137403277938
 GameObject:
   m_ObjectHideFlags: 0
@@ -149,7 +149,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5592389154637034431}
-  - component: {fileID: 5592389154637034424}
   m_Layer: 0
   m_Name: Main
   m_TagString: Untagged
@@ -179,22 +178,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5592389154637034424
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5592389154637034425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c281d5d6ca172a1479371ae18c781f5e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  testIndex: 0
-  testIndex2: 0
-  testDirection: 0
-  reset: 0
 --- !u!1001 &526668193310933199
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -27,9 +27,9 @@ namespace Gameplay.Visual.Piece
 
         public void ReleasePieces()
         {
-            for (var i = 0; i < _board.Sides.Count; i++)
+            for (var i = 0; i < _board.SideVisuals.Count; i++)
             {
-                var tg = _board.Sides[i];
+                var tg = _board.SideVisuals[i];
                 var numTilesPerSide = tg.CitizenTiles.Count;
                 for (var j = 0; j < numTilesPerSide; j++)
                 {
@@ -49,7 +49,7 @@ namespace Gameplay.Visual.Piece
                 }
 
                 _mandarins[i].transform.position = _gridLocator.GetPositionAtCellIndex(tg.MandarinTile.transform, 0);
-                tg.MandarinTile.Mandarin = _mandarins[i];
+                tg.MandarinTile.AddPiece(_mandarins[i]);
             }
         }
     }

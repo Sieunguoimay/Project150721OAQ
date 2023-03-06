@@ -1,9 +1,7 @@
 ﻿using Gameplay.CoreGameplay.Controllers;
 using Gameplay.CoreGameplay.Gateway;
 using Gameplay.CoreGameplay.Interactors.Simulation;
-using Gameplay.CoreGameplay.Presenters;
 using UnityEditor;
-using UnityEngine;
 
 namespace Gameplay.CoreGameplay
 {
@@ -12,12 +10,12 @@ namespace Gameplay.CoreGameplay
         [MenuItem("Test/CoreGameplayTest")]
         public static void Test()
         {
-            var installController = new CoreGameplayInstallController();
+            var installController = new CoreGameplayController();
             var container = installController.Container;
-            var presenter = new SimpleInteractResultPresenter(container);
-            installController.Install(presenter,new BoardConfigDatabase());
+           // var presenter = new SimpleInteractResultPresenter(container);
+            //installController.Install(presenter, new BoardConfigDatabase(), null);
 
-            var view = new CoreGameplayDataView(presenter);
+            //var view = new CoreGameplayDataView(presenter);
 
             // container.RefreshRequester.Refresh();
 
@@ -41,8 +39,9 @@ namespace Gameplay.CoreGameplay
             //     CurrentTileIndex = 3,
             //     TargetPocketIndex = 1
             // });
-            
-            container.BoardMoveSimulator.RunSimulation(new MoveSimulationInputData {StartingTileIndex = 1, Direction = true, SideIndex = 0});
+
+            container.BoardMoveSimulator.RunSimulation(new MoveSimulationInputData
+                {StartingTileIndex = 1, Direction = true, SideIndex = 0});
 
             installController.Uninstall();
         }
@@ -59,7 +58,7 @@ namespace Gameplay.CoreGameplay
                 };
             }
         }
-
+/*
         private class CoreGameplayDataView
         {
             public CoreGameplayDataView(SimpleInteractResultPresenter presenter)
@@ -76,7 +75,7 @@ namespace Gameplay.CoreGameplay
                 }
 
                 Debug.Log(str);
-                
+
                 str = "Tiles:";
                 foreach (var piecesInTile in interactResultPresenter.RefreshData.PiecesInTiles)
                 {
@@ -85,6 +84,6 @@ namespace Gameplay.CoreGameplay
 
                 Debug.Log(str);
             }
-        }
+        }*/
     }
 }

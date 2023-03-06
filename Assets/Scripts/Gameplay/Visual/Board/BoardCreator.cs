@@ -58,9 +58,9 @@ namespace Gameplay.Visual.Board
             _polygon = null;
         }
 
-        private BoardSide[] SpawnBoardSides(Transform parent)
+        private BoardSideVisual[] SpawnBoardSides(Transform parent)
         {
-            var boardSides = new BoardSide[_polygon.Count];
+            var boardSides = new BoardSideVisual[_polygon.Count];
             var tileSpawner = new TileSpawner(citizenTilePrefab, mandarinTilePrefab, parent, tileSize);
 
             for (var i = 0; i < _polygon.Count; i++)
@@ -77,12 +77,12 @@ namespace Gameplay.Visual.Board
             return boardSides;
         }
 
-        private static BoardSide CreateBoardSide(MandarinTile mandarinTile, IReadOnlyList<CitizenTile> citizenTiles)
+        private static BoardSideVisual CreateBoardSide(MandarinTile mandarinTile, IReadOnlyList<CitizenTile> citizenTiles)
         {
             return new() {MandarinTile = mandarinTile, CitizenTiles = citizenTiles};
         }
 
-        private static Tile[] CreateAllTilesArray(IEnumerable<BoardSide> boardSides)
+        private static Tile[] CreateAllTilesArray(IEnumerable<BoardSideVisual> boardSides)
         {
             return boardSides.SelectMany(s => new Tile[] {s.MandarinTile}.Concat(s.CitizenTiles)).ToArray();
         }

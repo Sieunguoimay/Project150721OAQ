@@ -6,8 +6,8 @@ namespace System
 {
     public interface IGameplayContainer
     {
-        Board Board { get; }
         IPlayTurnTeller PlayTurnTeller { get; }
+        MatchData MatchData { get; }
     }
 
     public class GameplayContainer : IGameplayContainer
@@ -35,6 +35,7 @@ namespace System
         {
             Board = null;
             PlayTurnTeller = null;
+            MatchData = null;
         }
     }
 }

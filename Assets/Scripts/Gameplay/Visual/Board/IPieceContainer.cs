@@ -20,5 +20,18 @@ namespace Gameplay.Visual.Board
 
             @from.Clear();
         }
+
+        public static void TransferPiecesOwnerShip(IPieceContainer from, IPieceContainer to, int amount)
+        {
+            var citizens = from.HeldPieces;
+            var n = citizens.Count;
+            for (var i = 0; i < amount; i++)
+            {
+                var index = n - i - 1;
+
+                to.AddPiece(citizens[index]);
+                from.RemovePiece(citizens[index]);
+            }
+        }
     }
 }

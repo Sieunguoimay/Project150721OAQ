@@ -15,17 +15,17 @@ namespace Gameplay.Player
     public interface IPlayerFactory
     {
         IPlayer CreatePlayer();
-        IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSide boardSide);
-        PieceBench CreatePieceBench(BoardSide boardSide);
+        IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSideVisual boardSide);
+        PieceBench CreatePieceBench(BoardSideVisual boardSide);
     }
 
     public abstract class BasePlayerFactory : IPlayerFactory
     {
         public abstract IPlayer CreatePlayer();
-        public abstract IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSide boardSide);
-        public abstract PieceBench CreatePieceBench(BoardSide boardSide);
+        public abstract IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSideVisual boardSide);
+        public abstract PieceBench CreatePieceBench(BoardSideVisual boardSide);
 
-        protected static PieceBench CreatePieceBench(BoardSide boardSide, Transform transform)
+        protected static PieceBench CreatePieceBench(BoardSideVisual boardSide, Transform transform)
         {
             var pos1 = boardSide.CitizenTiles[0].transform.position;
             var pos2 = boardSide.CitizenTiles[^1].transform.position;
@@ -51,12 +51,12 @@ namespace Gameplay.Player
             return new BasePlayer();
         }
 
-        public override IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSide boardSide)
+        public override IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSideVisual boardSide)
         {
             return new PlayerDecisionMaking(boardSide);
         }
 
-        public override PieceBench CreatePieceBench(BoardSide boardSide)
+        public override PieceBench CreatePieceBench(BoardSideVisual boardSide)
         {
             return CreatePieceBench(boardSide, null);
         }
@@ -69,12 +69,12 @@ namespace Gameplay.Player
             return new BasePlayer();
         }
 
-        public override IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSide boardSide)
+        public override IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSideVisual boardSide)
         {
             return new PlayerDecisionMaking(boardSide);
         }
 
-        public override PieceBench CreatePieceBench(BoardSide boardSide)
+        public override PieceBench CreatePieceBench(BoardSideVisual boardSide)
         {
             return CreatePieceBench(boardSide, null);
         }
