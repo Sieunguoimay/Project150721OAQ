@@ -3,7 +3,6 @@ using Gameplay.CoreGameplay.Controllers;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 using Gameplay.GameInteract;
 using Gameplay.Helpers;
-using Gameplay.Player;
 using Gameplay.PlayTurn;
 using Gameplay.Visual;
 using Gameplay.Visual.Board;
@@ -21,7 +20,7 @@ namespace System
         private readonly ICoreGameplayController _controller;
         private readonly CoreGameplayVisualPresenter _coreGameplayVisualPresenter;
 
-        public Gameplay(IPlayTurnTeller turnTeller, IPlayerInteract playerInteract, 
+        public Gameplay(IPlayTurnTeller turnTeller, IPlayerInteract playerInteract,
             BoardStatePresenter boardStatePresenter, ICoreGameplayController controller,
             CoreGameplayVisualPresenter coreGameplayVisualPresenter)
         {
@@ -33,6 +32,7 @@ namespace System
 
             _playerInteract.ResultEvent -= OnPlayerInteractResult;
             _playerInteract.ResultEvent += OnPlayerInteractResult;
+
         }
 
         public void Initialize(Board board)
@@ -49,72 +49,35 @@ namespace System
 
         public void Start()
         {
-            MakeDecision();
+            ShowInteract();
         }
 
         public event Action<Gameplay> GameOverEvent;
 
         #region PRIVATE_METHODS
 
-        public void MakeDecision()
+        private bool AnyMandarinTileHasPieces()
         {
-            var anyMandarinTilesHasPieces = _boardStatePresenter.BoardStateViewData.AnyMandarinTileHasPieces;
-            if (anyMandarinTilesHasPieces)
-            {
-                _turnTeller.NextTurn();
-                MakeDecisionBaseOnPiecesInBoardSide();
-            }
-            else
-            {
-                GameOver();
-            }
+            return _boardStatePresenter.BoardStateViewData.AnyMandarinTileHasPieces;
         }
 
-        private void MakeDecisionBaseOnPiecesInBoardSide()
+        private bool AnyTileOnCurrentSideHasPieces()
         {
-            var anyTileHasPieces = _turnTeller.CurrentTurn.AnyCitizenTileHasPieces();
-            if (anyTileHasPieces)
-            {
-                ContinuePlaying();
-            }
-            else
-            {
-                CheckCurrentPlayerBench();
-            }
+            return _turnTeller.CurrentTurn.AnyCitizenTileHasPieces();
         }
 
-        private void ContinuePlaying()
+        private bool AnyPiecesAvailableOnBenchOfCurrentSide()
         {
-            _playerInteract.Show();
-        }
-
-        private void OnPlayerInteractResult(PlayerInteractResult playerInteractResult)
-        {
-            var index = playerInteractResult.SelectedTile.TileIndex;
-            // var nextIndex = BoardTraveller.MoveNext(index, _board.Tiles.Count, playerInteractResult.Direction, 2);
-
-            _dropRunner.DropSingleTile(index, playerInteractResult.Direction, _turnTeller.CurrentTurn.PieceBench);
-        }
-
-        private void CheckCurrentPlayerBench()
-        {
-            var anyPieceOnBench = _turnTeller.CurrentTurn.AnyPieceOnBench();
-            if (anyPieceOnBench)
-            {
-                TakePiecesBackToBoard();
-            }
-            else
-            {
-                GameOver();
-            }
+            return _turnTeller.CurrentTurn.AnyPieceOnBench();
         }
 
         private void TakePiecesBackToBoard()
         {
-            //Take back pieces to board
-            // _dropper.Take(CurrentPlayer.PieceBench, tileGroup.CitizenTiles.Length);
-            // _dropper.SetMoveStartPoint(tileGroup.MandarinTile.TileIndex, true);
-            // _dropper.DropOnce(_ => { _interact.ShowTileChooser(_board.Sides[CurrentPlayer.Index].CitizenTiles); });
+        }
+
+        private void ShowInteract()
+        {
+            _playerInteract.Show();
         }
 
         private void GameOver()
@@ -123,16 +86,28 @@ namespace System
             GameOverEvent?.Invoke(this);
         }
 
+        private void UpdateTurn()
+        {
+            _turnTeller.NextTurn();
+        }
+
+        private void OnPlayerInteractResult(PlayerInteractResult playerInteractResult)
+        {
+            var index = playerInteractResult.SelectedTile.TileIndex;
+            _dropRunner.DropSingleTile(index, playerInteractResult.Direction);
+        }
+
         private class DropRunner
         {
             private readonly Gameplay _gameplay;
-            private bool _lock;
+            private readonly BranchingLogic _logic;
 
             public DropRunner(Gameplay gameplay)
             {
                 _gameplay = gameplay;
                 _gameplay._coreGameplayVisualPresenter.MovingRunner.AllMovingStepsExecutedEvent -= OnAllMovingStepsDone;
                 _gameplay._coreGameplayVisualPresenter.MovingRunner.AllMovingStepsExecutedEvent += OnAllMovingStepsDone;
+                _logic = new BranchingLogic(gameplay);
             }
 
             public void CleanUp()
@@ -146,22 +121,68 @@ namespace System
 
                 BoardStateMatchVisualVerify.Verify(_gameplay._boardStatePresenter.BoardStateViewData, _gameplay._board);
 
-                _gameplay.MakeDecision();
-
-                _lock = false;
+                _logic.Branch();
             }
 
-            public void DropSingleTile(int tileIndex, bool direction, PieceBench bench)
+            public void DropSingleTile(int tileIndex, bool direction)
             {
-                if (!_lock)
+                _gameplay._controller.RunSimulation(new MoveSimulationInputData
                 {
-                    _lock = true;
-                    _gameplay._controller.RunSimulation(new MoveSimulationInputData
-                    {
-                        Direction = direction,
-                        SideIndex = _gameplay._turnTeller.CurrentTurn.SideIndex,
-                        StartingTileIndex = tileIndex
-                    });
+                    Direction = direction,
+                    SideIndex = _gameplay._turnTeller.CurrentTurn.SideIndex,
+                    StartingTileIndex = tileIndex
+                });
+            }
+        }
+
+        private class BranchingLogic
+        {
+            private readonly Gameplay _gameplay;
+
+            public BranchingLogic(Gameplay gameplay)
+            {
+                _gameplay = gameplay;
+            }
+
+            public void Branch()
+            {
+                CheckPiecesInMandarinTiles();
+            }
+
+            private void CheckPiecesInMandarinTiles()
+            {
+                if (_gameplay.AnyMandarinTileHasPieces())
+                {
+                    _gameplay.UpdateTurn();
+                    CheckPiecesOnCurrentSide();
+                }
+                else
+                {
+                    _gameplay.GameOver();
+                }
+            }
+
+            private void CheckPiecesOnCurrentSide()
+            {
+                if (_gameplay.AnyTileOnCurrentSideHasPieces())
+                {
+                    _gameplay.ShowInteract();
+                }
+                else
+                {
+                    CheckBenchOnCurrentSideForPieces();
+                }
+            }
+
+            private void CheckBenchOnCurrentSideForPieces()
+            {
+                if (_gameplay.AnyPiecesAvailableOnBenchOfCurrentSide())
+                {
+                    _gameplay.TakePiecesBackToBoard();
+                }
+                else
+                {
+                    _gameplay.GameOver();
                 }
             }
         }

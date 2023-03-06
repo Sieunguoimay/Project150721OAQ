@@ -35,14 +35,9 @@ namespace Gameplay.Visual
         private bool CheckAnyMandarinTileHasPieces()
         {
             var numSides = RefreshData.PiecesInPockets.Length;
-            var numTilesPerSide = RefreshData.PiecesInTiles.Length / numSides;
             for (var i = 0; i < numSides; i++)
             {
-                var tile = RefreshData.PiecesInTiles[i * numTilesPerSide];
-                if (tile.MandarinPiecesCount > 0 || tile.CitizenPiecesCount > 0)
-                {
-                    return true;
-                }
+                if (CheckAnyPieceInMandarinTile(i)) return true;
             }
 
             return false;
@@ -56,6 +51,14 @@ namespace Gameplay.Visual
         public bool CheckBenchOnSideHasPieces(int sideIndex)
         {
             return RefreshData.PiecesInPockets[sideIndex].CitizenPiecesCount > 0;
+        }
+
+        private bool CheckAnyPieceInMandarinTile(int sideIndex)
+        {
+            var numSides = RefreshData.PiecesInPockets.Length;
+            var numTilesPerSide = RefreshData.PiecesInTiles.Length / numSides;
+            var tile = RefreshData.PiecesInTiles[sideIndex * numTilesPerSide];
+            return tile.MandarinPiecesCount > 0 || tile.CitizenPiecesCount > 0;
         }
     }
 }

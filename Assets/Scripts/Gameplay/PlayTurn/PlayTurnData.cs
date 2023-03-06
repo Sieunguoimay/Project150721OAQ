@@ -32,15 +32,12 @@ namespace Gameplay.PlayTurn
         public bool AnyCitizenTileHasPieces()
         {
             return _boardStateView.CheckAnyCitizenTileOnSideHasPieces(SideIndex);
-            // return BoardSide.CitizenTiles.Any(t => t.HeldPieces.Count > 0);
         }
 
         public bool AnyPieceOnBench()
         {
             return _boardStateView.CheckBenchOnSideHasPieces(SideIndex);
-            // return PieceBench.HeldPieces.Count > 0;
         }
-
         public Transform[] GetCitizenTilesTransform()
         {
             return BoardSideVisual.CitizenTiles.Select(t => t.transform).ToArray();
