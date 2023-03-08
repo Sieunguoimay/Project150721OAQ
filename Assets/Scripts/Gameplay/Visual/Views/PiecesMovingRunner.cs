@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Common;
+using Framework.Resolver;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 using Gameplay.Helpers;
 using Gameplay.Visual.Board;
@@ -8,20 +9,22 @@ using Gameplay.Visual.Piece;
 using SNM;
 using UnityEngine;
 
-namespace Gameplay.Visual
+namespace Gameplay.Visual.Views
 {
     public class PiecesMovingRunner
     {
         private IReadOnlyList<MovingStep> _movingSteps;
         private int _iterator;
-        private readonly GridLocator _gridLocator;
-        private readonly IGameplayContainer _turnTeller;
+        private GridLocator _gridLocator;
+        private IGameplayContainer _container;
+        private BoardVisualView _boardVisualView;
         public event Action<PiecesMovingRunner> AllMovingStepsExecutedEvent;
 
-        public PiecesMovingRunner(GridLocator gridLocator, IGameplayContainer turnTeller)
+        public void SetupDependencies(IResolver resolver)
         {
-            _gridLocator = gridLocator;
-            _turnTeller = turnTeller;
+            _container = resolver.Resolve<IGameplayContainer>();
+            _gridLocator = resolver.Resolve<GridLocator>();
+            _boardVisualView = resolver.Resolve<BoardVisualView>();
         }
 
         public void RunTheMoves(IReadOnlyList<MovingStep> movingSteps)
@@ -29,6 +32,11 @@ namespace Gameplay.Visual
             _movingSteps = movingSteps;
             _iterator = 0;
             NextStep();
+        }
+
+        public void Cleanup()
+        {
+            _movingSteps = null;
         }
 
         private void NextStep()
@@ -48,9 +56,19 @@ namespace Gameplay.Visual
             }
         }
 
-        private void OnStepExecutionDone(MovingStepExecutor executor)
+        private void OnStepExecutionDone()
         {
             NextStep();
+        }
+
+        private Tile GetTile(int index)
+        {
+            return _boardVisualView.BoardVisual.Tiles[index];
+        }
+
+        private IPieceContainer GetPieceBench()
+        {
+            return _container.PlayTurnTeller.CurrentTurn.PieceBench;
         }
 
         private MovingStepExecutor CreateStepExecutor(MovingStep step)
@@ -114,10 +132,7 @@ namespace Gameplay.Visual
 
             public virtual void Execute()
             {
-                PublicExecutor.Instance.Delay(1, () =>
-                {
-                    Handler.OnStepExecutionDone(this);
-                });
+                PublicExecutor.Instance.Delay(1, () => { Handler.OnStepExecutionDone(); });
             }
         }
 
@@ -145,9 +160,9 @@ namespace Gameplay.Visual
             {
                 base.Execute();
 
-                var from = MovingStep.PieceContainer;
-                var to = MovingStep.TargetPieceContainer;
-                var amount = MovingStep.PieceContainer.HeldPieces.Count - MovingStep.RemainingPieces;
+                var from = Handler.GetTile(MovingStep.PieceContainerIndex);
+                var to = Handler.GetTile(MovingStep.TargetPieceContainerIndex);
+                var amount = from.HeldPieces.Count - MovingStep.RemainingPieces;
 
                 Handler.MovePieces(from, to, amount);
                 IPieceContainer.TransferPiecesOwnerShip(from, to, amount);
@@ -164,11 +179,11 @@ namespace Gameplay.Visual
             public override void Execute()
             {
                 base.Execute();
-                
-                var from = MovingStep.TargetPieceContainer;
-                var to = Handler._turnTeller.PlayTurnTeller.CurrentTurn.PieceBench;
-                var amount = MovingStep.TargetPieceContainer.HeldPieces.Count;
-                
+
+                var from = Handler.GetTile(MovingStep.TargetPieceContainerIndex);
+                var to = Handler.GetPieceBench();
+                var amount = from.HeldPieces.Count;
+
                 Handler.MovePieces(from, to, amount);
                 IPieceContainer.TransferAllPiecesOwnership(from, to);
             }

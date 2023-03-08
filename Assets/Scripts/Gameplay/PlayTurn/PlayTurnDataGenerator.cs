@@ -7,21 +7,15 @@ namespace Gameplay.PlayTurn
 {
     public class PlayTurnDataGenerator
     {
-        private readonly BoardStateView _boardStateView;
-        private readonly CoreGameplayVisualPresenter _presenter;
+        private BoardVisual _boardVisual;
 
-        public PlayTurnDataGenerator(CoreGameplayVisualPresenter presenter, BoardStateView boardStateView)
-        {
-            _presenter = presenter;
-            _boardStateView = boardStateView;
-        }
+        public PlayTurnTeller PlayTurnTeller { get; } = new();
 
-        public PlayTurnTeller Generate()
+        public void Generate(int numSides, BoardVisual boardVisual)
         {
-            var playTurnTeller = new PlayTurnTeller();
-            var turns = CreateTurns(_boardStateView.NumSides);
-            playTurnTeller.SetTurns(turns, 0);
-            return playTurnTeller;
+            _boardVisual = boardVisual;
+            var turns = CreateTurns(numSides);
+            PlayTurnTeller.SetTurns(turns, 0);
         }
 
         private PlayTurnData[] CreateTurns(int turnNum)
@@ -55,14 +49,12 @@ namespace Gameplay.PlayTurn
             var decisionMaking = playerFactory.CreatePlayerDecisionMaking(boardSide);
             var pieceBench = playerFactory.CreatePieceBench(boardSide);
 
-            return new PlayTurnData(player, boardSide, decisionMaking, pieceBench,
-                _boardStateView, turnIndex);
+            return new PlayTurnData(player, boardSide, decisionMaking, pieceBench, turnIndex);
         }
 
         private BoardSideVisual GetBoardSideVisual(int sideIndex)
         {
-            var board = _presenter.BoardVisual;
-            return board.SideVisuals[sideIndex];
+            return _boardVisual.SideVisuals[sideIndex];
         }
     }
 }

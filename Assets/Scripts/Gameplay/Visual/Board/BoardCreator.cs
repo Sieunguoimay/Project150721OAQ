@@ -14,17 +14,17 @@ namespace Gameplay.Visual.Board
         private IReadOnlyList<Vector2> _polygon;
         private int _numTilesPerSide;
 
-        public static void DeleteBoard(Board board)
+        public static void DeleteBoard(BoardVisual boardVisual)
         {
-            foreach (var tile in board.Tiles)
+            foreach (var tile in boardVisual.Tiles)
             {
                 Destroy(tile.gameObject);
             }
 
-            Destroy(board.gameObject);
+            Destroy(boardVisual.gameObject);
         }
 
-        public Board CreateBoard(int numSides, int tilesPerSide)
+        public BoardVisual CreateBoard(int numSides, int tilesPerSide)
         {
             _numTilesPerSide = tilesPerSide;
 
@@ -35,9 +35,9 @@ namespace Gameplay.Visual.Board
             return board;
         }
 
-        private Board CreateBoardGameObject()
+        private BoardVisual CreateBoardGameObject()
         {
-            var board = new GameObject("Board").AddComponent<Board>();
+            var board = new GameObject("Board").AddComponent<BoardVisual>();
             var t = board.transform;
             t.SetParent(transform);
             t.localPosition = Vector3.zero;
@@ -45,15 +45,15 @@ namespace Gameplay.Visual.Board
             return board;
         }
 
-        private void GenerateBoardReferences(int numSides, Board board)
+        private void GenerateBoardReferences(int numSides, BoardVisual boardVisual)
         {
             _polygon = new BoardPolygonGenerator(numSides, _numTilesPerSide * tileSize).CreatePolygon();
 
-            var boardSides = SpawnBoardSides(board.transform);
+            var boardSides = SpawnBoardSides(boardVisual.transform);
             var boardMetadata = CreateMetadata();
             var allTiles = CreateAllTilesArray(boardSides);
             AppendIndexToTiles(allTiles);
-            board.SetReferences(boardSides, allTiles, boardMetadata);
+            boardVisual.SetReferences(boardSides, allTiles, boardMetadata);
 
             _polygon = null;
         }

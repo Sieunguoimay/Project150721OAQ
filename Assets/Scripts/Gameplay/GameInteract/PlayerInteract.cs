@@ -1,6 +1,4 @@
 ﻿using System;
-using Gameplay.Player;
-using Gameplay.PlayTurn;
 using Gameplay.Visual.Board;
 using UnityEngine;
 
@@ -8,8 +6,6 @@ namespace Gameplay.GameInteract
 {
     public interface IPlayerInteract
     {
-        void Initialize();
-        void Cleanup();
         void Show();
         event Action<PlayerInteractResult> ResultEvent;
     }
@@ -30,7 +26,14 @@ namespace Gameplay.GameInteract
     {
         [SerializeField] private TileChooser tileChooser;
         [SerializeField] private ActionChooser actionChooser;
+        private IGameplayContainer _container;
         private IActionChooser ActionChooser => actionChooser;
+        
+        protected override void OnSetupDependencies()
+        {
+            base.OnSetupDependencies();
+            _container = Resolver.Resolve<IGameplayContainer>();
+        }
 
         public void Initialize()
         {
@@ -40,8 +43,7 @@ namespace Gameplay.GameInteract
             ActionChooser.DirectionSelectedEvent -= OnDirectionSelected;
             ActionChooser.DirectionSelectedEvent += OnDirectionSelected;
 
-            var turnTeller = Resolver.Resolve<IGameplayContainer>().PlayTurnTeller;
-            tileChooser.Setup(turnTeller);
+            tileChooser.Setup(_container.PlayTurnTeller);
         }
 
         public void Cleanup()

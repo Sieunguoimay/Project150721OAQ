@@ -6,6 +6,8 @@ namespace Gameplay.CoreGameplay.Controllers
 {
     public interface ICoreGameplayController
     {
+        void Install();
+        void Uninstall();
         void RequestRefresh(IRefreshResultHandler resultPresenter);
         void MovePieceToNewTile(PieceInteractData.PieceMoveData moveData);
         void MovePiecesToPocket(PieceInteractData.PieceMoveToPocketData moveData);
@@ -14,43 +16,46 @@ namespace Gameplay.CoreGameplay.Controllers
 
     public class CoreGameplayController : ICoreGameplayController
     {
-        public CoreGameplayContainer Container { get; } = new();
+        private readonly CoreGameplayContainer _container = new();
 
         private CoreGameplayInstaller _installer;
 
-        public void Install(IPieceInteractResultHandler resultPresenter, ICoreGameplayDataAccess dataAccess, IBoardMoveSimulationResultHandler simulationResultHandler)
+        public void SetupDependencies(CoreGameplayInstaller installer)
         {
-            _installer = new CoreGameplayInstaller(Container);
+            _installer = installer;
+        }
 
-            _installer.InstallEntities(dataAccess);
-            _installer.InstallRefreshRequest();
-            _installer.InstallPiecesInteract(resultPresenter);
-            _installer.InstallBoardMoveSimulation(simulationResultHandler);
+        public void Install()
+        {
+            _installer.InstallEntities();
+            _installer.InstallRefreshRequest(_container);
+            _installer.InstallPiecesInteract(_container);
+            _installer.InstallBoardMoveSimulation(_container);
         }
 
         public void Uninstall()
         {
-            _installer.Uninstall();
+            _installer.Uninstall(_container);
         }
 
         public void RequestRefresh(IRefreshResultHandler resultPresenter)
         {
-            Container.RefreshRequester.Refresh(resultPresenter);
+            _container.RefreshRequester.Refresh(resultPresenter);
         }
 
         public void MovePieceToNewTile(PieceInteractData.PieceMoveData moveData)
         {
-            Container.PiecesInteractor.MovePieceToNewTile(moveData);
+            _container.PiecesInteractor.MovePieceToNewTile(moveData);
         }
 
         public void MovePiecesToPocket(PieceInteractData.PieceMoveToPocketData moveData)
         {
-            Container.PiecesInteractor.MovePiecesToPocket(moveData);
+            _container.PiecesInteractor.MovePiecesToPocket(moveData);
         }
 
         public void RunSimulation(MoveSimulationInputData inputData)
         {
-            Container.BoardMoveSimulator.RunSimulation(inputData);
+            _container.BoardMoveSimulator.RunSimulation(inputData);
         }
     }
 

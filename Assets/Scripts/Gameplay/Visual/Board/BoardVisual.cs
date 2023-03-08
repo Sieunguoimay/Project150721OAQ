@@ -16,7 +16,7 @@ namespace Gameplay.Visual.Board
         public IReadOnlyList<Vector2> Polygon;
     }
 
-    public class Board : MonoBehaviour
+    public class BoardVisual : MonoBehaviour
     {
         public IReadOnlyList<Tile> Tiles { get; private set; }
         public IReadOnlyList<BoardSideVisual> SideVisuals { get; private set;}

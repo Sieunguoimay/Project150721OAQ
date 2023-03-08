@@ -1,15 +1,27 @@
-﻿using UnityEngine;
+﻿using Gameplay.Visual.Board;
+using Gameplay.Visual.Presenters;
+using UnityEngine;
 
 namespace Gameplay.Visual
 {
-    public static class BoardStateMatchVisualVerify
+    public class BoardStateMatchVisualVerify
     {
-        public static void Verify(BoardStateView boardStateView, Board.Board boardVisual)
+        private readonly BoardStateView _boardStateView;
+        private readonly BoardVisual _boardVisualVisual;
+
+        public BoardStateMatchVisualVerify(BoardStateView boardStateView, Board.BoardVisual boardVisualVisual)
         {
-            for (var i = 0; i < boardStateView.RefreshData.PiecesInTiles.Length; i++)
+            _boardStateView = boardStateView;
+            _boardVisualVisual = boardVisualVisual;
+        }
+
+        public void Verify()
+        {
+            for (var i = 0; i < _boardStateView.RefreshData.PiecesInTiles.Length; i++)
             {
-                var visualCount = boardVisual.Tiles[i].HeldPieces.Count;
-                var dataCount = boardStateView.RefreshData.PiecesInTiles[i].CitizenPiecesCount;
+                var visualCount = _boardVisualVisual.Tiles[i].HeldPieces.Count;
+                var piecesInTile = _boardStateView.RefreshData.PiecesInTiles[i];
+                var dataCount = piecesInTile.CitizenPiecesCount + piecesInTile.MandarinPiecesCount;
                 if (visualCount == dataCount)
                 {
                     Debug.Log("Tile Matching " + visualCount);

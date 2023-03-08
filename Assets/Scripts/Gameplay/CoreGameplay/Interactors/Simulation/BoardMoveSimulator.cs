@@ -98,18 +98,22 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
             {
                 var numCitizens =
                     TileIterator.CurrentTile.PieceEntities.Count(p => p.PieceType == PieceType.Citizen);
-                _resultHandler?.OnSimulationProgress(CreateOutput(moveType, numCitizens));
+                var numMandarins =
+                    TileIterator.CurrentTile.PieceEntities.Count(p => p.PieceType == PieceType.Mandarin);
+                
+                _resultHandler?.OnSimulationProgress(CreateOutput(moveType, numCitizens, numMandarins));
                 TileIterator.UpdateCurrentTileIndex(
                     Array.IndexOf(_piecesInteractor.TileEntities, TileIterator.NextTile));
             }
 
-            private MoveSimulationProgressData CreateOutput(MoveType moveType, int numCitizens)
+            private MoveSimulationProgressData CreateOutput(MoveType moveType, int numCitizens, int numMandarins)
             {
                 return new()
                 {
                     MoveType = moveType,
                     TileIndex = TileIterator.CurrentTileIndex,
-                    NumCitizens = numCitizens
+                    NumCitizens = numCitizens,
+                    NumMandarins = numMandarins,
                 };
             }
 
@@ -144,7 +148,6 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
     public class MoveSimulationResultData
     {
-        public RefreshData RefreshData;
     }
 
     public class MoveSimulationProgressData
@@ -152,6 +155,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
         public MoveType MoveType;
         public int TileIndex;
         public int NumCitizens;
+        public int NumMandarins;
     }
 
     public enum MoveType

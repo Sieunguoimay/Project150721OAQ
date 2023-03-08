@@ -1,6 +1,6 @@
 ﻿using Gameplay.Entities.Stage;
 using Gameplay.PlayTurn;
-using Gameplay.Visual.Board;
+using Gameplay.Visual.Views;
 
 namespace System
 {
@@ -8,18 +8,14 @@ namespace System
     {
         IPlayTurnTeller PlayTurnTeller { get; }
         MatchData MatchData { get; }
+        PiecesMovingRunner MovingRunner { get; }
     }
 
     public class GameplayContainer : IGameplayContainer
     {
-        public Board Board { get; private set; }
         public IPlayTurnTeller PlayTurnTeller { get; private set; }
         public MatchData MatchData { get; private set; }
-
-        public void PublicBoard(Board board)
-        {
-            Board = board;
-        }
+        public PiecesMovingRunner MovingRunner { get; private set; }
 
         public void PublicPlayTurnTeller(IPlayTurnTeller playTurnTeller)
         {
@@ -31,11 +27,16 @@ namespace System
             MatchData = matchData;
         }
 
+        public void PublicMovingRunner(PiecesMovingRunner movingRunner)
+        {
+            MovingRunner = movingRunner;
+        }
+
         public void Cleanup()
         {
-            Board = null;
             PlayTurnTeller = null;
             MatchData = null;
+            MovingRunner = null;
         }
     }
 }

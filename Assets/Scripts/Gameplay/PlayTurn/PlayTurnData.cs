@@ -10,13 +10,11 @@ namespace Gameplay.PlayTurn
 {
     public class PlayTurnData
     {
-        private readonly BoardStateView _boardStateView;
         public int SideIndex { get; }
 
         public PlayTurnData(IPlayer player, BoardSideVisual boardSideVisual, IPlayerDecisionMaking decisionMaking,
-            PieceBench pieceBench, BoardStateView boardStateView, int sideIndex)
+            PieceBench pieceBench, int sideIndex)
         {
-            _boardStateView = boardStateView;
             SideIndex = sideIndex;
             Player = player;
             BoardSideVisual = boardSideVisual;
@@ -29,15 +27,6 @@ namespace Gameplay.PlayTurn
         public IPlayerDecisionMaking DecisionMaking { get; }
         public PieceBench PieceBench { get; }
 
-        public bool AnyCitizenTileHasPieces()
-        {
-            return _boardStateView.CheckAnyCitizenTileOnSideHasPieces(SideIndex);
-        }
-
-        public bool AnyPieceOnBench()
-        {
-            return _boardStateView.CheckBenchOnSideHasPieces(SideIndex);
-        }
         public Transform[] GetCitizenTilesTransform()
         {
             return BoardSideVisual.CitizenTiles.Select(t => t.transform).ToArray();

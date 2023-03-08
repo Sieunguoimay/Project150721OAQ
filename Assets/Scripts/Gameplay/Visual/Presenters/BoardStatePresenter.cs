@@ -1,11 +1,11 @@
 ﻿using System;
 using Gameplay.CoreGameplay.Interactors;
 
-namespace Gameplay.Visual
+namespace Gameplay.Visual.Presenters
 {
     public class BoardStatePresenter : IRefreshResultHandler
     {
-        public BoardStateView BoardStateViewData { get; } = new();
+        public BoardStateView BoardStateView { get; } = new();
         public event Action<BoardStatePresenter> BoardStateChangedEvent;
 
         public void HandleRefreshData(RefreshData refreshData)
@@ -16,7 +16,7 @@ namespace Gameplay.Visual
 
         private void ExtractBoardState(RefreshData refreshData)
         {
-            BoardStateViewData.SetRefreshData(refreshData);
+            BoardStateView.SetRefreshData(refreshData);
         }
     }
 

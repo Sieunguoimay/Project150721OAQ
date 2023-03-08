@@ -14,13 +14,11 @@ namespace Gameplay.BambooStick
         [SerializeField] private Transform[] bambooStickVisualTransforms;
 
         private BoardSketcher _boardSketcher;
-        private CoreGameplayVisualPresenter _presenter;
         private int _timelineCount;
 
         protected override void OnInject(IResolver resolver)
         {
             _boardSketcher = resolver.Resolve<BoardSketcher>();
-            _presenter = resolver.Resolve<CoreGameplayVisualPresenter>();
         }
 
         public void ResetAll()
@@ -33,9 +31,9 @@ namespace Gameplay.BambooStick
             _timelineCount = 0;
         }
 
-        public void BeginAnimSequence()
+        public void BeginAnimSequence(BoardVisual boardVisual)
         {
-            _boardSketcher.Sketch(_presenter.BoardVisual);
+            _boardSketcher.Sketch(boardVisual);
             var points = _boardSketcher.Points;
             var numActivePens = _boardSketcher.PenUsageNum;
             for (var i = 0; i < numActivePens; i++)

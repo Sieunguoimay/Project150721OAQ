@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using Gameplay.CoreGameplay.Controllers;
+﻿using System.Collections.Generic;
 using Gameplay.CoreGameplay.Interactors.Simulation;
-using Gameplay.Visual.Board;
+using Gameplay.Visual.Views;
 
 namespace Gameplay.Visual
 {
     public class SimulationResultPresenter : IBoardMoveSimulationResultHandler
     {
-        private readonly CoreGameplayVisualPresenter _handler;
         private readonly List<MoveSimulationProgressData> _simulationSteps = new();
 
-        public event Action<SimulationResultPresenter, IReadOnlyList<MovingStep>> MoveStepsAvailableEvent;
-
-        public SimulationResultPresenter(CoreGameplayVisualPresenter handler)
-        {
-            _handler = handler;
-        }
+        public PiecesMovingRunner MovingRunner { get; set; }
 
         public void OnSimulationResult(MoveSimulationResultData result)
         {
@@ -31,7 +23,7 @@ namespace Gameplay.Visual
         private void ExtractMovingSteps()
         {
             var movingSteps = GenerateMovingSteps();
-            MoveStepsAvailableEvent?.Invoke(this, movingSteps);
+            MovingRunner?.RunTheMoves(movingSteps);
             _simulationSteps.Clear();
         }
 
@@ -51,27 +43,27 @@ namespace Gameplay.Visual
                 {
                     movingSteps[i] = new MovingStep
                     {
-                        MoveType = s.MoveType, 
-                        TargetPieceContainer = _handler.BoardVisual.Tiles[s.TileIndex]
+                        MoveType = s.MoveType,
+                        TargetPieceContainerIndex = s.TileIndex
                     };
                 }
 
                 prevTileIndex = s.TileIndex;
-                prevAmount = s.NumCitizens;
+                prevAmount = s.NumCitizens + s.NumMandarins;
             }
 
             return movingSteps;
         }
 
-        private MovingStep CreateMovingStepForDrop(MoveType moveType, int prevTileIndex, int tileIndex,
+        private static MovingStep CreateMovingStepForDrop(MoveType moveType, int prevTileIndex, int tileIndex,
             int prevAmount)
         {
             return new()
             {
                 MoveType = moveType,
-                PieceContainer = prevTileIndex >= 0 ? _handler.BoardVisual.Tiles[prevTileIndex] : null,
-                TargetPieceContainer = _handler.BoardVisual.Tiles[tileIndex],
-                RemainingPieces = prevAmount
+                RemainingPieces = prevAmount,
+                PieceContainerIndex = prevTileIndex,
+                TargetPieceContainerIndex = tileIndex
             };
         }
     }
@@ -80,8 +72,7 @@ namespace Gameplay.Visual
 public class MovingStep
 {
     public MoveType MoveType;
-    public IPieceContainer TargetPieceContainer;
-    public IPieceContainer PieceContainer;
+    public int TargetPieceContainerIndex;
+    public int PieceContainerIndex;
     public int RemainingPieces;
 }
-

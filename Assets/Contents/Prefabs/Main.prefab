@@ -56,6 +56,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3501336870996834998}
   - component: {fileID: 6766520109190610884}
+  - component: {fileID: 7823803650772182105}
   m_Layer: 0
   m_Name: BoardManager
   m_TagString: Untagged
@@ -94,6 +95,18 @@ MonoBehaviour:
   mandarinTilePrefab: {fileID: 6506848365546645831, guid: a0c9f3be3038f2c48b96c6d52d196e0b, type: 3}
   citizenTilePrefab: {fileID: 2106036659000400842, guid: 039c12b9678732843a8cd5fd08787dab, type: 3}
   tileSize: 1
+--- !u!114 &7823803650772182105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2825178039756544514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba1f5f944cba489e87f2781236e7ed7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4289493137403277938
 GameObject:
   m_ObjectHideFlags: 0

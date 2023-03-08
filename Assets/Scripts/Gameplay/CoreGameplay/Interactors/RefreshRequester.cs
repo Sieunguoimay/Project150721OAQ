@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Gameplay.CoreGameplay.Entities;
+using Gameplay.CoreGameplay.Gateway;
 
 namespace Gameplay.CoreGameplay.Interactors
 {
@@ -11,11 +12,14 @@ namespace Gameplay.CoreGameplay.Interactors
     public class RefreshRequester : IRefreshRequester
     {
         private readonly BoardEntity _boardEntity;
+        private readonly ICoreGameplayDataAccess _dataAccess;
         private IRefreshResultHandler _resultHandler;
+        
 
-        public RefreshRequester(BoardEntity boardEntity)
+        public RefreshRequester(BoardEntity boardEntity,ICoreGameplayDataAccess dataAccess)
         {
             _boardEntity = boardEntity;
+            _dataAccess = dataAccess;
         }
 
         public void Refresh(IRefreshResultHandler resultHandler)
@@ -27,16 +31,16 @@ namespace Gameplay.CoreGameplay.Interactors
 
         private RefreshData CreateRefreshData()
         {
-            var piecesInTiles = _boardEntity.Sides
-                .SelectMany(s => new[] {CreatePieceStatistics(s.MandarinTile)}
-                    .Concat(s.CitizenTiles.Select(CreatePieceStatistics)));
+            var piecesInTiles = _boardEntity.Sides.SelectMany(s
+                => new[] {CreatePieceStatistics(s.MandarinTile)}.Concat(s.CitizenTiles.Select(CreatePieceStatistics)));
             var piecesInPockets = _boardEntity.Sides.Select(s => CreatePieceStatistics(s.Pocket));
             var piecesInSides = _boardEntity.Sides.Select(s => CreatePieceStatistics(s.CitizenTiles));
             return new RefreshData
             {
                 PiecesInTiles = piecesInTiles.ToArray(),
                 PiecesInPockets = piecesInPockets.ToArray(),
-                PiecesInSides = piecesInSides.ToArray()
+                PiecesInSides = piecesInSides.ToArray(),
+                BoardData = _dataAccess.GetBoardData()
             };
         }
 
@@ -69,6 +73,8 @@ namespace Gameplay.CoreGameplay.Interactors
         public PieceStatistics[] PiecesInSides;
         public PieceStatistics[] PiecesInTiles;
         public PieceStatistics[] PiecesInPockets;
+
+        public BoardData BoardData;
 
         public class PieceStatistics
         {

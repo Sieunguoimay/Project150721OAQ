@@ -8,43 +8,49 @@ namespace Gameplay.CoreGameplay.Interactors
     public class CoreGameplayInstaller
     {
         private BoardEntity _board;
-        private readonly CoreGameplayContainer _container;
+        private readonly ICoreGameplayDataAccess _dataAccess;
         private PiecesInteractor.InnerPiecesInteractor _innerPiecesInteractor;
+        private readonly IPieceInteractResultHandler _interactResultHandler;
+        private readonly IBoardMoveSimulationResultHandler _simulationResultHandler;
 
-        public CoreGameplayInstaller(CoreGameplayContainer container)
+        public CoreGameplayInstaller(ICoreGameplayDataAccess dataAccess, 
+            IPieceInteractResultHandler interactResultHandler,
+            IBoardMoveSimulationResultHandler simulationResultHandler)
         {
-            _container = container;
+            _dataAccess = dataAccess;
+            _interactResultHandler = interactResultHandler;
+            _simulationResultHandler = simulationResultHandler;
         }
 
-        public void InstallEntities(ICoreGameplayDataAccess dataAccess)
+        public void InstallEntities()
         {
-            var boardData = dataAccess.GetBoardData();
+            var boardData = _dataAccess.GetBoardData();
             _board = CoreEntitiesFactory.CreateBoardEntity(boardData);
             _innerPiecesInteractor = new PiecesInteractor.InnerPiecesInteractor(_board);
         }
 
-        public void InstallRefreshRequest()
+        public void InstallRefreshRequest(CoreGameplayContainer container)
         {
-            var refreshRequester = new RefreshRequester(_board);
-            _container.RefreshRequester = refreshRequester;
+            var refreshRequester = new RefreshRequester(_board, _dataAccess);
+            container.RefreshRequester = refreshRequester;
         }
 
-        public void InstallPiecesInteract(IPieceInteractResultHandler interactResultHandler)
+        public void InstallPiecesInteract(CoreGameplayContainer container)
         {
-            _container.PiecesInteractor = new PiecesInteractor(_innerPiecesInteractor,interactResultHandler);
+            container.PiecesInteractor = new PiecesInteractor(_innerPiecesInteractor, _interactResultHandler);
         }
 
-        public void InstallBoardMoveSimulation(IBoardMoveSimulationResultHandler simulationResultHandler)
+        public void InstallBoardMoveSimulation(CoreGameplayContainer container)
         {
-            var simulator = new BoardMoveSimulator(_board, simulationResultHandler, _innerPiecesInteractor);
-            _container.BoardMoveSimulator = simulator;
+            var simulator = new BoardMoveSimulator(_board, _simulationResultHandler, _innerPiecesInteractor);
+            container.BoardMoveSimulator = simulator;
         }
 
-        public void Uninstall()
+        public void Uninstall(CoreGameplayContainer container)
         {
-            _container.RefreshRequester = null;
-            _container.PiecesInteractor = null;
-            _container.BoardMoveSimulator = null;
+            container.RefreshRequester = null;
+            container.PiecesInteractor = null;
+            container.BoardMoveSimulator = null;
         }
     }
 }

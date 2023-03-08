@@ -15,14 +15,14 @@ namespace Gameplay.Visual.Board.BoardDrawing
         private Vector2[] _points;
         private (int, int)[] _contour;
 
-        public void Sketch(Board board)
+        public void Sketch(BoardVisual boardVisual)
         {
-            GenerateSketch(board.Metadata, out var points, out var edges);
+            GenerateSketch(boardVisual.Metadata, out var points, out var edges);
             var contour = ConnectContour(edges);
 
             _points = points;
             _contour = contour;
-            PenUsageNum = board.Metadata.Polygon.Count;
+            PenUsageNum = boardVisual.Metadata.Polygon.Count;
         }
 
         public void DeleteDrawing()

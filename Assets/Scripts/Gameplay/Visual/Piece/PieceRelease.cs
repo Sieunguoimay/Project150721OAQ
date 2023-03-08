@@ -11,25 +11,25 @@ namespace Gameplay.Visual.Piece
         private readonly IReadOnlyList<Mandarin> _mandarins;
         private readonly int _numCitizensPerTile;
         private readonly Action _onAllInPlace;
-        private readonly Board.Board _board;
+        private readonly Board.BoardVisual _boardVisual;
         private readonly GridLocator _gridLocator;
 
         public PieceRelease(IReadOnlyList<Citizen> citizens, IReadOnlyList<Mandarin> mandarins, int numCitizensPerTile,
-            Board.Board board, GridLocator gridLocator, Action done)
+            Board.BoardVisual boardVisual, GridLocator gridLocator, Action done)
         {
             _citizens = citizens;
             _mandarins = mandarins;
             _numCitizensPerTile = numCitizensPerTile;
-            _board = board;
+            _boardVisual = boardVisual;
             _gridLocator = gridLocator;
             _onAllInPlace = done;
         }
 
         public void ReleasePieces()
         {
-            for (var i = 0; i < _board.SideVisuals.Count; i++)
+            for (var i = 0; i < _boardVisual.SideVisuals.Count; i++)
             {
-                var tg = _board.SideVisuals[i];
+                var tg = _boardVisual.SideVisuals[i];
                 var numTilesPerSide = tg.CitizenTiles.Count;
                 for (var j = 0; j < numTilesPerSide; j++)
                 {

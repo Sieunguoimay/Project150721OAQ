@@ -11,9 +11,10 @@ using UnityEngine;
 
 namespace Gameplay.Visual.Board
 {
+    [Obsolete]
     public class MoveMaker : IMoveMaker, MoveInnerRules<Tile>.IMoveRuleDataHelper
     {
-        private readonly Board _board;
+        private readonly BoardVisual _boardVisual;
         private readonly float _singleMoveDuration;
         private List<Citizen> _graspedCitizens;
         private readonly GridLocator _gridLocator;
@@ -27,9 +28,9 @@ namespace Gameplay.Visual.Board
 
         private MoveConfig _moveConfig;
 
-        public MoveMaker(Board board, float singleMoveDuration, GridLocator gridLocator)
+        public MoveMaker(BoardVisual boardVisual, float singleMoveDuration, GridLocator gridLocator)
         {
-            _board = board;
+            _boardVisual = boardVisual;
             _singleMoveDuration = singleMoveDuration;
             _gridLocator = gridLocator;
             MoveInnerRules = new MoveInnerRules<Tile>(this);
@@ -38,7 +39,7 @@ namespace Gameplay.Visual.Board
         public void Initialize(MoveConfig moveConfig)
         {
             _moveConfig = moveConfig;
-            TileIterator = new TileIterator<Tile>(_board.Tiles, moveConfig.Direction);
+            TileIterator = new TileIterator<Tile>(_boardVisual.Tiles, moveConfig.Direction);
             TileIterator.UpdateCurrentTileIndex(_moveConfig.StartingTileIndex);
         }
 
