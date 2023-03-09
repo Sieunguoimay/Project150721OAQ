@@ -46,28 +46,24 @@ namespace Gameplay.CoreGameplay.Interactors
 
         public class InnerPiecesInteractor
         {
-            private readonly BoardEntity _board;
+            private readonly BoardEntityAccess _boardAccess;
 
-            public InnerPiecesInteractor(BoardEntity board)
+            public InnerPiecesInteractor(BoardEntityAccess boardAccess)
             {
-                _board = board;
-                TileEntities = CreateBoardTilesEnumerable(_board).ToArray();
+                _boardAccess = boardAccess;
             }
-
-            public TileEntity[] TileEntities { get; }
-
             public bool InnerMovePieceToNewTile(int currentTileIndex, int targetTileIndex)
             {
-                var currentTile = GetTileAtIndex(currentTileIndex);
-                var targetTile = GetTileAtIndex(targetTileIndex);
+                var currentTile = _boardAccess.GetTileAtIndex(currentTileIndex);
+                var targetTile = _boardAccess.GetTileAtIndex(targetTileIndex);
 
                 return MoveSinglePieceFromContainerToContainer(currentTile, targetTile);
             }
 
             public bool InnerMovePiecesToPocket(int currentTileIndex, int targetPocketIndex)
             {
-                var current = GetTileAtIndex(currentTileIndex);
-                var target = GetPocketAtIndex(targetPocketIndex);
+                var current = _boardAccess.GetTileAtIndex(currentTileIndex);
+                var target = _boardAccess.GetPocketAtIndex(targetPocketIndex);
 
                 return MoveAllPiecesFromContainerToContainer(current, target);
             }
@@ -92,29 +88,44 @@ namespace Gameplay.CoreGameplay.Interactors
                 return success;
             }
 
+        }
+    }
 
-            private TileEntity GetTileAtIndex(int index)
-            {
-                return TileEntities[index];
-            }
+    public class BoardEntityAccess
+    {
+        public BoardEntityAccess(BoardEntity board)
+        {
+            Board = board;
+            TileEntities = CreateBoardTilesEnumerable(Board).ToArray();
+        }
 
-            private static IEnumerable<TileEntity> CreateBoardTilesEnumerable(BoardEntity boardEntity)
+        public TileEntity[] TileEntities { get; }
+
+        public BoardEntity Board { get; }
+
+        public TileEntity GetTileAtIndex(int index)
+        {
+            return TileEntities[index];
+        }
+        
+        public PocketEntity GetPocketAtIndex(int index)
+        {
+            return Board.Pockets[index];
+        }
+        
+        private static IEnumerable<TileEntity> CreateBoardTilesEnumerable(BoardEntity boardEntity)
+        {
+            var citizenTiles = boardEntity.CitizenTiles.Length / boardEntity.MandarinTiles.Length;
+            for (var i = 0; i < boardEntity.MandarinTiles.Length; i++)
             {
-                foreach (var boardSide in boardEntity.Sides)
+                yield return boardEntity.MandarinTiles[i];
+                for (var j = 0; j < citizenTiles; j++)
                 {
-                    yield return boardSide.MandarinTile;
-                    foreach (var t in boardSide.CitizenTiles)
-                    {
-                        yield return t;
-                    }
+                    yield return boardEntity.CitizenTiles[i * citizenTiles + j];
                 }
             }
-
-            private PocketEntity GetPocketAtIndex(int index)
-            {
-                return _board.Sides[index].Pocket;
-            }
         }
+
     }
 
     public class PieceInteractData

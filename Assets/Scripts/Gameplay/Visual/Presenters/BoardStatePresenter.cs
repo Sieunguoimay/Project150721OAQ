@@ -29,7 +29,7 @@ namespace Gameplay.Visual.Presenters
             RefreshData = refreshData;
         }
 
-        public int NumSides => RefreshData.PiecesInSides.Length;
+        public int NumSides => RefreshData.PiecesInPockets.Length;
         public bool AnyMandarinTileHasPieces => CheckAnyMandarinTileHasPieces();
 
         private bool CheckAnyMandarinTileHasPieces()

@@ -10,42 +10,69 @@ namespace Gameplay.CoreGameplay.Interactors
         {
             return new()
             {
-                Sides = CreateBoardSides(boardData)
+                // Sides = CreateBoardSides(boardData)
+                MandarinTiles = CreateTiles(boardData.NumSides),
+                CitizenTiles = CreateTiles(boardData.PiecesPerTile*boardData.NumSides),
+                Pockets = CreatePockets(boardData.NumSides)
             };
         }
 
-        private static BoardEntity.BoardSide[] CreateBoardSides(BoardData boardData)
-        {
-            var sides = new BoardEntity.BoardSide[boardData.NumSides];
+        // private static BoardEntity.BoardSide[] CreateBoardSides(BoardData boardData)
+        // {
+        //     var sides = new BoardEntity.BoardSide[boardData.NumSides];
+        //
+        //     for (var i = 0; i < boardData.NumSides; i++)
+        //     {
+        //         sides[i] = CreateBoardSide(boardData);
+        //     }
+        //
+        //     return sides;
+        // }
+        //
+        // private static BoardEntity.BoardSide CreateBoardSide(BoardData boardData)
+        // {
+        //     var pocket = new PocketEntity {PieceEntities = new List<PieceEntity>()};
+        //     var mandarinTile = new TileEntity {TileType = TileType.MandarinTile};
+        //     var citizenTiles = new TileEntity[boardData.TilesPerSide];
+        //
+        //     PopulatePiecesIntoContainer(mandarinTile, 1, PieceType.Mandarin);
+        //
+        //     for (var i = 0; i < citizenTiles.Length; i++)
+        //     {
+        //         citizenTiles[i] = new TileEntity {TileType = TileType.CitizenTile};
+        //         PopulatePiecesIntoContainer(citizenTiles[i], boardData.PiecesPerTile, PieceType.Citizen);
+        //     }
+        //
+        //     return new BoardEntity.BoardSide
+        //     {
+        //         Pocket = pocket,
+        //         CitizenTiles = citizenTiles,
+        //         MandarinTile = mandarinTile
+        //     };
+        // }
 
-            for (var i = 0; i < boardData.NumSides; i++)
+        private static PocketEntity[] CreatePockets(int num)
+        {
+            var pockets = new PocketEntity[num];
+            for (var i = 0; i < num; i++)
             {
-                sides[i] = CreateBoardSide(boardData);
+                var pocket = new PocketEntity {PieceEntities = new List<PieceEntity>()};
+                pockets[i] = pocket;
             }
 
-            return sides;
+            return pockets;
         }
-
-        private static BoardEntity.BoardSide CreateBoardSide(BoardData boardData)
+        
+        private static TileEntity[] CreateTiles(int num)
         {
-            var pocket = new PocketEntity {PieceEntities = new List<PieceEntity>()};
-            var mandarinTile = new TileEntity {TileType = TileType.MandarinTile};
-            var citizenTiles = new TileEntity[boardData.TilesPerSide];
-
-            PopulatePiecesIntoContainer(mandarinTile, 1, PieceType.Mandarin);
-
-            for (var i = 0; i < citizenTiles.Length; i++)
+            var tiles = new TileEntity[num];
+            for (var i = 0; i < num; i++)
             {
-                citizenTiles[i] = new TileEntity {TileType = TileType.CitizenTile};
-                PopulatePiecesIntoContainer(citizenTiles[i], boardData.PiecesPerTile, PieceType.Citizen);
+                var pocket = new TileEntity {PieceEntities = new List<PieceEntity>()};
+                tiles[i] = pocket;
             }
 
-            return new BoardEntity.BoardSide
-            {
-                Pocket = pocket,
-                CitizenTiles = citizenTiles,
-                MandarinTile = mandarinTile
-            };
+            return tiles;
         }
 
         private static void PopulatePiecesIntoContainer(PieceContainerEntity tile, int numPieces, PieceType pieceType)

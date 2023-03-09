@@ -11,14 +11,13 @@ namespace Gameplay.CoreGameplay.Interactors
 
     public class RefreshRequester : IRefreshRequester
     {
-        private readonly BoardEntity _boardEntity;
+        private readonly BoardEntityAccess _boardEntityAccess;
         private readonly ICoreGameplayDataAccess _dataAccess;
         private IRefreshResultHandler _resultHandler;
-        
 
-        public RefreshRequester(BoardEntity boardEntity,ICoreGameplayDataAccess dataAccess)
+        public RefreshRequester(BoardEntityAccess boardEntityAccess, ICoreGameplayDataAccess dataAccess)
         {
-            _boardEntity = boardEntity;
+            _boardEntityAccess = boardEntityAccess;
             _dataAccess = dataAccess;
         }
 
@@ -31,15 +30,27 @@ namespace Gameplay.CoreGameplay.Interactors
 
         private RefreshData CreateRefreshData()
         {
-            var piecesInTiles = _boardEntity.Sides.SelectMany(s
-                => new[] {CreatePieceStatistics(s.MandarinTile)}.Concat(s.CitizenTiles.Select(CreatePieceStatistics)));
-            var piecesInPockets = _boardEntity.Sides.Select(s => CreatePieceStatistics(s.Pocket));
-            var piecesInSides = _boardEntity.Sides.Select(s => CreatePieceStatistics(s.CitizenTiles));
+            // var piecesInTiles = _boardEntity.Sides.SelectMany(s
+            //     => new[] {CreatePieceStatistics(s.MandarinTile)}.Concat(s.CitizenTiles.Select(CreatePieceStatistics)));
+            // var piecesInPockets = _boardEntity.Sides.Select(s => CreatePieceStatistics(s.Pocket));
+            // var piecesInSides = _boardEntity.Sides.Select(s => CreatePieceStatistics(s.CitizenTiles));
+
+            var piecesInTiles = _boardEntityAccess.TileEntities.Select(CreatePieceStatistics);
+            var piecesInPockets = _boardEntityAccess.Board.Pockets.Select(CreatePieceStatistics);
+
+            var sides = _boardEntityAccess.Board.Pockets.Length;
+            var tilesPerSide = _boardEntityAccess.Board.CitizenTiles.Length / sides;
+            var piecesInSides = new RefreshData.PieceStatistics[sides];
+            for (var i = 0; i < sides; i++)
+            {
+                piecesInSides[i] = CreatePieceStatistics(_boardEntityAccess.Board.CitizenTiles[(i * tilesPerSide)..((i + 1) * tilesPerSide)].Select(t => t as PieceContainerEntity).ToArray());
+            }
+
             return new RefreshData
             {
                 PiecesInTiles = piecesInTiles.ToArray(),
                 PiecesInPockets = piecesInPockets.ToArray(),
-                PiecesInSides = piecesInSides.ToArray(),
+                PiecesInSides = piecesInSides,
                 BoardData = _dataAccess.GetBoardData()
             };
         }

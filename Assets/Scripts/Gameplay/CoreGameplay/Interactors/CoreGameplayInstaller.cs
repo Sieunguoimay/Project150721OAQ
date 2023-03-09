@@ -8,12 +8,14 @@ namespace Gameplay.CoreGameplay.Interactors
     public class CoreGameplayInstaller
     {
         private BoardEntity _board;
-        private readonly ICoreGameplayDataAccess _dataAccess;
+        private BoardEntityAccess _boardEntityAccess;
         private PiecesInteractor.InnerPiecesInteractor _innerPiecesInteractor;
+
+        private readonly ICoreGameplayDataAccess _dataAccess;
         private readonly IPieceInteractResultHandler _interactResultHandler;
         private readonly IBoardMoveSimulationResultHandler _simulationResultHandler;
 
-        public CoreGameplayInstaller(ICoreGameplayDataAccess dataAccess, 
+        public CoreGameplayInstaller(ICoreGameplayDataAccess dataAccess,
             IPieceInteractResultHandler interactResultHandler,
             IBoardMoveSimulationResultHandler simulationResultHandler)
         {
@@ -26,12 +28,13 @@ namespace Gameplay.CoreGameplay.Interactors
         {
             var boardData = _dataAccess.GetBoardData();
             _board = CoreEntitiesFactory.CreateBoardEntity(boardData);
-            _innerPiecesInteractor = new PiecesInteractor.InnerPiecesInteractor(_board);
+            _boardEntityAccess = new BoardEntityAccess(_board);
+            _innerPiecesInteractor = new PiecesInteractor.InnerPiecesInteractor(_boardEntityAccess);
         }
 
         public void InstallRefreshRequest(CoreGameplayContainer container)
         {
-            var refreshRequester = new RefreshRequester(_board, _dataAccess);
+            var refreshRequester = new RefreshRequester(_boardEntityAccess, _dataAccess);
             container.RefreshRequester = refreshRequester;
         }
 
@@ -42,7 +45,7 @@ namespace Gameplay.CoreGameplay.Interactors
 
         public void InstallBoardMoveSimulation(CoreGameplayContainer container)
         {
-            var simulator = new BoardMoveSimulator(_board, _simulationResultHandler, _innerPiecesInteractor);
+            var simulator = new BoardMoveSimulator(_board, _simulationResultHandler, _boardEntityAccess);
             container.BoardMoveSimulator = simulator;
         }
 
@@ -51,6 +54,10 @@ namespace Gameplay.CoreGameplay.Interactors
             container.RefreshRequester = null;
             container.PiecesInteractor = null;
             container.BoardMoveSimulator = null;
+            
+            _board = null;
+            _boardEntityAccess = null;
+            _innerPiecesInteractor = null;
         }
     }
 }

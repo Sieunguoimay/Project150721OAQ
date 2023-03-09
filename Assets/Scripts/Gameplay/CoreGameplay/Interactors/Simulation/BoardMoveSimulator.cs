@@ -17,10 +17,10 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
         private readonly MoveMaker _moveMaker;
 
         public BoardMoveSimulator(BoardEntity board, IBoardMoveSimulationResultHandler resultHandler,
-            PiecesInteractor.InnerPiecesInteractor piecesInteractor)
+            BoardEntityAccess boardEntityAccess)
         {
             _refreshResultHandler = resultHandler;
-            _moveMaker = new MoveMaker(board, resultHandler, piecesInteractor);
+            _moveMaker = new MoveMaker(board, resultHandler, boardEntityAccess);
             _boardStateMachine = new BoardStateMachine(_moveMaker);
             _boardStateMachine.EndEvent += OnBoardStateMachineEnd;
         }
@@ -41,23 +41,23 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
             private MoveSimulationInputData _moveConfig;
             private readonly BoardEntity _boardEntity;
             private readonly IBoardMoveSimulationResultHandler _resultHandler;
-            private readonly PiecesInteractor.InnerPiecesInteractor _piecesInteractor;
+            private readonly BoardEntityAccess _boardEntityAccess;
 
             private readonly PieceContainerEntity _tempPieceContainer = new() {PieceEntities = new List<PieceEntity>()};
 
             public MoveMaker(BoardEntity boardEntity, IBoardMoveSimulationResultHandler resultHandler,
-                PiecesInteractor.InnerPiecesInteractor piecesInteractor)
+                BoardEntityAccess boardEntityAccess)
             {
                 _boardEntity = boardEntity;
                 _resultHandler = resultHandler;
-                _piecesInteractor = piecesInteractor;
+                _boardEntityAccess = boardEntityAccess;
                 MoveInnerRules = new MoveInnerRules<TileEntity>(this);
             }
 
             public void Initialize(MoveSimulationInputData moveConfig)
             {
                 _moveConfig = moveConfig;
-                TileIterator = new TileIterator<TileEntity>(_piecesInteractor.TileEntities, moveConfig.Direction);
+                TileIterator = new TileIterator<TileEntity>(_boardEntityAccess.TileEntities, moveConfig.Direction);
                 TileIterator.UpdateCurrentTileIndex(_moveConfig.StartingTileIndex);
             }
 
@@ -87,7 +87,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
             public void Eat(Action doneHandler)
             {
-                var pocket = _boardEntity.Sides[_moveConfig.SideIndex].Pocket;
+                var pocket = _boardEntity.Pockets[_moveConfig.SideIndex];
                 PiecesInteractor.InnerPiecesInteractor.MoveAllPiecesFromContainerToContainer(TileIterator.CurrentTile,
                     pocket);
                 FinalizeMove(MoveType.Eat);
@@ -103,7 +103,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
                 
                 _resultHandler?.OnSimulationProgress(CreateOutput(moveType, numCitizens, numMandarins));
                 TileIterator.UpdateCurrentTileIndex(
-                    Array.IndexOf(_piecesInteractor.TileEntities, TileIterator.NextTile));
+                    Array.IndexOf(_boardEntityAccess.TileEntities, TileIterator.NextTile));
             }
 
             private MoveSimulationProgressData CreateOutput(MoveType moveType, int numCitizens, int numMandarins)
@@ -133,8 +133,8 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
             public bool IsMandarinTile(TileEntity tile)
             {
-                return Array.IndexOf(_piecesInteractor.TileEntities, tile) %
-                    (_piecesInteractor.TileEntities.Length / 2) == 0;
+                return Array.IndexOf(_boardEntityAccess.TileEntities, tile) %
+                    (_boardEntityAccess.TileEntities.Length / 2) == 0;
             }
         }
     }
