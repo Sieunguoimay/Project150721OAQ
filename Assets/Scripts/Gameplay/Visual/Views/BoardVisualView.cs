@@ -27,21 +27,21 @@ namespace Gameplay.Visual.Views
 
         public void RefreshVisual(RefreshData refreshData)
         {
-            GenerateBoardVisual(refreshData.BoardData);
+            GenerateBoardVisual(refreshData);
         }
 
-        private void GenerateBoardVisual(BoardData boardData)
+        private void GenerateBoardVisual(RefreshData refreshData)
         {
-            var numSides = boardData.NumSides;
-            var tilesPerSide = boardData.TilesPerSide;
-            var piecesPerTile = boardData.PiecesPerTile;
+            var numSides = refreshData.BoardData.NumSides;
+            var tilesPerSide = refreshData.BoardData.TilesPerSide;
+            var piecesPerTile = refreshData.BoardData.PiecesPerTile;
 
             BoardVisual = _boardCreator.CreateBoard(numSides, tilesPerSide);
 
-            _pieceGenerator.SpawnPieces(numSides, tilesPerSide, piecesPerTile);
+            // _pieceGenerator.SpawnPieces(numSides, tilesPerSide, piecesPerTile);
 
             new PieceRelease(_pieceGenerator.Citizens, _pieceGenerator.Mandarins, piecesPerTile,
-                BoardVisual, _gridLocator, OnAllPiecesInPlace).ReleasePieces();
+                BoardVisual, _gridLocator, OnAllPiecesInPlace).ReleasePieces(refreshData);
 
             _bambooFamily.BeginAnimSequence(BoardVisual);
         }
