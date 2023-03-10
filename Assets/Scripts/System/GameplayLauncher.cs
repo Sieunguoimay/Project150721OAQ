@@ -13,12 +13,6 @@ using UnityEngine;
 
 namespace System
 {
-    /// <summary>
-    /// Only use event when:
-    /// the listeners are sequentially independent of each other, otherwise, their states would be changed
-    /// on handle the event, any one that relies on a specific state of a listener might get into
-    /// trouble. Is there any solution for this problem?
-    /// </summary>
     [CreateAssetMenu]
     public class GameplayLauncher : BaseDependencyInversionScriptableObject
     {
@@ -69,7 +63,6 @@ namespace System
         {
             base.OnTearDownDependencies();
             _gameState.StateChangedEvent -= OnGameStateChanged;
-            _gameplay.GameOverEvent -= OnGameOver;
         }
 
         private void StartGame()

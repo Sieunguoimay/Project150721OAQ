@@ -100,7 +100,7 @@ namespace System
 
             _verify.Verify();
 
-            _logic.Branch();
+            // _logic.Branch();
         }
 
         private void DropSingleTile(int tileIndex, bool direction)

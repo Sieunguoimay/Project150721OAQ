@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.DecisionMaking;
 using Gameplay.Helpers;
-using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.Simulation
 {
@@ -114,7 +113,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
             protected override void OnEnter()
             {
-                Debug.Log("Perform Action: Idle");
+                // Debug.Log("Perform Action: Idle");
                 _stateEnterHandler?.Invoke(this);
             }
 
@@ -146,7 +145,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
             {
                 if (Executor.MoveInnerRules.IsThereAnyPiece())
                 {
-                    Debug.Log("Perform Action: Grasp a tile");
+                    // Debug.Log("Perform Action: Grasp a tile");
                     Executor.Grasp(InvokeActionCompleteHandler);
                 }
                 else
@@ -216,7 +215,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
             private bool Drop()
             {
                 if (!Executor.CanDrop()) return false;
-                Debug.Log($"Perform action: Drop a piece");
+                // Debug.Log($"Perform action: Drop a piece");
                 Executor.Drop(InvokeActionCompleteHandler);
                 return true;
             }
@@ -258,7 +257,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
                 if (_slam)
                 {
                     _slam = false;
-                    Debug.LogError("Perform Action: Slam");
+                    // Debug.LogError("Perform Action: Slam");
                     Executor.Slam(InvokeActionCompleteHandler);
                 }
                 else
@@ -266,7 +265,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
                     if (_eat)
                     {
                         _eat = false;
-                        Debug.LogError("Perform Action: Eat");
+                        // Debug.LogError("Perform Action: Eat");
                         Executor.Eat(InvokeActionCompleteHandler);
                     }
                     else

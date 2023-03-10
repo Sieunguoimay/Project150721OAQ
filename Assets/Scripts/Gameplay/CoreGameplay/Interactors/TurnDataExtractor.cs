@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Gameplay.CoreGameplay.Entities;
 
 namespace Gameplay.CoreGameplay.Interactors
@@ -39,18 +40,25 @@ namespace Gameplay.CoreGameplay.Interactors
 
         private DecisionMakingData CreateDecisionMakingData()
         {
+            var citizenTiles = _boardEntityAccess.Board.CitizenTiles;
             var turnIndex = _turnEntity.TurnIndex;
-            var numTiles = _boardEntityAccess.TileEntities.Length / _turnEntity.NumTurns;
-            var rangeFrom = turnIndex * numTiles;
-            var options = new DecisionOption[numTiles];
+            var numTiles = citizenTiles.Length / _turnEntity.NumTurns;
+
+            var rangeFrom = turnIndex * numTiles + turnIndex + 1;
+
+            var options = new List<DecisionOption>();
             for (var i = 0; i < numTiles; i++)
             {
-                options[i] = new DecisionOption {TileIndex = rangeFrom + i};
+                var tileIndex = rangeFrom + i;
+                if (_boardEntityAccess.TileEntities[tileIndex].PieceEntities.Count > 0)
+                {
+                    options.Add(new DecisionOption {TileIndex = tileIndex});
+                }
             }
-            
+
             return new DecisionMakingData
             {
-                Options = options,
+                Options = options.ToArray(),
                 TurnIndex = _turnEntity.TurnIndex
             };
         }
