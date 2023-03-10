@@ -25,8 +25,9 @@ namespace Gameplay.CoreGameplay.Interactors.Driver
         {
             if (AnyMandarinTileHasPieces())
             {
-                // _gameplay.UpdateTurn();
-                // CheckPiecesOnCurrentSide();
+                _turnDataExtractor.NextTurn();
+                
+                CheckPiecesOnCurrentSide();
             }
             else
             {
@@ -34,9 +35,42 @@ namespace Gameplay.CoreGameplay.Interactors.Driver
             }
         }
 
+        private void CheckPiecesOnCurrentSide()
+        {
+            if (AnyTileOnCurrentSideHasPieces())
+            {
+                RunMoveDecisionMaking();
+            }
+            else
+            {
+                CheckBenchOnCurrentSideForPieces();
+            }
+        }
+
+        private void CheckBenchOnCurrentSideForPieces()
+        {
+            if (AnyPiecesAvailableOnBenchOfCurrentSide())
+            {
+                RunTakingPiecesBackToBoard();
+            }
+            else
+            {
+                RunGameOver();
+            }
+        }
+        
         private bool AnyMandarinTileHasPieces()
         {
             return _boardEntityAccess.Board.MandarinTiles.Any(m => m.PieceEntities.Count > 0);
+        }
+        private bool AnyTileOnCurrentSideHasPieces()
+        {
+            return false; //_boardStateView.CheckAnyCitizenTileOnSideHasPieces(_turnTeller.CurrentTurn.SideIndex);
+        }
+
+        private bool AnyPiecesAvailableOnBenchOfCurrentSide()
+        {
+            return false;//_boardStateView.CheckBenchOnSideHasPieces(_turnTeller.CurrentTurn.SideIndex);
         }
 
         public void HandleRefreshData(RefreshData refreshData)
@@ -45,17 +79,15 @@ namespace Gameplay.CoreGameplay.Interactors.Driver
 
         private void RunGameOver()
         {
-            
         }
 
         private void RunTakingPiecesBackToBoard()
         {
-            
         }
 
         private void RunMoveDecisionMaking()
         {
-            
+            _moveMoveDecisionMakingDriver.MakeDecisionOfCurrentTurn();
         }
     }
 }

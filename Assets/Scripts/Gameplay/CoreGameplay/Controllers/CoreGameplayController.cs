@@ -51,7 +51,7 @@ namespace Gameplay.CoreGameplay.Controllers
 
         public void NotifyGameplayOnSimulationPresentationEnded()
         {
-            _container.MoveMoveDecisionMakingDriver.OnSimulationPresentationEnded();
+            // _container.MoveMoveDecisionMakingDriver.OnSimulationPresentationEnded();
         }
 
         public void RequestRefresh(IRefreshResultHandler resultPresenter)

@@ -40,12 +40,17 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
                     : _factory.CreateComputerMoveDecisionMaking();
                 _defaultDecisionMakings[i] = _factory.CreateDefaultMoveDecisionMaking();
             }
+
+            _turnDataExtractor.TurnChangedEvent -= OnCurrentTurnChanged;
+            _turnDataExtractor.TurnChangedEvent += OnCurrentTurnChanged;
         }
+
 
         public void UninstallDecisionMakings()
         {
             _decisionMakings = null;
             _defaultDecisionMakings = null;
+            _turnDataExtractor.TurnChangedEvent -= OnCurrentTurnChanged;
         }
 
         public void MakeDecisionOfCurrentTurn()
@@ -70,6 +75,11 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             }
         }
 
+        private void OnCurrentTurnChanged(TurnDataExtractor obj)
+        {
+            UpdateCurrentTurnData();
+        }
+        
         private void StartCooldownTimer()
         {
             //Todo
@@ -99,13 +109,13 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             decisionMaking.MakeDecision(decisionMakingData, new DefaultMoveDecisionMakingResultHandler(_boardMoveSimulator));
         }
 
-        public void OnSimulationPresentationEnded()
-        {
-            // _turnDataExtractor.NextTurn();
-            UpdateCurrentTurnData();
-
-            MakeDecisionOfCurrentTurn();
-        }
+        // public void OnSimulationPresentationEnded()
+        // {
+        //     // _turnDataExtractor.NextTurn();
+        //     UpdateCurrentTurnData();
+        //
+        //     MakeDecisionOfCurrentTurn();
+        // }
 
         private void UpdateCurrentTurnData()
         {
