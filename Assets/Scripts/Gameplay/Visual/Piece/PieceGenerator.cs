@@ -45,6 +45,16 @@ namespace Gameplay.Visual.Piece
             Citizens = SpawnPieces(citizenPrefab, groups * tilesPerGroup * numCitizens);
         }
 
+        public Citizen[] SpawnCitizens(int amount)
+        {
+            return SpawnPieces(citizenPrefab, amount);
+        }
+
+        public Mandarin[] SpawnMandarins(int amount)
+        {
+            return SpawnPieces(mandarinPrefab, amount);
+        }
+
         public TPiece[] SpawnPieces<TPiece>(TPiece prefab, int amount) where TPiece : Component
         {
             var citizens = new TPiece[amount];

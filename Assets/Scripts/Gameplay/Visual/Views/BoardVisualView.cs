@@ -11,16 +11,17 @@ namespace Gameplay.Visual.Views
     public class BoardVisualView : BaseGenericDependencyInversionUnit<BoardVisualView>
     {
         private BambooFamilyManager _bambooFamily;
-        private BoardCreator _boardCreator;
+        private BoardVisualCreator _boardVisualCreator;
         private PieceGenerator _pieceGenerator;
         private GridLocator _gridLocator;
         public BoardVisual BoardVisual { get; private set; }
         public event Action<BoardVisualView> VisualReadyEvent;
+
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
             _bambooFamily = Resolver.Resolve<BambooFamilyManager>();
-            _boardCreator = Resolver.Resolve<BoardCreator>();
+            _boardVisualCreator = Resolver.Resolve<BoardVisualCreator>();
             _pieceGenerator = Resolver.Resolve<PieceGenerator>();
             _gridLocator = Resolver.Resolve<GridLocator>();
         }
@@ -36,12 +37,12 @@ namespace Gameplay.Visual.Views
             var tilesPerSide = refreshData.BoardData.TilesPerSide;
             var piecesPerTile = refreshData.BoardData.PiecesPerTile;
 
-            BoardVisual = _boardCreator.CreateBoard(numSides, tilesPerSide);
+            BoardVisual = _boardVisualCreator.CreateBoard(numSides, tilesPerSide);
 
             // _pieceGenerator.SpawnPieces(numSides, tilesPerSide, piecesPerTile);
 
-            new PieceRelease(_pieceGenerator.Citizens, _pieceGenerator.Mandarins, piecesPerTile,
-                BoardVisual, _gridLocator, OnAllPiecesInPlace).ReleasePieces(refreshData);
+            new PieceRelease(_pieceGenerator, piecesPerTile, BoardVisual, _gridLocator, OnAllPiecesInPlace)
+                .ReleasePieces(refreshData);
 
             _bambooFamily.BeginAnimSequence(BoardVisual);
         }
@@ -50,7 +51,7 @@ namespace Gameplay.Visual.Views
         {
             _bambooFamily.ResetAll();
             _pieceGenerator.DeletePieces();
-            BoardCreator.DeleteBoard(BoardVisual);
+            BoardVisualCreator.DeleteBoard(BoardVisual);
         }
 
         private void OnAllPiecesInPlace()

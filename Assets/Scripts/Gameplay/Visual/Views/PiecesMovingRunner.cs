@@ -83,12 +83,12 @@ namespace Gameplay.Visual.Views
             };
         }
 
-        private Vector3 GetPosition(IPieceContainer container, int index)
+        private static Vector3 GetPosition(GridLocator gridLocator, IPieceContainer container, int index)
         {
             if (container is Tile tile)
             {
                 var gridIndex = tile.GetNumTakenGridCells() + index;
-                return _gridLocator.GetPositionAtCellIndex(tile.transform, gridIndex);
+                return gridLocator.GetPositionAtCellIndex(tile.transform, gridIndex);
             }
 
             if (container is Component c)
@@ -101,12 +101,16 @@ namespace Gameplay.Visual.Views
 
         private void MovePieces(IPieceContainer from, IPieceContainer to, int amount)
         {
-            var citizens = from.HeldPieces;
+            MovePieces(_gridLocator, from.HeldPieces, to, amount);
+        }
+
+        public static void MovePieces(GridLocator gridLocator, IReadOnlyList<Piece.Piece> citizens, IPieceContainer to, int amount)
+        {
             var n = citizens.Count;
             for (var i = 0; i < amount; i++)
             {
                 var index = n - i - 1;
-                var target = GetPosition(to, i);
+                var target = GetPosition(gridLocator, to, i);
                 if (citizens[index] is Citizen ci)
                 {
                     ci.Animator.JumpTo(target, null);
