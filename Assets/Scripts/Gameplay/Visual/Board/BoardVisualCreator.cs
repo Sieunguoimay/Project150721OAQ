@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Gameplay.Visual.Board
 {
-    public class BoardCreator : BaseGenericDependencyInversionUnit<BoardCreator>
+    public class BoardVisualCreator : BaseGenericDependencyInversionUnit<BoardVisualCreator>
     {
         [SerializeField] private MandarinTile mandarinTilePrefab;
         [SerializeField] private CitizenTile citizenTilePrefab;

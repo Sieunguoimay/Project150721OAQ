@@ -9,6 +9,10 @@ namespace Gameplay.Visual.Board
         private readonly List<Piece.Piece> _heldPieces = new();
         public IReadOnlyList<Piece.Piece> HeldPieces => _heldPieces;
 
+        public void AddPieces(IEnumerable<Piece.Piece> pieces)
+        {
+            _heldPieces.AddRange(pieces);
+        }
         public void AddPiece(Piece.Piece piece)
         {
             _heldPieces.Add(piece);
