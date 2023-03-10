@@ -16,7 +16,9 @@ namespace Gameplay.CoreGameplay
     {
         private CoreGameplayController _controller;
         private CoreGameplayDataAccess _coreGameplayDataAccess;
+        private SimulationResultPresenter _simulationResultPresenter;
         private PiecesMovingRunner _movingRunner;
+        private MovingRunnerAdapter _adapter;
 
         protected override void OnBind(IBinder binder)
         {
@@ -26,10 +28,11 @@ namespace Gameplay.CoreGameplay
             binder.Bind<ICoreGameplayController>(_controller);
 
             _coreGameplayDataAccess = new CoreGameplayDataAccess();
+            _simulationResultPresenter = new SimulationResultPresenter();
             binder.Bind<ICoreGameplayDataAccess>(_coreGameplayDataAccess);
             binder.Bind<BoardStatePresenter>(new BoardStatePresenter());
             binder.Bind<BoardVisualPresenter>(new BoardVisualPresenter());
-            binder.Bind<IBoardMoveSimulationResultHandler>(new SimulationResultPresenter());
+            binder.Bind<IBoardMoveSimulationResultHandler>(_simulationResultPresenter);
 
             _movingRunner = new PiecesMovingRunner();
             binder.Bind<PiecesMovingRunner>(_movingRunner);
@@ -55,7 +58,45 @@ namespace Gameplay.CoreGameplay
             var installer = new CoreGameplayInstaller(_coreGameplayDataAccess, null, Resolver.Resolve<IBoardMoveSimulationResultHandler>());
             _controller.SetupDependencies(installer);
             _movingRunner.SetupDependencies(Resolver);
-            ((SimulationResultPresenter) Resolver.Resolve<IBoardMoveSimulationResultHandler>()).MovingRunner = _movingRunner;
+
+            _simulationResultPresenter.MovingRunner = _movingRunner;
+            _adapter = new MovingRunnerAdapter(_movingRunner, _controller);
+
+            _adapter.InstallMovingRunnerEvents();
+        }
+
+        protected override void OnTearDownDependencies()
+        {
+            base.OnTearDownDependencies();
+            _adapter.UninstallMovingRunnerEvents();
+        }
+    }
+
+    public class MovingRunnerAdapter
+    {
+        private readonly PiecesMovingRunner _movingRunner;
+        private readonly ICoreGameplayController _controller;
+
+        public MovingRunnerAdapter(PiecesMovingRunner movingRunner, ICoreGameplayController controller)
+        {
+            _movingRunner = movingRunner;
+            _controller = controller;
+        }
+
+        public void InstallMovingRunnerEvents()
+        {
+            _movingRunner.AllMovingStepsExecutedEvent -= OnMovingRunnerEnded;
+            _movingRunner.AllMovingStepsExecutedEvent += OnMovingRunnerEnded;
+        }
+
+        public void UninstallMovingRunnerEvents()
+        {
+            _movingRunner.AllMovingStepsExecutedEvent -= OnMovingRunnerEnded;
+        }
+        
+        private void OnMovingRunnerEnded(PiecesMovingRunner obj)
+        {
+            _controller.NotifyGameplayOnSimulationPresentationEnded();
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Gameplay.Visual.Views
 
         private void NextStep()
         {
-            if (_movingSteps == null) return;
+            if (_movingSteps == null || _movingSteps.Count == 0) return;
 
             if (_iterator < _movingSteps.Count)
             {

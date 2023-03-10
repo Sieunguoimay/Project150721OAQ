@@ -1,5 +1,4 @@
-﻿using Gameplay.DecisionMaking;
-using Gameplay.Visual.Board;
+﻿using Gameplay.Visual.Board;
 using UnityEngine;
 
 namespace Gameplay.Player
@@ -15,14 +14,12 @@ namespace Gameplay.Player
     public interface IPlayerFactory
     {
         IPlayer CreatePlayer();
-        IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSideVisual boardSide);
         PieceBench CreatePieceBench(BoardSideVisual boardSide);
     }
 
     public abstract class BasePlayerFactory : IPlayerFactory
     {
         public abstract IPlayer CreatePlayer();
-        public abstract IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSideVisual boardSide);
         public abstract PieceBench CreatePieceBench(BoardSideVisual boardSide);
 
         protected static PieceBench CreatePieceBench(BoardSideVisual boardSide, Transform transform)
@@ -51,11 +48,6 @@ namespace Gameplay.Player
             return new BasePlayer();
         }
 
-        public override IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSideVisual boardSide)
-        {
-            return new PlayerDecisionMaking(boardSide);
-        }
-
         public override PieceBench CreatePieceBench(BoardSideVisual boardSide)
         {
             return CreatePieceBench(boardSide, null);
@@ -67,11 +59,6 @@ namespace Gameplay.Player
         public override IPlayer CreatePlayer()
         {
             return new BasePlayer();
-        }
-
-        public override IPlayerDecisionMaking CreatePlayerDecisionMaking(BoardSideVisual boardSide)
-        {
-            return new PlayerDecisionMaking(boardSide);
         }
 
         public override PieceBench CreatePieceBench(BoardSideVisual boardSide)

@@ -8,6 +8,8 @@ namespace Gameplay.CoreGameplay.Controllers
     {
         void Install();
         void Uninstall();
+        void RunGameplay();
+        void NotifyGameplayOnSimulationPresentationEnded();
         void RequestRefresh(IRefreshResultHandler resultPresenter);
         void MovePieceToNewTile(PieceInteractData.PieceMoveData moveData);
         void MovePiecesToPocket(PieceInteractData.PieceMoveToPocketData moveData);
@@ -31,11 +33,23 @@ namespace Gameplay.CoreGameplay.Controllers
             _installer.InstallRefreshRequest(_container);
             _installer.InstallPiecesInteract(_container);
             _installer.InstallBoardMoveSimulation(_container);
+            _installer.InstallTurnDataExtractor(_container);
+            _installer.InstallGameplayDriver(_container);
         }
 
         public void Uninstall()
         {
             _installer.Uninstall(_container);
+        }
+
+        public void RunGameplay()
+        {
+            _container.GameplayDriver.MakeDecisionOfCurrentTurn();
+        }
+
+        public void NotifyGameplayOnSimulationPresentationEnded()
+        {
+            _container.GameplayDriver.OnSimulationPresentationEnded();
         }
 
         public void RequestRefresh(IRefreshResultHandler resultPresenter)
@@ -65,5 +79,7 @@ namespace Gameplay.CoreGameplay.Controllers
         public IRefreshRequester RefreshRequester;
         public IPiecesInteractor PiecesInteractor;
         public IBoardMoveSimulator BoardMoveSimulator;
+        public TurnDataExtractor TurnDataExtractor;
+        public GameplayDriver GameplayDriver;
     }
 }

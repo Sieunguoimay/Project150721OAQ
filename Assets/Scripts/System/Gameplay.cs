@@ -61,7 +61,8 @@ namespace System
 
         public void Start()
         {
-            ShowInteract();
+            // ShowInteract();
+            _controller.RunGameplay();
         }
 
         public event Action<Gameplay> GameOverEvent;

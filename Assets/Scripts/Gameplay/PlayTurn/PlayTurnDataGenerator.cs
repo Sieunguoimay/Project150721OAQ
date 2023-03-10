@@ -46,10 +46,9 @@ namespace Gameplay.PlayTurn
         {
             var boardSide = GetBoardSideVisual(turnIndex);
             var player = playerFactory.CreatePlayer();
-            var decisionMaking = playerFactory.CreatePlayerDecisionMaking(boardSide);
             var pieceBench = playerFactory.CreatePieceBench(boardSide);
 
-            return new PlayTurnData(player, boardSide, decisionMaking, pieceBench, turnIndex);
+            return new PlayTurnData(player, boardSide, pieceBench, turnIndex);
         }
 
         private BoardSideVisual GetBoardSideVisual(int sideIndex)

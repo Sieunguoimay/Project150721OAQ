@@ -16,7 +16,15 @@ namespace Gameplay.CoreGameplay.Interactors
                 Pockets = CreatePockets(boardData.NumSides)
             };
         }
-
+        
+        public static TurnEntity CreateTurnEntity(TurnData turnData)
+        {
+            return new()
+            {
+                TurnIndex = turnData.InitialTurnIndex,
+                NumTurns = turnData.NumTurns,
+            };
+        }
         // private static BoardEntity.BoardSide[] CreateBoardSides(BoardData boardData)
         // {
         //     var sides = new BoardEntity.BoardSide[boardData.NumSides];

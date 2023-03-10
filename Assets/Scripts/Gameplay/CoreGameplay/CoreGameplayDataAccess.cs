@@ -13,7 +13,7 @@ namespace Gameplay.CoreGameplay
             {
                 _gameplayContainer = container;
             }
-            
+
             public BoardData GetBoardData()
             {
                 var matchData = _gameplayContainer.MatchData;
@@ -22,6 +22,17 @@ namespace Gameplay.CoreGameplay
                     NumSides = matchData.playerNum,
                     TilesPerSide = matchData.tilesPerGroup,
                     PiecesPerTile = matchData.numCitizensInTile
+                };
+            }
+
+            public TurnData GetTurnData()
+            {
+                var matchData = _gameplayContainer.MatchData;
+
+                return new TurnData
+                {
+                    InitialTurnIndex = 0,
+                    NumTurns = matchData.playerNum
                 };
             }
         }
