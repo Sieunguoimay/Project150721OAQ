@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gameplay.CoreGameplay.Entities;
+using Gameplay.CoreGameplay.Interactors.Driver;
+using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
 
 namespace Gameplay.CoreGameplay.Interactors
 {
@@ -34,32 +36,7 @@ namespace Gameplay.CoreGameplay.Interactors
                 CurrentTurnIndex = _turnEntity.TurnIndex,
                 TileEntitiesOfCurrentTurn = GetTileEntitiesByTurn(_turnEntity.TurnIndex),
                 PocketEntity = _boardEntityAccess.GetPocketAtIndex(_turnEntity.TurnIndex),
-                DecisionMakingData = CreateDecisionMakingData()
-            };
-        }
-
-        private DecisionMakingData CreateDecisionMakingData()
-        {
-            var citizenTiles = _boardEntityAccess.Board.CitizenTiles;
-            var turnIndex = _turnEntity.TurnIndex;
-            var numTiles = citizenTiles.Length / _turnEntity.NumTurns;
-
-            var rangeFrom = turnIndex * numTiles + turnIndex + 1;
-
-            var options = new List<DecisionOption>();
-            for (var i = 0; i < numTiles; i++)
-            {
-                var tileIndex = rangeFrom + i;
-                if (_boardEntityAccess.TileEntities[tileIndex].PieceEntities.Count > 0)
-                {
-                    options.Add(new DecisionOption {TileIndex = tileIndex});
-                }
-            }
-
-            return new DecisionMakingData
-            {
-                Options = options.ToArray(),
-                TurnIndex = _turnEntity.TurnIndex
+                // MoveDecisionMakingData = CreateDecisionMakingData(_boardEntityAccess.Board.CitizenTiles.Length)
             };
         }
 
@@ -74,7 +51,7 @@ namespace Gameplay.CoreGameplay.Interactors
     {
         public IReadOnlyList<TileEntity> TileEntitiesOfCurrentTurn;
         public PocketEntity PocketEntity;
-        public DecisionMakingData DecisionMakingData;
+        // public MoveDecisionMakingData MoveDecisionMakingData;
         public int CurrentTurnIndex;
         public int NumTurns;
     }

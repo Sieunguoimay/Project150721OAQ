@@ -1,7 +1,8 @@
 ﻿using Gameplay.CoreGameplay.Controllers;
 using Gameplay.CoreGameplay.Entities;
 using Gameplay.CoreGameplay.Gateway;
-using Gameplay.CoreGameplay.Interactors.DecisionMaking;
+using Gameplay.CoreGameplay.Interactors.Driver;
+using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 
 namespace Gameplay.CoreGameplay.Interactors
@@ -60,18 +61,20 @@ namespace Gameplay.CoreGameplay.Interactors
 
         public void InstallGameplayDriver(CoreGameplayContainer container)
         {
-            container.GameplayDriver = new GameplayDriver(container.TurnDataExtractor, new DecisionMakingFactory(), container.BoardMoveSimulator);
-            container.GameplayDriver.InstallDecisionMakings();
+            container.MoveMoveDecisionMakingDriver = new MoveMoveDecisionMakingDriver(
+                container.TurnDataExtractor, new MoveDecisionMakingFactory(), 
+                container.BoardMoveSimulator, new MoveDecisionOptionFactory(_boardEntityAccess));
+            container.MoveMoveDecisionMakingDriver.InstallDecisionMakings();
         }
 
         public void Uninstall(CoreGameplayContainer container)
         {
-            container.GameplayDriver.UninstallDecisionMakings();
+            container.MoveMoveDecisionMakingDriver.UninstallDecisionMakings();
             container.RefreshRequester = null;
             container.PiecesInteractor = null;
             container.BoardMoveSimulator = null;
             container.TurnDataExtractor = null;
-            container.GameplayDriver = null;
+            container.MoveMoveDecisionMakingDriver = null;
 
             _board = null;
             _boardEntityAccess = null;

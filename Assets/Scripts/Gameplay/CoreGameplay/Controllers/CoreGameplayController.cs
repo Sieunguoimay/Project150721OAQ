@@ -1,5 +1,7 @@
 ﻿using Gameplay.CoreGameplay.Gateway;
 using Gameplay.CoreGameplay.Interactors;
+using Gameplay.CoreGameplay.Interactors.Driver;
+using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 
 namespace Gameplay.CoreGameplay.Controllers
@@ -44,12 +46,12 @@ namespace Gameplay.CoreGameplay.Controllers
 
         public void RunGameplay()
         {
-            _container.GameplayDriver.MakeDecisionOfCurrentTurn();
+            _container.MoveMoveDecisionMakingDriver.MakeDecisionOfCurrentTurn();
         }
 
         public void NotifyGameplayOnSimulationPresentationEnded()
         {
-            _container.GameplayDriver.OnSimulationPresentationEnded();
+            _container.MoveMoveDecisionMakingDriver.OnSimulationPresentationEnded();
         }
 
         public void RequestRefresh(IRefreshResultHandler resultPresenter)
@@ -80,6 +82,6 @@ namespace Gameplay.CoreGameplay.Controllers
         public IPiecesInteractor PiecesInteractor;
         public IBoardMoveSimulator BoardMoveSimulator;
         public TurnDataExtractor TurnDataExtractor;
-        public GameplayDriver GameplayDriver;
+        public MoveMoveDecisionMakingDriver MoveMoveDecisionMakingDriver;
     }
 }

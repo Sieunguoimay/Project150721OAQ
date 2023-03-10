@@ -182,6 +182,11 @@ namespace System
             {
                 return _boardStateView.CheckBenchOnSideHasPieces(_turnTeller.CurrentTurn.SideIndex);
             }
+
+            public interface IBranchingLogicHandler
+            {
+                
+            }
         }
     }
 }
