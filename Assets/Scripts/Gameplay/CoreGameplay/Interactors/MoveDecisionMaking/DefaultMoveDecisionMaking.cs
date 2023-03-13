@@ -1,20 +1,21 @@
-﻿using Common;
-using Gameplay.CoreGameplay.Interactors.Simulation;
+﻿using System.Linq;
+using Common;
 using SNM;
 using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
-    public class DefaultMoveDecisionMaking : IMoveDecisionMaking
+    public class DefaultMoveDecisionMaking : IMoveDecisionMaking, MoveOptionQueueIterator.IMoveOptionQueueIterationHandler
     {
         private IMoveDecisionMakingResultHandler _driver;
         private Coroutine _coroutine;
+        private MoveOptionQueueIterator _queueIterator;
 
-        public void MakeDecision(MoveDecisionMakingData moveDecisionMakingData, IMoveDecisionMakingResultHandler driver)
+        public void MakeDecision(MoveOptionQueue moveOptionQueue, IMoveDecisionMakingResultHandler driver)
         {
             _driver = driver;
-            _coroutine = PublicExecutor.Instance.Delay(1f,
-                () => { _driver.OnDecisionResult(this, CreateResultData(moveDecisionMakingData)); });
+            _queueIterator = new MoveOptionQueueIterator(moveOptionQueue, this);
+            _queueIterator.DequeueNextOptionItem();
         }
 
         public void ForceEnd()
@@ -23,31 +24,24 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             PublicExecutor.Instance.StopCoroutine(_coroutine);
         }
 
-        private static MoveDecisionResultData CreateResultData(MoveDecisionMakingData moveDecisionMakingData)
+        public void OnOptionsQueueEmpty()
         {
-            return new()
-            {
-                SimulationInputData = CreateRandomizedSimulationInputData(moveDecisionMakingData),
-                Success = true
-            };
+            _coroutine = PublicExecutor.Instance.Delay(1f,
+                () => { _driver.OnDecisionResult(IMoveDecisionMaking.CreateResultData(_queueIterator.MoveOptionQueue)); });
         }
 
-        private static MoveSimulationInputData CreateRandomizedSimulationInputData(
-            MoveDecisionMakingData moveDecisionMakingData)
+        public void HandleTilesOption()
         {
-            var option = moveDecisionMakingData.Options[Random.Range(0, moveDecisionMakingData.Options.Length)];
-            
-            if (option is SimpleMoveOption so)
-            {
-                return new()
-                {
-                    Direction = so.Direction,
-                    SideIndex = moveDecisionMakingData.TurnIndex,
-                    StartingTileIndex = so.TileIndex
-                };
-            }
+            var values = _queueIterator.CurrentOptionItem.Values.Where(v => _queueIterator.MoveOptionQueue.Options.All(o => o.SelectedValue != v));
 
-            return null;
+            _queueIterator.CurrentOptionItem.SelectedValue = values.ToArray()[Random.Range(0, _queueIterator.CurrentOptionItem.Values.Length)];
+            _queueIterator.DequeueNextOptionItem();
+        }
+
+        public void HandleDirectionsOption()
+        {
+            _queueIterator.CurrentOptionItem.SelectedValue = _queueIterator.CurrentOptionItem.Values[Random.Range(0, _queueIterator.CurrentOptionItem.Values.Length)];
+            _queueIterator.DequeueNextOptionItem();
         }
     }
 }

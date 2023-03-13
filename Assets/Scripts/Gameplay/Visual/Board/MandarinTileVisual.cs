@@ -3,7 +3,7 @@ using Gameplay.Visual.Piece;
 
 namespace Gameplay.Visual.Board
 {
-    public class MandarinTile : Tile
+    public class MandarinTileVisual : TileVisual
     {
         public override int GetNumTakenGridCells()
         {

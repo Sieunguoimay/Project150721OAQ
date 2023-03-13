@@ -8,15 +8,15 @@ namespace Gameplay.GameInteract
 {
     public class TileSelectable : MonoBehaviour
     {
-        private Tile _tile;
+        private TileVisual _tileVisual;
         private void OnEnable()
         {
-            _tile = GetComponent<Tile>();
+            _tileVisual = GetComponent<TileVisual>();
         }
 
         public void Select()
         {
-            var selectionAdaptors = _tile.HeldPieces.OfType<Citizen>();
+            var selectionAdaptors = _tileVisual.HeldPieces.OfType<Citizen>();
             foreach (var sa in selectionAdaptors)
             {
                 sa.Animator.PlayAnimStandUp();
@@ -25,7 +25,7 @@ namespace Gameplay.GameInteract
 
         public void Unselect()
         {
-            var selectionAdaptors = _tile.HeldPieces.OfType<Citizen>();
+            var selectionAdaptors = _tileVisual.HeldPieces.OfType<Citizen>();
             foreach (var sa in selectionAdaptors)
             {
                 sa.Animator.PlayAnimSitDown();

@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Gameplay.Visual.Board
 {
     public class BoardVisualCreator : BaseGenericDependencyInversionUnit<BoardVisualCreator>
     {
-        [SerializeField] private MandarinTile mandarinTilePrefab;
-        [SerializeField] private CitizenTile citizenTilePrefab;
+        [FormerlySerializedAs("mandarinTilePrefab")] [SerializeField] private MandarinTileVisual mandarinTileVisualPrefab;
+        [FormerlySerializedAs("citizenTilePrefab")] [SerializeField] private CitizenTileVisual citizenTileVisualPrefab;
         [SerializeField] private float tileSize;
 
         private IReadOnlyList<Vector2> _polygon;
@@ -16,7 +17,7 @@ namespace Gameplay.Visual.Board
 
         public static void DeleteBoard(BoardVisual boardVisual)
         {
-            foreach (var tile in boardVisual.Tiles)
+            foreach (var tile in boardVisual.TileVisuals)
             {
                 Destroy(tile.gameObject);
             }
@@ -61,7 +62,7 @@ namespace Gameplay.Visual.Board
         private BoardSideVisual[] SpawnBoardSides(Transform parent)
         {
             var boardSides = new BoardSideVisual[_polygon.Count];
-            var tileSpawner = new TileSpawner(citizenTilePrefab, mandarinTilePrefab, parent, tileSize);
+            var tileSpawner = new TileSpawner(citizenTileVisualPrefab, mandarinTileVisualPrefab, parent, tileSize);
 
             for (var i = 0; i < _polygon.Count; i++)
             {
@@ -77,14 +78,14 @@ namespace Gameplay.Visual.Board
             return boardSides;
         }
 
-        private static BoardSideVisual CreateBoardSide(MandarinTile mandarinTile, IReadOnlyList<CitizenTile> citizenTiles)
+        private static BoardSideVisual CreateBoardSide(MandarinTileVisual mandarinTileVisual, IReadOnlyList<CitizenTileVisual> citizenTiles)
         {
-            return new() {MandarinTile = mandarinTile, CitizenTiles = citizenTiles};
+            return new() {MandarinTileVisual = mandarinTileVisual, CitizenTiles = citizenTiles};
         }
 
-        private static Tile[] CreateAllTilesArray(IEnumerable<BoardSideVisual> boardSides)
+        private static TileVisual[] CreateAllTilesArray(IEnumerable<BoardSideVisual> boardSides)
         {
-            return boardSides.SelectMany(s => new Tile[] {s.MandarinTile}.Concat(s.CitizenTiles)).ToArray();
+            return boardSides.SelectMany(s => new TileVisual[] {s.MandarinTileVisual}.Concat(s.CitizenTiles)).ToArray();
         }
 
         private BoardMetadata CreateMetadata()
@@ -97,7 +98,7 @@ namespace Gameplay.Visual.Board
             };
         }
 
-        private static void AppendIndexToTiles(IReadOnlyList<Tile> allTiles)
+        private static void AppendIndexToTiles(IReadOnlyList<TileVisual> allTiles)
         {
             for (var i = 0; i < allTiles.Count; i++)
             {
@@ -150,14 +151,14 @@ namespace Gameplay.Visual.Board
         private Vector2 _cornerPos;
         private Vector2 _nextCornerPos;
         private readonly float _tileSize;
-        private readonly CitizenTile _citizenTilePrefab;
-        private readonly MandarinTile _mandarinTilePrefab;
+        private readonly CitizenTileVisual _citizenTileVisualPrefab;
+        private readonly MandarinTileVisual _mandarinTileVisualPrefab;
         private readonly Transform _parent;
 
-        public TileSpawner(CitizenTile citizenTilePrefab, MandarinTile mandarinTilePrefab, Transform parent, float tileSize)
+        public TileSpawner(CitizenTileVisual citizenTileVisualPrefab, MandarinTileVisual mandarinTileVisualPrefab, Transform parent, float tileSize)
         {
-            _citizenTilePrefab = citizenTilePrefab;
-            _mandarinTilePrefab = mandarinTilePrefab;
+            _citizenTileVisualPrefab = citizenTileVisualPrefab;
+            _mandarinTileVisualPrefab = mandarinTileVisualPrefab;
             _parent = parent;
             _tileSize = tileSize;
         }
@@ -168,23 +169,23 @@ namespace Gameplay.Visual.Board
             _nextCornerPos = nextCornerPos;
         }
 
-        public MandarinTile SpawnMandarinTile()
+        public MandarinTileVisual SpawnMandarinTile()
         {
-            var mandarinTile = UnityEngine.Object.Instantiate(_mandarinTilePrefab, _parent);
+            var mandarinTile = UnityEngine.Object.Instantiate(_mandarinTileVisualPrefab, _parent);
             UpdateMandarinTilePosition(mandarinTile.transform);
             return mandarinTile;
         }
 
-        public CitizenTile[] SpawnCitizenTiles(int numTiles)
+        public CitizenTileVisual[] SpawnCitizenTiles(int numTiles)
         {
             var dir = (_nextCornerPos - _cornerPos).normalized;
             var normal = new Vector2(dir.y, -dir.x); //clockwise 90
 
-            var citizenTiles = new CitizenTile[numTiles];
+            var citizenTiles = new CitizenTileVisual[numTiles];
 
             for (var i = 0; i < numTiles; i++)
             {
-                var citizenTile = UnityEngine.Object.Instantiate(_citizenTilePrefab, _parent);
+                var citizenTile = UnityEngine.Object.Instantiate(_citizenTileVisualPrefab, _parent);
 
                 UpdateCitizenTilePosition(citizenTile.transform, _cornerPos, normal * 0.5f, dir * (i + 0.5f));
 

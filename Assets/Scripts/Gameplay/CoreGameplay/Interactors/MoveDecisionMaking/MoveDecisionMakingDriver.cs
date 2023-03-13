@@ -7,7 +7,8 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
     {
         private readonly TurnDataExtractor _turnDataExtractor;
         private readonly IMoveDecisionMakingFactory _factory;
-        private readonly IBoardMoveSimulator _boardMoveSimulator;
+        private readonly BoardMoveSimulator _boardMoveSimulator;
+        private readonly ConcurrentMoveSimulator _concurrentMoveSimulator;
         private readonly MoveDecisionOptionFactory _moveDecisionOptionFactory;
 
         private IMoveDecisionMaking[] _defaultDecisionMakings;
@@ -16,11 +17,14 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         public MoveMoveDecisionMakingDriver(
             TurnDataExtractor turnDataExtractor, IMoveDecisionMakingFactory factory,
-            IBoardMoveSimulator boardMoveSimulator, MoveDecisionOptionFactory moveDecisionOptionFactory)
+            BoardMoveSimulator boardMoveSimulator, 
+            ConcurrentMoveSimulator concurrentMoveSimulator, 
+            MoveDecisionOptionFactory moveDecisionOptionFactory)
         {
             _turnDataExtractor = turnDataExtractor;
             _factory = factory;
             _boardMoveSimulator = boardMoveSimulator;
+            _concurrentMoveSimulator = concurrentMoveSimulator;
             _moveDecisionOptionFactory = moveDecisionOptionFactory;
         }
 
@@ -56,12 +60,13 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             StartCooldownTimer();
         }
 
-        public void OnDecisionResult(IMoveDecisionMaking moveDecisionMaking, MoveDecisionResultData resultData)
+        public void OnDecisionResult(MoveDecisionResultData resultData)
         {
             if (resultData.Success)
             {
                 StopCooldownTimer();
-                _boardMoveSimulator.RunSimulation(resultData.SimulationInputData);
+                // _boardMoveSimulator.RunSimulation(resultData.SingleSimulationInputData);
+                _concurrentMoveSimulator.RunSimulation(resultData.SimulationInputData);
             }
             else
             {
@@ -95,31 +100,22 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         {
             var decisionMaking = _defaultDecisionMakings[CurrentTurnData.CurrentTurnIndex];
             var decisionMakingData = _moveDecisionOptionFactory.CreateDecisionMakingData(CurrentTurnData);
-            decisionMaking.MakeDecision(decisionMakingData,
-                new DefaultMoveDecisionMakingResultHandler(_boardMoveSimulator));
+            decisionMaking.MakeDecision(decisionMakingData, new DefaultMoveDecisionMakingResultHandler(this));
         }
-
-        // public void OnSimulationPresentationEnded()
-        // {
-        //     // _turnDataExtractor.NextTurn();
-        //     UpdateCurrentTurnData();
-        //
-        //     MakeDecisionOfCurrentTurn();
-        // }
-
 
         private class DefaultMoveDecisionMakingResultHandler : IMoveDecisionMakingResultHandler
         {
-            private readonly IBoardMoveSimulator _boardMoveSimulator;
+            private readonly MoveMoveDecisionMakingDriver _driver;
 
-            public DefaultMoveDecisionMakingResultHandler(IBoardMoveSimulator boardMoveSimulator)
+            public DefaultMoveDecisionMakingResultHandler(MoveMoveDecisionMakingDriver driver)
             {
-                _boardMoveSimulator = boardMoveSimulator;
+                _driver = driver;
             }
 
-            public void OnDecisionResult(IMoveDecisionMaking moveDecisionMaking, MoveDecisionResultData resultData)
+            public void OnDecisionResult(MoveDecisionResultData resultData)
             {
-                _boardMoveSimulator.RunSimulation(resultData.SimulationInputData);
+                // _driver._boardMoveSimulator.RunSimulation(resultData.SingleSimulationInputData);
+                _driver._concurrentMoveSimulator.RunSimulation(resultData.SimulationInputData);
             }
         }
     }
@@ -127,19 +123,80 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
     public class MoveDecisionResultData
     {
         public bool Success;
-        public MoveSimulationInputData SimulationInputData;
+        public ConcurrentMoveSimulationInputData SimulationInputData;
+        public MoveSimulationInputData SingleSimulationInputData;
     }
 
     public interface IMoveDecisionMaking
     {
-        void MakeDecision(MoveDecisionMakingData moveDecisionMakingData, IMoveDecisionMakingResultHandler driver);
+        void MakeDecision(MoveOptionQueue moveOptionQueue, IMoveDecisionMakingResultHandler driver);
 
         void ForceEnd();
+
+        public static MoveDecisionResultData CreateResultData(MoveOptionQueue moveOptionQueue)
+        {
+            return new()
+            {
+                SimulationInputData = CreateConcurrentSimulationInputData(moveOptionQueue),
+                SingleSimulationInputData = CreateSimulationInputData(moveOptionQueue),
+                Success = true
+            };
+        }
+
+        public static MoveSimulationInputData CreateSimulationInputData(MoveOptionQueue moveOptionQueue)
+        {
+            var direction = false;
+            var tileIndices = -1;
+            foreach (var moveOptionItem in moveOptionQueue.Options)
+            {
+                var optionValue = moveOptionItem.SelectedValue;
+                if (moveOptionItem.OptionItemType == MoveOptionItemType.Direction)
+                {
+                    direction = ((BooleanOptionValue) optionValue).Value;
+                }
+                else if (moveOptionItem.OptionItemType == MoveOptionItemType.Tile)
+                {
+                    tileIndices = (((IntegerOptionValue) optionValue).Value);
+                }
+            }
+
+            return new()
+            {
+                Direction = direction,
+                SideIndex = moveOptionQueue.TurnIndex,
+                StartingTileIndex = tileIndices
+            };
+        }
+
+        public static ConcurrentMoveSimulationInputData CreateConcurrentSimulationInputData(MoveOptionQueue moveOptionQueue)
+        {
+            var direction = false;
+            var tileIndices = new List<int>();
+            foreach (var moveOptionItem in moveOptionQueue.Options)
+            {
+                var optionValue = moveOptionItem.SelectedValue;
+                if (moveOptionItem.OptionItemType == MoveOptionItemType.Direction)
+                {
+                    direction = ((BooleanOptionValue) optionValue).Value;
+                }
+                else if (moveOptionItem.OptionItemType == MoveOptionItemType.Tile)
+                {
+                    tileIndices.Add(((IntegerOptionValue) optionValue).Value);
+                }
+            }
+
+            return new()
+            {
+                Direction = direction,
+                SideIndex = moveOptionQueue.TurnIndex,
+                StartingTileIndices = tileIndices.ToArray()
+            };
+        }
     }
 
     public interface IMoveDecisionMakingResultHandler
     {
-        void OnDecisionResult(IMoveDecisionMaking moveDecisionMaking, MoveDecisionResultData resultData);
+        void OnDecisionResult(MoveDecisionResultData resultData);
     }
 
     public interface IMoveDecisionMakingFactory

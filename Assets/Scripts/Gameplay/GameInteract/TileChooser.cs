@@ -15,6 +15,7 @@ namespace Gameplay.GameInteract
         void ShowUp();
     }
 
+    [Obsolete]
     public class TileChooser : MonoBehaviour, ITileChooser
     {
         [SerializeField] private ButtonOnGround tileChoosingButtonPrefab;
@@ -23,7 +24,7 @@ namespace Gameplay.GameInteract
 
         private ButtonGroup _buttonGroup;
         private IPlayTurnTeller _turnTeller;
-        [field: System.NonSerialized] public Tile SelectedTile { get; private set; }
+        [field: System.NonSerialized] public TileVisual selectedTileVisual { get; private set; }
         private Transform[] _cachedCitizenTileTransforms;
         public event Action SelectedTileChangedEvent;
         private IButtonFactory _buttonFactory;
@@ -55,21 +56,21 @@ namespace Gameplay.GameInteract
             }
 
             _buttons = null;
-            SelectedTile = null;
+            selectedTileVisual = null;
         }
 
         public void ResetAll()
         {
             _buttonGroup.HideButtons();
-            SelectedTile = null;
+            selectedTileVisual = null;
         }
 
         private void OnButtonClicked(IButton btn)
         {
-            SelectedTile?.GetComponent<TileSelectable>()?.Unselect();
+            selectedTileVisual?.GetComponent<TileSelectable>()?.Unselect();
             var tr = _cachedCitizenTileTransforms[Array.IndexOf(_buttons, (ButtonOnGround) btn)];
             tr.GetComponent<TileSelectable>()?.Select();
-            SelectedTile = tr.GetComponent<CitizenTile>();
+            selectedTileVisual = tr.GetComponent<CitizenTileVisual>();
             SelectedTileChangedEvent?.Invoke();
 
             _buttonGroup.HideButtons();

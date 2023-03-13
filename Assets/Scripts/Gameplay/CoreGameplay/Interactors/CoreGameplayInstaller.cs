@@ -3,7 +3,6 @@ using Gameplay.CoreGameplay.Entities;
 using Gameplay.CoreGameplay.Gateway;
 using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
 using Gameplay.CoreGameplay.Interactors.Simulation;
-using Gameplay.Visual.Views;
 
 namespace Gameplay.CoreGameplay.Interactors
 {
@@ -54,7 +53,8 @@ namespace Gameplay.CoreGameplay.Interactors
 
         public void InstallBoardMoveSimulation(CoreGameplayContainer container)
         {
-            container.BoardMoveSimulator = new BoardMoveSimulator(_board, _simulationResultHandler, _boardEntityAccess);
+            container.BoardMoveSimulator = new BoardMoveSimulator(_simulationResultHandler, _boardEntityAccess);
+            container.ConcurrentMoveSimulator = new ConcurrentMoveSimulator(_simulationResultHandler, _boardEntityAccess);
         }
 
         public void InstallTurnDataExtractor(CoreGameplayContainer container)
@@ -66,7 +66,9 @@ namespace Gameplay.CoreGameplay.Interactors
         {
             container.MoveMoveDecisionMakingDriver = new MoveMoveDecisionMakingDriver(
                 container.TurnDataExtractor, _decisionMakingFactory,
-                container.BoardMoveSimulator, new MoveDecisionOptionFactory(_boardEntityAccess));
+                container.BoardMoveSimulator,
+                container.ConcurrentMoveSimulator,
+                new MoveDecisionOptionFactory(_boardEntityAccess));
             container.MoveMoveDecisionMakingDriver.InstallDecisionMakings();
         }
 
@@ -82,6 +84,7 @@ namespace Gameplay.CoreGameplay.Interactors
             container.RefreshRequester = null;
             container.PiecesInteractor = null;
             container.BoardMoveSimulator = null;
+            container.ConcurrentMoveSimulator = null;
             container.TurnDataExtractor = null;
             container.MoveMoveDecisionMakingDriver = null;
             container.GameplayBranchingDriver = null;

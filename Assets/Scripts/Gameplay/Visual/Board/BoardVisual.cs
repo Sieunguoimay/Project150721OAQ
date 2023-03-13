@@ -5,8 +5,8 @@ namespace Gameplay.Visual.Board
 {
     public class BoardSideVisual
     {
-        public MandarinTile MandarinTile;
-        public IReadOnlyList<CitizenTile> CitizenTiles;
+        public MandarinTileVisual MandarinTileVisual;
+        public IReadOnlyList<CitizenTileVisual> CitizenTiles;
     }
 
     public class BoardMetadata
@@ -18,14 +18,14 @@ namespace Gameplay.Visual.Board
 
     public class BoardVisual : MonoBehaviour
     {
-        public IReadOnlyList<Tile> Tiles { get; private set; }
+        public IReadOnlyList<TileVisual> TileVisuals { get; private set; }
         public IReadOnlyList<BoardSideVisual> SideVisuals { get; private set;}
         public BoardMetadata Metadata { get; private set;}
 
-        public void SetReferences(IReadOnlyList<BoardSideVisual> sides, IReadOnlyList<Tile> tiles, BoardMetadata metadata)
+        public void SetReferences(IReadOnlyList<BoardSideVisual> sides, IReadOnlyList<TileVisual> tiles, BoardMetadata metadata)
         {
             SideVisuals = sides;
-            Tiles = tiles;
+            TileVisuals = tiles;
             Metadata = metadata;
         }
     }

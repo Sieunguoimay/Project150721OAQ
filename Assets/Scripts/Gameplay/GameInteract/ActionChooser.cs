@@ -4,23 +4,13 @@ using UnityEngine;
 
 namespace Gameplay.GameInteract
 {
-    public interface IActionChooser
-    {
-        void ShowUp();
-        void HideAway();
-        event Action DirectionSelectedEvent;
-        bool SelectedDirection { get; }
-        void SetPositionAndRotation(Vector3 pos, Quaternion rot);
-    }
-
-    public class ActionChooser : MonoBehaviour, IActionChooser
+    public class ActionChooser : MonoBehaviour
     {
         [SerializeField] private ButtonOnGround left;
         [SerializeField] private ButtonOnGround right;
 
         private ButtonGroup _buttonGroup;
-        public event Action DirectionSelectedEvent;
-        public bool SelectedDirection { get; private set; }
+        private Action<bool> _directionSelectedHandler;
 
         private void OnEnable()
         {
@@ -45,18 +35,14 @@ namespace Gameplay.GameInteract
 
         private void OnClicked(IButton obj)
         {
-            SelectedDirection = right == (ButtonOnGround) obj;
-            DirectionSelectedEvent?.Invoke();
+            var selectedDirection = right == (ButtonOnGround) obj;
+            _directionSelectedHandler?.Invoke(selectedDirection);
             HideAway();
         }
 
-        public void SetPositionAndRotation(Vector3 pos, Quaternion rot)
+        public void ShowUp(Action<bool> directionSelectedHandler)
         {
-            transform.SetPositionAndRotation(pos, rot);
-        }
-
-        public void ShowUp()
-        {
+            _directionSelectedHandler = directionSelectedHandler;
             _buttonGroup.ShowButtons();
         }
 

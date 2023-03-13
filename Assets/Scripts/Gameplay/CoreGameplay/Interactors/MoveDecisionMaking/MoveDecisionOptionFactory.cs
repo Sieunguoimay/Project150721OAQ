@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using Gameplay.CoreGameplay.Entities;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
@@ -12,46 +13,129 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             _boardEntityAccess = boardEntityAccess;
         }
 
-        public MoveDecisionMakingData CreateDecisionMakingData(ExtractedTurnData turnData)
+        public MoveOptionQueue CreateDecisionMakingData(ExtractedTurnData turnData)
         {
-            var numCitizenTiles = _boardEntityAccess.Board.CitizenTiles.Length;
-            var turnIndex = turnData.CurrentTurnIndex;
-            var numTiles = numCitizenTiles / turnData.NumTurns;
-
-            var rangeFrom = turnIndex * numTiles + turnIndex + 1;
-
-            var options = new List<SimpleMoveOption>();
-            for (var i = 0; i < numTiles; i++)
+            var tileOptionValues = CreateTileOptionValues(turnData.CitizenTileEntitiesOfCurrentTurn);
+            return new MoveOptionQueue
             {
-                var tileIndex = rangeFrom + i;
-                if (_boardEntityAccess.TileEntities[tileIndex].PieceEntities.Count > 0)
+                Options = new MoveOptionItem[]
                 {
-                    options.Add(new SimpleMoveOption {TileIndex = tileIndex, Direction = false});
-                    options.Add(new SimpleMoveOption {TileIndex = tileIndex, Direction = true});
-                }
-            }
-            return new MoveDecisionMakingData
-            {
-                Options = options.Select(o => o as MoveOption).ToArray(),
+                    new() {OptionItemType = MoveOptionItemType.Tile, Values = tileOptionValues},
+                    new() {OptionItemType = MoveOptionItemType.Tile, Values = tileOptionValues},
+                    new() {OptionItemType = MoveOptionItemType.Direction, Values = new MoveOptionValue[] {new BooleanOptionValue(true), new BooleanOptionValue(false)}}
+                },
                 TurnIndex = turnData.CurrentTurnIndex
             };
+        }
+
+        private MoveOptionValue[] CreateTileOptionValues(IEnumerable<TileEntity> tileEntities)
+        {
+            var tilesOptionValues = new List<MoveOptionValue>();
+            foreach (var tileEntity in tileEntities)
+            {
+                if (tileEntity.PieceEntities.Count <= 0) continue;
+
+                var tileIndex = Array.IndexOf(_boardEntityAccess.TileEntities, tileEntity);
+                tilesOptionValues.Add(new IntegerOptionValue(tileIndex));
+            }
+
+            return tilesOptionValues.ToArray();
         }
     }
 
 
-    public class MoveDecisionMakingData
+    public class MoveOptionQueue
     {
-        public MoveOption[] Options;
+        public MoveOptionItem[] Options;
         public int TurnIndex;
     }
 
-    public class MoveOption
+    public class MoveOptionItem
     {
+        public MoveOptionValue[] Values;
+        public MoveOptionValue SelectedValue;
+        public MoveOptionItemType OptionItemType;
     }
 
-    public class SimpleMoveOption : MoveOption
+    public enum MoveOptionItemType
     {
-        public int TileIndex;
-        public bool Direction;
+        Direction,
+        Tile
+    }
+
+    public abstract class MoveOptionValue
+    {
+        protected object DynamicValue;
+
+        public MoveOptionValue(object value)
+        {
+            DynamicValue = value;
+        }
+    }
+
+    public class BooleanOptionValue : MoveOptionValue
+    {
+        public bool Value => DynamicValue is true;
+
+        public BooleanOptionValue(object value) : base(value)
+        {
+        }
+    }
+
+    public class IntegerOptionValue : MoveOptionValue
+    {
+        public int Value => DynamicValue is int value ? value : 0;
+
+        public IntegerOptionValue(object value) : base(value)
+        {
+        }
+    }
+
+    public class MoveOptionQueueIterator
+    {
+        private readonly IMoveOptionQueueIterationHandler _handler;
+
+        private int _optionQueueIndex;
+
+        public MoveOptionQueueIterator(MoveOptionQueue moveOptionQueue, IMoveOptionQueueIterationHandler handler)
+        {
+            MoveOptionQueue = moveOptionQueue;
+            _handler = handler;
+            _optionQueueIndex = 0;
+        }
+
+        public MoveOptionQueue MoveOptionQueue { get; }
+
+        public MoveOptionItem CurrentOptionItem { get; private set; }
+
+        public void DequeueNextOptionItem()
+        {
+            if (_optionQueueIndex >= MoveOptionQueue.Options.Length)
+            {
+                _handler.OnOptionsQueueEmpty();
+                return;
+            }
+
+            CurrentOptionItem = MoveOptionQueue.Options[_optionQueueIndex++];
+
+            switch (CurrentOptionItem.OptionItemType)
+            {
+                case MoveOptionItemType.Tile:
+                    _handler.HandleTilesOption();
+                    break;
+                case MoveOptionItemType.Direction:
+                    _handler.HandleDirectionsOption();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public interface IMoveOptionQueueIterationHandler
+        {
+            void OnOptionsQueueEmpty();
+            void HandleTilesOption();
+            void HandleDirectionsOption();
+        }
     }
 }

@@ -80,7 +80,8 @@ namespace Gameplay.CoreGameplay.Controllers
     {
         public IRefreshRequester RefreshRequester;
         public IPiecesInteractor PiecesInteractor;
-        public IBoardMoveSimulator BoardMoveSimulator;
+        public BoardMoveSimulator BoardMoveSimulator;
+        public ConcurrentMoveSimulator ConcurrentMoveSimulator;
         public TurnDataExtractor TurnDataExtractor;
         public MoveMoveDecisionMakingDriver MoveMoveDecisionMakingDriver;
         public CoreGameplayInteractDriver GameplayBranchingDriver;

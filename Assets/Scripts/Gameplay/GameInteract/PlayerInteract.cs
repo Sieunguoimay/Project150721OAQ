@@ -12,23 +12,25 @@ namespace Gameplay.GameInteract
 
     public class PlayerInteractResult
     {
-        public PlayerInteractResult(Tile selectedTile, bool direction)
+        public PlayerInteractResult(TileVisual selectedTileVisual, bool direction)
         {
-            SelectedTile = selectedTile;
+            selectedTileVisual = selectedTileVisual;
             Direction = direction;
         }
 
-        public Tile SelectedTile { get; }
+        public TileVisual selectedTileVisual { get; }
         public bool Direction { get; }
     }
 
+    [Obsolete]
     public class PlayerInteract : BaseGenericDependencyInversionUnit<PlayerInteract>, IPlayerInteract
     {
         [SerializeField] private TileChooser tileChooser;
         [SerializeField] private ActionChooser actionChooser;
+
         private IGameplayContainer _container;
-        private IActionChooser ActionChooser => actionChooser;
-        
+        // private IActionChooser ActionChooser => actionChooser;
+
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
@@ -40,19 +42,19 @@ namespace Gameplay.GameInteract
             tileChooser.SelectedTileChangedEvent -= OnSelectedTileChanged;
             tileChooser.SelectedTileChangedEvent += OnSelectedTileChanged;
 
-            ActionChooser.DirectionSelectedEvent -= OnDirectionSelected;
-            ActionChooser.DirectionSelectedEvent += OnDirectionSelected;
+            // ActionChooser.DirectionSelectedEvent -= OnDirectionSelected;
+            // ActionChooser.DirectionSelectedEvent += OnDirectionSelected;
 
             tileChooser.Setup(_container.PlayTurnTeller);
         }
 
         public void Cleanup()
         {
-            ActionChooser.DirectionSelectedEvent -= OnDirectionSelected;
+            // ActionChooser.DirectionSelectedEvent -= OnDirectionSelected;
             tileChooser.SelectedTileChangedEvent -= OnSelectedTileChanged;
 
             tileChooser.ResetAll();
-            ActionChooser.HideAway();
+            actionChooser.HideAway();
             tileChooser.TearDown();
         }
 
@@ -64,21 +66,21 @@ namespace Gameplay.GameInteract
         private void OnSelectedTileChanged()
         {
             UpdateActionChooserPosition();
-            ActionChooser.ShowUp();
+            actionChooser.ShowUp(OnDirectionSelected);
         }
 
         private void UpdateActionChooserPosition()
         {
-            var tileTransform = tileChooser.SelectedTile.transform;
+            var tileTransform = tileChooser.selectedTileVisual.transform;
             var rot = tileTransform.rotation;
             var pos = tileTransform.position + rot * Vector3.forward;
 
-            ActionChooser.SetPositionAndRotation(pos, rot);
+            actionChooser.transform.SetPositionAndRotation(pos, rot);
         }
 
-        private void OnDirectionSelected()
+        private void OnDirectionSelected(bool direction)
         {
-            var result = new PlayerInteractResult(tileChooser.SelectedTile, actionChooser.SelectedDirection);
+            var result = new PlayerInteractResult(tileChooser.selectedTileVisual, direction);
             ResultEvent?.Invoke(result);
         }
 

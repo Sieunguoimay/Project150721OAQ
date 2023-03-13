@@ -70,7 +70,7 @@ namespace Gameplay.CoreGameplay.Interactors
 
         private bool AnyTileOnCurrentSideHasPieces()
         {
-            return _turnDataExtractor.ExtractedTurnData.TileEntitiesOfCurrentTurn
+            return _turnDataExtractor.ExtractedTurnData.CitizenTileEntitiesOfCurrentTurn
                 .Sum(t => t.PieceEntities.Count) > 0;
         }
 

@@ -14,10 +14,10 @@ namespace Gameplay.GameInteract
         private IButtonFactory _buttonFactory;
         private IButton[] _buttons;
         private ButtonGroup _buttonGroup;
-        private Action<Tile> _onSelected;
-        private IReadOnlyList<Tile> _tiles;
+        private Action<TileVisual> _onSelected;
+        private IReadOnlyList<TileVisual> _tiles;
 
-        public void Show(IReadOnlyList<Tile> tiles, Action<Tile> onSelected)
+        public void Show(IReadOnlyList<TileVisual> tiles, Action<TileVisual> onSelected)
         {
             _tiles = tiles;
             _onSelected = onSelected;
@@ -63,7 +63,7 @@ namespace Gameplay.GameInteract
             _buttonGroup = new ButtonGroup(_buttons);
         }
 
-        private void SetupButtons(IReadOnlyList<Tile> tiles)
+        private void SetupButtons(IReadOnlyList<TileVisual> tiles)
         {
             for (var i = 0; i < tiles.Count; i++)
             {

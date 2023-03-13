@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Gameplay.Visual.Board
 {
     [SelectionBase]
-    public class Tile : MonoPieceContainer
+    public class TileVisual : MonoPieceContainer
     {
         public int TileIndex { get; private set; }
 

@@ -85,7 +85,8 @@ namespace Gameplay.GameInteract.Button
 
         public virtual void ShowUp()
         {
-            if (IsShowing) return;
+            StopAllCoroutines();
+
             visual.gameObject.SetActive(true);
 
             visual.transform.localPosition = -Vector3.up * (VisualHeight * 0.5f);
@@ -99,7 +100,6 @@ namespace Gameplay.GameInteract.Button
 
         public void HideAway()
         {
-            if (!IsShowing) return;
             HideAway(.15f);
         }
 

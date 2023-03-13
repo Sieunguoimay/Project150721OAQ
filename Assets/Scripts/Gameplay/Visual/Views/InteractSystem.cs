@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Common;
 using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
 using Gameplay.GameInteract;
 using Gameplay.Visual.Board;
+using SNM;
 using UnityEngine;
 
 namespace Gameplay.Visual.Views
@@ -11,7 +13,13 @@ namespace Gameplay.Visual.Views
     public class InteractSystem : BaseGenericDependencyInversionUnit<InteractSystem>
     {
         [SerializeField] private TileSelector tileSelector;
+        [SerializeField] private ActionChooser actionChooser;
+        
         private BoardVisualView _boardVisualView;
+        private Action<MoveOptionQueue> _optionSelectedHandler;
+        private TileVisual _selectedTileVisual;
+        private Action<bool> _directionSelectedHandler;
+        private Action<int> _tileSelectedHandler;
 
         protected override void OnSetupDependencies()
         {
@@ -19,23 +27,49 @@ namespace Gameplay.Visual.Views
             _boardVisualView = Resolver.Resolve<BoardVisualView>();
         }
 
-        public void DisplayOptions(SimpleMoveOption[] moveOptions, Action<SimpleMoveOption> onSelected)
+        public void ShowActionChooser(Action<bool> directionSelectedHandler)
         {
-            var tiles = GetCitizenTiles(moveOptions).ToArray();
-            tileSelector.Show(tiles, tile =>
-            {
-                onSelected?.Invoke(moveOptions.FirstOrDefault(mo => mo.TileIndex == tile.TileIndex));
-            });
+            _directionSelectedHandler = directionSelectedHandler;
+            UpdateActionChooserPosition();
+            actionChooser.ShowUp(OnDirectionSelected);
         }
 
-        private IEnumerable<Tile> GetCitizenTiles(IEnumerable<SimpleMoveOption> moveOptions)
+        public void ShowTileSelector(IEnumerable<int> tileIndices, Action<int>tileSelectedHandler)
         {
-            return moveOptions.Select(mo => _boardVisualView.BoardVisual.Tiles[mo.TileIndex]).Distinct();
+            _tileSelectedHandler = tileSelectedHandler;
+            var tileVisuals = tileIndices.Select(v => _boardVisualView.BoardVisual.TileVisuals[v]).ToArray();
+            tileSelector.Show(tileVisuals, OnTileSelected);
+        }
+
+        private void OnTileSelected(TileVisual tileVisual)
+        {
+            tileSelector.Dismiss();
+            PublicExecutor.Instance.Delay(.2f, () =>
+            {
+                _selectedTileVisual = tileVisual;
+                _tileSelectedHandler?.Invoke(tileVisual.TileIndex);
+            });
         }
 
         public void Dismiss()
         {
             tileSelector.Dismiss();
+            actionChooser.HideAway();
+        }
+
+        private void UpdateActionChooserPosition()
+        {
+            var tileTransform = _selectedTileVisual.transform;
+            var rot = tileTransform.rotation;
+            var pos = tileTransform.position + rot * Vector3.forward;
+
+            actionChooser.transform.SetPositionAndRotation(pos, rot);
+        }
+
+        private void OnDirectionSelected(bool direction)
+        {
+            actionChooser.HideAway();
+            _directionSelectedHandler?.Invoke(direction);
         }
     }
 }

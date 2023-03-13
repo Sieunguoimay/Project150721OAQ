@@ -62,7 +62,7 @@ namespace Gameplay.CoreGameplay
             _controller.SetupDependencies(installer);
             _movingRunner.SetupDependencies(Resolver);
 
-            _simulationResultPresenter.MovingRunner = _movingRunner;
+            _simulationResultPresenter.SetMovingRunner(_movingRunner);
         }
     }
 }

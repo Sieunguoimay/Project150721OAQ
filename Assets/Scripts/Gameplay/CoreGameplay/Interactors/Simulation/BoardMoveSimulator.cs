@@ -1,141 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Gameplay.CoreGameplay.Entities;
-
-namespace Gameplay.CoreGameplay.Interactors.Simulation
+﻿namespace Gameplay.CoreGameplay.Interactors.Simulation
 {
-    public interface IBoardMoveSimulator
+    public class BoardMoveSimulator 
     {
-        void RunSimulation(MoveSimulationInputData inputData);
-    }
-
-    public class BoardMoveSimulator : IBoardMoveSimulator
-    {
-        private readonly IBoardMoveSimulationResultHandler _refreshResultHandler;
-        private readonly IBoardStateDriver _boardStateMachine;
+        private readonly IBoardMoveSimulationResultHandler _simulationResultHandler;
+        private readonly BoardStateMachine _boardStateMachine;
         private readonly MoveMaker _moveMaker;
 
-        public BoardMoveSimulator(BoardEntity board, IBoardMoveSimulationResultHandler resultHandler,
+        public BoardMoveSimulator(IBoardMoveSimulationResultHandler resultHandler,
             BoardEntityAccess boardEntityAccess)
         {
-            _refreshResultHandler = resultHandler;
-            _moveMaker = new MoveMaker(board, resultHandler, boardEntityAccess);
+            _simulationResultHandler = resultHandler;
+            _moveMaker = new MoveMaker(OnSimulationProgress, boardEntityAccess);
             _boardStateMachine = new BoardStateMachine(_moveMaker);
-            _boardStateMachine.EndEvent += OnBoardStateMachineEnd;
+            _boardStateMachine.SetEndHandler(OnBoardStateMachineEnd);
         }
 
         public void RunSimulation(MoveSimulationInputData inputData)
         {
-            _moveMaker.Initialize(inputData);
+            _moveMaker.Initialize(inputData.SideIndex, inputData.StartingTileIndex, inputData.Direction);
             _boardStateMachine.NextAction();
         }
 
-        private void OnBoardStateMachineEnd(IBoardStateDriver obj)
+        private void OnSimulationProgress(MoveMaker arg1, MoveSimulationProgressData arg2)
         {
-            _refreshResultHandler.OnSimulationResult(new MoveSimulationResultData());
+            _simulationResultHandler?.OnSimulationProgress(0, arg2);
         }
 
-        private class MoveMaker : IMoveMaker, MoveInnerRules<TileEntity>.IMoveRuleDataHelper
+        private void OnBoardStateMachineEnd()
         {
-            private MoveSimulationInputData _moveConfig;
-            private readonly BoardEntity _boardEntity;
-            private readonly IBoardMoveSimulationResultHandler _resultHandler;
-            private readonly BoardEntityAccess _boardEntityAccess;
-
-            private readonly PieceContainerEntity _tempPieceContainer = new() {PieceEntities = new List<PieceEntity>()};
-
-            public MoveMaker(BoardEntity boardEntity, IBoardMoveSimulationResultHandler resultHandler,
-                BoardEntityAccess boardEntityAccess)
-            {
-                _boardEntity = boardEntity;
-                _resultHandler = resultHandler;
-                _boardEntityAccess = boardEntityAccess;
-                MoveInnerRules = new MoveInnerRules<TileEntity>(this);
-            }
-
-            public void Initialize(MoveSimulationInputData moveConfig)
-            {
-                _moveConfig = moveConfig;
-                TileIterator = new TileIterator<TileEntity>(_boardEntityAccess.TileEntities, moveConfig.Direction);
-                TileIterator.UpdateCurrentTileIndex(_moveConfig.StartingTileIndex);
-            }
-
-            public void Grasp(Action doneHandler)
-            {
-                PiecesInteractor.InnerPiecesInteractor.MoveAllPiecesFromContainerToContainer(TileIterator.CurrentTile,
-                    _tempPieceContainer);
-
-                FinalizeMove(MoveType.Grasp);
-                doneHandler?.Invoke();
-            }
-
-            public void Drop(Action doneHandler)
-            {
-                PiecesInteractor.InnerPiecesInteractor.MoveSinglePieceFromContainerToContainer(_tempPieceContainer,
-                    TileIterator.CurrentTile);
-
-                FinalizeMove(MoveType.Drop);
-                doneHandler?.Invoke();
-            }
-
-            public void Slam(Action doneHandler)
-            {
-                FinalizeMove(MoveType.Slam);
-                doneHandler?.Invoke();
-            }
-
-            public void Eat(Action doneHandler)
-            {
-                var pocket = _boardEntity.Pockets[_moveConfig.SideIndex];
-                PiecesInteractor.InnerPiecesInteractor.MoveAllPiecesFromContainerToContainer(TileIterator.CurrentTile,
-                    pocket);
-                FinalizeMove(MoveType.Eat);
-                doneHandler?.Invoke();
-            }
-
-            private void FinalizeMove(MoveType moveType)
-            {
-                var numCitizens =
-                    TileIterator.CurrentTile.PieceEntities.Count(p => p.PieceType == PieceType.Citizen);
-                var numMandarins =
-                    TileIterator.CurrentTile.PieceEntities.Count(p => p.PieceType == PieceType.Mandarin);
-                
-                _resultHandler?.OnSimulationProgress(CreateOutput(moveType, numCitizens, numMandarins));
-                TileIterator.UpdateCurrentTileIndex(
-                    Array.IndexOf(_boardEntityAccess.TileEntities, TileIterator.NextTile));
-            }
-
-            private MoveSimulationProgressData CreateOutput(MoveType moveType, int numCitizens, int numMandarins)
-            {
-                return new()
-                {
-                    MoveType = moveType,
-                    TileIndex = TileIterator.CurrentTileIndex,
-                    NumCitizens = numCitizens,
-                    NumMandarins = numMandarins,
-                };
-            }
-
-            public bool CanDrop()
-            {
-                return _tempPieceContainer.PieceEntities.Count > 0;
-            }
-
-            public IMoveInnerRules MoveInnerRules { get; }
-
-            public TileIterator<TileEntity> TileIterator { get; private set; }
-
-            public int GetNumPiecesInTile(TileEntity tile)
-            {
-                return tile.PieceEntities.Count;
-            }
-
-            public bool IsMandarinTile(TileEntity tile)
-            {
-                return Array.IndexOf(_boardEntityAccess.TileEntities, tile) %
-                    (_boardEntityAccess.TileEntities.Length / 2) == 0;
-            }
+            _simulationResultHandler.OnSimulationResult(new MoveSimulationResultData());
         }
     }
 
@@ -168,7 +61,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
     public interface IBoardMoveSimulationResultHandler
     {
+        void OnSimulationProgress(int simulationId, MoveSimulationProgressData result);
         void OnSimulationResult(MoveSimulationResultData result);
-        void OnSimulationProgress(MoveSimulationProgressData result);
     }
 }

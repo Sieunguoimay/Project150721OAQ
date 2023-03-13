@@ -9,7 +9,7 @@ namespace Gameplay.Visual
         private readonly BoardStateView _boardStateView;
         private readonly BoardVisual _boardVisualVisual;
 
-        public BoardStateMatchVisualVerify(BoardStateView boardStateView, Board.BoardVisual boardVisualVisual)
+        public BoardStateMatchVisualVerify(BoardStateView boardStateView, BoardVisual boardVisualVisual)
         {
             _boardStateView = boardStateView;
             _boardVisualVisual = boardVisualVisual;
@@ -19,12 +19,12 @@ namespace Gameplay.Visual
         {
             for (var i = 0; i < _boardStateView.RefreshData.PiecesInTiles.Length; i++)
             {
-                var visualCount = _boardVisualVisual.Tiles[i].HeldPieces.Count;
+                var visualCount = _boardVisualVisual.TileVisuals[i].HeldPieces.Count;
                 var piecesInTile = _boardStateView.RefreshData.PiecesInTiles[i];
                 var dataCount = piecesInTile.CitizenPiecesCount + piecesInTile.MandarinPiecesCount;
                 if (visualCount == dataCount)
                 {
-                    Debug.Log("Tile Matching " + visualCount);
+                    // Debug.Log("Tile Matching " + visualCount);
                 }
                 else
                 {

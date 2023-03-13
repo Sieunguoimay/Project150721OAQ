@@ -39,7 +39,7 @@ namespace Gameplay.Visual.Piece
                 if (amount > 0)
                 {
                     var citizens = _pieceGenerator.SpawnCitizens(amount);
-                    var tile = _boardVisual.Tiles[i];
+                    var tile = _boardVisual.TileVisuals[i];
 
                     PiecesMovingRunner.MovePieces(_gridLocator, citizens, tile, citizens.Length);
                     tile.AddPieces(citizens);
@@ -49,7 +49,7 @@ namespace Gameplay.Visual.Piece
                 if (amount > 0)
                 {
                     var mandarins = _pieceGenerator.SpawnMandarins(amount);
-                    var tile = _boardVisual.Tiles[i];
+                    var tile = _boardVisual.TileVisuals[i];
 
                     PiecesMovingRunner.MovePieces(_gridLocator, mandarins, tile, mandarins.Length);
                     tile.AddPieces(mandarins);

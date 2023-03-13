@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using Common;
 using Common.DecisionMaking;
 using Gameplay.CoreGameplay.Interactors.Simulation;
+using SNM;
 
 namespace Gameplay.Visual.Board
 {
@@ -11,7 +13,7 @@ namespace Gameplay.Visual.Board
 
         private readonly List<IStateMachine> _completedStateMachines = new();
 
-        public MultiBoardStateMachine(IReadOnlyList<IMoveMaker> executors)
+        public MultiBoardStateMachine(IReadOnlyList<IMoveMaker> executors) 
         {
             _stateMachines = new IStateMachine[executors.Count];
             for (var i = 0; i < executors.Count; i++)

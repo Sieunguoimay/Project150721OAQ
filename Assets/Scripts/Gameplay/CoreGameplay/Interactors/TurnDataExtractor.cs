@@ -11,7 +11,6 @@ namespace Gameplay.CoreGameplay.Interactors
         private readonly BoardEntityAccess _boardEntityAccess;
         private readonly TurnEntity _turnEntity;
 
-        public event Action<TurnDataExtractor> TurnChangedEvent;
         public ExtractedTurnData ExtractedTurnData { get; private set; }
 
         public TurnDataExtractor(BoardEntityAccess boardEntityAccess, TurnEntity turnEntity)
@@ -21,23 +20,22 @@ namespace Gameplay.CoreGameplay.Interactors
             ExtractedTurnData = ExtractTurnData();
         }
 
-        private IReadOnlyList<TileEntity> GetTileEntitiesByTurn(int turn)
+        private IReadOnlyList<TileEntity> GetCitizenTileEntitiesByTurn(int turn)
         {
             var numTiles = _boardEntityAccess.TileEntities.Length / _turnEntity.NumTurns;
-            var rangeFrom = turn * numTiles;
+            var rangeFrom = turn * numTiles + 1;
             var rangeTo = (turn + 1) * numTiles;
             return _boardEntityAccess.TileEntities[rangeFrom..rangeTo];
         }
 
-        public ExtractedTurnData ExtractTurnData()
+        private ExtractedTurnData ExtractTurnData()
         {
             return new()
             {
                 NumTurns = _turnEntity.NumTurns,
                 CurrentTurnIndex = _turnEntity.TurnIndex,
-                TileEntitiesOfCurrentTurn = GetTileEntitiesByTurn(_turnEntity.TurnIndex),
-                PocketEntity = _boardEntityAccess.GetPocketAtIndex(_turnEntity.TurnIndex),
-                // MoveDecisionMakingData = CreateDecisionMakingData(_boardEntityAccess.Board.CitizenTiles.Length)
+                CitizenTileEntitiesOfCurrentTurn = GetCitizenTileEntitiesByTurn(_turnEntity.TurnIndex),
+                PocketEntity = _boardEntityAccess.GetPocketAtIndex(_turnEntity.TurnIndex)
             };
         }
 
@@ -45,14 +43,12 @@ namespace Gameplay.CoreGameplay.Interactors
         {
             _turnEntity.TurnIndex = (_turnEntity.TurnIndex + 1) % _turnEntity.NumTurns;
             ExtractedTurnData = ExtractTurnData();
-            TurnChangedEvent?.Invoke(this);
         }
     }
 
     public class ExtractedTurnData
     {
-        public IReadOnlyList<TileEntity> TileEntitiesOfCurrentTurn;
-
+        public IReadOnlyList<TileEntity> CitizenTileEntitiesOfCurrentTurn;
         public PocketEntity PocketEntity;
 
         public int CurrentTurnIndex;

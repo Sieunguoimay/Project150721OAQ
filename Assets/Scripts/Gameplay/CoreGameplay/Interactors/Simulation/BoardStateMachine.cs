@@ -9,7 +9,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
     public interface IBoardStateDriver
     {
         void NextAction();
-        event Action<IBoardStateDriver> EndEvent;
+        // event Action<IBoardStateDriver> EndEvent;
     }
 
     public abstract class BaseBoardStateMachine : IBoardStateDriver
@@ -37,13 +37,18 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
          * - NextAction(): void
          * - EndEvent: Action
          */
+        public void SetEndHandler(Action endHandler)
+        {
+            _endHandler = endHandler;
+        }
 
         protected IStateMachine SetupStateMachine(IMoveMaker executor)
         {
             var stateMachine = new StateMachine();
+            var stateIdle = new StateIdle(stateMachine);
             var boardStates = new BaseBoardState[]
             {
-                new StateIdle(stateMachine, HandleIdleStateEnter),
+                stateIdle,
                 new GraspATile(stateMachine),
                 new KeepDropping(stateMachine),
                 new SlamAndEat(stateMachine)
@@ -55,6 +60,8 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
             {
                 s.Setup(HandleAnyActionComplete, executor);
             }
+            
+            stateIdle.SetStateEnterHandler(HandleIdleStateEnter);
 
             return stateMachine;
         }
@@ -70,9 +77,9 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
         public abstract void NextAction();
 
-        protected void InvokeEndEvent() => EndEvent?.Invoke(this);
+        protected void InvokeEndEvent() => _endHandler?.Invoke();
 
-        public event Action<IBoardStateDriver> EndEvent;
+        private Action _endHandler;
 
 
         protected abstract class BaseBoardState : BaseState
@@ -104,9 +111,13 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
         {
             private GraspATile _graspATile;
 
-            private readonly Action<BaseBoardState> _stateEnterHandler;
+            private Action<BaseBoardState> _stateEnterHandler;
 
-            public StateIdle(IStateMachine stateMachine, Action<BaseBoardState> stateEnterHandler) : base(stateMachine)
+            public StateIdle(IStateMachine stateMachine) : base(stateMachine)
+            {
+            }
+
+            public void SetStateEnterHandler(Action<BaseBoardState> stateEnterHandler)
             {
                 _stateEnterHandler = stateEnterHandler;
             }

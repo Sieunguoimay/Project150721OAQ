@@ -38,24 +38,18 @@ namespace Gameplay.Visual.Piece
             Mandarins = null;
             Citizens = null;
         }
-
-        public void SpawnPieces(int groups, int tilesPerGroup, int numCitizens)
-        {
-            Mandarins = SpawnPieces(mandarinPrefab, groups);
-            Citizens = SpawnPieces(citizenPrefab, groups * tilesPerGroup * numCitizens);
-        }
-
+        
         public Citizen[] SpawnCitizens(int amount)
         {
-            return SpawnPieces(citizenPrefab, amount);
+            return Citizens = SpawnPieces(citizenPrefab, amount);
         }
 
         public Mandarin[] SpawnMandarins(int amount)
         {
-            return SpawnPieces(mandarinPrefab, amount);
+            return Mandarins = SpawnPieces(mandarinPrefab, amount);
         }
 
-        public TPiece[] SpawnPieces<TPiece>(TPiece prefab, int amount) where TPiece : Component
+        private TPiece[] SpawnPieces<TPiece>(TPiece prefab, int amount) where TPiece : Component
         {
             var citizens = new TPiece[amount];
             for (var i = 0; i < citizens.Length; i++)
