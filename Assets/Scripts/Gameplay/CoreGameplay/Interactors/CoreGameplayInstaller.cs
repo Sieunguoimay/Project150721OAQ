@@ -1,9 +1,9 @@
 ﻿using Gameplay.CoreGameplay.Controllers;
 using Gameplay.CoreGameplay.Entities;
 using Gameplay.CoreGameplay.Gateway;
-using Gameplay.CoreGameplay.Interactors.Driver;
 using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
 using Gameplay.CoreGameplay.Interactors.Simulation;
+using Gameplay.Visual.Views;
 
 namespace Gameplay.CoreGameplay.Interactors
 {
@@ -17,14 +17,17 @@ namespace Gameplay.CoreGameplay.Interactors
         private readonly ICoreGameplayDataAccess _dataAccess;
         private readonly IPieceInteractResultHandler _interactResultHandler;
         private readonly IBoardMoveSimulationResultHandler _simulationResultHandler;
+        private readonly MoveDecisionMakingFactory _decisionMakingFactory;
 
         public CoreGameplayInstaller(ICoreGameplayDataAccess dataAccess,
             IPieceInteractResultHandler interactResultHandler,
-            IBoardMoveSimulationResultHandler simulationResultHandler)
+            IBoardMoveSimulationResultHandler simulationResultHandler,
+            MoveDecisionMakingFactory decisionMakingFactory)
         {
             _dataAccess = dataAccess;
             _interactResultHandler = interactResultHandler;
             _simulationResultHandler = simulationResultHandler;
+            _decisionMakingFactory = decisionMakingFactory;
         }
 
         public void InstallEntities()
@@ -59,12 +62,18 @@ namespace Gameplay.CoreGameplay.Interactors
             container.TurnDataExtractor = new TurnDataExtractor(_boardEntityAccess, _turnEntity);
         }
 
-        public void InstallGameplayDriver(CoreGameplayContainer container)
+        public void InstallMoveDecisionMakingDriver(CoreGameplayContainer container)
         {
             container.MoveMoveDecisionMakingDriver = new MoveMoveDecisionMakingDriver(
-                container.TurnDataExtractor, new MoveDecisionMakingFactory(), 
+                container.TurnDataExtractor, _decisionMakingFactory,
                 container.BoardMoveSimulator, new MoveDecisionOptionFactory(_boardEntityAccess));
             container.MoveMoveDecisionMakingDriver.InstallDecisionMakings();
+        }
+
+        public void InstallGameplayTaskDistributor(CoreGameplayContainer container)
+        {
+            container.GameplayBranchingDriver = new CoreGameplayInteractDriver(container.TurnDataExtractor,
+                container.MoveMoveDecisionMakingDriver, _boardEntityAccess);
         }
 
         public void Uninstall(CoreGameplayContainer container)
@@ -75,6 +84,7 @@ namespace Gameplay.CoreGameplay.Interactors
             container.BoardMoveSimulator = null;
             container.TurnDataExtractor = null;
             container.MoveMoveDecisionMakingDriver = null;
+            container.GameplayBranchingDriver = null;
 
             _board = null;
             _boardEntityAccess = null;

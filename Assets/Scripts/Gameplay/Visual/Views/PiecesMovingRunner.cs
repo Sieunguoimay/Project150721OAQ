@@ -34,7 +34,7 @@ namespace Gameplay.Visual.Views
             NextStep();
         }
 
-        public void Cleanup()
+        public void ResetMovingSteps()
         {
             _movingSteps = null;
         }

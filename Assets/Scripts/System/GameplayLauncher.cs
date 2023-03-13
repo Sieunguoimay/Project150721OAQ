@@ -1,12 +1,9 @@
 ﻿using Framework.Resolver;
-using Gameplay.CoreGameplay;
 using Gameplay.CoreGameplay.Controllers;
 using Gameplay.Entities.Stage.StageSelector;
 using Gameplay.GameInteract;
 using Gameplay.GameState;
-using Gameplay.Helpers;
 using Gameplay.PlayTurn;
-using Gameplay.Visual;
 using Gameplay.Visual.Presenters;
 using Gameplay.Visual.Views;
 using UnityEngine;
@@ -16,8 +13,8 @@ namespace System
     [CreateAssetMenu]
     public class GameplayLauncher : BaseDependencyInversionScriptableObject
     {
-        private Gameplay _gameplay;
-        private PlayerInteract _interact;
+        private GameplayViewActionCompleteHandler _gameplayViewActionCompleteHandler;
+        // private PlayerInteract _interact;
         private IStageSelector _stageSelector;
         private IGameState _gameState;
         private GameStateController _gameStateController;
@@ -46,7 +43,7 @@ namespace System
             base.OnSetupDependencies();
 
             _stageSelector = Resolver.Resolve<IStageSelector>("stage_selector");
-            _interact = Resolver.Resolve<PlayerInteract>();
+            // _interact = Resolver.Resolve<PlayerInteract>();
             _gameStateController = Resolver.Resolve<GameStateController>();
             _coreGameplayController = Resolver.Resolve<ICoreGameplayController>();
             _boardStatePresenter = Resolver.Resolve<BoardStatePresenter>();
@@ -75,20 +72,16 @@ namespace System
 
             _playTurnDataGenerator.Generate(_boardStatePresenter.BoardStateView.NumSides, _boardVisualView.BoardVisual);
             
-            _interact.Initialize();
+            // _interact.Initialize();
 
-            _gameplay = new Gameplay(_container, _interact, _boardStatePresenter, _coreGameplayController, _boardVisualView);
-            _gameplay.GameOverEvent -= OnGameOver;
-            _gameplay.GameOverEvent += OnGameOver;
+            _gameplayViewActionCompleteHandler = new GameplayViewActionCompleteHandler(_container, _boardStatePresenter, _coreGameplayController, _boardVisualView);
         }
 
         private void ClearGame()
         {
-            _gameplay.GameOverEvent -= OnGameOver;
-
-            _interact.Cleanup();
+            // _interact.Cleanup();
             _boardVisualView.Cleanup();
-            _gameplay.Cleanup();
+            _gameplayViewActionCompleteHandler.Cleanup();
             _coreGameplayController.Uninstall();
             _container.Cleanup();
         }
@@ -106,7 +99,7 @@ namespace System
             _coreGameplayController.RequestRefresh(_boardStatePresenter);
         }
 
-        private void OnGameOver(Gameplay obj)
+        private void OnGameOver(GameplayViewActionCompleteHandler obj)
         {
             _gameStateController.EndGame();
         }

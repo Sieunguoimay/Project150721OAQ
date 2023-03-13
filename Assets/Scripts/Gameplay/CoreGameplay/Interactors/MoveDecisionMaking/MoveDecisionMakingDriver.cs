@@ -12,7 +12,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         private IMoveDecisionMaking[] _defaultDecisionMakings;
         private IMoveDecisionMaking[] _decisionMakings;
-        private ExtractedTurnData _currentTurnData;
+        private ExtractedTurnData CurrentTurnData => _turnDataExtractor.ExtractedTurnData;
 
         public MoveMoveDecisionMakingDriver(
             TurnDataExtractor turnDataExtractor, IMoveDecisionMakingFactory factory,
@@ -26,9 +26,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         public void InstallDecisionMakings()
         {
-            UpdateCurrentTurnData();
-
-            var numTurns = _currentTurnData.NumTurns;
+            var numTurns = CurrentTurnData.NumTurns;
 
             _defaultDecisionMakings = new IMoveDecisionMaking[numTurns];
             _decisionMakings = new IMoveDecisionMaking[numTurns];
@@ -40,9 +38,6 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
                     : _factory.CreateComputerMoveDecisionMaking();
                 _defaultDecisionMakings[i] = _factory.CreateDefaultMoveDecisionMaking();
             }
-
-            _turnDataExtractor.TurnChangedEvent -= OnCurrentTurnChanged;
-            _turnDataExtractor.TurnChangedEvent += OnCurrentTurnChanged;
         }
 
 
@@ -50,13 +45,12 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         {
             _decisionMakings = null;
             _defaultDecisionMakings = null;
-            _turnDataExtractor.TurnChangedEvent -= OnCurrentTurnChanged;
         }
 
         public void MakeDecisionOfCurrentTurn()
         {
-            var decisionMaking = _decisionMakings[_currentTurnData.CurrentTurnIndex];
-            var decisionMakingData = _moveDecisionOptionFactory.CreateDecisionMakingData(_currentTurnData);
+            var decisionMaking = _decisionMakings[CurrentTurnData.CurrentTurnIndex];
+            var decisionMakingData = _moveDecisionOptionFactory.CreateDecisionMakingData(CurrentTurnData);
             decisionMaking.MakeDecision(decisionMakingData, this);
 
             StartCooldownTimer();
@@ -75,11 +69,6 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             }
         }
 
-        private void OnCurrentTurnChanged(TurnDataExtractor obj)
-        {
-            UpdateCurrentTurnData();
-        }
-        
         private void StartCooldownTimer()
         {
             //Todo
@@ -92,7 +81,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         public void OnCooldownTimerEnded()
         {
-            _decisionMakings[_currentTurnData.CurrentTurnIndex].ForceEnd();
+            _decisionMakings[CurrentTurnData.CurrentTurnIndex].ForceEnd();
 
             HandleDecisionMakingFailed();
         }
@@ -104,9 +93,10 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         private void MakeDecisionByDefault()
         {
-            var decisionMaking = _defaultDecisionMakings[_currentTurnData.CurrentTurnIndex];
-            var decisionMakingData = _moveDecisionOptionFactory.CreateDecisionMakingData(_currentTurnData);
-            decisionMaking.MakeDecision(decisionMakingData, new DefaultMoveDecisionMakingResultHandler(_boardMoveSimulator));
+            var decisionMaking = _defaultDecisionMakings[CurrentTurnData.CurrentTurnIndex];
+            var decisionMakingData = _moveDecisionOptionFactory.CreateDecisionMakingData(CurrentTurnData);
+            decisionMaking.MakeDecision(decisionMakingData,
+                new DefaultMoveDecisionMakingResultHandler(_boardMoveSimulator));
         }
 
         // public void OnSimulationPresentationEnded()
@@ -117,10 +107,6 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         //     MakeDecisionOfCurrentTurn();
         // }
 
-        private void UpdateCurrentTurnData()
-        {
-            _currentTurnData = _turnDataExtractor.ExtractTurnData();
-        }
 
         private class DefaultMoveDecisionMakingResultHandler : IMoveDecisionMakingResultHandler
         {

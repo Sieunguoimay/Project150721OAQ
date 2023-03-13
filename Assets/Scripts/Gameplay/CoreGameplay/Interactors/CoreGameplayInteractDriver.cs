@@ -1,22 +1,26 @@
 ﻿using System.Linq;
+using Gameplay.CoreGameplay.Entities;
 using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
 
-namespace Gameplay.CoreGameplay.Interactors.Driver
+namespace Gameplay.CoreGameplay.Interactors
 {
-    public class GameplayTaskDistributor : IRefreshResultHandler
+    public class CoreGameplayInteractDriver
     {
         private readonly TurnDataExtractor _turnDataExtractor;
         private readonly MoveMoveDecisionMakingDriver _moveMoveDecisionMakingDriver;
         private readonly BoardEntityAccess _boardEntityAccess;
 
-        public GameplayTaskDistributor(TurnDataExtractor turnDataExtractor, MoveMoveDecisionMakingDriver moveMoveDecisionMakingDriver, BoardEntityAccess boardEntityAccess)
+        public CoreGameplayInteractDriver(
+            TurnDataExtractor turnDataExtractor,
+            MoveMoveDecisionMakingDriver moveMoveDecisionMakingDriver, 
+            BoardEntityAccess boardEntityAccess)
         {
             _turnDataExtractor = turnDataExtractor;
             _moveMoveDecisionMakingDriver = moveMoveDecisionMakingDriver;
             _boardEntityAccess = boardEntityAccess;
         }
 
-        public void Distribute()
+        public void CheckBranching()
         {
             CheckPiecesInMandarinTiles();
         }
@@ -26,7 +30,7 @@ namespace Gameplay.CoreGameplay.Interactors.Driver
             if (AnyMandarinTileHasPieces())
             {
                 _turnDataExtractor.NextTurn();
-                
+
                 CheckPiecesOnCurrentSide();
             }
             else
@@ -58,23 +62,22 @@ namespace Gameplay.CoreGameplay.Interactors.Driver
                 RunGameOver();
             }
         }
-        
+
         private bool AnyMandarinTileHasPieces()
         {
             return _boardEntityAccess.Board.MandarinTiles.Any(m => m.PieceEntities.Count > 0);
         }
+
         private bool AnyTileOnCurrentSideHasPieces()
         {
-            return false; //_boardStateView.CheckAnyCitizenTileOnSideHasPieces(_turnTeller.CurrentTurn.SideIndex);
+            return _turnDataExtractor.ExtractedTurnData.TileEntitiesOfCurrentTurn
+                .Sum(t => t.PieceEntities.Count) > 0;
         }
 
         private bool AnyPiecesAvailableOnBenchOfCurrentSide()
         {
-            return false;//_boardStateView.CheckBenchOnSideHasPieces(_turnTeller.CurrentTurn.SideIndex);
-        }
-
-        public void HandleRefreshData(RefreshData refreshData)
-        {
+            return _turnDataExtractor.ExtractedTurnData.PocketEntity.PieceEntities
+                .Any(p => p.PieceType == PieceType.Citizen);
         }
 
         private void RunGameOver()

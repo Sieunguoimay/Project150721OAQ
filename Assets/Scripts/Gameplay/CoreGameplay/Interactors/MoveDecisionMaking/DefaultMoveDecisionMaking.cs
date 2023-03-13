@@ -13,10 +13,8 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         public void MakeDecision(MoveDecisionMakingData moveDecisionMakingData, IMoveDecisionMakingResultHandler driver)
         {
             _driver = driver;
-            _coroutine = PublicExecutor.Instance.Delay(1f, () =>
-            {
-                _driver.OnDecisionResult(this, CreateResultData(moveDecisionMakingData));
-            });
+            _coroutine = PublicExecutor.Instance.Delay(1f,
+                () => { _driver.OnDecisionResult(this, CreateResultData(moveDecisionMakingData)); });
         }
 
         public void ForceEnd()
@@ -34,15 +32,22 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             };
         }
 
-        private static MoveSimulationInputData CreateRandomizedSimulationInputData(MoveDecisionMakingData moveDecisionMakingData)
+        private static MoveSimulationInputData CreateRandomizedSimulationInputData(
+            MoveDecisionMakingData moveDecisionMakingData)
         {
-            return new()
+            var option = moveDecisionMakingData.Options[Random.Range(0, moveDecisionMakingData.Options.Length)];
+            
+            if (option is SimpleMoveOption so)
             {
-                Direction = true,
-                SideIndex = moveDecisionMakingData.TurnIndex,
-                StartingTileIndex = moveDecisionMakingData.Options[Random.Range(0, moveDecisionMakingData.Options.Length)].TileIndex
-            };
-        }
+                return new()
+                {
+                    Direction = so.Direction,
+                    SideIndex = moveDecisionMakingData.TurnIndex,
+                    StartingTileIndex = so.TileIndex
+                };
+            }
 
+            return null;
+        }
     }
 }

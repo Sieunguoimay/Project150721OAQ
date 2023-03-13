@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gameplay.CoreGameplay.Entities;
-using Gameplay.CoreGameplay.Interactors.Driver;
 using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
 
 namespace Gameplay.CoreGameplay.Interactors
@@ -13,11 +12,13 @@ namespace Gameplay.CoreGameplay.Interactors
         private readonly TurnEntity _turnEntity;
 
         public event Action<TurnDataExtractor> TurnChangedEvent;
+        public ExtractedTurnData ExtractedTurnData { get; private set; }
 
         public TurnDataExtractor(BoardEntityAccess boardEntityAccess, TurnEntity turnEntity)
         {
             _boardEntityAccess = boardEntityAccess;
             _turnEntity = turnEntity;
+            ExtractedTurnData = ExtractTurnData();
         }
 
         private IReadOnlyList<TileEntity> GetTileEntitiesByTurn(int turn)
@@ -43,6 +44,7 @@ namespace Gameplay.CoreGameplay.Interactors
         public void NextTurn()
         {
             _turnEntity.TurnIndex = (_turnEntity.TurnIndex + 1) % _turnEntity.NumTurns;
+            ExtractedTurnData = ExtractTurnData();
             TurnChangedEvent?.Invoke(this);
         }
     }
@@ -50,8 +52,9 @@ namespace Gameplay.CoreGameplay.Interactors
     public class ExtractedTurnData
     {
         public IReadOnlyList<TileEntity> TileEntitiesOfCurrentTurn;
+
         public PocketEntity PocketEntity;
-        // public MoveDecisionMakingData MoveDecisionMakingData;
+
         public int CurrentTurnIndex;
         public int NumTurns;
     }

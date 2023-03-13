@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
@@ -19,32 +20,38 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
             var rangeFrom = turnIndex * numTiles + turnIndex + 1;
 
-            var options = new List<MoveDecisionOption>();
+            var options = new List<SimpleMoveOption>();
             for (var i = 0; i < numTiles; i++)
             {
                 var tileIndex = rangeFrom + i;
                 if (_boardEntityAccess.TileEntities[tileIndex].PieceEntities.Count > 0)
                 {
-                    options.Add(new MoveDecisionOption {TileIndex = tileIndex});
+                    options.Add(new SimpleMoveOption {TileIndex = tileIndex, Direction = false});
+                    options.Add(new SimpleMoveOption {TileIndex = tileIndex, Direction = true});
                 }
             }
-
             return new MoveDecisionMakingData
             {
-                Options = options.ToArray(),
+                Options = options.Select(o => o as MoveOption).ToArray(),
                 TurnIndex = turnData.CurrentTurnIndex
             };
         }
     }
 
-    public class MoveDecisionOption
-    {
-        public int TileIndex;
-    }
 
     public class MoveDecisionMakingData
     {
-        public MoveDecisionOption[] Options;
+        public MoveOption[] Options;
         public int TurnIndex;
+    }
+
+    public class MoveOption
+    {
+    }
+
+    public class SimpleMoveOption : MoveOption
+    {
+        public int TileIndex;
+        public bool Direction;
     }
 }
