@@ -2,20 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gameplay.CoreGameplay.Entities;
+using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.Simulation
 {
     public class MoveMaker : IMoveMaker, MoveInnerRules<TileEntity>.IMoveRuleDataHelper
     {
+        private readonly string _id;
         private readonly Action<MoveMaker, MoveSimulationProgressData> _progressHandler;
         private readonly BoardEntityAccess _boardEntityAccess;
-
         private readonly PieceContainerEntity _tempPieceContainer = new() {PieceEntities = new List<PieceEntity>()};
 
         private int _sideIndex;
 
-        public MoveMaker(Action<MoveMaker, MoveSimulationProgressData> progressHandler, BoardEntityAccess boardEntityAccess)
+        public MoveMaker(string id,Action<MoveMaker, MoveSimulationProgressData> progressHandler, BoardEntityAccess boardEntityAccess)
         {
+            _id = id;
             _progressHandler = progressHandler;
             _boardEntityAccess = boardEntityAccess;
             MoveInnerRules = new MoveInnerRules<TileEntity>(this);
@@ -30,6 +32,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
         public void Grasp(Action doneHandler)
         {
+            Debug.Log($"{_id} Grasp");
             PiecesInteractor.InnerPiecesInteractor.MoveAllPiecesFromContainerToContainer(TileIterator.CurrentTile,
                 _tempPieceContainer);
 
@@ -39,6 +42,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
         public void Drop(Action doneHandler)
         {
+            Debug.Log($"{_id} Drop");
             PiecesInteractor.InnerPiecesInteractor.MoveSinglePieceFromContainerToContainer(_tempPieceContainer,
                 TileIterator.CurrentTile);
 
@@ -48,12 +52,14 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
         public void Slam(Action doneHandler)
         {
+            Debug.Log($"{_id} Slam");
             FinalizeMove(MoveType.Slam);
             doneHandler?.Invoke();
         }
 
         public void Eat(Action doneHandler)
         {
+            Debug.Log($"{_id} Eat");
             var pocket = _boardEntityAccess.GetPocketAtIndex(_sideIndex);
             PiecesInteractor.InnerPiecesInteractor.MoveAllPiecesFromContainerToContainer(TileIterator.CurrentTile,
                 pocket);

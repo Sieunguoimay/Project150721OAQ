@@ -54,7 +54,7 @@ namespace Gameplay.CoreGameplay.Interactors
         public void InstallBoardMoveSimulation(CoreGameplayContainer container)
         {
             container.BoardMoveSimulator = new BoardMoveSimulator(_simulationResultHandler, _boardEntityAccess);
-            container.ConcurrentMoveSimulator = new ConcurrentMoveSimulator(_simulationResultHandler, _boardEntityAccess);
+            container.ConcurrentMoveSimulator = new ConcurrentMoveSimulator(_simulationResultHandler, _boardEntityAccess, container.RefreshRequester);
         }
 
         public void InstallTurnDataExtractor(CoreGameplayContainer container)

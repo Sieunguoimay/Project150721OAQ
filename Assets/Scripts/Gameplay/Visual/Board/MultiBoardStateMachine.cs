@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Common;
 using Common.DecisionMaking;
 using Gameplay.CoreGameplay.Interactors.Simulation;
@@ -9,9 +10,10 @@ namespace Gameplay.Visual.Board
     public class MultiBoardStateMachine : BaseBoardStateMachine
     {
         private readonly IStateMachine[] _stateMachines;
-        private int _anyActionCompleteCount;
 
         private readonly List<IStateMachine> _completedStateMachines = new();
+        private readonly List<IStateMachine> _incompleteStateMachines = new();
+        private int _actionCompletedCount;
 
         public MultiBoardStateMachine(IReadOnlyList<IMoveMaker> executors) 
         {
@@ -28,20 +30,20 @@ namespace Gameplay.Visual.Board
 
             if (_completedStateMachines.Count == _stateMachines.Length)
             {
-                InvokeEndEvent();
+                PublicExecutor.Instance.ExecuteInNextFrame(InvokeEndEvent);
             }
         }
 
-        protected override void HandleAnyActionComplete()
+        protected override void HandleAnyActionComplete(IStateMachine stateMachine)
         {
-            _anyActionCompleteCount++;
-            if (_anyActionCompleteCount == _stateMachines.Length - _completedStateMachines.Count)
+            _actionCompletedCount++;
+            if (_incompleteStateMachines.Count == _actionCompletedCount)
             {
-                InnerNextAction();
+                PublicExecutor.Instance.ExecuteInNextFrame(InnerNextAction);
             }
         }
 
-        public override void NextAction()
+        protected override void OnNextAction()
         {
             _completedStateMachines.Clear();
             InnerNextAction();
@@ -49,10 +51,12 @@ namespace Gameplay.Visual.Board
 
         private void InnerNextAction()
         {
-            _anyActionCompleteCount = 0;
-            foreach (var t in _stateMachines)
+            _actionCompletedCount = 0;
+            _incompleteStateMachines.Clear();
+            _incompleteStateMachines.AddRange(_stateMachines.Where(sm=>!_completedStateMachines.Contains(sm)));
+            
+            foreach (var t in _incompleteStateMachines)
             {
-                if (_completedStateMachines.Contains(t)) continue;
                 (t.CurrentState as BaseBoardState)?.NextAction();
             }
         }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Common;
 using Framework.Resolver;
+using Gameplay.CoreGameplay.Controllers;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 using Gameplay.Helpers;
 using Gameplay.Visual.Board;
@@ -51,6 +53,7 @@ namespace Gameplay.Visual.Views
             {
                 _completedMovingStepItems.Clear();
                 _movingStepItems = _movingSteps[_iterator++].StepActionItems;
+                Debug.Log($"Execute step items: {string.Join(" ", _movingStepItems.Select(i => $"{i.MoveType} - {i.TargetPieceContainerIndex}"))}");
                 foreach (var item in _movingStepItems)
                 {
                     var executor = CreateStepExecutor(item);
@@ -75,7 +78,9 @@ namespace Gameplay.Visual.Views
             _completedMovingStepItems.Add(stepActionItem);
             if (_completedMovingStepItems.Count == _movingStepItems.Count)
             {
-                NextStep();
+                Debug.Log($"OnStepExecutionDone: {string.Join(" ", _completedMovingStepItems.Select(i => i.MoveType))}");
+                PublicExecutor.Instance.ExecuteInNextFrame(NextStep);
+                // NextStep();
             }
         }
 
@@ -129,11 +134,11 @@ namespace Gameplay.Visual.Views
             {
                 var index = n - i - 1;
                 var target = GetPosition(gridLocator, to, i);
-                if (citizens[index] is Citizen ci)
-                {
-                    ci.Animator.JumpTo(target, null);
-                }
-                else
+                // if (citizens[index] is Citizen ci)
+                // {
+                //     ci.Animator.JumpTo(target, null);
+                // }
+                // else
                 {
                     citizens[index].transform.position = target;
                 }
@@ -152,9 +157,22 @@ namespace Gameplay.Visual.Views
                 Handler = handler;
             }
 
-            public virtual void Execute()
+            public void Execute()
             {
-                PublicExecutor.Instance.Delay(1, () => { Handler.OnStepExecutionDone(StepActionItem); });
+                OnExecuteBegin();
+                PublicExecutor.Instance.Delay(1, () =>
+                {
+                    OnExecuteEnd();
+                    Handler.OnStepExecutionDone(StepActionItem);
+                });
+            }
+
+            protected virtual void OnExecuteBegin()
+            {
+            }
+
+            protected virtual void OnExecuteEnd()
+            {
             }
         }
 
@@ -164,50 +182,66 @@ namespace Gameplay.Visual.Views
                 : base(stepActionItem, handler)
             {
             }
-
-            public override void Execute()
-            {
-                base.Execute();
-            }
         }
 
         private class DropExecutor : MovingStepExecutor
         {
+            private TileVisual _to;
+            private int _amount;
+            private readonly SimplePieceContainer _container = new();
+
             public DropExecutor(StepActionItem stepActionItem, PiecesMovingRunner handler)
                 : base(stepActionItem, handler)
             {
             }
 
-            public override void Execute()
+            protected override void OnExecuteBegin()
             {
-                base.Execute();
+                base.OnExecuteBegin();
 
                 var from = Handler.GetTile(StepActionItem.PieceContainerIndex);
-                var to = Handler.GetTile(StepActionItem.TargetPieceContainerIndex);
-                var amount = from.HeldPieces.Count - StepActionItem.RemainingPieces;
+                _to = Handler.GetTile(StepActionItem.TargetPieceContainerIndex);
+                _amount = from.HeldPieces.Count - StepActionItem.RemainingPieces;
 
-                Handler.MovePieces(from, to, amount);
-                IPieceContainer.TransferPiecesOwnerShip(from, to, amount);
+                Handler.MovePieces(from, _to, _amount);
+                IPieceContainer.TransferPiecesOwnerShip(from, _to, _amount);
+            }
+
+            protected override void OnExecuteEnd()
+            {
+                base.OnExecuteEnd();
+
+                // IPieceContainer.TransferPiecesOwnerShip(_container, _to, _amount);
             }
         }
 
         private class EatExecutor : MovingStepExecutor
         {
+            private IPieceContainer _to;
+            private int _amount;
+            private readonly SimplePieceContainer _container = new();
+
             public EatExecutor(StepActionItem stepActionItem, PiecesMovingRunner handler)
                 : base(stepActionItem, handler)
             {
             }
 
-            public override void Execute()
+            protected override void OnExecuteBegin()
             {
-                base.Execute();
+                base.OnExecuteBegin();
 
                 var from = Handler.GetTile(StepActionItem.TargetPieceContainerIndex);
-                var to = Handler.GetPieceBench();
-                var amount = from.HeldPieces.Count;
+                _to = Handler.GetPieceBench();
+                _amount = from.HeldPieces.Count;
 
-                Handler.MovePieces(from, to, amount);
-                IPieceContainer.TransferAllPiecesOwnership(from, to);
+                Handler.MovePieces(from, _to, _amount);
+                IPieceContainer.TransferAllPiecesOwnership(from, _to);
+            }
+
+            protected override void OnExecuteEnd()
+            {
+                base.OnExecuteEnd();
+                // IPieceContainer.TransferAllPiecesOwnership(_container, _to);
             }
         }
 
@@ -216,11 +250,6 @@ namespace Gameplay.Visual.Views
             public SlamExecutor(StepActionItem stepActionItem, PiecesMovingRunner handler)
                 : base(stepActionItem, handler)
             {
-            }
-
-            public override void Execute()
-            {
-                base.Execute();
             }
         }
     }

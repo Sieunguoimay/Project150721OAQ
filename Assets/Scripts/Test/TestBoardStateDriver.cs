@@ -29,9 +29,9 @@ namespace Test
             // }
         }
 
-        private static void OnEndEvent(IBoardStateDriver obj)
-        {
-            Debug.Log("End: Change player");
-        }
+        // private static void OnEndEvent(IBoardStateDriver obj)
+        // {
+        //     Debug.Log("End: Change player");
+        // }
     }
 }

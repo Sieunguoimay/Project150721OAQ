@@ -1,6 +1,6 @@
 ﻿namespace Gameplay.CoreGameplay.Interactors.Simulation
 {
-    public class BoardMoveSimulator 
+    public class BoardMoveSimulator
     {
         private readonly IBoardMoveSimulationResultHandler _simulationResultHandler;
         private readonly BoardStateMachine _boardStateMachine;
@@ -10,7 +10,7 @@
             BoardEntityAccess boardEntityAccess)
         {
             _simulationResultHandler = resultHandler;
-            _moveMaker = new MoveMaker(OnSimulationProgress, boardEntityAccess);
+            _moveMaker = new MoveMaker("_", OnSimulationProgress, boardEntityAccess);
             _boardStateMachine = new BoardStateMachine(_moveMaker);
             _boardStateMachine.SetEndHandler(OnBoardStateMachineEnd);
         }
