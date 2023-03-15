@@ -30,6 +30,10 @@ namespace Gameplay.GameInteract
         {
             _onSelected = null;
             _buttonGroup.HideButtons();
+            foreach (var button in _buttons)
+            {
+                TearDownButton(button);
+            }
         }
 
         private void OnButtonClicked(IButton obj)
@@ -77,7 +81,13 @@ namespace Gameplay.GameInteract
             var pos = CalculateButtonPosition(tileTransform, 1);
 
             button.SetPositionAndRotation(pos, rot);
+            button.ClickedEvent -= OnButtonClicked;
             button.ClickedEvent += OnButtonClicked;
+        }
+
+        private void TearDownButton(IButton button)
+        {
+            button.ClickedEvent -= OnButtonClicked;
         }
 
         private void DestroyButtons()

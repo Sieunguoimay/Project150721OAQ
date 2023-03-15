@@ -23,7 +23,7 @@
 
         private void OnSimulationProgress(MoveMaker arg1, MoveSimulationProgressData arg2)
         {
-            _simulationResultHandler?.OnSimulationProgress(0, arg2);
+            _simulationResultHandler?.OnSimulationProgress(arg2);
         }
 
         private void OnBoardStateMachineEnd()
@@ -61,7 +61,7 @@
 
     public interface IBoardMoveSimulationResultHandler
     {
-        void OnSimulationProgress(int simulationId, MoveSimulationProgressData result);
+        void OnSimulationProgress(MoveSimulationProgressData result);
         void OnSimulationResult(MoveSimulationResultData result);
     }
 }

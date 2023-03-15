@@ -18,7 +18,9 @@ namespace Gameplay.CoreGameplay
         private CoreGameplayController _controller;
         private CoreGameplayDataAccess _coreGameplayDataAccess;
         private SimulationResultPresenter _simulationResultPresenter;
-        private PiecesMovingRunner _movingRunner;
+        private ConcurrentSimulationResultPresenter _concurrentSimulationResultPresenter;
+        private SingleThreadPiecesMovingRunner _movingRunner;
+        private MultiThreadPiecesMovingRunner _multiThreadPiecesMovingRunner;
 
         protected override void OnBind(IBinder binder)
         {
@@ -29,13 +31,18 @@ namespace Gameplay.CoreGameplay
 
             _coreGameplayDataAccess = new CoreGameplayDataAccess();
             _simulationResultPresenter = new SimulationResultPresenter();
+            _concurrentSimulationResultPresenter = new ConcurrentSimulationResultPresenter();
+            
             binder.Bind<ICoreGameplayDataAccess>(_coreGameplayDataAccess);
             binder.Bind<BoardStatePresenter>(new BoardStatePresenter());
             binder.Bind<BoardVisualPresenter>(new BoardVisualPresenter());
             binder.Bind<IBoardMoveSimulationResultHandler>(_simulationResultPresenter);
+            binder.Bind<IConcurrentMoveSimulationResultHandler>(_concurrentSimulationResultPresenter);
 
-            _movingRunner = new PiecesMovingRunner();
-            binder.Bind<PiecesMovingRunner>(_movingRunner);
+            _movingRunner = new SingleThreadPiecesMovingRunner();
+            _multiThreadPiecesMovingRunner = new MultiThreadPiecesMovingRunner();
+            binder.Bind<PiecesMovingRunner>(_multiThreadPiecesMovingRunner);
+            // binder.Bind<MultiThreadPiecesMovingRunner>(_movingRunner);
         }
 
         protected override void OnUnbind(IBinder binder)
@@ -48,6 +55,7 @@ namespace Gameplay.CoreGameplay
             binder.Unbind<BoardVisualPresenter>();
             binder.Unbind<IBoardMoveSimulationResultHandler>();
             binder.Unbind<PiecesMovingRunner>();
+            // binder.Unbind<MultiThreadPiecesMovingRunner>();
         }
 
         protected override void OnSetupDependencies()
@@ -55,14 +63,20 @@ namespace Gameplay.CoreGameplay
             base.OnSetupDependencies();
 
             _coreGameplayDataAccess.SetContainer(Resolver.Resolve<IGameplayContainer>());
-            var installer = new CoreGameplayInstaller(_coreGameplayDataAccess, null,
-                Resolver.Resolve<IBoardMoveSimulationResultHandler>(),
-                new MoveDecisionMakingFactory(Resolver.Resolve<InteractSystem>())
-            );
+            
+            var installer = new CoreGameplayInstaller(
+                _coreGameplayDataAccess,
+                _simulationResultPresenter,
+                _concurrentSimulationResultPresenter,
+                new MoveDecisionMakingFactory(Resolver.Resolve<InteractSystem>()));
+            
             _controller.SetupDependencies(installer);
+            
             _movingRunner.SetupDependencies(Resolver);
-
-            _simulationResultPresenter.SetMovingRunner(_movingRunner);
+            _multiThreadPiecesMovingRunner.SetupDependencies(Resolver);
+            
+            _simulationResultPresenter.MovingRunner = _movingRunner;
+            _concurrentSimulationResultPresenter.MovingRunner = _multiThreadPiecesMovingRunner;
         }
     }
 }

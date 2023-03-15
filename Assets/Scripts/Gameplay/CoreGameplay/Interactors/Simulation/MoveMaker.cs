@@ -32,7 +32,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
         public void Grasp(Action doneHandler)
         {
-            Debug.Log($"{_id} Grasp");
+            Debug.Log($"{_id} Grasp {TileIterator.CurrentTileIndex}");
             PiecesInteractor.InnerPiecesInteractor.MoveAllPiecesFromContainerToContainer(TileIterator.CurrentTile,
                 _tempPieceContainer);
 
@@ -42,7 +42,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
         public void Drop(Action doneHandler)
         {
-            Debug.Log($"{_id} Drop");
+            Debug.Log($"{_id} Drop {TileIterator.CurrentTileIndex}");
             PiecesInteractor.InnerPiecesInteractor.MoveSinglePieceFromContainerToContainer(_tempPieceContainer,
                 TileIterator.CurrentTile);
 

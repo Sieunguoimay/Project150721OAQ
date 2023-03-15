@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Common;
 using Gameplay.CoreGameplay.Interactors;
 using Gameplay.Helpers;
@@ -11,21 +12,15 @@ namespace Gameplay.Visual.Piece
 {
     public class PieceRelease
     {
-        private readonly IReadOnlyList<Citizen> _citizens;
-        private readonly IReadOnlyList<Mandarin> _mandarins;
         private readonly PieceGenerator _pieceGenerator;
-        // private readonly int _numCitizensPerTile;
-        private readonly Action _onAllInPlace;
         private readonly Board.BoardVisual _boardVisual;
         private readonly GridLocator _gridLocator;
+        private readonly Action _onAllInPlace;
 
-        public PieceRelease(PieceGenerator pieceGenerator, int numCitizensPerTile,
-            Board.BoardVisual boardVisual, GridLocator gridLocator, Action done)
+        public PieceRelease(PieceGenerator pieceGenerator, Board.BoardVisual boardVisual, 
+            GridLocator gridLocator, Action done)
         {
-            // _citizens = citizens;
-            // _mandarins = mandarins;
             _pieceGenerator = pieceGenerator;
-            // _numCitizensPerTile = numCitizensPerTile;
             _boardVisual = boardVisual;
             _gridLocator = gridLocator;
             _onAllInPlace = done;
@@ -33,58 +28,55 @@ namespace Gameplay.Visual.Piece
 
         public void ReleasePieces(RefreshData refreshData)
         {
+            var allCitizens = SpawnCitizens(refreshData);
+            var allMandarins = SpawnMandarins(refreshData);
+
+            var citizenCount = 0;
+            var mandarinCount = 0;
+
             for (var i = 0; i < refreshData.PiecesInTiles.Length; i++)
             {
                 var amount = refreshData.PiecesInTiles[i].CitizenPiecesCount;
                 if (amount > 0)
                 {
-                    var citizens = _pieceGenerator.SpawnCitizens(amount);
-                    var tile = _boardVisual.TileVisuals[i];
-
-                    PiecesMovingRunner.MovePieces(_gridLocator, citizens, tile, citizens.Length);
-                    tile.AddPieces(citizens);
+                    var citizens = allCitizens[citizenCount..(citizenCount + amount)];
+                    ReleasePiecesToTile(citizens, i);
+                    citizenCount += amount;
                 }
 
                 amount = refreshData.PiecesInTiles[i].MandarinPiecesCount;
                 if (amount > 0)
                 {
-                    var mandarins = _pieceGenerator.SpawnMandarins(amount);
-                    var tile = _boardVisual.TileVisuals[i];
-
-                    PiecesMovingRunner.MovePieces(_gridLocator, mandarins, tile, mandarins.Length);
-                    tile.AddPieces(mandarins);
+                    var mandarins = allMandarins[mandarinCount..(mandarinCount + amount)];
+                    ReleasePiecesToTile(mandarins, i);
+                    mandarinCount += amount;
                 }
             }
 
             PublicExecutor.Instance.Delay(2, _onAllInPlace);
         }
 
-        public void ReleasePieces()
+        private void ReleasePiecesToTile(IReadOnlyList<Piece> releasedPieces, int tileIndex)
         {
-            // for (var i = 0; i < _boardVisual.SideVisuals.Count; i++)
-            // {
-            //     var tg = _boardVisual.SideVisuals[i];
-            //     var numTilesPerSide = tg.CitizenTiles.Count;
-            //     for (var j = 0; j < numTilesPerSide; j++)
-            //     {
-            //         var ct = tg.CitizenTiles[j];
-            //         for (var k = 0; k < _numCitizensPerTile; k++)
-            //         {
-            //             var index = i * numTilesPerSide * _numCitizensPerTile + j * _numCitizensPerTile + k;
-            //             var p = _citizens[index];
-            //
-            //             ct.AddPiece(p);
-            //
-            //             var delay = k * 0.1f;
-            //             var gridIndex = Mathf.Max(0, ct.HeldPieces.Count - 1);
-            //             var position = _gridLocator.GetPositionAtCellIndex(ct.transform, gridIndex);
-            //             p.Animator.StraightMove(position, index == _citizens.Count - 1 ? _onAllInPlace : null, delay);
-            //         }
-            //     }
-            //
-            //     _mandarins[i].transform.position = _gridLocator.GetPositionAtCellIndex(tg.MandarinTile.transform, 0);
-            //     tg.MandarinTile.AddPiece(_mandarins[i]);
-            // }
+            var tile = _boardVisual.TileVisuals[tileIndex];
+
+            PiecesMovingRunner.MovePieces(_gridLocator, releasedPieces, tile, releasedPieces.Count);
+
+            tile.AddPieces(releasedPieces);
+        }
+
+        private Mandarin[] SpawnMandarins(RefreshData refreshData)
+        {
+            var totalMandarins = refreshData.PiecesInTiles.Sum(p => p.MandarinPiecesCount);
+            var allMandarins = _pieceGenerator.SpawnMandarins(totalMandarins);
+            return allMandarins;
+        }
+
+        private Citizen[] SpawnCitizens(RefreshData refreshData)
+        {
+            var totalCitizens = refreshData.PiecesInTiles.Sum(p => p.CitizenPiecesCount);
+            var allCitizens = _pieceGenerator.SpawnCitizens(totalCitizens);
+            return allCitizens;
         }
     }
 }

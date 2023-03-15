@@ -9,8 +9,8 @@ namespace Gameplay.Visual.Piece
         [SerializeField] private Mandarin mandarinPrefab;
         [SerializeField] private Citizen citizenPrefab;
 
-        public Mandarin[] Mandarins { get; private set; }
-        public Citizen[] Citizens { get; private set; }
+        public List<Mandarin> Mandarins { get; private set; } = new();
+        public List<Citizen> Citizens { get; private set; } = new();
 
         private IEnumerable<Piece> AllPieces
         {
@@ -38,15 +38,19 @@ namespace Gameplay.Visual.Piece
             Mandarins = null;
             Citizens = null;
         }
-        
+
         public Citizen[] SpawnCitizens(int amount)
         {
-            return Citizens = SpawnPieces(citizenPrefab, amount);
+            var pieces = SpawnPieces(citizenPrefab, amount);
+            Citizens.AddRange(pieces);
+            return pieces;
         }
 
         public Mandarin[] SpawnMandarins(int amount)
         {
-            return Mandarins = SpawnPieces(mandarinPrefab, amount);
+            var mandarins = SpawnPieces(mandarinPrefab, amount);
+            Mandarins.AddRange(mandarins);
+            return mandarins;
         }
 
         private TPiece[] SpawnPieces<TPiece>(TPiece prefab, int amount) where TPiece : Component

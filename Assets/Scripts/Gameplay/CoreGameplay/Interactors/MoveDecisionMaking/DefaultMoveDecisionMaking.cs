@@ -5,7 +5,8 @@ using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
-    public class DefaultMoveDecisionMaking : IMoveDecisionMaking, MoveOptionQueueIterator.IMoveOptionQueueIterationHandler
+    public class DefaultMoveDecisionMaking : IMoveDecisionMaking,
+        MoveOptionQueueIterator.IMoveOptionQueueIterationHandler
     {
         private IMoveDecisionMakingResultHandler _driver;
         private Coroutine _coroutine;
@@ -27,20 +28,26 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         public void OnOptionsQueueEmpty()
         {
             _coroutine = PublicExecutor.Instance.Delay(1f,
-                () => { _driver.OnDecisionResult(IMoveDecisionMaking.CreateResultData(_queueIterator.MoveOptionQueue)); });
+                () =>
+                {
+                    _driver.OnDecisionResult(IMoveDecisionMaking.CreateResultData(_queueIterator.MoveOptionQueue));
+                });
         }
 
         public void HandleTilesOption()
         {
-            var values = _queueIterator.CurrentOptionItem.Values.Where(v => _queueIterator.MoveOptionQueue.Options.All(o => o.SelectedValue != v));
+            var values = _queueIterator.CurrentOptionItem.Values
+                .Where(v => _queueIterator.MoveOptionQueue.Options.All(o => o.SelectedValue != v)).ToArray();
 
-            _queueIterator.CurrentOptionItem.SelectedValue = values.ToArray()[Random.Range(0, _queueIterator.CurrentOptionItem.Values.Length)];
+            _queueIterator.CurrentOptionItem.SelectedValue = values[Random.Range(0, values.Length)];
             _queueIterator.DequeueNextOptionItem();
         }
 
         public void HandleDirectionsOption()
         {
-            _queueIterator.CurrentOptionItem.SelectedValue = _queueIterator.CurrentOptionItem.Values[Random.Range(0, _queueIterator.CurrentOptionItem.Values.Length)];
+            _queueIterator.CurrentOptionItem.SelectedValue =
+                _queueIterator.CurrentOptionItem.Values
+                    [Random.Range(0, _queueIterator.CurrentOptionItem.Values.Length)];
             _queueIterator.DequeueNextOptionItem();
         }
     }

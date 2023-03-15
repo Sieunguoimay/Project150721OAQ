@@ -41,7 +41,7 @@ namespace Gameplay.Visual.Views
 
             // _pieceGenerator.SpawnPieces(numSides, tilesPerSide, piecesPerTile);
 
-            new PieceRelease(_pieceGenerator, piecesPerTile, BoardVisual, _gridLocator, OnAllPiecesInPlace)
+            new PieceRelease(_pieceGenerator, BoardVisual, _gridLocator, OnAllPiecesInPlace)
                 .ReleasePieces(refreshData);
 
             _bambooFamily.BeginAnimSequence(BoardVisual);

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Common;
 using Framework.Resolver;
-using Gameplay.CoreGameplay.Controllers;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 using Gameplay.Helpers;
 using Gameplay.Visual.Board;
@@ -13,17 +12,16 @@ using UnityEngine;
 
 namespace Gameplay.Visual.Views
 {
-    public class PiecesMovingRunner
+    public abstract class PiecesMovingRunner
     {
-        private IReadOnlyList<MovingStep> _movingSteps;
-        private IReadOnlyList<StepActionItem> _movingStepItems;
-        private readonly List<StepActionItem> _completedMovingStepItems = new();
-        private int _iterator;
+        protected int StepIterator;
+
         private GridLocator _gridLocator;
         private IGameplayContainer _container;
         private BoardVisualView _boardVisualView;
 
         public event Action<PiecesMovingRunner> AllMovingStepsExecutedEvent;
+
 
         public void SetupDependencies(IResolver resolver)
         {
@@ -32,56 +30,15 @@ namespace Gameplay.Visual.Views
             _boardVisualView = resolver.Resolve<BoardVisualView>();
         }
 
-        public void RunTheMoves(IReadOnlyList<MovingStep> movingSteps)
+        public abstract void ResetMovingSteps();
+        protected abstract void NextStep();
+        protected abstract IPieceContainer GetTempPieceContainer();
+
+        protected abstract void OnStepExecutionDone();
+
+        protected void OnAllMovingStepsExecutedEvent()
         {
-            _movingSteps = movingSteps;
-            _iterator = 0;
-            NextStep();
-        }
-
-        public void ResetMovingSteps()
-        {
-            _movingSteps = null;
-            _completedMovingStepItems.Clear();
-        }
-
-        private void NextStep()
-        {
-            if (_movingSteps == null || _movingSteps.Count == 0) return;
-
-            if (_iterator < _movingSteps.Count)
-            {
-                _completedMovingStepItems.Clear();
-                _movingStepItems = _movingSteps[_iterator++].StepActionItems;
-                Debug.Log($"Execute step items: {string.Join(" ", _movingStepItems.Select(i => $"{i.MoveType} - {i.TargetPieceContainerIndex}"))}");
-                foreach (var item in _movingStepItems)
-                {
-                    var executor = CreateStepExecutor(item);
-                    executor.Execute();
-                }
-            }
-            else
-            {
-                _movingSteps = null;
-                AllMovingStepsExecutedEvent?.Invoke(this);
-            }
-        }
-
-        private void OnStepExecutionDone(StepActionItem stepActionItem)
-        {
-            if (_completedMovingStepItems.Contains(stepActionItem))
-            {
-                Debug.LogError("MovingStepItem already executed");
-                return;
-            }
-
-            _completedMovingStepItems.Add(stepActionItem);
-            if (_completedMovingStepItems.Count == _movingStepItems.Count)
-            {
-                Debug.Log($"OnStepExecutionDone: {string.Join(" ", _completedMovingStepItems.Select(i => i.MoveType))}");
-                PublicExecutor.Instance.ExecuteInNextFrame(NextStep);
-                // NextStep();
-            }
+            AllMovingStepsExecutedEvent?.Invoke(this);
         }
 
         private TileVisual GetTile(int index)
@@ -94,14 +51,14 @@ namespace Gameplay.Visual.Views
             return _container.PlayTurnTeller.CurrentTurn.PieceBench;
         }
 
-        private MovingStepExecutor CreateStepExecutor(StepActionItem stepActionItem)
+        protected MovingStepExecutor CreateStepExecutor(MoveType moveType, int targetPieceContainerIndex)
         {
-            return stepActionItem.MoveType switch
+            return moveType switch
             {
-                MoveType.Grasp => new GraspExecutor(stepActionItem, this),
-                MoveType.Drop => new DropExecutor(stepActionItem, this),
-                MoveType.Slam => new SlamExecutor(stepActionItem, this),
-                MoveType.Eat => new EatExecutor(stepActionItem, this),
+                MoveType.Grasp => new GraspExecutor(targetPieceContainerIndex, this),
+                MoveType.Drop => new DropExecutor(targetPieceContainerIndex, this),
+                MoveType.Slam => new SlamExecutor(targetPieceContainerIndex, this),
+                MoveType.Eat => new EatExecutor(targetPieceContainerIndex, this),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -127,129 +84,136 @@ namespace Gameplay.Visual.Views
             MovePieces(_gridLocator, from.HeldPieces, to, amount);
         }
 
-        public static void MovePieces(GridLocator gridLocator, IReadOnlyList<Piece.Piece> citizens, IPieceContainer to, int amount)
+        private void MovePieces(IReadOnlyList<Piece.Piece> citizens, IPieceContainer to, int amount)
+        {
+            MovePieces(_gridLocator, citizens, to, amount);
+        }
+
+        private void MoveAllPieces(IReadOnlyList<Piece.Piece> citizens, IPieceContainer to)
+        {
+            MovePieces(_gridLocator, citizens, to, citizens.Count);
+        }
+
+        public static void MovePieces(GridLocator gridLocator, IReadOnlyList<Piece.Piece> citizens,
+            IPieceContainer to, int amount)
         {
             var n = citizens.Count;
             for (var i = 0; i < amount; i++)
             {
                 var index = n - i - 1;
-                var target = GetPosition(gridLocator, to, i);
-                // if (citizens[index] is Citizen ci)
-                // {
-                //     ci.Animator.JumpTo(target, null);
-                // }
-                // else
-                {
-                    citizens[index].transform.position = target;
-                }
+                MoveSinglePiece(citizens[index], gridLocator, to, i);
             }
         }
 
-
-        private class MovingStepExecutor
+        private void MoveSinglePiece(Component piece, IPieceContainer to, int i = 0)
         {
-            protected readonly StepActionItem StepActionItem;
+            MoveSinglePiece(piece, _gridLocator, to, i);
+        }
+
+        private static void MoveSinglePiece(Component piece, GridLocator gridLocator, IPieceContainer to, int i = 0)
+        {
+            var target = GetPosition(gridLocator, to, i);
+            if (piece is Citizen ci)
+            {
+                ci.Animator.JumpTo(target, null);
+            }
+            else
+            {
+                if (piece == null)
+                {
+                    Debug.Log("Err");
+                }
+                piece.transform.position = target;
+            }
+        }
+
+        protected class MovingStepExecutor
+        {
+            protected readonly int TargetPieceContainerIndex;
             protected readonly PiecesMovingRunner Handler;
 
-            protected MovingStepExecutor(StepActionItem stepActionItem, PiecesMovingRunner handler)
+            protected MovingStepExecutor(int targetPieceContainerIndex, PiecesMovingRunner handler)
             {
-                StepActionItem = stepActionItem;
+                TargetPieceContainerIndex = targetPieceContainerIndex;
                 Handler = handler;
             }
 
-            public void Execute()
+            public virtual void Execute()
             {
-                OnExecuteBegin();
-                PublicExecutor.Instance.Delay(1, () =>
-                {
-                    OnExecuteEnd();
-                    Handler.OnStepExecutionDone(StepActionItem);
-                });
-            }
-
-            protected virtual void OnExecuteBegin()
-            {
-            }
-
-            protected virtual void OnExecuteEnd()
-            {
+                PublicExecutor.Instance.Delay(1, () => { Handler.OnStepExecutionDone(); });
             }
         }
 
-        private class GraspExecutor : MovingStepExecutor
+        protected class GraspExecutor : MovingStepExecutor
         {
-            public GraspExecutor(StepActionItem stepActionItem, PiecesMovingRunner handler)
-                : base(stepActionItem, handler)
+            public GraspExecutor(int targetPieceContainerIndex, PiecesMovingRunner handler)
+                : base(targetPieceContainerIndex, handler)
             {
+            }
+
+            public override void Execute()
+            {
+                base.Execute();
+                var targetTile = Handler.GetTile(TargetPieceContainerIndex);
+                IPieceContainer.TransferAllPiecesOwnership(targetTile, Handler.GetTempPieceContainer());
             }
         }
 
-        private class DropExecutor : MovingStepExecutor
+        protected class DropExecutor : MovingStepExecutor
         {
-            private TileVisual _to;
-            private int _amount;
-            private readonly SimplePieceContainer _container = new();
-
-            public DropExecutor(StepActionItem stepActionItem, PiecesMovingRunner handler)
-                : base(stepActionItem, handler)
+            public DropExecutor(int targetPieceContainerIndex, PiecesMovingRunner handler)
+                : base(targetPieceContainerIndex, handler)
             {
             }
 
-            protected override void OnExecuteBegin()
+            public override void Execute()
             {
-                base.OnExecuteBegin();
+                base.Execute();
 
-                var from = Handler.GetTile(StepActionItem.PieceContainerIndex);
-                _to = Handler.GetTile(StepActionItem.TargetPieceContainerIndex);
-                _amount = from.HeldPieces.Count - StepActionItem.RemainingPieces;
+                var container = Handler.GetTempPieceContainer();
+                var to = Handler.GetTile(TargetPieceContainerIndex);
 
-                Handler.MovePieces(from, _to, _amount);
-                IPieceContainer.TransferPiecesOwnerShip(from, _to, _amount);
-            }
+                var piece = container.HeldPieces.LastOrDefault();
 
-            protected override void OnExecuteEnd()
-            {
-                base.OnExecuteEnd();
+                Handler.MoveSinglePiece(piece, to);
+                
+                to.AddPiece(piece);
+                container.RemovePiece(piece);
 
-                // IPieceContainer.TransferPiecesOwnerShip(_container, _to, _amount);
+                Handler.MoveAllPieces(Handler.GetTempPieceContainer().HeldPieces, to);
             }
         }
 
-        private class EatExecutor : MovingStepExecutor
+        protected class EatExecutor : MovingStepExecutor
         {
-            private IPieceContainer _to;
-            private int _amount;
-            private readonly SimplePieceContainer _container = new();
-
-            public EatExecutor(StepActionItem stepActionItem, PiecesMovingRunner handler)
-                : base(stepActionItem, handler)
+            public EatExecutor(int targetPieceContainerIndex, PiecesMovingRunner handler)
+                : base(targetPieceContainerIndex, handler)
             {
             }
 
-            protected override void OnExecuteBegin()
+            public override void Execute()
             {
-                base.OnExecuteBegin();
+                base.Execute();
 
-                var from = Handler.GetTile(StepActionItem.TargetPieceContainerIndex);
-                _to = Handler.GetPieceBench();
-                _amount = from.HeldPieces.Count;
+                var from = Handler.GetTile(TargetPieceContainerIndex);
+                var to = Handler.GetPieceBench();
+                var amount = from.HeldPieces.Count;
 
-                Handler.MovePieces(from, _to, _amount);
-                IPieceContainer.TransferAllPiecesOwnership(from, _to);
-            }
-
-            protected override void OnExecuteEnd()
-            {
-                base.OnExecuteEnd();
-                // IPieceContainer.TransferAllPiecesOwnership(_container, _to);
+                Handler.MovePieces(from, to, amount);
+                IPieceContainer.TransferAllPiecesOwnership(from, to);
             }
         }
 
-        private class SlamExecutor : MovingStepExecutor
+        protected class SlamExecutor : MovingStepExecutor
         {
-            public SlamExecutor(StepActionItem stepActionItem, PiecesMovingRunner handler)
-                : base(stepActionItem, handler)
+            public SlamExecutor(int targetPieceContainerIndex, PiecesMovingRunner handler)
+                : base(targetPieceContainerIndex, handler)
             {
+            }
+
+            public override void Execute()
+            {
+                base.Execute();
             }
         }
     }

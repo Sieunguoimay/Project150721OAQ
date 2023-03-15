@@ -1,7 +1,6 @@
 ﻿using System;
 using Framework.Services;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Gameplay.Entities.MagicFlower
 {

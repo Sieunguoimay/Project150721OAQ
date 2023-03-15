@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Gameplay.CoreGameplay.Interactors.Simulation;
+using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
@@ -8,7 +9,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         private readonly TurnDataExtractor _turnDataExtractor;
         private readonly IMoveDecisionMakingFactory _factory;
         private readonly BoardMoveSimulator _boardMoveSimulator;
-        private readonly ConcurrentMoveSimulator _concurrentMoveSimulator;
+        private readonly ConcurrentBoardMoveSimulator _concurrentBoardMoveSimulator;
         private readonly MoveDecisionOptionFactory _moveDecisionOptionFactory;
 
         private IMoveDecisionMaking[] _defaultDecisionMakings;
@@ -17,14 +18,14 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         public MoveMoveDecisionMakingDriver(
             TurnDataExtractor turnDataExtractor, IMoveDecisionMakingFactory factory,
-            BoardMoveSimulator boardMoveSimulator, 
-            ConcurrentMoveSimulator concurrentMoveSimulator, 
+            BoardMoveSimulator boardMoveSimulator,
+            ConcurrentBoardMoveSimulator concurrentBoardMoveSimulator,
             MoveDecisionOptionFactory moveDecisionOptionFactory)
         {
             _turnDataExtractor = turnDataExtractor;
             _factory = factory;
             _boardMoveSimulator = boardMoveSimulator;
-            _concurrentMoveSimulator = concurrentMoveSimulator;
+            _concurrentBoardMoveSimulator = concurrentBoardMoveSimulator;
             _moveDecisionOptionFactory = moveDecisionOptionFactory;
         }
 
@@ -65,8 +66,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             if (resultData.Success)
             {
                 StopCooldownTimer();
-                // _boardMoveSimulator.RunSimulation(resultData.SingleSimulationInputData);
-                _concurrentMoveSimulator.RunSimulation(resultData.SimulationInputData);
+                RunSimulation(resultData);
             }
             else
             {
@@ -103,6 +103,13 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             decisionMaking.MakeDecision(decisionMakingData, new DefaultMoveDecisionMakingResultHandler(this));
         }
 
+        private void RunSimulation(MoveDecisionResultData resultData)
+        {
+            Debug.Log("RunSimulation");
+            // _boardMoveSimulator.RunSimulation(resultData.SingleSimulationInputData);
+            _concurrentBoardMoveSimulator.RunSimulation(resultData.ConcurrentSimulationInputData);
+        }
+
         private class DefaultMoveDecisionMakingResultHandler : IMoveDecisionMakingResultHandler
         {
             private readonly MoveMoveDecisionMakingDriver _driver;
@@ -114,8 +121,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
             public void OnDecisionResult(MoveDecisionResultData resultData)
             {
-                // _driver._boardMoveSimulator.RunSimulation(resultData.SingleSimulationInputData);
-                _driver._concurrentMoveSimulator.RunSimulation(resultData.SimulationInputData);
+                _driver.RunSimulation(resultData);
             }
         }
     }
@@ -123,7 +129,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
     public class MoveDecisionResultData
     {
         public bool Success;
-        public ConcurrentMoveSimulationInputData SimulationInputData;
+        public ConcurrentMoveSimulationInputData ConcurrentSimulationInputData;
         public MoveSimulationInputData SingleSimulationInputData;
     }
 
@@ -137,7 +143,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         {
             return new()
             {
-                SimulationInputData = CreateConcurrentSimulationInputData(moveOptionQueue),
+                ConcurrentSimulationInputData = CreateConcurrentSimulationInputData(moveOptionQueue),
                 SingleSimulationInputData = CreateSimulationInputData(moveOptionQueue),
                 Success = true
             };
@@ -168,7 +174,8 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             };
         }
 
-        public static ConcurrentMoveSimulationInputData CreateConcurrentSimulationInputData(MoveOptionQueue moveOptionQueue)
+        public static ConcurrentMoveSimulationInputData CreateConcurrentSimulationInputData(
+            MoveOptionQueue moveOptionQueue)
         {
             var direction = false;
             var tileIndices = new List<int>();

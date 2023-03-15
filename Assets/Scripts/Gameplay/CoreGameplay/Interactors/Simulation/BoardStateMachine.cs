@@ -9,6 +9,8 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
     {
         private readonly IStateMachine _stateMachine;
 
+        private bool _endedFlag;
+
         public BoardStateMachine(IMoveMaker executor)
         {
             _stateMachine = SetupStateMachine(executor);
@@ -16,16 +18,24 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
         protected override void OnHandleIdleStateEnter(IStateMachine stateMachine)
         {
-            InvokeEndEvent();
+            _endedFlag = true;
         }
 
         protected override void HandleAnyActionComplete(IStateMachine stateMachine)
         {
-            NextAction();
+            if (_endedFlag)
+            {
+                InvokeEndEvent();
+            }
+            else
+            {
+                NextAction();
+            }
         }
 
         protected override void OnNextAction()
         {
+            _endedFlag = false;
             (_stateMachine.CurrentState as BaseBoardState)?.NextAction();
         }
     }

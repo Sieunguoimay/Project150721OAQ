@@ -12,9 +12,9 @@ namespace Gameplay.CoreGameplay.Controllers
         void RunGameplay();
         void CheckBranching();
         void RequestRefresh(IRefreshResultHandler resultPresenter);
-        void MovePieceToNewTile(PieceInteractData.PieceMoveData moveData);
-        void MovePiecesToPocket(PieceInteractData.PieceMoveToPocketData moveData);
-        void RunSimulation(MoveSimulationInputData inputData);
+        // void MovePieceToNewTile(PieceInteractData.PieceMoveData moveData);
+        // void MovePiecesToPocket(PieceInteractData.PieceMoveToPocketData moveData);
+        // void RunSimulation(MoveSimulationInputData inputData);
     }
 
     public class CoreGameplayController : ICoreGameplayController
@@ -32,7 +32,7 @@ namespace Gameplay.CoreGameplay.Controllers
         {
             _installer.InstallEntities();
             _installer.InstallRefreshRequest(_container);
-            _installer.InstallPiecesInteract(_container);
+            // _installer.InstallPiecesInteract(_container);
             _installer.InstallBoardMoveSimulation(_container);
             _installer.InstallTurnDataExtractor(_container);
             _installer.InstallMoveDecisionMakingDriver(_container);
@@ -59,29 +59,29 @@ namespace Gameplay.CoreGameplay.Controllers
             _container.RefreshRequester.Refresh(resultPresenter);
         }
 
-        public void MovePieceToNewTile(PieceInteractData.PieceMoveData moveData)
-        {
-            _container.PiecesInteractor.MovePieceToNewTile(moveData);
-        }
+        // public void MovePieceToNewTile(PieceInteractData.PieceMoveData moveData)
+        // {
+        //     _container.PiecesInteractor.MovePieceToNewTile(moveData);
+        // }
+        //
+        // public void MovePiecesToPocket(PieceInteractData.PieceMoveToPocketData moveData)
+        // {
+        //     _container.PiecesInteractor.MovePiecesToPocket(moveData);
+        // }
 
-        public void MovePiecesToPocket(PieceInteractData.PieceMoveToPocketData moveData)
-        {
-            _container.PiecesInteractor.MovePiecesToPocket(moveData);
-        }
-
-        public void RunSimulation(MoveSimulationInputData inputData)
-        {
-            _container.BoardMoveSimulator.RunSimulation(inputData);
-        }
+        // public void RunSimulation(MoveSimulationInputData inputData)
+        // {
+        //     _container.BoardMoveSimulator.RunSimulation(inputData);
+        // }
     }
 
 
     public class CoreGameplayContainer
     {
         public IRefreshRequester RefreshRequester;
-        public IPiecesInteractor PiecesInteractor;
+        // public IPiecesInteractor PiecesInteractor;
         public BoardMoveSimulator BoardMoveSimulator;
-        public ConcurrentMoveSimulator ConcurrentMoveSimulator;
+        public ConcurrentBoardMoveSimulator ConcurrentBoardMoveSimulator;
         public TurnDataExtractor TurnDataExtractor;
         public MoveMoveDecisionMakingDriver MoveMoveDecisionMakingDriver;
         public CoreGameplayInteractDriver GameplayBranchingDriver;
