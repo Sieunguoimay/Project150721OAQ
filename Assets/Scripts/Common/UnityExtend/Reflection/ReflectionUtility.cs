@@ -169,12 +169,12 @@ namespace Common.UnityExtend.Reflection
 
         public static IEnumerable<EventInfo> GetAllEvents(Type type)
         {
-            return GetAllInfos(type, t => t.GetEvents(MethodFlags));
+            return GetAllInfos(type, t => t.GetEvents(MethodFlags)).Distinct();
         }
 
         public static IEnumerable<MethodInfo> GetAllMethods(Type type)
         {
-            return GetAllInfos(type, t => t.GetMethods(MethodFlags));
+            return GetAllInfos(type, t => t.GetMethods(MethodFlags)).Distinct();
         }
 
         public static IEnumerable<(Type, IEnumerable<MethodInfo>)> GetAllMethodsAndInterfaces(Type type)
@@ -184,12 +184,12 @@ namespace Common.UnityExtend.Reflection
 
         public static IEnumerable<PropertyInfo> GetAllProperties(Type type)
         {
-            return GetAllInfos(type, t => t.GetProperties(PropertyFlags));
+            return GetAllInfos(type, t => t.GetProperties(PropertyFlags)).Distinct();
         }
 
         public static IEnumerable<FieldInfo> GetAllFields(Type type)
         {
-            return GetAllInfos(type, t => t.GetFields(FieldFlags));
+            return GetAllInfos(type, t => t.GetFields(FieldFlags)).Distinct();
         }
 
         public static class FormatName
