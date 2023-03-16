@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -16,7 +17,15 @@ namespace Common.UnityExtend.Reflection.Tools
 
             foreach (var fieldInfo in allFields)
             {
-                var value = fieldInfo.GetValue(targetObject);
+                object value = null;
+                try
+                {
+                    value = fieldInfo.GetValue(targetObject);
+                }
+                catch (Exception)
+                {
+                    //ignore
+                }
                 exposedItems.Add(new ObjectExposedItem
                 {
                     FieldName = fieldInfo.Name,
@@ -26,7 +35,15 @@ namespace Common.UnityExtend.Reflection.Tools
 
             foreach (var propInfo in allProperties)
             {
-                var value = propInfo.GetValue(targetObject);
+                object value = null;
+                try
+                {
+                    value = propInfo.GetValue(targetObject);
+                }
+                catch (Exception)
+                {
+                    //ignore
+                }
                 exposedItems.Add(new ObjectExposedItem
                 {
                     FieldName = propInfo.Name,
