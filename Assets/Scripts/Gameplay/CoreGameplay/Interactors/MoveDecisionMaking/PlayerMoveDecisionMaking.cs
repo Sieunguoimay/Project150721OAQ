@@ -3,22 +3,22 @@ using Gameplay.Visual.Views;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
-    public class PlayerMoveDecisionMaking : IMoveDecisionMaking, MoveOptionQueueIterator.IMoveOptionQueueIterationHandler
+    public class PlayerDecisionMaking : IMoveDecisionMaking, OptionQueueIterator.IOptionQueueIterationHandler
     {
         private readonly InteractSystem _interactSystem;
         private IMoveDecisionMakingResultHandler _driver;
-        private MoveOptionQueueIterator _queueIterator;
+        private OptionQueueIterator _queueIterator;
 
-        public PlayerMoveDecisionMaking(InteractSystem interactSystem)
+        public PlayerDecisionMaking(InteractSystem interactSystem)
         {
             _interactSystem = interactSystem;
         }
 
-        public void MakeDecision(MoveOptionQueue moveOptionQueue, IMoveDecisionMakingResultHandler driver)
+        public void MakeDecision(OptionQueue optionQueue, IMoveDecisionMakingResultHandler driver)
         {
             _driver = driver;
-            _queueIterator = new MoveOptionQueueIterator(moveOptionQueue, this);
-            _queueIterator.DequeueNextOptionItem();
+            _queueIterator = new OptionQueueIterator(optionQueue, this);
+            _queueIterator.NextOptionItem();
         }
 
         public void ForceEnd()
@@ -28,27 +28,40 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         public void OnOptionsQueueEmpty()
         {
-            _driver.OnDecisionResult(IMoveDecisionMaking.CreateResultData(_queueIterator.MoveOptionQueue));
+            _driver.OnDecisionResult(IMoveDecisionMaking.CreateResultData(_queueIterator.OptionQueue));
         }
 
-        public void HandleTilesOption()
+        public void HandleOptionItem()
         {
-            var values = _queueIterator.CurrentOptionItem.Values.Where(v => _queueIterator.MoveOptionQueue.Options.All(o => o.SelectedValue != v));
-
-            _interactSystem.ShowTileSelector(values.Select(v => ((IntegerOptionValue) v).Value), tileIndex =>
+            switch (_queueIterator.CurrentOptionItem)
             {
-                _queueIterator.CurrentOptionItem.SelectedValue = _queueIterator.CurrentOptionItem.Values.FirstOrDefault(v => ((IntegerOptionValue) v).Value == tileIndex);
+                case TileOptionItem:
+                    HandleTilesOption();
+                    break;
+                case DirectionOptionItem:
+                    HandleDirectionsOption();
+                    break;
+            }
+        }
 
-                _queueIterator.DequeueNextOptionItem();
+        private void HandleTilesOption()
+        {
+            var values = _queueIterator.CurrentOptionItem.Values.Where(v => _queueIterator.OptionQueue.Options.All(o => o.SelectedValue != v));
+
+            _interactSystem.ShowTileSelector(values.Select(v => ((IntegerOptionValue)v).Value), tileIndex =>
+            {
+                _queueIterator.CurrentOptionItem.SelectedValue = _queueIterator.CurrentOptionItem.Values.FirstOrDefault(v => ((IntegerOptionValue)v).Value == tileIndex);
+
+                _queueIterator.NextOptionItem();
             });
         }
 
-        public void HandleDirectionsOption()
+        private void HandleDirectionsOption()
         {
             _interactSystem.ShowActionChooser((direction) =>
             {
-                _queueIterator.CurrentOptionItem.SelectedValue = _queueIterator.CurrentOptionItem.Values.FirstOrDefault(v => ((BooleanOptionValue) v).Value == direction);
-                _queueIterator.DequeueNextOptionItem();
+                _queueIterator.CurrentOptionItem.SelectedValue = _queueIterator.CurrentOptionItem.Values.FirstOrDefault(v => ((BooleanOptionValue)v).Value == direction);
+                _queueIterator.NextOptionItem();
             });
         }
     }

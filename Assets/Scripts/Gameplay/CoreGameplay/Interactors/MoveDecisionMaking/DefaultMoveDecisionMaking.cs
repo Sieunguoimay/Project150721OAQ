@@ -5,18 +5,27 @@ using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
-    public class DefaultMoveDecisionMaking : IMoveDecisionMaking,
-        MoveOptionQueueIterator.IMoveOptionQueueIterationHandler
+    public class DefaultDecisionMaking : IMoveDecisionMaking
     {
         private IMoveDecisionMakingResultHandler _driver;
         private Coroutine _coroutine;
-        private MoveOptionQueueIterator _queueIterator;
+        private OptionQueueIterator _queueIterator;
 
-        public void MakeDecision(MoveOptionQueue moveOptionQueue, IMoveDecisionMakingResultHandler driver)
+        public void MakeDecision(OptionQueue optionQueue, IMoveDecisionMakingResultHandler driver)
         {
             _driver = driver;
-            _queueIterator = new MoveOptionQueueIterator(moveOptionQueue, this);
-            _queueIterator.DequeueNextOptionItem();
+            _queueIterator = new OptionQueueIterator(optionQueue, null);
+
+            foreach (var unused in _queueIterator)
+            {
+                HandleMoveOptionItem(unused);
+            }
+
+            _coroutine = PublicExecutor.Instance.Delay(1f, () =>
+            {
+                var result = IMoveDecisionMaking.CreateResultData(_queueIterator.OptionQueue);
+                _driver.OnDecisionResult(result);
+            });
         }
 
         public void ForceEnd()
@@ -25,30 +34,31 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             PublicExecutor.Instance.StopCoroutine(_coroutine);
         }
 
-        public void OnOptionsQueueEmpty()
+        private void HandleMoveOptionItem(OptionItem optionItem)
         {
-            _coroutine = PublicExecutor.Instance.Delay(1f,
-                () =>
-                {
-                    _driver.OnDecisionResult(IMoveDecisionMaking.CreateResultData(_queueIterator.MoveOptionQueue));
-                });
+            switch (optionItem)
+            {
+                case TileOptionItem:
+                    HandleTilesOptionItem();
+                    break;
+                case DirectionOptionItem:
+                    HandleDirectionsOptionItem();
+                    break;
+            }
         }
 
-        public void HandleTilesOption()
+        private void HandleTilesOptionItem()
         {
             var values = _queueIterator.CurrentOptionItem.Values
-                .Where(v => _queueIterator.MoveOptionQueue.Options.All(o => o.SelectedValue != v)).ToArray();
+                .Where(v => _queueIterator.OptionQueue.Options.All(o => o.SelectedValue != v)).ToArray();
 
             _queueIterator.CurrentOptionItem.SelectedValue = values[Random.Range(0, values.Length)];
-            _queueIterator.DequeueNextOptionItem();
         }
 
-        public void HandleDirectionsOption()
+        private void HandleDirectionsOptionItem()
         {
             _queueIterator.CurrentOptionItem.SelectedValue =
-                _queueIterator.CurrentOptionItem.Values
-                    [Random.Range(0, _queueIterator.CurrentOptionItem.Values.Length)];
-            _queueIterator.DequeueNextOptionItem();
+                _queueIterator.CurrentOptionItem.Values[Random.Range(0, _queueIterator.CurrentOptionItem.Values.Length)];
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Gameplay.Visual.Views
         [SerializeField] private ActionChooser actionChooser;
         
         private BoardVisualView _boardVisualView;
-        private Action<MoveOptionQueue> _optionSelectedHandler;
+        private Action<OptionQueue> _optionSelectedHandler;
         private TileVisual _selectedTileVisual;
         private Action<bool> _directionSelectedHandler;
         private Action<int> _tileSelectedHandler;

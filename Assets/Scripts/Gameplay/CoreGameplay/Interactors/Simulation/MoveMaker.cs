@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gameplay.CoreGameplay.Entities;
-using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.Simulation
 {
@@ -32,7 +31,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
         public void Grasp(Action doneHandler)
         {
-            Debug.Log($"{_id} Grasp {TileIterator.CurrentTileIndex}");
+            // Debug.Log($"{_id} Grasp {TileIterator.CurrentTileIndex}");
             PiecesInteractor.InnerPiecesInteractor.MoveAllPiecesFromContainerToContainer(TileIterator.CurrentTile,
                 _tempPieceContainer);
 
@@ -42,7 +41,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
         public void Drop(Action doneHandler)
         {
-            Debug.Log($"{_id} Drop {TileIterator.CurrentTileIndex}");
+            // Debug.Log($"{_id} Drop {TileIterator.CurrentTileIndex}");
             PiecesInteractor.InnerPiecesInteractor.MoveSinglePieceFromContainerToContainer(_tempPieceContainer,
                 TileIterator.CurrentTile);
 
@@ -52,14 +51,14 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
         public void Slam(Action doneHandler)
         {
-            Debug.Log($"{_id} Slam");
+            // Debug.Log($"{_id} Slam");
             FinalizeMove(MoveType.Slam);
             doneHandler?.Invoke();
         }
 
         public void Eat(Action doneHandler)
         {
-            Debug.Log($"{_id} Eat");
+            // Debug.Log($"{_id} Eat");
             var pocket = _boardEntityAccess.GetPocketAtIndex(_sideIndex);
             PiecesInteractor.InnerPiecesInteractor.MoveAllPiecesFromContainerToContainer(TileIterator.CurrentTile,
                 pocket);

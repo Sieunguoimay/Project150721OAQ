@@ -13,17 +13,17 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         public IMoveDecisionMaking CreateDefaultMoveDecisionMaking()
         {
-            return new DefaultMoveDecisionMaking();
+            return new DefaultDecisionMaking();
         }
 
         public IMoveDecisionMaking CreatePlayerMoveDecisionMaking()
         {
-            return new PlayerMoveDecisionMaking(_interactSystem);
+            return new PlayerDecisionMaking(_interactSystem);
         }
 
         public IMoveDecisionMaking CreateComputerMoveDecisionMaking()
         {
-            return new DefaultMoveDecisionMaking();
+            return new DefaultDecisionMaking();
         }
     }
 }

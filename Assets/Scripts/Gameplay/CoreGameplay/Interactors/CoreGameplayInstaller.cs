@@ -75,7 +75,7 @@ namespace Gameplay.CoreGameplay.Interactors
                 container.TurnDataExtractor, _decisionMakingFactory,
                 container.BoardMoveSimulator,
                 container.ConcurrentBoardMoveSimulator,
-                new MoveDecisionOptionFactory(_boardEntityAccess));
+                new MoveOptionSequenceFactory(_boardEntityAccess));
             container.MoveMoveDecisionMakingDriver.InstallDecisionMakings();
         }
 

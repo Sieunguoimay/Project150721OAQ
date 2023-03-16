@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Reflection;
-using Common.Curve.PathCreator.Core.Editor.Helper;
 using Common.UnityExtend.Attribute;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Common.UnityExtend.Reflection
@@ -59,7 +60,7 @@ namespace Common.UnityExtend.Reflection
                     return;
                 }
 
-                var p = path.Split('.');
+                var p = path.Split('.', StringSplitOptions.RemoveEmptyEntries);
                 _memberInfos = new MemberInfoWrapper[p.Length];
                 var currType = _sourceObject.GetType();
                 for (var i = 0; i < p.Length; i++)
@@ -123,7 +124,6 @@ namespace Common.UnityExtend.Reflection
 
         public class CompactAttribute : PropertyAttribute
         {
-            
         }
     }
 #if UNITY_EDITOR

@@ -10,7 +10,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         private readonly IMoveDecisionMakingFactory _factory;
         private readonly BoardMoveSimulator _boardMoveSimulator;
         private readonly ConcurrentBoardMoveSimulator _concurrentBoardMoveSimulator;
-        private readonly MoveDecisionOptionFactory _moveDecisionOptionFactory;
+        private readonly MoveOptionSequenceFactory _moveOptionSequenceFactory;
 
         private IMoveDecisionMaking[] _defaultDecisionMakings;
         private IMoveDecisionMaking[] _decisionMakings;
@@ -20,13 +20,13 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             TurnDataExtractor turnDataExtractor, IMoveDecisionMakingFactory factory,
             BoardMoveSimulator boardMoveSimulator,
             ConcurrentBoardMoveSimulator concurrentBoardMoveSimulator,
-            MoveDecisionOptionFactory moveDecisionOptionFactory)
+            MoveOptionSequenceFactory moveOptionSequenceFactory)
         {
             _turnDataExtractor = turnDataExtractor;
             _factory = factory;
             _boardMoveSimulator = boardMoveSimulator;
             _concurrentBoardMoveSimulator = concurrentBoardMoveSimulator;
-            _moveDecisionOptionFactory = moveDecisionOptionFactory;
+            _moveOptionSequenceFactory = moveOptionSequenceFactory;
         }
 
         public void InstallDecisionMakings()
@@ -55,7 +55,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         public void MakeDecisionOfCurrentTurn()
         {
             var decisionMaking = _decisionMakings[CurrentTurnData.CurrentTurnIndex];
-            var decisionMakingData = _moveDecisionOptionFactory.CreateDecisionMakingData(CurrentTurnData);
+            var decisionMakingData = _moveOptionSequenceFactory.CreateMoveOptionSequence(CurrentTurnData);
             decisionMaking.MakeDecision(decisionMakingData, this);
 
             StartCooldownTimer();
@@ -99,15 +99,21 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         private void MakeDecisionByDefault()
         {
             var decisionMaking = _defaultDecisionMakings[CurrentTurnData.CurrentTurnIndex];
-            var decisionMakingData = _moveDecisionOptionFactory.CreateDecisionMakingData(CurrentTurnData);
+            var decisionMakingData = _moveOptionSequenceFactory.CreateMoveOptionSequence(CurrentTurnData);
             decisionMaking.MakeDecision(decisionMakingData, new DefaultMoveDecisionMakingResultHandler(this));
         }
 
         private void RunSimulation(MoveDecisionResultData resultData)
         {
             Debug.Log("RunSimulation");
-            // _boardMoveSimulator.RunSimulation(resultData.SingleSimulationInputData);
-            _concurrentBoardMoveSimulator.RunSimulation(resultData.ConcurrentSimulationInputData);
+            if (resultData.IsConcurrentSimulation)
+            {
+                _concurrentBoardMoveSimulator.RunSimulation(resultData.ConcurrentSimulationInputData);
+            }
+            else
+            {
+                _boardMoveSimulator.RunSimulation(resultData.ConcurrentSimulationInputData);
+            }
         }
 
         private class DefaultMoveDecisionMakingResultHandler : IMoveDecisionMakingResultHandler
@@ -130,73 +136,55 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
     {
         public bool Success;
         public ConcurrentMoveSimulationInputData ConcurrentSimulationInputData;
-        public MoveSimulationInputData SingleSimulationInputData;
+        public bool IsConcurrentSimulation;
     }
 
     public interface IMoveDecisionMaking
     {
-        void MakeDecision(MoveOptionQueue moveOptionQueue, IMoveDecisionMakingResultHandler driver);
+        void MakeDecision(OptionQueue optionQueue, IMoveDecisionMakingResultHandler driver);
 
         void ForceEnd();
 
-        public static MoveDecisionResultData CreateResultData(MoveOptionQueue moveOptionQueue)
+        public static MoveDecisionResultData CreateResultData(OptionQueue optionQueue)
         {
+            var concurrentMoveSimulationInputData = CreateConcurrentSimulationInputData(optionQueue);
             return new()
             {
-                ConcurrentSimulationInputData = CreateConcurrentSimulationInputData(moveOptionQueue),
-                SingleSimulationInputData = CreateSimulationInputData(moveOptionQueue),
-                Success = true
-            };
-        }
-
-        public static MoveSimulationInputData CreateSimulationInputData(MoveOptionQueue moveOptionQueue)
-        {
-            var direction = false;
-            var tileIndices = -1;
-            foreach (var moveOptionItem in moveOptionQueue.Options)
-            {
-                var optionValue = moveOptionItem.SelectedValue;
-                if (moveOptionItem.OptionItemType == MoveOptionItemType.Direction)
-                {
-                    direction = ((BooleanOptionValue) optionValue).Value;
-                }
-                else if (moveOptionItem.OptionItemType == MoveOptionItemType.Tile)
-                {
-                    tileIndices = (((IntegerOptionValue) optionValue).Value);
-                }
-            }
-
-            return new()
-            {
-                Direction = direction,
-                SideIndex = moveOptionQueue.TurnIndex,
-                StartingTileIndex = tileIndices
+                ConcurrentSimulationInputData = concurrentMoveSimulationInputData,
+                Success = true,
+                IsConcurrentSimulation = concurrentMoveSimulationInputData.StartingTileIndices.Length > 0,
             };
         }
 
         public static ConcurrentMoveSimulationInputData CreateConcurrentSimulationInputData(
-            MoveOptionQueue moveOptionQueue)
+            OptionQueue optionQueue)
         {
             var direction = false;
             var tileIndices = new List<int>();
-            foreach (var moveOptionItem in moveOptionQueue.Options)
+            foreach (var moveOptionItem in optionQueue.Options)
             {
-                var optionValue = moveOptionItem.SelectedValue;
-                if (moveOptionItem.OptionItemType == MoveOptionItemType.Direction)
+                switch (moveOptionItem)
                 {
-                    direction = ((BooleanOptionValue) optionValue).Value;
-                }
-                else if (moveOptionItem.OptionItemType == MoveOptionItemType.Tile)
-                {
-                    tileIndices.Add(((IntegerOptionValue) optionValue).Value);
+                    case DirectionOptionItem directionOptionItem:
+                        direction = directionOptionItem.SelectedDirection;
+                        break;
+                    case TileOptionItem tileOptionItem:
+                        tileIndices.Add(tileOptionItem.SelectedTileIndex);
+                        break;
                 }
             }
 
-            return new()
+            if (tileIndices.Count == 0)
+            {
+                Debug.LogError("Must provide a tileOption");
+            }
+
+            return new ConcurrentMoveSimulationInputData
             {
                 Direction = direction,
-                SideIndex = moveOptionQueue.TurnIndex,
-                StartingTileIndices = tileIndices.ToArray()
+                SideIndex = optionQueue.TurnIndex,
+                StartingTileIndices = tileIndices.ToArray(),
+                StartingTileIndex = tileIndices[0],
             };
         }
     }

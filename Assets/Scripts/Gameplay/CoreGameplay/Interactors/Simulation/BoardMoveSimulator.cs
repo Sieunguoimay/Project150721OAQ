@@ -15,7 +15,7 @@
             _boardStateMachine.SetEndHandler(OnBoardStateMachineEnd);
         }
 
-        public void RunSimulation(MoveSimulationInputData inputData)
+        public void RunSimulation(ConcurrentMoveSimulationInputData inputData)
         {
             _moveMaker.Initialize(inputData.SideIndex, inputData.StartingTileIndex, inputData.Direction);
             _boardStateMachine.NextAction();
@@ -30,13 +30,6 @@
         {
             _simulationResultHandler.OnSimulationResult(new MoveSimulationResultData());
         }
-    }
-
-    public class MoveSimulationInputData
-    {
-        public int StartingTileIndex;
-        public bool Direction;
-        public int SideIndex;
     }
 
     public class MoveSimulationResultData

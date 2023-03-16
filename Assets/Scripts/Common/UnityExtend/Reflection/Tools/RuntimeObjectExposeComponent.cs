@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Common.UnityExtend.Reflection.Tools
 {
-    public class RuntimeObjectExposeComponent : MonoBehaviour
+    public class RuntimeObjectExposeComponent : MonoBehaviour, RuntimeObjectExpose.ITargetObjectProvider
     {
         [SerializeField] private Object targetObject;
         public IReadOnlyList<RuntimeObjectExpose.ObjectExposedItem> DisplayItems;
@@ -14,12 +14,15 @@ namespace Common.UnityExtend.Reflection.Tools
         [ContextMenu("Expose")]
         public void Expose()
         {
-            DisplayItems = new RuntimeObjectExpose().ExposeObject(targetObject);
+            var objectExpose = new RuntimeObjectExpose(this);
+            DisplayItems = objectExpose.ExposeObject();
             foreach (var displayItem in DisplayItems)
             {
                 Debug.Log($"{displayItem.FieldName} {displayItem.DisplayValue}");
             }
         }
+
+        public object TargetObject => targetObject;
     }
 
 #if UNITY_EDITOR
@@ -27,14 +30,33 @@ namespace Common.UnityExtend.Reflection.Tools
     [CustomEditor(typeof(RuntimeObjectExposeComponent))]
     public class RuntimeObjectExposeComponentEditor : Editor
     {
+        private RuntimeObjectExpose.CommonRuntimeObjectExposeEditor _commonRuntimeObjectExposeEditor;
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
             var component = target as RuntimeObjectExposeComponent;
-            if (component != null && component.DisplayItems != null) RuntimeObjectExpose.DrawExposedItems(component.DisplayItems);
+            if (component != null)
+            {
+                if (component.DisplayItems != null)
+                {
+                    _commonRuntimeObjectExposeEditor ??= new RuntimeObjectExpose.CommonRuntimeObjectExposeEditor(
+                        i =>
+                        {
+                            var window = ObjectBrowserWindow.OpenWindowAndReturnSelf();
+                            window.ChangeRootObject(serializedObject.FindProperty("targetObject").objectReferenceValue);
+                            window.ResetPath();
+                            window.GoInto(i);
+                        });
+                    _commonRuntimeObjectExposeEditor.DrawExposedItems(component.DisplayItems);
+                }
+
+                if (GUILayout.Button("Browse"))
+                {
+                    component.Expose();
+                }
+            }
         }
-
-
     }
 #endif
 }

@@ -52,6 +52,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
     public class ConcurrentMoveSimulationInputData
     {
+        public int StartingTileIndex;
         public int[] StartingTileIndices;
         public bool Direction;
         public int SideIndex;
