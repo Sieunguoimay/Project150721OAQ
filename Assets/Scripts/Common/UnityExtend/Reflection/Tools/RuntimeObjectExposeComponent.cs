@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Common.UnityExtend.Reflection.Tools
@@ -18,4 +21,20 @@ namespace Common.UnityExtend.Reflection.Tools
             }
         }
     }
+
+#if UNITY_EDITOR
+
+    [CustomEditor(typeof(RuntimeObjectExposeComponent))]
+    public class RuntimeObjectExposeComponentEditor : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+            var component = target as RuntimeObjectExposeComponent;
+            if (component != null && component.DisplayItems != null) RuntimeObjectExpose.DrawExposedItems(component.DisplayItems);
+        }
+
+
+    }
+#endif
 }

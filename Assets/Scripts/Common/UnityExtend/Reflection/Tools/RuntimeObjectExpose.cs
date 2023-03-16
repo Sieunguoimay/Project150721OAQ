@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Common.UnityExtend.Reflection.Tools
 {
@@ -11,13 +13,23 @@ namespace Common.UnityExtend.Reflection.Tools
             var allFields = ReflectionUtility.GetAllFields(type);
             var allProperties = ReflectionUtility.GetAllProperties(type);
             var exposedItems = new List<ObjectExposedItem>();
-            
+
             foreach (var fieldInfo in allFields)
             {
                 var value = fieldInfo.GetValue(targetObject);
                 exposedItems.Add(new ObjectExposedItem
                 {
                     FieldName = fieldInfo.Name,
+                    DisplayValue = value?.ToString(),
+                });
+            }
+
+            foreach (var propInfo in allProperties)
+            {
+                var value = propInfo.GetValue(targetObject);
+                exposedItems.Add(new ObjectExposedItem
+                {
+                    FieldName = propInfo.Name,
                     DisplayValue = value?.ToString(),
                 });
             }
@@ -30,5 +42,20 @@ namespace Common.UnityExtend.Reflection.Tools
             public string FieldName;
             public string DisplayValue;
         }
+#if UNITY_EDITOR
+        public static void DrawExposedItems(IEnumerable<ObjectExposedItem> exposedItems)
+        {
+            EditorGUILayout.BeginVertical();
+            foreach (var exposedItem in exposedItems)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField($"{exposedItem.FieldName}");
+                EditorGUILayout.LabelField($"{exposedItem.DisplayValue}");
+                EditorGUILayout.EndHorizontal();
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+#endif
     }
 }

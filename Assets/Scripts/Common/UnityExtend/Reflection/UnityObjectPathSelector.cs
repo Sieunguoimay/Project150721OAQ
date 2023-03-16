@@ -21,7 +21,7 @@ namespace Common.UnityExtend.Reflection
         [field: System.NonSerialized] public PathExecutor Executor { get; private set; }
 
         public Type PathFinalType => ReflectionUtility.GetTypeAtPath(sourceObject?.GetType(),
-            string.IsNullOrEmpty(path) ? new string[0] : path.Split('.'), true);
+            string.IsNullOrEmpty(path) ? Array.Empty<string>() : path.Split('.'), true);
 
         public void Setup(bool cache)
         {
@@ -50,12 +50,12 @@ namespace Common.UnityExtend.Reflection
                 }
             }
 
-            public void Setup(string path, object sourceObject, bool cache)
+            public void Setup(string path, object sourceObject, bool cache, bool isNameFormatted = true)
             {
                 _sourceObject = sourceObject;
                 if (string.IsNullOrEmpty(path))
                 {
-                    _memberInfos = new MemberInfoWrapper[0];
+                    _memberInfos = Array.Empty<MemberInfoWrapper>();
                     return;
                 }
 
@@ -65,7 +65,7 @@ namespace Common.UnityExtend.Reflection
                 for (var i = 0; i < p.Length; i++)
                 {
                     _memberInfos[i] = new MemberInfoWrapper();
-                    _memberInfos[i].Setup(currType, p[i], true);
+                    _memberInfos[i].Setup(currType, p[i], isNameFormatted);
                     currType = _memberInfos[i].GetMemberType();
                 }
 
