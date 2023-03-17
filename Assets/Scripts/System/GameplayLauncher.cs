@@ -1,7 +1,7 @@
 ﻿using Framework.Resolver;
+using Framework.Services;
 using Gameplay.CoreGameplay.Controllers;
 using Gameplay.Entities.Stage.StageSelector;
-using Gameplay.GameInteract;
 using Gameplay.GameState;
 using Gameplay.PlayTurn;
 using Gameplay.Visual.Presenters;
@@ -13,11 +13,9 @@ namespace System
     [CreateAssetMenu]
     public class GameplayLauncher : BaseDependencyInversionScriptableObject
     {
-        private GameplayViewActionCompleteHandler _gameplayViewActionCompleteHandler;
-        // private PlayerInteract _interact;
+        private GameplayEventsHandler _gameplayEventsHandler;
         private IStageSelector _stageSelector;
         private IGameState _gameState;
-        private GameStateController _gameStateController;
         private ICoreGameplayController _coreGameplayController;
         private readonly GameplayContainer _container = new();
         private BoardStatePresenter _boardStatePresenter;
@@ -25,6 +23,7 @@ namespace System
         private BoardVisualView _boardVisualView;
         private PiecesMovingRunner _piecesMovingRunner;
         private readonly PlayTurnDataGenerator _playTurnDataGenerator = new();
+        private IMessageService _messageService;
 
         protected override void OnBind(IBinder binder)
         {
@@ -43,14 +42,13 @@ namespace System
             base.OnSetupDependencies();
 
             _stageSelector = Resolver.Resolve<IStageSelector>("stage_selector");
-            // _interact = Resolver.Resolve<PlayerInteract>();
-            _gameStateController = Resolver.Resolve<GameStateController>();
             _coreGameplayController = Resolver.Resolve<ICoreGameplayController>();
             _boardStatePresenter = Resolver.Resolve<BoardStatePresenter>();
             _boardVisualPresenter = Resolver.Resolve<BoardVisualPresenter>();
             _boardVisualView = Resolver.Resolve<BoardVisualView>();
             _piecesMovingRunner = Resolver.Resolve<PiecesMovingRunner>();
             _boardVisualPresenter.BoardVisualView = _boardVisualView;
+            _messageService = Resolver.Resolve<IMessageService>();
             _gameState = Resolver.Resolve<IGameState>();
             _gameState.StateChangedEvent -= OnGameStateChanged;
             _gameState.StateChangedEvent += OnGameStateChanged;
@@ -71,17 +69,14 @@ namespace System
             RefreshVisual();
 
             _playTurnDataGenerator.Generate(_boardStatePresenter.BoardStateView.NumSides, _boardVisualView.BoardVisual);
-            
-            // _interact.Initialize();
 
-            _gameplayViewActionCompleteHandler = new GameplayViewActionCompleteHandler(_container, _boardStatePresenter, _coreGameplayController, _boardVisualView);
+            _gameplayEventsHandler = new GameplayEventsHandler(_messageService, _boardStatePresenter, _coreGameplayController, _boardVisualView);
         }
 
         private void ClearGame()
         {
-            // _interact.Cleanup();
             _boardVisualView.Cleanup();
-            _gameplayViewActionCompleteHandler.Cleanup();
+            _gameplayEventsHandler.Cleanup();
             _coreGameplayController.Uninstall();
             _container.Cleanup();
         }
@@ -99,10 +94,10 @@ namespace System
             _coreGameplayController.RequestRefresh(_boardStatePresenter);
         }
 
-        private void OnGameOver(GameplayViewActionCompleteHandler obj)
-        {
-            _gameStateController.EndGame();
-        }
+        // private void OnGameOver(GameplayEventsHandler obj)
+        // {
+        //     _gameStateController.EndGame();
+        // }
 
         private void OnGameStateChanged(GameState gameState)
         {

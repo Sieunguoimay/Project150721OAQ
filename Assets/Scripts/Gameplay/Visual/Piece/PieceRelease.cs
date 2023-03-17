@@ -12,15 +12,15 @@ namespace Gameplay.Visual.Piece
 {
     public class PieceRelease
     {
-        private readonly PieceGenerator _pieceGenerator;
+        private readonly PieceVisualGenerator _pieceVisualGenerator;
         private readonly Board.BoardVisual _boardVisual;
         private readonly GridLocator _gridLocator;
         private readonly Action _onAllInPlace;
 
-        public PieceRelease(PieceGenerator pieceGenerator, Board.BoardVisual boardVisual, 
+        public PieceRelease(PieceVisualGenerator pieceVisualGenerator, Board.BoardVisual boardVisual, 
             GridLocator gridLocator, Action done)
         {
-            _pieceGenerator = pieceGenerator;
+            _pieceVisualGenerator = pieceVisualGenerator;
             _boardVisual = boardVisual;
             _gridLocator = gridLocator;
             _onAllInPlace = done;
@@ -56,7 +56,7 @@ namespace Gameplay.Visual.Piece
             PublicExecutor.Instance.Delay(2, _onAllInPlace);
         }
 
-        private void ReleasePiecesToTile(IReadOnlyList<Piece> releasedPieces, int tileIndex)
+        private void ReleasePiecesToTile(IReadOnlyList<PieceVisual> releasedPieces, int tileIndex)
         {
             var tile = _boardVisual.TileVisuals[tileIndex];
 
@@ -68,14 +68,14 @@ namespace Gameplay.Visual.Piece
         private Mandarin[] SpawnMandarins(RefreshData refreshData)
         {
             var totalMandarins = refreshData.PiecesInTiles.Sum(p => p.MandarinPiecesCount);
-            var allMandarins = _pieceGenerator.SpawnMandarins(totalMandarins);
+            var allMandarins = _pieceVisualGenerator.SpawnMandarins(totalMandarins);
             return allMandarins;
         }
 
         private Citizen[] SpawnCitizens(RefreshData refreshData)
         {
             var totalCitizens = refreshData.PiecesInTiles.Sum(p => p.CitizenPiecesCount);
-            var allCitizens = _pieceGenerator.SpawnCitizens(totalCitizens);
+            var allCitizens = _pieceVisualGenerator.SpawnCitizens(totalCitizens);
             return allCitizens;
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Common;
 using Framework.Resolver;
+using Framework.Services;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 using Gameplay.Helpers;
 using Gameplay.Visual.Board;
@@ -19,15 +20,16 @@ namespace Gameplay.Visual.Views
         private GridLocator _gridLocator;
         private IGameplayContainer _container;
         private BoardVisualView _boardVisualView;
+        private IMessageService _messageService;
 
-        public event Action<PiecesMovingRunner> AllMovingStepsExecutedEvent;
-
+        // public event Action<PiecesMovingRunner> AllMovingStepsExecutedEvent;
 
         public void SetupDependencies(IResolver resolver)
         {
             _container = resolver.Resolve<IGameplayContainer>();
             _gridLocator = resolver.Resolve<GridLocator>();
             _boardVisualView = resolver.Resolve<BoardVisualView>();
+            _messageService = resolver.Resolve<IMessageService>();
         }
 
         public abstract void ResetMovingSteps();
@@ -38,9 +40,8 @@ namespace Gameplay.Visual.Views
 
         protected void OnAllMovingStepsExecutedEvent()
         {
-            AllMovingStepsExecutedEvent?.Invoke(this);
+            _messageService.Dispatch("AllMovingStepsExecutedEvent", this, EventArgs.Empty);
         }
-
         private TileVisual GetTile(int index)
         {
             return _boardVisualView.BoardVisual.TileVisuals[index];
@@ -51,14 +52,16 @@ namespace Gameplay.Visual.Views
             return _container.PlayTurnTeller.CurrentTurn.PieceBench;
         }
 
-        protected MovingStepExecutor CreateStepExecutor(MoveType moveType, int targetPieceContainerIndex)
+        protected MovingStepExecutor CreateStepExecutor(SingleMovingStep singleMovingStep)
         {
-            return moveType switch
+            var targetPieceContainerIndex = singleMovingStep.TargetPieceContainerIndex;
+            return singleMovingStep.MoveType switch
             {
                 MoveType.Grasp => new GraspExecutor(targetPieceContainerIndex, this),
                 MoveType.Drop => new DropExecutor(targetPieceContainerIndex, this),
                 MoveType.Slam => new SlamExecutor(targetPieceContainerIndex, this),
                 MoveType.Eat => new EatExecutor(targetPieceContainerIndex, this),
+                MoveType.DoubleGrasp => new DoubleGraspExecutor(targetPieceContainerIndex, ((DoubleGraspMovingStep)singleMovingStep).TargetPieceContainerIndex2, this),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -84,17 +87,17 @@ namespace Gameplay.Visual.Views
             MovePieces(_gridLocator, from.HeldPieces, to, amount);
         }
 
-        private void MovePieces(IReadOnlyList<Piece.Piece> citizens, IPieceContainer to, int amount)
+        private void MovePieces(IReadOnlyList<PieceVisual> citizens, IPieceContainer to, int amount)
         {
             MovePieces(_gridLocator, citizens, to, amount);
         }
 
-        private void MoveAllPieces(IReadOnlyList<Piece.Piece> citizens, IPieceContainer to)
+        private void MoveAllPieces(IReadOnlyList<PieceVisual> citizens, IPieceContainer to)
         {
             MovePieces(_gridLocator, citizens, to, citizens.Count);
         }
 
-        public static void MovePieces(GridLocator gridLocator, IReadOnlyList<Piece.Piece> citizens,
+        public static void MovePieces(GridLocator gridLocator, IReadOnlyList<PieceVisual> citizens,
             IPieceContainer to, int amount)
         {
             var n = citizens.Count;
@@ -105,13 +108,14 @@ namespace Gameplay.Visual.Views
             }
         }
 
-        private void MoveSinglePiece(Component piece, IPieceContainer to, int i = 0)
+        private void MoveSinglePiece(PieceVisual piece, IPieceContainer to, int i = 0)
         {
             MoveSinglePiece(piece, _gridLocator, to, i);
         }
 
-        private static void MoveSinglePiece(Component piece, GridLocator gridLocator, IPieceContainer to, int i = 0)
+        private static void MoveSinglePiece(PieceVisual piece, GridLocator gridLocator, IPieceContainer to, int i = 0)
         {
+            piece.SetCurrentPieceContainer(to);
             var target = GetPosition(gridLocator, to, i);
             if (piece is Citizen ci)
             {
@@ -123,6 +127,7 @@ namespace Gameplay.Visual.Views
                 {
                     Debug.Log("Err");
                 }
+
                 piece.transform.position = target;
             }
         }
@@ -159,6 +164,24 @@ namespace Gameplay.Visual.Views
             }
         }
 
+        protected class DoubleGraspExecutor : MovingStepExecutor
+        {
+            private readonly int _targetPieceContainerIndex2;
+
+            public DoubleGraspExecutor(int targetPieceContainerIndex, int targetPieceContainerIndex2, PiecesMovingRunner handler)
+                : base(targetPieceContainerIndex, handler)
+            {
+                _targetPieceContainerIndex2 = targetPieceContainerIndex2;
+            }
+
+            public override void Execute()
+            {
+                base.Execute();
+                IPieceContainer.TransferAllPiecesOwnership(Handler.GetTile(TargetPieceContainerIndex), Handler.GetTempPieceContainer());
+                IPieceContainer.TransferAllPiecesOwnership(Handler.GetTile(_targetPieceContainerIndex2), Handler.GetTempPieceContainer());
+            }
+        }
+
         protected class DropExecutor : MovingStepExecutor
         {
             public DropExecutor(int targetPieceContainerIndex, PiecesMovingRunner handler)
@@ -175,12 +198,15 @@ namespace Gameplay.Visual.Views
 
                 var piece = container.HeldPieces.LastOrDefault();
 
-                Handler.MoveSinglePiece(piece, to);
-                
+                if (piece != null && (TileVisual)piece.CurrentPieceContainer != to)
+                {
+                    Handler.MoveSinglePiece(piece, to);
+                }
+
                 to.AddPiece(piece);
                 container.RemovePiece(piece);
 
-                Handler.MoveAllPieces(Handler.GetTempPieceContainer().HeldPieces, to);
+                Handler.MoveAllPieces(Handler.GetTempPieceContainer().HeldPieces.Where(p => (TileVisual)p.CurrentPieceContainer != to).ToArray(), to);
             }
         }
 

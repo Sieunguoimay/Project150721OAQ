@@ -8,35 +8,35 @@ namespace Gameplay.Visual.Board
     {
         private readonly SimplePieceContainer _container = new();
         
-        public IReadOnlyList<Piece.Piece> HeldPieces => _container.HeldPieces;
-        public void AddPieces(IEnumerable<Piece.Piece> pieces) => _container.AddPieces(pieces);
-        public void AddPiece(Piece.Piece piece) => _container.AddPiece(piece);
-        public void RemovePiece(Piece.Piece piece) => _container.RemovePiece(piece);
-        public void Sort(Comparison<Piece.Piece> comparison) => _container.Sort(comparison);
+        public IReadOnlyList<Piece.PieceVisual> HeldPieces => _container.HeldPieces;
+        public void AddPieces(IEnumerable<Piece.PieceVisual> pieces) => _container.AddPieces(pieces);
+        public void AddPiece(Piece.PieceVisual pieceVisual) => _container.AddPiece(pieceVisual);
+        public void RemovePiece(Piece.PieceVisual pieceVisual) => _container.RemovePiece(pieceVisual);
+        public void Sort(Comparison<Piece.PieceVisual> comparison) => _container.Sort(comparison);
         public void Clear() => _container.Clear();
     }
 
     public class SimplePieceContainer : IPieceContainer
     {
-        private readonly List<Piece.Piece> _heldPieces = new();
-        public IReadOnlyList<Piece.Piece> HeldPieces => _heldPieces;
+        private readonly List<Piece.PieceVisual> _heldPieces = new();
+        public IReadOnlyList<Piece.PieceVisual> HeldPieces => _heldPieces;
 
-        public void AddPieces(IEnumerable<Piece.Piece> pieces)
+        public void AddPieces(IEnumerable<Piece.PieceVisual> pieces)
         {
             _heldPieces.AddRange(pieces);
         }
 
-        public void AddPiece(Piece.Piece piece)
+        public void AddPiece(Piece.PieceVisual pieceVisual)
         {
-            _heldPieces.Add(piece);
+            _heldPieces.Add(pieceVisual);
         }
 
-        public void RemovePiece(Piece.Piece piece)
+        public void RemovePiece(Piece.PieceVisual pieceVisual)
         {
-            _heldPieces.Remove(piece);
+            _heldPieces.Remove(pieceVisual);
         }
 
-        public void Sort(Comparison<Piece.Piece> comparison)
+        public void Sort(Comparison<Piece.PieceVisual> comparison)
         {
             _heldPieces.Sort(comparison);
         }

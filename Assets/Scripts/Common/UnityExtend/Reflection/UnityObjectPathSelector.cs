@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Common.UnityExtend.Attribute;
 #if UNITY_EDITOR
@@ -19,7 +20,7 @@ namespace Common.UnityExtend.Reflection
         [SerializeField]
         private string path;
 
-        [field: System.NonSerialized] public PathExecutor Executor { get; private set; }
+        [field: NonSerialized] public PathExecutor Executor { get; private set; }
 
         public Type PathFinalType => ReflectionUtility.GetTypeAtPath(sourceObject?.GetType(),
             string.IsNullOrEmpty(path) ? Array.Empty<string>() : path.Split('.'), true);
@@ -51,7 +52,7 @@ namespace Common.UnityExtend.Reflection
                 }
             }
 
-            public void Setup(string path, object sourceObject, bool cache, bool isNameFormatted = true)
+            public void Setup(string path, object sourceObject, bool cache, bool isNameFormatted = true, bool setupAtRuntime = false)
             {
                 _sourceObject = sourceObject;
                 if (string.IsNullOrEmpty(path))
@@ -60,14 +61,26 @@ namespace Common.UnityExtend.Reflection
                     return;
                 }
 
-                var p = path.Split('.', StringSplitOptions.RemoveEmptyEntries);
-                _memberInfos = new MemberInfoWrapper[p.Length];
+                var pathSegments = path.Split('.', StringSplitOptions.RemoveEmptyEntries);
+                _memberInfos = new MemberInfoWrapper[pathSegments.Length];
+
+                var currObj = _sourceObject;
                 var currType = _sourceObject.GetType();
-                for (var i = 0; i < p.Length; i++)
+
+                for (var i = 0; i < pathSegments.Length; i++)
                 {
                     _memberInfos[i] = new MemberInfoWrapper();
-                    _memberInfos[i].Setup(currType, p[i], isNameFormatted);
-                    currType = _memberInfos[i].GetMemberType();
+                    _memberInfos[i].Setup(currType, pathSegments[i], isNameFormatted);
+
+                    if (setupAtRuntime)
+                    {
+                        currObj = _memberInfos[i].GetMemberValue(currObj);
+                        currType = currObj?.GetType() ?? _memberInfos[i].GetMemberType();
+                    }
+                    else
+                    {
+                        currType = _memberInfos[i].GetMemberType();
+                    }
                 }
 
                 _cache = cache;
@@ -94,19 +107,43 @@ namespace Common.UnityExtend.Reflection
             private FieldInfo _fieldInfo;
             private PropertyInfo _propertyInfo;
             private MethodInfo _methodInfo;
+            private bool _isArray;
+            private Type _arrayElementType;
+            private int _arrayIndex;
 
-            public void Setup(Type type, string formattedName, bool isNameFormatted)
+            public void Setup(Type type, string memberName, bool isNameFormatted)
             {
                 if (type == null) return;
-                _fieldInfo = ReflectionUtility.GetFieldInfo(type, formattedName, isNameFormatted);
+                if (type.IsArray || IsGenericList(type) || IsReadOnlyList(type))
+                {
+                    _isArray = true;
+                    _arrayElementType = type.GetElementType();
+                    if (int.TryParse(memberName, out var i))
+                    {
+                        _arrayIndex = i;
+                    }
+                }
+
+                _fieldInfo = ReflectionUtility.GetFieldInfo(type, memberName, isNameFormatted);
                 if (_fieldInfo != null) return;
-                _propertyInfo = ReflectionUtility.GetPropertyInfo(type, formattedName, isNameFormatted);
+                _propertyInfo = ReflectionUtility.GetPropertyInfo(type, memberName, isNameFormatted);
                 if (_propertyInfo != null) return;
-                _methodInfo = ReflectionUtility.GetMethodInfo(type, formattedName, isNameFormatted);
+                _methodInfo = ReflectionUtility.GetMethodInfo(type, memberName, isNameFormatted);
+            }
+
+            public static bool IsGenericList(Type type)
+            {
+                return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
+            }
+
+            public static bool IsReadOnlyList(Type type)
+            {
+                return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IReadOnlyList<>);
             }
 
             public Type GetMemberType()
             {
+                if (_isArray) return _arrayElementType;
                 if (_fieldInfo != null) return _fieldInfo.FieldType;
                 if (_propertyInfo != null) return _propertyInfo.PropertyType;
                 if (_methodInfo != null) return _methodInfo.ReturnType;
@@ -115,6 +152,7 @@ namespace Common.UnityExtend.Reflection
 
             public object GetMemberValue(object obj)
             {
+                if (_isArray) return (obj as Array)?.GetValue(_arrayIndex);
                 if (_fieldInfo != null) return _fieldInfo.GetValue(obj);
                 if (_propertyInfo != null) return _propertyInfo.GetValue(obj);
                 if (_methodInfo != null) return _methodInfo.Invoke(obj, null);

@@ -7,16 +7,16 @@ namespace Gameplay.CoreGameplay.Interactors
     public class CoreGameplayInteractDriver
     {
         private readonly TurnDataExtractor _turnDataExtractor;
-        private readonly MoveMoveDecisionMakingDriver _moveMoveDecisionMakingDriver;
+        private readonly BoardActionBoardActionDecisionMakingDriver _boardActionBoardActionDecisionMakingDriver;
         private readonly BoardEntityAccess _boardEntityAccess;
 
         public CoreGameplayInteractDriver(
             TurnDataExtractor turnDataExtractor,
-            MoveMoveDecisionMakingDriver moveMoveDecisionMakingDriver, 
+            BoardActionBoardActionDecisionMakingDriver boardActionBoardActionDecisionMakingDriver, 
             BoardEntityAccess boardEntityAccess)
         {
             _turnDataExtractor = turnDataExtractor;
-            _moveMoveDecisionMakingDriver = moveMoveDecisionMakingDriver;
+            _boardActionBoardActionDecisionMakingDriver = boardActionBoardActionDecisionMakingDriver;
             _boardEntityAccess = boardEntityAccess;
         }
 
@@ -90,7 +90,7 @@ namespace Gameplay.CoreGameplay.Interactors
 
         private void RunMoveDecisionMaking()
         {
-            _moveMoveDecisionMakingDriver.MakeDecisionOfCurrentTurn();
+            _boardActionBoardActionDecisionMakingDriver.MakeDecisionOfCurrentTurn();
         }
     }
 }

@@ -8,32 +8,36 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
     public class MoveMaker : IMoveMaker, MoveInnerRules<TileEntity>.IMoveRuleDataHelper
     {
         private readonly string _id;
-        private readonly Action<MoveMaker, MoveSimulationProgressData> _progressHandler;
+        private Action<MoveMaker, MoveSimulationProgressData> _progressHandler;
         private readonly BoardEntityAccess _boardEntityAccess;
-        private readonly PieceContainerEntity _tempPieceContainer = new() {PieceEntities = new List<PieceEntity>()};
+        protected readonly PieceContainerEntity TempPieceContainer = new() { PieceEntities = new List<PieceEntity>() };
 
         private int _sideIndex;
 
-        public MoveMaker(string id,Action<MoveMaker, MoveSimulationProgressData> progressHandler, BoardEntityAccess boardEntityAccess)
+        public MoveMaker(string id, BoardEntityAccess boardEntityAccess)
         {
             _id = id;
-            _progressHandler = progressHandler;
             _boardEntityAccess = boardEntityAccess;
             MoveInnerRules = new MoveInnerRules<TileEntity>(this);
         }
 
-        public void Initialize(int sideIndex, int startingTileIndex, bool direction)
+        public void SetProgressHandler(Action<MoveMaker, MoveSimulationProgressData> progressHandler)
+        {
+            _progressHandler = progressHandler;
+        }
+
+        public virtual void SetStartingCondition(int sideIndex, int startingTileIndex, bool direction)
         {
             _sideIndex = sideIndex;
             TileIterator = new TileIterator<TileEntity>(_boardEntityAccess.TileEntities, direction);
             TileIterator.UpdateCurrentTileIndex(startingTileIndex);
         }
 
-        public void Grasp(Action doneHandler)
+        public virtual void Grasp(Action doneHandler)
         {
             // Debug.Log($"{_id} Grasp {TileIterator.CurrentTileIndex}");
             PiecesInteractor.InnerPiecesInteractor.MoveAllPiecesFromContainerToContainer(TileIterator.CurrentTile,
-                _tempPieceContainer);
+                TempPieceContainer);
 
             FinalizeMove(MoveType.Grasp);
             doneHandler?.Invoke();
@@ -42,7 +46,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
         public void Drop(Action doneHandler)
         {
             // Debug.Log($"{_id} Drop {TileIterator.CurrentTileIndex}");
-            PiecesInteractor.InnerPiecesInteractor.MoveSinglePieceFromContainerToContainer(_tempPieceContainer,
+            PiecesInteractor.InnerPiecesInteractor.MoveSinglePieceFromContainerToContainer(TempPieceContainer,
                 TileIterator.CurrentTile);
 
             FinalizeMove(MoveType.Drop);
@@ -66,32 +70,26 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
             doneHandler?.Invoke();
         }
 
-        private void FinalizeMove(MoveType moveType)
+        protected void FinalizeMove(MoveType moveType)
         {
-            var numCitizens =
-                TileIterator.CurrentTile.PieceEntities.Count(p => p.PieceType == PieceType.Citizen);
-            var numMandarins =
-                TileIterator.CurrentTile.PieceEntities.Count(p => p.PieceType == PieceType.Mandarin);
-
-            _progressHandler?.Invoke(this, CreateOutput(moveType, numCitizens, numMandarins));
+            _progressHandler?.Invoke(this, CreateOutput(moveType));
             TileIterator.UpdateCurrentTileIndex(
                 Array.IndexOf(_boardEntityAccess.TileEntities, TileIterator.NextTile));
         }
 
-        private MoveSimulationProgressData CreateOutput(MoveType moveType, int numCitizens, int numMandarins)
+        private MoveSimulationProgressData CreateOutput(MoveType moveType)
         {
-            return new()
+            return new MoveSimulationProgressData
             {
                 MoveType = moveType,
                 TileIndex = TileIterator.CurrentTileIndex,
-                NumCitizens = numCitizens,
-                NumMandarins = numMandarins,
+                NextTileIndex =  Array.IndexOf(_boardEntityAccess.TileEntities, TileIterator.NextTile),
             };
         }
 
         public bool CanDrop()
         {
-            return _tempPieceContainer.PieceEntities.Count > 0;
+            return TempPieceContainer.PieceEntities.Count > 0;
         }
 
         public IMoveInnerRules MoveInnerRules { get; }

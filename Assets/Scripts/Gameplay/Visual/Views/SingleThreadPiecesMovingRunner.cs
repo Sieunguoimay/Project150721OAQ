@@ -5,10 +5,10 @@ namespace Gameplay.Visual.Views
 {
     public class SingleThreadPiecesMovingRunner : PiecesMovingRunner
     {
-        private IReadOnlyList<MovingStep> _movingSteps;
+        private IReadOnlyList<SingleMovingStep> _movingSteps;
         private readonly IPieceContainer _pieceContainer = new SimplePieceContainer();
 
-        public void RunTheMoves(IReadOnlyList<MovingStep> movingSteps)
+        public void RunTheMoves(IReadOnlyList<SingleMovingStep> movingSteps)
         {
             _movingSteps = movingSteps;
             StepIterator = 0;
@@ -27,7 +27,7 @@ namespace Gameplay.Visual.Views
             if (StepIterator < _movingSteps.Count)
             {
                 var step = _movingSteps[StepIterator++];
-                var executor = CreateStepExecutor(step.MoveType, step.TargetPieceContainerIndex);
+                var executor = CreateStepExecutor(step);
                 executor.Execute();
             }
             else

@@ -1,23 +1,28 @@
 ﻿namespace Gameplay.CoreGameplay.Interactors.Simulation
 {
-    public class BoardMoveSimulator
+    public interface IBoardMoveSimulator
+    {
+        void RunSimulation(MoveSimulationInputData inputData);
+    }
+
+    public class BoardMoveSimulator : IBoardMoveSimulator
     {
         private readonly IBoardMoveSimulationResultHandler _simulationResultHandler;
         private readonly BoardStateMachine _boardStateMachine;
         private readonly MoveMaker _moveMaker;
 
-        public BoardMoveSimulator(IBoardMoveSimulationResultHandler resultHandler,
-            BoardEntityAccess boardEntityAccess)
+        public BoardMoveSimulator(IBoardMoveSimulationResultHandler resultHandler, MoveMaker moveMaker)
         {
             _simulationResultHandler = resultHandler;
-            _moveMaker = new MoveMaker("_", OnSimulationProgress, boardEntityAccess);
+            _moveMaker = moveMaker;
+            _moveMaker.SetProgressHandler(OnSimulationProgress);
             _boardStateMachine = new BoardStateMachine(_moveMaker);
             _boardStateMachine.SetEndHandler(OnBoardStateMachineEnd);
         }
 
-        public void RunSimulation(ConcurrentMoveSimulationInputData inputData)
+        public void RunSimulation(MoveSimulationInputData inputData)
         {
-            _moveMaker.Initialize(inputData.SideIndex, inputData.StartingTileIndex, inputData.Direction);
+            _moveMaker.SetStartingCondition(inputData.SideIndex, inputData.StartingTileIndex, inputData.Direction);
             _boardStateMachine.NextAction();
         }
 
@@ -40,8 +45,7 @@
     {
         public MoveType MoveType;
         public int TileIndex;
-        public int NumCitizens;
-        public int NumMandarins;
+        public int NextTileIndex;
     }
 
     public enum MoveType
@@ -49,7 +53,8 @@
         Grasp,
         Drop,
         Slam,
-        Eat
+        Eat,
+        DoubleGrasp,
     }
 
     public interface IBoardMoveSimulationResultHandler

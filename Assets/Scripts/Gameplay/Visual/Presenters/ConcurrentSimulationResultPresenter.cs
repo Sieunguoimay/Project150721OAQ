@@ -27,7 +27,7 @@ namespace Gameplay.Visual.Presenters
 
         private static ConcurrentItem CreateConcurrentItem(int threadId, MoveSimulationProgressData result)
         {
-            return new()
+            return new ConcurrentItem
             {
                 MoveType = result.MoveType,
                 TargetPieceContainerIndex = result.TileIndex,
@@ -60,7 +60,7 @@ namespace Gameplay.Visual.Presenters
                 if (!added) break;
 
                 stepIndex++;
-                concurrentMovingSteps.Add(new ConcurrentMovingStep {ConcurrentItems = concurrentItems.ToArray()});
+                concurrentMovingSteps.Add(new ConcurrentMovingStep { ConcurrentItems = concurrentItems.ToArray() });
             }
 
             return concurrentMovingSteps;
@@ -80,11 +80,8 @@ namespace Gameplay.Visual.Presenters
         public ConcurrentItem[] ConcurrentItems;
     }
 
-    public class ConcurrentItem
+    public class ConcurrentItem : SingleMovingStep
     {
-        public MoveType MoveType;
-
-        public int TargetPieceContainerIndex;
         public int ThreadId;
     }
 }

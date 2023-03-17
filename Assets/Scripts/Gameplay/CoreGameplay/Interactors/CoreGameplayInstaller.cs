@@ -19,13 +19,13 @@ namespace Gameplay.CoreGameplay.Interactors
         // private readonly IPieceInteractResultHandler _interactResultHandler;
         private readonly IBoardMoveSimulationResultHandler _simulationResultHandler;
         private readonly IConcurrentMoveSimulationResultHandler _concurrentSimulationResultHandler;
-        private readonly MoveDecisionMakingFactory _decisionMakingFactory;
+        private readonly BoardActionDecisionMakingFactory _decisionMakingFactory;
 
         public CoreGameplayInstaller(ICoreGameplayDataAccess dataAccess,
             // IPieceInteractResultHandler interactResultHandler,
             IBoardMoveSimulationResultHandler simulationResultHandler,
             IConcurrentMoveSimulationResultHandler concurrentSimulationResultHandler,
-            MoveDecisionMakingFactory decisionMakingFactory)
+            BoardActionDecisionMakingFactory decisionMakingFactory)
         {
             _concurrentSimulationResultHandler = concurrentSimulationResultHandler;
             _dataAccess = dataAccess;
@@ -58,8 +58,10 @@ namespace Gameplay.CoreGameplay.Interactors
 
         public void InstallBoardMoveSimulation(CoreGameplayContainer container)
         {
-            container.BoardMoveSimulator = 
-                new BoardMoveSimulator(_simulationResultHandler, _boardEntityAccess);
+            container.BoardMoveSimulator =
+                new BoardMoveSimulator(_simulationResultHandler, new MoveMaker("_", _boardEntityAccess));
+            container.GoneWithTheWindSimulator =
+                new BoardMoveSimulator(_simulationResultHandler, new GoneWithTheWindMoveMaker("gone_with_the_wind", _boardEntityAccess));
             container.ConcurrentBoardMoveSimulator =
                 new ConcurrentBoardMoveSimulator(_concurrentSimulationResultHandler, _boardEntityAccess);
         }
@@ -71,29 +73,28 @@ namespace Gameplay.CoreGameplay.Interactors
 
         public void InstallMoveDecisionMakingDriver(CoreGameplayContainer container)
         {
-            container.MoveMoveDecisionMakingDriver = new MoveMoveDecisionMakingDriver(
-                container.TurnDataExtractor, _decisionMakingFactory,
-                container.BoardMoveSimulator,
-                container.ConcurrentBoardMoveSimulator,
-                new MoveOptionSequenceFactory(_boardEntityAccess));
-            container.MoveMoveDecisionMakingDriver.InstallDecisionMakings();
+            container.BoardActionBoardActionDecisionMakingDriver = new BoardActionBoardActionDecisionMakingDriver(
+                container.TurnDataExtractor, _decisionMakingFactory, container,
+                new BoardActionOptionSequenceFactory(_boardEntityAccess));
+            container.BoardActionBoardActionDecisionMakingDriver.InstallDecisionMakings();
         }
 
         public void InstallGameplayTaskDistributor(CoreGameplayContainer container)
         {
             container.GameplayBranchingDriver = new CoreGameplayInteractDriver(container.TurnDataExtractor,
-                container.MoveMoveDecisionMakingDriver, _boardEntityAccess);
+                container.BoardActionBoardActionDecisionMakingDriver, _boardEntityAccess);
         }
 
         public void Uninstall(CoreGameplayContainer container)
         {
-            container.MoveMoveDecisionMakingDriver.UninstallDecisionMakings();
+            container.BoardActionBoardActionDecisionMakingDriver.UninstallDecisionMakings();
             container.RefreshRequester = null;
             // container.PiecesInteractor = null;
             container.BoardMoveSimulator = null;
+            container.GoneWithTheWindSimulator = null;
             container.ConcurrentBoardMoveSimulator = null;
             container.TurnDataExtractor = null;
-            container.MoveMoveDecisionMakingDriver = null;
+            container.BoardActionBoardActionDecisionMakingDriver = null;
             container.GameplayBranchingDriver = null;
 
             _board = null;

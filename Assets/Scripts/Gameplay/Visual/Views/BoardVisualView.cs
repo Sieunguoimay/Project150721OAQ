@@ -1,8 +1,8 @@
 ﻿using System;
-using Gameplay.BambooStick;
 using Gameplay.CoreGameplay.Gateway;
 using Gameplay.CoreGameplay.Interactors;
 using Gameplay.Helpers;
+using Gameplay.Visual.BambooStick;
 using Gameplay.Visual.Board;
 using Gameplay.Visual.Piece;
 
@@ -12,7 +12,7 @@ namespace Gameplay.Visual.Views
     {
         private BambooFamilyManager _bambooFamily;
         private BoardVisualCreator _boardVisualCreator;
-        private PieceGenerator _pieceGenerator;
+        private PieceVisualGenerator _pieceVisualGenerator;
         private GridLocator _gridLocator;
         public BoardVisual BoardVisual { get; private set; }
         public event Action<BoardVisualView> VisualReadyEvent;
@@ -22,7 +22,7 @@ namespace Gameplay.Visual.Views
             base.OnSetupDependencies();
             _bambooFamily = Resolver.Resolve<BambooFamilyManager>();
             _boardVisualCreator = Resolver.Resolve<BoardVisualCreator>();
-            _pieceGenerator = Resolver.Resolve<PieceGenerator>();
+            _pieceVisualGenerator = Resolver.Resolve<PieceVisualGenerator>();
             _gridLocator = Resolver.Resolve<GridLocator>();
         }
 
@@ -41,7 +41,7 @@ namespace Gameplay.Visual.Views
 
             // _pieceGenerator.SpawnPieces(numSides, tilesPerSide, piecesPerTile);
 
-            new PieceRelease(_pieceGenerator, BoardVisual, _gridLocator, OnAllPiecesInPlace)
+            new PieceRelease(_pieceVisualGenerator, BoardVisual, _gridLocator, OnAllPiecesInPlace)
                 .ReleasePieces(refreshData);
 
             _bambooFamily.BeginAnimSequence(BoardVisual);
@@ -50,7 +50,7 @@ namespace Gameplay.Visual.Views
         public void Cleanup()
         {
             _bambooFamily.ResetAll();
-            _pieceGenerator.DeletePieces();
+            _pieceVisualGenerator.DeletePieces();
             BoardVisualCreator.DeleteBoard(BoardVisual);
         }
 

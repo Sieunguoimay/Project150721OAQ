@@ -27,52 +27,53 @@ namespace Gameplay.Visual
             _simulationSteps.Clear();
         }
 
-        private MovingStep[] GenerateMovingSteps()
+        private SingleMovingStep[] GenerateMovingSteps()
         {
-            var movingSteps = new MovingStep[_simulationSteps.Count];
-            var prevTileIndex = -1;
-            var prevAmount = 0;
+            var movingSteps = new SingleMovingStep[_simulationSteps.Count];
             for (var i = 0; i < _simulationSteps.Count; i++)
             {
                 var s = _simulationSteps[i];
-                if (s.MoveType == MoveType.Drop)
+                if (s.MoveType == MoveType.DoubleGrasp)
                 {
-                    movingSteps[i] = CreateMovingStepForDrop(s.MoveType, prevTileIndex, s.TileIndex, prevAmount);
+                    movingSteps[i] = CreateDoubleGraspMovingStep(s);
                 }
                 else
                 {
-                    movingSteps[i] = new MovingStep
-                    {
-                        MoveType = s.MoveType,
-                        TargetPieceContainerIndex = s.TileIndex
-                    };
+                    movingSteps[i] = CreateMovingStep(s);
                 }
-
-                prevTileIndex = s.TileIndex;
-                prevAmount = s.NumCitizens + s.NumMandarins;
             }
 
             return movingSteps;
         }
 
-        private static MovingStep CreateMovingStepForDrop(MoveType moveType, int prevTileIndex, int tileIndex,
-            int prevAmount)
+        private static SingleMovingStep CreateMovingStep(MoveSimulationProgressData progressData)
         {
-            return new()
+            return new SingleMovingStep
             {
-                MoveType = moveType,
-                // RemainingPieces = prevAmount,
-                // PieceContainerIndex = prevTileIndex,
-                TargetPieceContainerIndex = tileIndex
+                MoveType = progressData.MoveType,
+                TargetPieceContainerIndex = progressData.TileIndex
+            };
+        }
+
+        private static DoubleGraspMovingStep CreateDoubleGraspMovingStep(MoveSimulationProgressData progressData)
+        {
+            return new DoubleGraspMovingStep
+            {
+                MoveType = progressData.MoveType,
+                TargetPieceContainerIndex = progressData.TileIndex,
+                TargetPieceContainerIndex2 = progressData.NextTileIndex,
             };
         }
     }
 }
 
-public class MovingStep
+public class SingleMovingStep
 {
     public MoveType MoveType;
     public int TargetPieceContainerIndex;
-    // public int PieceContainerIndex;
-    // public int RemainingPieces;
+}
+
+public class DoubleGraspMovingStep : SingleMovingStep
+{
+    public int TargetPieceContainerIndex2;
 }

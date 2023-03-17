@@ -47,7 +47,7 @@ namespace Gameplay.CoreGameplay.Controllers
 
         public void RunGameplay()
         {
-            _container.MoveMoveDecisionMakingDriver.MakeDecisionOfCurrentTurn();
+            _container.BoardActionBoardActionDecisionMakingDriver.MakeDecisionOfCurrentTurn();
         }
         public void CheckBranching()
         {
@@ -81,9 +81,10 @@ namespace Gameplay.CoreGameplay.Controllers
         public IRefreshRequester RefreshRequester;
         // public IPiecesInteractor PiecesInteractor;
         public BoardMoveSimulator BoardMoveSimulator;
+        public BoardMoveSimulator GoneWithTheWindSimulator;
         public ConcurrentBoardMoveSimulator ConcurrentBoardMoveSimulator;
         public TurnDataExtractor TurnDataExtractor;
-        public MoveMoveDecisionMakingDriver MoveMoveDecisionMakingDriver;
+        public BoardActionBoardActionDecisionMakingDriver BoardActionBoardActionDecisionMakingDriver;
         public CoreGameplayInteractDriver GameplayBranchingDriver;
     }
 }

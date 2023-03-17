@@ -1,4 +1,5 @@
-﻿using Framework.Entities;
+﻿using System;
+using Framework.Entities;
 using Framework.Entities.Currency;
 using Framework.Resolver;
 using Framework.Services;
@@ -38,20 +39,20 @@ namespace Gameplay.Entities
         {
             var prevAmount = SavedData.Get();
             SavedData.Set(amount);
-            _messageService.Dispatch<ICurrencyChangeMessage, ICurrency>(new CurrencyChangeMessage(this, prevAmount), this);
+            _messageService.Dispatch("CurrencyChangeMessage", this, new CurrencyChangeMessageArgs(prevAmount));
         }
 
         public double Get() => SavedData.Get();
     }
 
-    public interface ICurrencyChangeMessage : IMessage<ICurrency>
+    public interface ICurrencyChangeMessageArgs
     {
         double PrevAmount { get; }
     }
 
-    public class CurrencyChangeMessage : AMessage<ICurrency>, ICurrencyChangeMessage
+    public class CurrencyChangeMessageArgs : EventArgs, ICurrencyChangeMessageArgs
     {
-        public CurrencyChangeMessage(ICurrency currency, double prevAmount) : base(currency)
+        public CurrencyChangeMessageArgs(double prevAmount)
         {
             PrevAmount = prevAmount;
         }

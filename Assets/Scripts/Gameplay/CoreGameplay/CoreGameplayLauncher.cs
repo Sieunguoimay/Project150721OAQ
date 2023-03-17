@@ -68,7 +68,7 @@ namespace Gameplay.CoreGameplay
                 _coreGameplayDataAccess,
                 _simulationResultPresenter,
                 _concurrentSimulationResultPresenter,
-                new MoveDecisionMakingFactory(Resolver.Resolve<InteractSystem>()));
+                new BoardActionDecisionMakingFactory(Resolver.Resolve<InteractSystem>()));
             
             _controller.SetupDependencies(installer);
             

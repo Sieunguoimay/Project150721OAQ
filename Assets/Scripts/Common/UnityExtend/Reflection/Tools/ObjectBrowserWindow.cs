@@ -127,7 +127,7 @@ namespace Common.UnityExtend.Reflection.Tools
         private static void DrawComponentSelectingButton(Object rootObject, Action<Object> selectedHandler)
         {
             if (!GUILayout.Button("...", GUILayout.Width(20))) return;
-            
+
             var menu = new GenericMenu();
             var gameObject = rootObject switch
             {
@@ -140,10 +140,7 @@ namespace Common.UnityExtend.Reflection.Tools
 
             foreach (var i in interfaces)
             {
-                menu.AddItem(new GUIContent(i.GetType().Name), rootObject == i, () =>
-                {
-                    selectedHandler?.Invoke(i);
-                });
+                menu.AddItem(new GUIContent(i.GetType().Name), rootObject == i, () => { selectedHandler?.Invoke(i); });
             }
 
             menu.ShowAsContext();
@@ -159,7 +156,7 @@ namespace Common.UnityExtend.Reflection.Tools
             GoInto(item.FieldName);
         }
 
-        public void GoInto(string pathSegment)
+        private void GoInto(string pathSegment)
         {
             AppendPath(pathSegment);
             UpdateCurrentObject();
@@ -195,7 +192,7 @@ namespace Common.UnityExtend.Reflection.Tools
             if (!string.IsNullOrEmpty(_path))
             {
                 var pe = new UnityObjectPathSelector.PathExecutor();
-                pe.Setup(_path, _rootObject, false, false);
+                pe.Setup(_path, _rootObject, false, false, Application.isPlaying);
                 _currentObject = pe.ExecutePath();
             }
             else

@@ -4,17 +4,8 @@ namespace Framework.Services
 {
     public interface IMessageService
     {
-        void Dispatch<TMessage, TSender>(TMessage message, TSender sender) where TMessage : IMessage<TSender>;
-
-        void Register<TMessage, TSender>(Action<TMessage> messageHandler, TSender sender = default)
-            where TMessage : IMessage<TSender>;
-
-        void Unregister<TMessage, TSender>(Action<TMessage> messageHandler, TSender sender = default)
-            where TMessage : IMessage<TSender>;
-    }
-
-    public interface IMessage<out TSender>
-    {
-        TSender Sender { get; }
+        void Dispatch(string messageType, object sender, EventArgs eventArgs);
+        void Register(string messageType, Action<object, EventArgs> messageHandler);
+        void Unregister(string messageType, Action<object, EventArgs> messageHandler);
     }
 }

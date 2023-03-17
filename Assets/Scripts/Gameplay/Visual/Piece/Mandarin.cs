@@ -3,7 +3,7 @@
 namespace Gameplay.Visual.Piece
 {
     [SelectionBase]
-    public class Mandarin : Piece
+    public class Mandarin : PieceVisual
     {
     }
 }

@@ -87,10 +87,10 @@ namespace Common.UnityExtend.Reflection.Tools
                     if (value == null) continue;
                     exposedItems.Add(new ObjectExposedItem
                     {
-                        FieldName = $"Item {i}",
+                        FieldName = $"[{i}]",
                         DisplayValue = value.ToString(),
                         IsPrimitive = IsPrimitive(value.GetType()),
-                        Value = value
+                        Value = value,
                     });
                 }
             }
@@ -108,7 +108,7 @@ namespace Common.UnityExtend.Reflection.Tools
 
         private static bool IsPrimitive(Type type)
         {
-            return type.IsPrimitive || type.IsEnum || !type.IsClass;
+            return type.IsPrimitive || type.IsEnum || type == typeof(string) || type == typeof(decimal);
         }
 
         public class ObjectExposedItem

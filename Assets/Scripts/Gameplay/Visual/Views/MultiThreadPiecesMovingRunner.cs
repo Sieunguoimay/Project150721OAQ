@@ -49,7 +49,7 @@ namespace Gameplay.Visual.Views
                 
                 foreach (var item in step.ConcurrentItems)
                 {
-                    var executor = CreateStepExecutor(item.MoveType, item.TargetPieceContainerIndex);
+                    var executor = CreateStepExecutor(item);
                     _currentThreadIndex = item.ThreadId;
                     executor.Execute();
                 }
