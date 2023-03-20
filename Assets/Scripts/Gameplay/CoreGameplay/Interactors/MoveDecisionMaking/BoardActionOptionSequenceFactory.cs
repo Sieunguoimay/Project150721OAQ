@@ -88,12 +88,13 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
     public class CardOptionItem : DynamicOptionItem
     {
         private readonly string[] _cardIds;
-        private OptionValue[] _tileOptionValues;
+        private readonly OptionValue[] _tileOptionValues;
 
         public CardOptionItem(OptionQueue optionQueue, string[] cardIds, OptionValue[] tileOptionValues) : base(optionQueue)
         {
             _tileOptionValues = tileOptionValues;
             _cardIds = cardIds;
+            CreateOptionValues();
         }
 
         private void CreateOptionValues()
@@ -111,8 +112,8 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             };
             Values = new OptionValue[]
             {
-                new OptionItemArrayOptionValue(basicOptionItem.ToArray()),
-                new OptionItemArrayOptionValue(optionItems2.ToArray()),
+                new CardOptionValue(basicOptionItem.ToArray(), ""),
+                new CardOptionValue(optionItems2.ToArray(), ""),
             };
         }
     }
