@@ -12,7 +12,7 @@ namespace Common.UnityExtend.Serialization.ChildAsset
     [EditorWindowTitleAttribute(title = "Child Assets")]
     public class ChildAssetManagerWindow : EditorWindow
     {
-        private Object _target;
+        private Object _rootAsset;
         private Object[] _assets;
         private Object _renameObject;
         private Object _editObject;
@@ -53,19 +53,24 @@ namespace Common.UnityExtend.Serialization.ChildAsset
 
             var target = Selection.activeObject;
 
-            if (_target == null || _target != target)
+            if (_currentTarget == null || _currentTarget != target)
             {
-                _target = AssetDatabase.LoadAssetAtPath<Object>(AssetDatabase.GetAssetPath(target));
+                _currentTarget = target;
 
-                _assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(target))
-                    .Where(AssetDatabase.IsSubAsset).ToArray();
+                var allAssets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(_currentTarget));
+                _assets = allAssets.Where(AssetDatabase.IsSubAsset).ToArray();
+                _rootAsset = allAssets.FirstOrDefault(a => !AssetDatabase.IsSubAsset(a));
+                if (_rootAsset != _currentTarget)
+                {
+                    _editObject = _currentTarget;
+                }
             }
 
             EditorGUILayout.BeginHorizontal();
             EditorGUI.BeginDisabledGroup(true);
-            EditorGUILayout.ObjectField(_target, typeof(Object), false);
+            EditorGUILayout.ObjectField(_rootAsset, typeof(Object), false);
             EditorGUI.EndDisabledGroup();
-            if (GUILayout.Button("#", GUILayout.Width(20)))
+            if (GUILayout.Button(new GUIContent("#","Show Edit for all"), GUILayout.Width(20)))
             {
                 _showEditForAll = !_showEditForAll;
             }
@@ -73,6 +78,40 @@ namespace Common.UnityExtend.Serialization.ChildAsset
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginVertical();
+            DrawSubAssets();
+            EditorGUILayout.EndVertical();
+            
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            DrawPullAssetToSubAssetUI();
+            DrawNewChildAssetMenu(AssetDatabase.GetAssetPath(_rootAsset), (newAsset) =>
+            {
+                _rootAsset = null;
+                Repaint();
+                _name = newAsset.name;
+                _renameObject = newAsset;
+                GUI.FocusControl(null);
+            });
+
+            EditorGUILayout.EndHorizontal();
+            if (DrawAllSelectedAssets(!_includeActiveBaseAsset, true, () =>
+                {
+                    if (_multiTargetDuplicateActive)
+                    {
+                        EditorGUILayout.LabelField("D->", GUILayout.Width(25));
+                    }
+                }))
+            {
+                DrawMultiTargetAction();
+            }
+            else
+            {
+                _multiTargetDuplicateActive = false;
+            }
+        }
+
+        private void DrawSubAssets()
+        {
             var alignment = GUI.skin.button.alignment;
             GUI.skin.button.alignment = TextAnchor.MiddleLeft;
             foreach (var asset in _assets)
@@ -92,22 +131,23 @@ namespace Common.UnityExtend.Serialization.ChildAsset
 
                     if (_editObject == asset || _showEditForAll)
                     {
-                        if (GUILayout.Button("<-", GUILayout.Width(25)))
+                        if (GUILayout.Button(new GUIContent("<-", "Extract Child Asset"), GUILayout.Width(25)))
                         {
                             ExtractChildAsset(_editObject);
-                            _target = null;
+                            _rootAsset = null;
                             Repaint();
                         }
 
-                        if (GUILayout.Button("R", GUILayout.Width(20)))
+                        if (GUILayout.Button(new GUIContent("R", "Rename"), GUILayout.Width(20)))
                         {
                             _name = asset.name;
                             _renameObject = asset;
                             GUI.FocusControl(null);
                         }
 
-                        if (GUILayout.Button("D" + (_multiTargetDuplicateActive ? "++" : ""),
-                            GUILayout.Width(_multiTargetDuplicateActive ? 35 : 20)))
+                        if (GUILayout.Button(
+                                new GUIContent("D" + (_multiTargetDuplicateActive ? "++" : ""), "Duplicate"),
+                                GUILayout.Width(_multiTargetDuplicateActive ? 35 : 20)))
                         {
                             if (_multiTargetDuplicateActive)
                             {
@@ -123,18 +163,18 @@ namespace Common.UnityExtend.Serialization.ChildAsset
                                 DuplicateChildAsset(asset, _assets);
 
                                 Debug.Log("Duplicate");
-                                _target = null;
+                                _rootAsset = null;
                                 Repaint();
                             }
                         }
 
                         var color = GUI.color;
                         GUI.color = Color.red;
-                        if (GUILayout.Button("X", GUILayout.Width(20)))
+                        if (GUILayout.Button(new GUIContent("X", "Delete"), GUILayout.Width(20)))
                         {
                             AssetDatabase.RemoveObjectFromAsset(asset);
                             AssetDatabase.SaveAssets();
-                            _target = null;
+                            _rootAsset = null;
                             Repaint();
                         }
 
@@ -164,35 +204,6 @@ namespace Common.UnityExtend.Serialization.ChildAsset
             }
 
             GUI.skin.button.alignment = alignment;
-
-            EditorGUILayout.EndVertical();
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            DrawPullAssetToSubAssetUI();
-            DrawNewChildAssetMenu(AssetDatabase.GetAssetPath(_target), (newAsset) =>
-            {
-                _target = null;
-                Repaint();
-                _name = newAsset.name;
-                _renameObject = newAsset;
-                GUI.FocusControl(null);
-            });
-
-            EditorGUILayout.EndHorizontal();
-            if (DrawAllSelectedAssets(!_includeActiveBaseAsset, true, () =>
-            {
-                if (_multiTargetDuplicateActive)
-                {
-                    EditorGUILayout.LabelField("D->", GUILayout.Width(25));
-                }
-            }))
-            {
-                DrawMultiTargetAction();
-            }
-            else
-            {
-                _multiTargetDuplicateActive = false;
-            }
         }
 
         private bool _includeActiveBaseAsset;
@@ -209,6 +220,7 @@ namespace Common.UnityExtend.Serialization.ChildAsset
                 _includeActiveBaseAsset = !_includeActiveBaseAsset;
                 _activeSelectedAsset = null;
             }
+
             GUI.color = _multiTargetDuplicateActive ? Color.cyan : color;
             if (GUILayout.Button("Duplicate to Others"))
             {
@@ -277,24 +289,26 @@ namespace Common.UnityExtend.Serialization.ChildAsset
 
         private bool _pulling;
         private Object _pulledAsset;
+        private Object _currentTarget;
 
         private void DrawPullAssetToSubAssetUI()
         {
             if (!_pulling)
             {
-                if (GUILayout.Button("->"))
+                if (GUILayout.Button(new GUIContent("->", "To SubAsset")))
                 {
                     _pulling = true;
                 }
             }
             else
             {
+                GUILayout.Label(new GUIContent("Free asset", "Drag free asset in here"));
                 _pulledAsset = EditorGUILayout.ObjectField(GUIContent.none, _pulledAsset, typeof(Object), false);
 
-                if (GUILayout.Button("OK"))
+                if (GUILayout.Button(_pulledAsset!=null?new GUIContent("OK"):new GUIContent("X","Collapse")))
                 {
                     _pulling = false;
-                    AssetToSubAsset(_pulledAsset, _target);
+                    AssetToSubAsset(_pulledAsset, _rootAsset);
                     _pulledAsset = null;
                 }
             }
@@ -302,7 +316,7 @@ namespace Common.UnityExtend.Serialization.ChildAsset
 
         private static void DrawNewChildAssetMenu(string path, Action<Object> created)
         {
-            if (GUILayout.Button("+"))
+            if (GUILayout.Button(new GUIContent("+", "New child asset")))
             {
                 var menu = new GenericMenu();
                 var typesContainsAttribute = Assembly.GetExecutingAssembly().GetTypes()
