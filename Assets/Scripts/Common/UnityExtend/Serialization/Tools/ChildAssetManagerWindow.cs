@@ -7,9 +7,9 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Common.UnityExtend.Serialization.ChildAsset
+namespace Common.UnityExtend.Serialization.Tools
 {
-    [EditorWindowTitleAttribute(title = "Child Assets")]
+    [EditorWindowTitle(title = "Child Assets")]
     public class ChildAssetManagerWindow : EditorWindow
     {
         private Object _rootAsset;
@@ -70,7 +70,7 @@ namespace Common.UnityExtend.Serialization.ChildAsset
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.ObjectField(_rootAsset, typeof(Object), false);
             EditorGUI.EndDisabledGroup();
-            if (GUILayout.Button(new GUIContent("#","Show Edit for all"), GUILayout.Width(20)))
+            if (GUILayout.Button(new GUIContent("#", "Show Edit for all"), GUILayout.Width(20)))
             {
                 _showEditForAll = !_showEditForAll;
             }
@@ -80,13 +80,13 @@ namespace Common.UnityExtend.Serialization.ChildAsset
             EditorGUILayout.BeginVertical();
             DrawSubAssets();
             EditorGUILayout.EndVertical();
-            
+
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             DrawPullAssetToSubAssetUI();
             DrawNewChildAssetMenu(AssetDatabase.GetAssetPath(_rootAsset), (newAsset) =>
             {
-                _rootAsset = null;
+                RefreshCurrentAsset();
                 Repaint();
                 _name = newAsset.name;
                 _renameObject = newAsset;
@@ -124,6 +124,7 @@ namespace Common.UnityExtend.Serialization.ChildAsset
                     if (GUILayout.Button($"{asset.name} ({asset.GetType().Name})"))
                     {
                         EditorGUIUtility.PingObject(asset);
+                        Selection.activeObject = asset;
                         _editObject = _editObject != asset ? asset : null;
                     }
 
@@ -131,12 +132,6 @@ namespace Common.UnityExtend.Serialization.ChildAsset
 
                     if (_editObject == asset || _showEditForAll)
                     {
-                        if (GUILayout.Button(new GUIContent("<-", "Extract Child Asset"), GUILayout.Width(25)))
-                        {
-                            ExtractChildAsset(_editObject);
-                            _rootAsset = null;
-                            Repaint();
-                        }
 
                         if (GUILayout.Button(new GUIContent("R", "Rename"), GUILayout.Width(20)))
                         {
@@ -163,9 +158,15 @@ namespace Common.UnityExtend.Serialization.ChildAsset
                                 DuplicateChildAsset(asset, _assets);
 
                                 Debug.Log("Duplicate");
-                                _rootAsset = null;
+                                RefreshCurrentAsset();
                                 Repaint();
                             }
+                        }
+                        if (GUILayout.Button(new GUIContent("<-", "Extract Child Asset"), GUILayout.Width(25)))
+                        {
+                            ExtractChildAsset(_editObject);
+                            RefreshCurrentAsset();
+                            Repaint();
                         }
 
                         var color = GUI.color;
@@ -174,7 +175,7 @@ namespace Common.UnityExtend.Serialization.ChildAsset
                         {
                             AssetDatabase.RemoveObjectFromAsset(asset);
                             AssetDatabase.SaveAssets();
-                            _rootAsset = null;
+                            RefreshCurrentAsset();
                             Repaint();
                         }
 
@@ -204,6 +205,12 @@ namespace Common.UnityExtend.Serialization.ChildAsset
             }
 
             GUI.skin.button.alignment = alignment;
+        }
+
+        private void RefreshCurrentAsset()
+        {
+            _currentTarget = null;
+            Selection.activeObject = _rootAsset;
         }
 
         private bool _includeActiveBaseAsset;
@@ -295,7 +302,7 @@ namespace Common.UnityExtend.Serialization.ChildAsset
         {
             if (!_pulling)
             {
-                if (GUILayout.Button(new GUIContent("->", "To SubAsset")))
+                if (GUILayout.Button(new GUIContent("->", "To SubAsset"),GUILayout.Width(25)))
                 {
                     _pulling = true;
                 }
@@ -305,7 +312,7 @@ namespace Common.UnityExtend.Serialization.ChildAsset
                 GUILayout.Label(new GUIContent("Free asset", "Drag free asset in here"));
                 _pulledAsset = EditorGUILayout.ObjectField(GUIContent.none, _pulledAsset, typeof(Object), false);
 
-                if (GUILayout.Button(_pulledAsset!=null?new GUIContent("OK"):new GUIContent("X","Collapse")))
+                if (GUILayout.Button(_pulledAsset != null ? new GUIContent("OK") : new GUIContent("X", "Collapse")))
                 {
                     _pulling = false;
                     AssetToSubAsset(_pulledAsset, _rootAsset);

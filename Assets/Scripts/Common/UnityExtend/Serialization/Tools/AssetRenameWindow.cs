@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Common.Tools
+namespace Common.UnityExtend.Serialization.Tools
 {
 #if UNITY_EDITOR
     public class AssetRenameWindow : EditorWindow
