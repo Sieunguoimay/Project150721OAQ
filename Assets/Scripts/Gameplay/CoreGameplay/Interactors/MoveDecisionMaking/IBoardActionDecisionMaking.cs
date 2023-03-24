@@ -1,25 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Gameplay.CoreGameplay.Interactors.OptionSystem;
 using Gameplay.CoreGameplay.Interactors.Simulation;
-using Gameplay.OptionSystem;
 using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
     public interface IBoardActionDecisionMaking
     {
-        void MakeDecision(OptionQueue optionQueue, IBoardActionDecisionMakingResultHandler driver);
+        void MakeDecision(DecisionMakingData optionQueue, IBoardActionDecisionMakingResultHandler driver);
 
         void ForceEnd();
 
-        public static BoardActionDecisionResultData CreateResultData(OptionQueue optionQueue)
+        public static BoardActionDecisionResultData CreateResultData(DecisionMakingData optionQueue)
         {
-            var concurrentMoveSimulationInputData = CreateConcurrentSimulationInputData(optionQueue);
+            var concurrentMoveSimulationInputData = CreateConcurrentSimulationInputData(optionQueue.OptionQueue);
             return new BoardActionDecisionResultData
             {
                 SimulationInputData = concurrentMoveSimulationInputData,
                 Success = true,
-                ActionType = GetActionType(optionQueue),
+                ActionType = optionQueue.ActionType//GetActionType(optionQueue),
             };
         }
 
@@ -64,5 +64,11 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
                 StartingTileIndex = tileIndices[0],
             };
         }
+    }
+
+    public class DecisionMakingData
+    {
+        public OptionQueue OptionQueue;
+        public BoardActionType ActionType;
     }
 }

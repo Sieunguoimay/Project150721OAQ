@@ -1,5 +1,6 @@
 ﻿using System;
 using Gameplay.CoreGameplay.Controllers;
+using Gameplay.CoreGameplay.Interactors.OptionSystem;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 using UnityEngine;
 
@@ -53,8 +54,12 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         public void MakeDecisionOfCurrentTurn()
         {
             var decisionMaking = _decisionMakings[CurrentTurnData.CurrentTurnIndex];
-            var decisionMakingData = _boardActionOptionSequenceFactory.CreateOptionSequence(CurrentTurnData);
-            decisionMaking.MakeDecision(decisionMakingData, this);
+            var decisionMakingData = _boardActionOptionSequenceFactory.CreateOptionSequence();
+            decisionMaking.MakeDecision(new DecisionMakingData
+            {
+                OptionQueue = decisionMakingData,
+                ActionType = BoardActionType.Basic
+            }, this);
 
             StartCooldownTimer();
         }
@@ -97,8 +102,12 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         private void MakeDecisionByDefault()
         {
             var decisionMaking = _defaultDecisionMakings[CurrentTurnData.CurrentTurnIndex];
-            var decisionMakingData = _boardActionOptionSequenceFactory.CreateOptionSequence(CurrentTurnData);
-            decisionMaking.MakeDecision(decisionMakingData, new DefaultBoardActionDecisionMakingResultHandler(this));
+            var decisionMakingData = _boardActionOptionSequenceFactory.CreateOptionSequence();
+            decisionMaking.MakeDecision(new DecisionMakingData()
+            {
+                OptionQueue = decisionMakingData,
+                ActionType = BoardActionType.Basic
+            }, new DefaultBoardActionDecisionMakingResultHandler(this));
         }
 
         private void RunSimulation(BoardActionDecisionResultData resultData)

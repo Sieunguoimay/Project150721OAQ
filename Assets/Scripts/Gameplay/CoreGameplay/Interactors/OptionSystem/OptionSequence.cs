@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Gameplay.OptionSystem
+namespace Gameplay.CoreGameplay.Interactors.OptionSystem
 {
     public class OptionQueue
     {
-        public List<OptionItem> Options;
+        public OptionItem[] Options;
         public int TurnIndex;
     }
 
@@ -64,7 +64,7 @@ namespace Gameplay.OptionSystem
 
         public bool NextOptionItem()
         {
-            if (_optionQueueIndex >= OptionQueue.Options.Count)
+            if (_optionQueueIndex >= OptionQueue.Options.Length)
             {
                 _handler?.OnOptionsQueueEmpty();
                 return false;

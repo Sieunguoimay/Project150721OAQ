@@ -2,6 +2,7 @@
 using Gameplay.CoreGameplay.Entities;
 using Gameplay.CoreGameplay.Gateway;
 using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
+using Gameplay.CoreGameplay.Interactors.OptionSystem;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 
 namespace Gameplay.CoreGameplay.Interactors
@@ -61,7 +62,8 @@ namespace Gameplay.CoreGameplay.Interactors
             container.BoardMoveSimulator =
                 new BoardMoveSimulator(_simulationResultHandler, new MoveMaker("_", _boardEntityAccess));
             container.GoneWithTheWindSimulator =
-                new BoardMoveSimulator(_simulationResultHandler, new GoneWithTheWindMoveMaker("gone_with_the_wind", _boardEntityAccess));
+                new BoardMoveSimulator(_simulationResultHandler,
+                    new GoneWithTheWindMoveMaker("gone_with_the_wind", _boardEntityAccess));
             container.ConcurrentBoardMoveSimulator =
                 new ConcurrentBoardMoveSimulator(_concurrentSimulationResultHandler, _boardEntityAccess);
         }
@@ -75,7 +77,7 @@ namespace Gameplay.CoreGameplay.Interactors
         {
             container.BoardActionBoardActionDecisionMakingDriver = new BoardActionBoardActionDecisionMakingDriver(
                 container.TurnDataExtractor, _decisionMakingFactory, container,
-                new BoardActionOptionSequenceFactory(_boardEntityAccess));
+                new BoardActionOptionSequenceFactory(_boardEntityAccess, container.TurnDataExtractor));
             container.BoardActionBoardActionDecisionMakingDriver.InstallDecisionMakings();
         }
 

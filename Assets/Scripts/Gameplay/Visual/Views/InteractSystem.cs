@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Common;
 using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
-using Gameplay.OptionSystem;
+using Gameplay.CoreGameplay.Interactors.OptionSystem;
 using Gameplay.Visual.Board;
 using Gameplay.Visual.GameInteract;
 using SNM;

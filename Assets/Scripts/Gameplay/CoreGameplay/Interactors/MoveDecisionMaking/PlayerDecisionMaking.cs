@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Gameplay.OptionSystem;
+using Gameplay.CoreGameplay.Interactors.OptionSystem;
 using Gameplay.Visual.Views;
 using UnityEngine;
 
@@ -10,16 +10,18 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         private readonly InteractSystem _interactSystem;
         private IBoardActionDecisionMakingResultHandler _driver;
         private OptionQueueIterator _queueIterator;
+        private DecisionMakingData _optionQueue;
 
         public PlayerDecisionMaking(InteractSystem interactSystem)
         {
             _interactSystem = interactSystem;
         }
 
-        public void MakeDecision(OptionQueue optionQueue, IBoardActionDecisionMakingResultHandler driver)
+        public void MakeDecision(DecisionMakingData optionQueue, IBoardActionDecisionMakingResultHandler driver)
         {
+            _optionQueue = optionQueue;
             _driver = driver;
-            _queueIterator = new OptionQueueIterator(optionQueue, this);
+            _queueIterator = new OptionQueueIterator(optionQueue.OptionQueue, this);
             _queueIterator.NextOptionItem();
         }
 
@@ -30,7 +32,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         public void OnOptionsQueueEmpty()
         {
-            _driver.OnDecisionResult(IBoardActionDecisionMaking.CreateResultData(_queueIterator.OptionQueue));
+            _driver.OnDecisionResult(IBoardActionDecisionMaking.CreateResultData(_optionQueue));
         }
 
         public void HandleOptionItem()
@@ -43,9 +45,9 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
                 case DirectionOptionItem:
                     HandleDirectionsOption();
                     break;
-                case DynamicOptionItem:
-                    ApplyRandom();
-                    break;
+                // case DynamicOptionItem:
+                //     ApplyRandom();
+                //     break;
             }
         }
 

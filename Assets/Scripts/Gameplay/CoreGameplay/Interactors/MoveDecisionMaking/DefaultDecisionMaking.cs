@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Common;
-using Gameplay.OptionSystem;
+using Gameplay.CoreGameplay.Interactors.OptionSystem;
 using SNM;
 using UnityEngine;
 
@@ -12,10 +12,10 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         private Coroutine _coroutine;
         private OptionQueueIterator _queueIterator;
 
-        public void MakeDecision(OptionQueue optionQueue, IBoardActionDecisionMakingResultHandler driver)
+        public void MakeDecision(DecisionMakingData optionQueue, IBoardActionDecisionMakingResultHandler driver)
         {
             _driver = driver;
-            _queueIterator = new OptionQueueIterator(optionQueue, null);
+            _queueIterator = new OptionQueueIterator(optionQueue.OptionQueue, null);
 
             foreach (var unused in _queueIterator)
             {
@@ -24,7 +24,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
             _coroutine = PublicExecutor.Instance.Delay(1f, () =>
             {
-                var result = IBoardActionDecisionMaking.CreateResultData(_queueIterator.OptionQueue);
+                var result = IBoardActionDecisionMaking.CreateResultData(optionQueue);
                 _driver.OnDecisionResult(result);
             });
         }
@@ -45,9 +45,9 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
                 case DirectionOptionItem:
                     ApplyRandom();
                     break;
-                case DynamicOptionItem:
-                    ApplyRandom();
-                    break;
+                // case DynamicOptionItem:
+                //     ApplyRandom();
+                //     break;
             }
         }
 
