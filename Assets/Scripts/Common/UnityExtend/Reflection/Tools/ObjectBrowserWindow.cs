@@ -26,7 +26,6 @@ namespace Common.UnityExtend.Reflection.Tools
         }
 
         private Object _rootObject;
-        private object _currentObject;
         private string _path;
         private bool _refreshEveryFrame;
 
@@ -41,7 +40,7 @@ namespace Common.UnityExtend.Reflection.Tools
             get { return _commonRuntimeObjectExposeEditor ??= new RuntimeObjectExpose.CommonRuntimeObjectExposeEditor(OnItemClicked); }
         }
 
-        public object TargetObject => _currentObject;
+        public object TargetObject { get; private set; }
 
         private void OnGUI()
         {
@@ -193,11 +192,11 @@ namespace Common.UnityExtend.Reflection.Tools
             {
                 var pe = new UnityObjectPathSelector.PathExecutor();
                 pe.Setup(_path, _rootObject, false, false, Application.isPlaying);
-                _currentObject = pe.ExecutePath();
+                TargetObject = pe.ExecutePath();
             }
             else
             {
-                _currentObject = _rootObject;
+                TargetObject = _rootObject;
             }
 
             if (TargetObject == null || _rootObject == null) return;

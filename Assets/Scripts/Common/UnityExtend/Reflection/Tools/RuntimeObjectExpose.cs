@@ -6,6 +6,7 @@ using System.Reflection;
 using UnityEditor;
 #endif
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 
 namespace Common.UnityExtend.Reflection.Tools
@@ -137,7 +138,8 @@ namespace Common.UnityExtend.Reflection.Tools
                 foreach (var exposedItem in exposedItems)
                 {
                     EditorGUILayout.BeginHorizontal();
-                    if (!exposedItem.IsPrimitive && exposedItem.Value != null)
+                    var isExposable = !exposedItem.IsPrimitive && exposedItem.Value != null;
+                    if (isExposable)
                     {
                         if (GUILayout.Button($"->", GUILayout.Width(25)))
                         {
@@ -146,7 +148,14 @@ namespace Common.UnityExtend.Reflection.Tools
                     }
 
                     EditorGUILayout.LabelField($"{exposedItem.FieldName}");
-                    EditorGUILayout.LabelField($"{exposedItem.DisplayValue}");
+                    if (exposedItem.Value is Object asset)
+                    {
+                        EditorGUILayout.ObjectField(asset,typeof(Object),false);
+                    }
+                    else
+                    {
+                        EditorGUILayout.LabelField($"{exposedItem.DisplayValue}");
+                    }
 
                     EditorGUILayout.EndHorizontal();
                 }
