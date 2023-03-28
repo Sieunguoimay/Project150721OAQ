@@ -6,10 +6,9 @@ using UnityEngine;
 
 namespace System
 {
-    public class DependencyInversionController : MonoBehaviour
+    public class DependencyInversionController : DependencyInversionMonoBehaviourNode
     {
         [SerializeField] private GameObject[] prefabs;
-        [SerializeField] private BaseDependencyInversionScriptableObject[] scriptableObjects;
 
         private GameObject[] _spawnedGameObjects;
         private IDependencyInversionUnit[] _dependencyInversionUnits;
@@ -25,12 +24,12 @@ namespace System
             SpawnGameObjects();
             FindAllDependencyInversionUnits();
             FindAllInjectables();
-            SetupDependencies();
+            RootSetupDependencies();
         }
 
         private void OnDestroy()
         {
-            TearDownDependencies();
+            RootTearDownDependencies();
             DestroyGameObjects();
         }
 
@@ -46,20 +45,25 @@ namespace System
 
         private void FindAllDependencyInversionUnits()
         {
-            _dependencyInversionUnits = GetInterfaceInChildrenOfSpawnedGameObjects<IDependencyInversionUnit>().Concat(scriptableObjects).ToArray();
+            _dependencyInversionUnits = DependencyInversionUnitChildren
+                .Concat(GetInterfaceInChildrenOfSpawnedGameObjects<IDependencyInversionUnit>())
+                .ToArray();
         }
 
         private void FindAllInjectables()
         {
-            _injectables = GetInterfaceInChildrenOfSpawnedGameObjects<IInjectable>().Concat(scriptableObjects).ToArray();
+            _injectables = DependencyInversionUnitChildren
+                .Concat(GetInterfaceInChildrenOfSpawnedGameObjects<IInjectable>())
+                .ToArray();
         }
-        
-        private IEnumerable<TInterface> GetInterfaceInChildrenOfSpawnedGameObjects<TInterface>() where TInterface: class
+
+        private IEnumerable<TInterface> GetInterfaceInChildrenOfSpawnedGameObjects<TInterface>()
+            where TInterface : class
         {
             return _spawnedGameObjects.SelectMany(t => t.GetComponentsInChildren<TInterface>(true));
         }
 
-        private void SetupDependencies()
+        private void RootSetupDependencies()
         {
             foreach (var b in _dependencyInversionUnits)
             {
@@ -82,7 +86,7 @@ namespace System
             }
         }
 
-        private void TearDownDependencies()
+        private void RootTearDownDependencies()
         {
             foreach (var b in _dependencyInversionUnits)
             {

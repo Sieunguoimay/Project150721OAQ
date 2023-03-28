@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Gameplay.GameState
 {
     [CreateAssetMenu(menuName = "Controller/GameStateController")]
-    public class GameStateController : BaseGenericDependencyInversionScriptableObject<GameStateController>
+    public class GameStateController : SelfBindingDependencyInversionScriptableObject
     {
         [SerializeField, DataAssetIdSelector(typeof(IStageSelectorData))]
         private string stageSelectorId;

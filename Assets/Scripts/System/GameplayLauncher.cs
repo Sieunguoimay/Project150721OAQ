@@ -11,7 +11,7 @@ using UnityEngine;
 namespace System
 {
     [CreateAssetMenu]
-    public class GameplayLauncher : BaseDependencyInversionScriptableObject
+    public class GameplayLauncher : DependencyInversionScriptableObject
     {
         private GameplayEventsHandler _gameplayEventsHandler;
         private IStageSelector _stageSelector;

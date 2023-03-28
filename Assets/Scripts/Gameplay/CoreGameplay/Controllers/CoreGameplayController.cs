@@ -33,7 +33,8 @@ namespace Gameplay.CoreGameplay.Controllers
             _installer.InstallEntities();
             _installer.InstallRefreshRequest(_container);
             // _installer.InstallPiecesInteract(_container);
-            _installer.InstallBoardMoveSimulation(_container);
+            // _installer.InstallBoardMoveSimulator(_container);
+            _installer.InstallSimulatorFactory();
             _installer.InstallTurnDataExtractor(_container);
             _installer.InstallMoveDecisionMakingDriver(_container);
             _installer.InstallGameplayTaskDistributor(_container);
@@ -47,7 +48,7 @@ namespace Gameplay.CoreGameplay.Controllers
 
         public void RunGameplay()
         {
-            _container.BoardActionBoardActionDecisionMakingDriver.MakeDecisionOfCurrentTurn();
+            _container.BoardActionDecisionMakingDriver.MakeDecisionOfCurrentTurn();
         }
         public void CheckBranching()
         {
@@ -80,11 +81,12 @@ namespace Gameplay.CoreGameplay.Controllers
     {
         public IRefreshRequester RefreshRequester;
         // public IPiecesInteractor PiecesInteractor;
-        public BoardMoveSimulator BoardMoveSimulator;
-        public BoardMoveSimulator GoneWithTheWindSimulator;
-        public ConcurrentBoardMoveSimulator ConcurrentBoardMoveSimulator;
+        // public BoardMoveSimulator BoardMoveSimulator;
+        // public BoardMoveSimulator GoneWithTheWindSimulator;
+        // public ConcurrentBoardMoveSimulator ConcurrentBoardMoveSimulator;
+        public SimulatorFactory SimulatorFactory;
         public TurnDataExtractor TurnDataExtractor;
-        public BoardActionBoardActionDecisionMakingDriver BoardActionBoardActionDecisionMakingDriver;
+        public BoardActionDecisionMakingDriver BoardActionDecisionMakingDriver;
         public CoreGameplayInteractDriver GameplayBranchingDriver;
     }
 }

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Linq;
 using Gameplay.CoreGameplay.Controllers;
-using Gameplay.Visual.Board;
-using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.Simulation
 {
@@ -10,30 +7,36 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
     {
         private readonly IConcurrentMoveSimulationResultHandler _simulationResultHandler;
         private readonly BoardEntityAccess _boardEntityAccess;
+        private readonly ICoreGameplayController _controller;
+        private readonly MoveMakerFactory _moveMakerFactory;
 
         private MultiBoardStateMachine _boardStateMachine;
         private MoveMaker[] _moveMakers;
-
-        private readonly ICoreGameplayController _controller;
         private int _simulationId;
 
-        public ConcurrentBoardMoveSimulator(IConcurrentMoveSimulationResultHandler resultHandler, BoardEntityAccess boardEntityAccess)
+        public ConcurrentBoardMoveSimulator(IConcurrentMoveSimulationResultHandler resultHandler, MoveMakerFactory moveMakerFactory)
         {
+            _moveMakerFactory = moveMakerFactory;
             _simulationResultHandler = resultHandler;
-            _boardEntityAccess = boardEntityAccess;
         }
 
-        public void RunSimulation(MoveSimulationInputData simulationInputData)
+        private void CreateAllMoveMakers(MoveSimulationInputData simulationInputData)
         {
             _moveMakers = new MoveMaker[simulationInputData.StartingTileIndices.Length];
             for (var i = 0; i < simulationInputData.StartingTileIndices.Length; i++)
             {
-                _moveMakers[i] = new MoveMaker($"{i}", _boardEntityAccess);
+                _moveMakers[i] = _moveMakerFactory.CreateMoveMaker();
                 _moveMakers[i].SetProgressHandler(OnSimulationProgress);
-                _moveMakers[i].SetStartingCondition(simulationInputData.SideIndex, simulationInputData.StartingTileIndices[i], simulationInputData.Direction);
+                _moveMakers[i].SetStartingCondition(simulationInputData.SideIndex, simulationInputData.StartingTileIndices[i],
+                    simulationInputData.Direction);
             }
 
             _boardStateMachine = new MultiBoardStateMachine(_moveMakers);
+        }
+
+        public void RunSimulation(MoveSimulationInputData simulationInputData)
+        {
+            CreateAllMoveMakers(simulationInputData);
 
             _boardStateMachine.SetEndHandler(OnBoardStateMachineEnd);
             _boardStateMachine.NextAction();

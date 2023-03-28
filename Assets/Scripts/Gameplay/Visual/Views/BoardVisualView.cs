@@ -8,7 +8,7 @@ using Gameplay.Visual.Piece;
 
 namespace Gameplay.Visual.Views
 {
-    public class BoardVisualView : BaseGenericDependencyInversionUnit<BoardVisualView>
+    public class BoardVisualView : SelfBindingDependencyInversionMonoBehaviour
     {
         private BambooFamilyManager _bambooFamily;
         private BoardVisualCreator _boardVisualCreator;

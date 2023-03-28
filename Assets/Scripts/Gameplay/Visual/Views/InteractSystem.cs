@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Gameplay.Visual.Views
 {
-    public class InteractSystem : BaseGenericDependencyInversionUnit<InteractSystem>
+    public class InteractSystem : SelfBindingDependencyInversionMonoBehaviour
     {
         [SerializeField] private TileSelector tileSelector;
         [SerializeField] private ActionChooser actionChooser;

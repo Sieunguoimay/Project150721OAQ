@@ -6,7 +6,7 @@ using UnityEngine.Serialization;
 
 namespace Gameplay.Visual.Board
 {
-    public class BoardVisualCreator : BaseGenericDependencyInversionUnit<BoardVisualCreator>
+    public class BoardVisualCreator : SelfBindingDependencyInversionMonoBehaviour
     {
         [FormerlySerializedAs("mandarinTilePrefab")] [SerializeField] private MandarinTileVisual mandarinTileVisualPrefab;
         [FormerlySerializedAs("citizenTilePrefab")] [SerializeField] private CitizenTileVisual citizenTileVisualPrefab;

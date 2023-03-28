@@ -213,5 +213,26 @@ namespace Test
         //
         // private int[] _horses = DefaultHorses.ToArray();
         // private int[][] _cells = DefaultCells.ToArray();
+        [ContextMenu("Test")]
+        private void Test()
+        {
+            var a = new B();
+            // Debug.Log(a.GetType());
+            a.Test();
+        }
+
+        private class A
+        {
+            public virtual void Test()
+            {
+                Debug.Log(GetType());
+                Debug.Log(this);
+            }
+        }
+
+        private class B:A
+        {
+            
+        }
     }
 }

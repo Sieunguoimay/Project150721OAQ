@@ -122,7 +122,7 @@ namespace Common.UnityExtend.Serialization.Tools
             var newString = EditorGUILayout.TextField(_searchName, _textFieldStyle);
             EditorGUILayout.EndHorizontal();
 
-            if (_searchName == newString)
+            if (_searchName != newString)
             {
                 _searchName = newString;
                 UpdateOptionList();

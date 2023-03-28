@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Gameplay.Camera
 {
-    public class CameraManager : BaseGenericDependencyInversionUnit<CameraManager>
+    public class CameraManager : SelfBindingDependencyInversionMonoBehaviour
     {
         private UnityEngine.Camera _camera = null;
         public UnityEngine.Camera Camera => _camera ? _camera : _camera = GetComponent<UnityEngine.Camera>();

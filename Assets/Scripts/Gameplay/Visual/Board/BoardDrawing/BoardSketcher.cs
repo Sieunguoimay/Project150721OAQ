@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Gameplay.Visual.Board.BoardDrawing
 {
-    public class BoardSketcher : BaseGenericDependencyInversionUnit<BoardSketcher>
+    public class BoardSketcher : SelfBindingDependencyInversionMonoBehaviour
     {
         [SerializeField] private VisualPen[] pens;
         [SerializeField] private DrawingSurface[] surfaces;

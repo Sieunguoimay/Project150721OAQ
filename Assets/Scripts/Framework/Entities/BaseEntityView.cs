@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Framework.Entities
 {
-    public class BaseEntityView<TEntity, TEntityData> : BaseInjectable, IEntityView<TEntity>
+    public class BaseEntityView<TEntity, TEntityData> : InjectableMonoBehaviour, IEntityView<TEntity>
         where TEntity : IEntity<IEntityData, IEntitySavedData> where TEntityData : IEntityData
     {
 #if UNITY_EDITOR

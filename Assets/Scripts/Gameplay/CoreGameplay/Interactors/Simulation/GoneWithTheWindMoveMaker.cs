@@ -7,7 +7,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
     {
         private bool _firstGraspFlag;
 
-        public GoneWithTheWindMoveMaker(string id, BoardEntityAccess boardEntityAccess) : base(id, boardEntityAccess)
+        public GoneWithTheWindMoveMaker(string id) : base(id)
         {
         }
 

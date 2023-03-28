@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace System
 {
-    public abstract class BaseInjectableScriptableObject : ScriptableObject, IInjectable
+    public abstract class InjectableScriptableObject : ScriptableObject, IInjectable
     {
         protected IResolver Resolver { get; private set; }
 
@@ -18,7 +18,7 @@ namespace System
         }
     }
 
-    public abstract class BaseInjectable : MonoBehaviour, IInjectable
+    public abstract class InjectableMonoBehaviour : MonoBehaviour, IInjectable
     {
         protected IResolver Resolver { get; private set; }
 
@@ -41,7 +41,7 @@ namespace System
         void Unbind(IBinder binder);
     }
 
-    public abstract class BaseDependencyInversionUnit : BaseInjectable, IDependencyInversionUnit
+    public abstract class DependencyInversionMonoBehaviour : InjectableMonoBehaviour, IDependencyInversionUnit
     {
         public void Bind(IBinder binder)
         {
@@ -80,7 +80,7 @@ namespace System
         }
     }
 
-    public abstract class BaseDependencyInversionScriptableObject : BaseInjectableScriptableObject,
+    public abstract class DependencyInversionScriptableObject : InjectableScriptableObject,
         IDependencyInversionUnit
     {
         public void Bind(IBinder binder)
@@ -120,34 +120,38 @@ namespace System
         }
     }
 
-    public abstract class BaseGenericDependencyInversionUnit<TBindingType> : BaseDependencyInversionUnit
+    public abstract class SelfBindingDependencyInversionMonoBehaviour : DependencyInversionMonoBehaviour
     {
         protected override void OnBind(IBinder binder)
         {
-            binder.Bind<TBindingType>(this);
+            binder.Bind(GetBindingType(), this);
             base.OnBind(binder);
         }
 
         protected override void OnUnbind(IBinder binder)
         {
             base.OnUnbind(binder);
-            binder.Unbind<TBindingType>();
+            binder.Unbind(GetBindingType());
         }
+
+        protected virtual Type GetBindingType() => GetType();
     }
 
-    public abstract class BaseGenericDependencyInversionScriptableObject<TBindingType>
-        : BaseDependencyInversionScriptableObject
+    public abstract class SelfBindingDependencyInversionScriptableObject
+        : DependencyInversionScriptableObject
     {
         protected override void OnBind(IBinder binder)
         {
-            binder.Bind<TBindingType>(this);
+            binder.Bind(GetBindingType(), this);
             base.OnBind(binder);
         }
 
         protected override void OnUnbind(IBinder binder)
         {
             base.OnUnbind(binder);
-            binder.Unbind<TBindingType>();
+            binder.Unbind(GetBindingType());
         }
+
+        protected virtual Type GetBindingType() => GetType();
     }
 }

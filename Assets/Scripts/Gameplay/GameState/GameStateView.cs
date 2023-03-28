@@ -3,7 +3,7 @@ using Framework.Resolver;
 
 namespace Gameplay.GameState
 {
-    public class GameStateView : BaseInjectable
+    public class GameStateView : InjectableMonoBehaviour
     {
         [field: System.NonSerialized] public IGameState GameState { get; private set; }
         

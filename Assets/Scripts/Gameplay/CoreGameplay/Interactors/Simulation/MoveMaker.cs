@@ -7,18 +7,20 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 {
     public class MoveMaker : IMoveMaker, MoveInnerRules<TileEntity>.IMoveRuleDataHelper
     {
-        private readonly string _id;
-        private Action<MoveMaker, MoveSimulationProgressData> _progressHandler;
-        private readonly BoardEntityAccess _boardEntityAccess;
-        protected readonly PieceContainerEntity TempPieceContainer = new() { PieceEntities = new List<PieceEntity>() };
+        protected readonly PieceContainerEntity TempPieceContainer = new() {PieceEntities = new List<PieceEntity>()};
 
+        private Action<MoveMaker, MoveSimulationProgressData> _progressHandler;
+        private BoardEntityAccess _boardEntityAccess;
         private int _sideIndex;
 
-        public MoveMaker(string id, BoardEntityAccess boardEntityAccess)
+        public MoveMaker(string id)
         {
-            _id = id;
-            _boardEntityAccess = boardEntityAccess;
             MoveInnerRules = new MoveInnerRules<TileEntity>(this);
+        }
+
+        public void SetBoardEntityAccess(BoardEntityAccess boardEntityAccess)
+        {
+            _boardEntityAccess = boardEntityAccess;
         }
 
         public void SetProgressHandler(Action<MoveMaker, MoveSimulationProgressData> progressHandler)
@@ -79,11 +81,11 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
         private MoveSimulationProgressData CreateOutput(MoveType moveType)
         {
-            return new MoveSimulationProgressData
+            return new()
             {
                 MoveType = moveType,
                 TileIndex = TileIterator.CurrentTileIndex,
-                NextTileIndex =  Array.IndexOf(_boardEntityAccess.TileEntities, TileIterator.NextTile),
+                NextTileIndex = Array.IndexOf(_boardEntityAccess.TileEntities, TileIterator.NextTile),
             };
         }
 

@@ -1,31 +1,30 @@
-﻿using System;
-using Gameplay.CoreGameplay.Controllers;
-using Gameplay.CoreGameplay.Interactors.OptionSystem;
+﻿using Gameplay.CoreGameplay.Interactors.OptionSystem;
 using Gameplay.CoreGameplay.Interactors.Simulation;
-using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
-    public class BoardActionBoardActionDecisionMakingDriver : IBoardActionDecisionMakingResultHandler
+    public class BoardActionDecisionMakingDriver : IBoardActionDecisionMakingResultHandler
     {
         private readonly TurnDataExtractor _turnDataExtractor;
         private readonly IBoardActionDecisionMakingFactory _factory;
-        private readonly CoreGameplayContainer _container;
 
         private readonly BoardActionOptionSequenceFactory _boardActionOptionSequenceFactory;
 
         private IBoardActionDecisionMaking[] _defaultDecisionMakings;
         private IBoardActionDecisionMaking[] _decisionMakings;
+        private readonly ISimulatorFactory _simulatorFactory;
         private ExtractedTurnData CurrentTurnData => _turnDataExtractor.ExtractedTurnData;
 
-        public BoardActionBoardActionDecisionMakingDriver(
-            TurnDataExtractor turnDataExtractor, IBoardActionDecisionMakingFactory factory,
-            CoreGameplayContainer container,
-            BoardActionOptionSequenceFactory boardActionOptionSequenceFactory)
+        private BoardActionData[] _boardActionDataList;
+        public BoardActionDecisionMakingDriver(
+            TurnDataExtractor turnDataExtractor, 
+            IBoardActionDecisionMakingFactory factory,
+            BoardActionOptionSequenceFactory boardActionOptionSequenceFactory,
+            ISimulatorFactory simulatorFactory)
         {
+            _simulatorFactory = simulatorFactory;
             _turnDataExtractor = turnDataExtractor;
             _factory = factory;
-            _container = container;
             _boardActionOptionSequenceFactory = boardActionOptionSequenceFactory;
         }
 
@@ -44,7 +43,6 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             }
         }
 
-
         public void UninstallDecisionMakings()
         {
             _decisionMakings = null;
@@ -54,10 +52,10 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         public void MakeDecisionOfCurrentTurn()
         {
             var decisionMaking = _decisionMakings[CurrentTurnData.CurrentTurnIndex];
-            var decisionMakingData = _boardActionOptionSequenceFactory.CreateOptionSequence();
+            var optionQueue = _boardActionOptionSequenceFactory.CreateOptionSequence();
             decisionMaking.MakeDecision(new DecisionMakingData
             {
-                OptionQueue = decisionMakingData,
+                OptionQueue = optionQueue,
                 ActionType = BoardActionType.Basic
             }, this);
 
@@ -103,7 +101,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         {
             var decisionMaking = _defaultDecisionMakings[CurrentTurnData.CurrentTurnIndex];
             var decisionMakingData = _boardActionOptionSequenceFactory.CreateOptionSequence();
-            decisionMaking.MakeDecision(new DecisionMakingData()
+            decisionMaking.MakeDecision(new DecisionMakingData
             {
                 OptionQueue = decisionMakingData,
                 ActionType = BoardActionType.Basic
@@ -112,26 +110,14 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         private void RunSimulation(BoardActionDecisionResultData resultData)
         {
-            Debug.Log("RunSimulation");
-            GetSimulator(resultData.ActionType).RunSimulation(resultData.SimulationInputData);
-        }
-
-        private IBoardMoveSimulator GetSimulator(BoardActionType actionType)
-        {
-            return actionType switch
-            {
-                BoardActionType.Basic => _container.BoardMoveSimulator,
-                BoardActionType.GoneWithTheWind => _container.GoneWithTheWindSimulator,
-                BoardActionType.Concurrent => _container.ConcurrentBoardMoveSimulator,
-                _ => throw new ArgumentOutOfRangeException(nameof(actionType), actionType, null)
-            };
+            _simulatorFactory.GetSimulator(resultData.ActionType).RunSimulation(resultData.SimulationInputData);
         }
 
         private class DefaultBoardActionDecisionMakingResultHandler : IBoardActionDecisionMakingResultHandler
         {
-            private readonly BoardActionBoardActionDecisionMakingDriver _driver;
+            private readonly BoardActionDecisionMakingDriver _driver;
 
-            public DefaultBoardActionDecisionMakingResultHandler(BoardActionBoardActionDecisionMakingDriver driver)
+            public DefaultBoardActionDecisionMakingResultHandler(BoardActionDecisionMakingDriver driver)
             {
                 _driver = driver;
             }
@@ -157,6 +143,13 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         Concurrent,
     }
 
+    public class BoardActionData
+    {
+        public BoardActionType ActionType;
+        public IBoardMoveSimulator Simulator;
+        public OptionQueue OptionQueue;
+    }
+    
     public interface IBoardActionDecisionMakingResultHandler
     {
         void OnDecisionResult(BoardActionDecisionResultData resultData);
@@ -168,4 +161,5 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         IBoardActionDecisionMaking CreatePlayerDecisionMaking();
         IBoardActionDecisionMaking CreateComputerDecisionMaking();
     }
+
 }

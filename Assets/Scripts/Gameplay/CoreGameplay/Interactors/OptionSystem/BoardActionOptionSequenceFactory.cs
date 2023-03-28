@@ -18,31 +18,7 @@ namespace Gameplay.CoreGameplay.Interactors.OptionSystem
 
         public OptionQueue CreateOptionSequence()
         {
-            var tileOptionValues =
-                CreateTileOptionValues(_turnDataExtractor.ExtractedTurnData.CitizenTileEntitiesOfCurrentTurn);
-            var basicOptionItem = new List<OptionItem>
-            {
-                new TileOptionItem {Values = tileOptionValues},
-                CreateDirectionOptionItem()
-            };
-            var optionItems2 = new List<OptionItem>
-            {
-                new TileOptionItem {Values = tileOptionValues},
-                new TileOptionItem {Values = tileOptionValues},
-                CreateDirectionOptionItem()
-            };
-            var optionQueue = new OptionQueue();
-            // var dynamicOptionItem = new DynamicOptionItem(optionQueue)
-            // {
-            //     Values = new OptionValue[]
-            //     {
-            //         new OptionItemArrayOptionValue(basicOptionItem.ToArray()),
-            //         new OptionItemArrayOptionValue(optionItems2.ToArray()),
-            //     }
-            // };
-            // optionQueue.Options = new List<OptionItem> { dynamicOptionItem };
-            // optionQueue.TurnIndex = turnData.CurrentTurnIndex;
-            return optionQueue;
+            return CreateOptionQueueDefault();
         }
 
         public OptionQueue CreateOptionQueueDefault()

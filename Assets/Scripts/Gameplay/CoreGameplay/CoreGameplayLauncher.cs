@@ -13,7 +13,7 @@ using UnityEngine;
 namespace Gameplay.CoreGameplay
 {
     [CreateAssetMenu]
-    public partial class CoreGameplayLauncher : BaseGenericDependencyInversionScriptableObject<CoreGameplayLauncher>
+    public partial class CoreGameplayLauncher : DependencyInversionScriptableObjectNode
     {
         private CoreGameplayController _controller;
         private CoreGameplayDataAccess _coreGameplayDataAccess;
@@ -66,9 +66,8 @@ namespace Gameplay.CoreGameplay
             
             var installer = new CoreGameplayInstaller(
                 _coreGameplayDataAccess,
-                _simulationResultPresenter,
-                _concurrentSimulationResultPresenter,
-                new BoardActionDecisionMakingFactory(Resolver.Resolve<InteractSystem>()));
+                new BoardActionDecisionMakingFactory(Resolver.Resolve<InteractSystem>()),
+                Resolver.Resolve<ISimulatorFactory>());
             
             _controller.SetupDependencies(installer);
             
