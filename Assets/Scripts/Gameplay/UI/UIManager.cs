@@ -3,10 +3,7 @@ using UnityEngine;
 
 namespace Gameplay.UI
 {
-    public class UIManager : MonoBehaviour, IInjectable
+    public class UIManager : MonoBehaviour
     {
-        public void Inject(IResolver resolver)
-        {
-        }
     }
 }

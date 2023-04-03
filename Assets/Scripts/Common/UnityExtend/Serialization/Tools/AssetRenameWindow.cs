@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -19,8 +20,12 @@ namespace Common.UnityExtend.Serialization.Tools
 
         private readonly NoParamsModification _toLowerCaseAndUnderscore = new(
             "To Lowercase & Underscore",
-            s => s.ToLower().Replace(" ", "_")
-        );
+            s =>
+            {
+                var pattern = new Regex(@"(?<!^)(?=[A-Z])|[^A-Za-z0-9]+");
+                var result = pattern.Replace(s, "_").Trim('_').ToLower();
+                return Regex.Replace(result, @"(?<=[A-Za-z])_(?=[A-Za-z])", "_");
+            });
 
         private readonly TwoParamsModification _prefixModification = new(
             "Prefix",
@@ -62,43 +67,46 @@ namespace Common.UnityExtend.Serialization.Tools
         {
             DrawTabs();
 
-            if (_tab == 0)
+            switch (_tab)
             {
-                Draw2ParamsModifier(ModifyNameOfSelected, _prefixModification, ref _param1Prefix, false);
-                Draw2ParamsModifier(ModifyNameOfSelected, _suffixModification, ref _param1Suffix, false);
-                DrawNameModifier2Params(ModifyNameOfSelected, _replaceModification, ref _param1Replace, ref _param2Replace);
-                DrawNoParamsModifier(ModifyNameOfSelected, _toLowerCaseAndUnderscore);
-            }
-            else if (_tab == 1)
-            {
-                Draw2ParamsModifier(ModifyStringFieldOfReferenced, _prefixModification, ref _param1Prefix, false);
-                Draw2ParamsModifier(ModifyStringFieldOfReferenced, _suffixModification, ref _param1Suffix, false);
-                DrawNameModifier2Params(ModifyStringFieldOfReferenced, _replaceModification, ref _param1Replace,
-                    ref _param2Replace);
-                DrawNoParamsModifier(ModifyStringFieldOfReferenced, _toLowerCaseAndUnderscore);
-
-                EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("Replace Tag"))
+                case 0:
+                    Draw2ParamsModifier(ModifyNameOfSelected, _prefixModification, ref _param1Prefix, false);
+                    Draw2ParamsModifier(ModifyNameOfSelected, _suffixModification, ref _param1Suffix, false);
+                    DrawNameModifier2Params(ModifyNameOfSelected, _replaceModification, ref _param1Replace,
+                        ref _param2Replace);
+                    DrawNoParamsModifier(ModifyNameOfSelected, _toLowerCaseAndUnderscore);
+                    break;
+                case 1:
                 {
-                    ChangeTag(_param1Replace, _param2Replace);
-                }
+                    Draw2ParamsModifier(ModifyStringFieldOfReferenced, _prefixModification, ref _param1Prefix, false);
+                    Draw2ParamsModifier(ModifyStringFieldOfReferenced, _suffixModification, ref _param1Suffix, false);
+                    DrawNameModifier2Params(ModifyStringFieldOfReferenced, _replaceModification, ref _param1Replace,
+                        ref _param2Replace);
+                    DrawNoParamsModifier(ModifyStringFieldOfReferenced, _toLowerCaseAndUnderscore);
 
-                if (GUILayout.Button("Log Fields"))
-                {
-                    LogFields();
-                }
+                    EditorGUILayout.BeginHorizontal();
+                    if (GUILayout.Button("Replace Tag"))
+                    {
+                        ChangeTag(_param1Replace, _param2Replace);
+                    }
 
-                EditorGUILayout.EndHorizontal();
-            }
-            else if (_tab == 2)
-            {
-                Draw2ParamsModifier(RenamePrefabs, _prefixModification, ref _param1Prefix, false);
-                Draw2ParamsModifier(RenamePrefabs, _suffixModification, ref _param1Suffix, false);
-                DrawNameModifier2Params(RenamePrefabs, _replaceModification, ref _param1Replace, ref _param2Replace);
-            }
-            else if (_tab == 3)
-            {
-                DrawReplaceReferences();
+                    if (GUILayout.Button("Log Fields"))
+                    {
+                        LogFields();
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+                    break;
+                }
+                case 2:
+                    Draw2ParamsModifier(RenamePrefabs, _prefixModification, ref _param1Prefix, false);
+                    Draw2ParamsModifier(RenamePrefabs, _suffixModification, ref _param1Suffix, false);
+                    DrawNameModifier2Params(RenamePrefabs, _replaceModification, ref _param1Replace,
+                        ref _param2Replace);
+                    break;
+                case 3:
+                    DrawReplaceReferences();
+                    break;
             }
 
             DrawFooter();
@@ -232,13 +240,13 @@ namespace Common.UnityExtend.Serialization.Tools
 
         private class NoParamsModification
         {
-            public Func<string, string> modify;
-            public string label;
+            public readonly Func<string, string> Modify;
+            public readonly string Label;
 
             public NoParamsModification(string l, Func<string, string> m)
             {
-                label = l;
-                modify = m;
+                Label = l;
+                Modify = m;
             }
         }
 
@@ -246,9 +254,9 @@ namespace Common.UnityExtend.Serialization.Tools
             NoParamsModification modification)
         {
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button(modification.label))
+            if (GUILayout.Button(modification.Label))
             {
-                modifier?.Invoke(s => modification.modify?.Invoke(s));
+                modifier?.Invoke(s => modification.Modify?.Invoke(s));
             }
 
             EditorGUILayout.EndHorizontal();
@@ -256,13 +264,13 @@ namespace Common.UnityExtend.Serialization.Tools
 
         private class TwoParamsModification
         {
-            public string label;
-            public Func<(string, string, string), string> modify;
+            public readonly string Label;
+            public readonly Func<(string, string, string), string> Modify;
 
             public TwoParamsModification(string l, Func<(string, string, string), string> m)
             {
-                label = l;
-                modify = m;
+                Label = l;
+                Modify = m;
             }
         }
 
@@ -272,7 +280,7 @@ namespace Common.UnityExtend.Serialization.Tools
         {
             EditorGUILayout.BeginHorizontal();
 
-            param1 = EditorGUILayout.TextField(modification.label, param1);
+            param1 = EditorGUILayout.TextField(modification.Label, param1);
             if (useParam2)
             {
                 _param2Replace = EditorGUILayout.TextField(_param2Replace);
@@ -283,7 +291,7 @@ namespace Common.UnityExtend.Serialization.Tools
                 if (!string.IsNullOrEmpty(param1))
                 {
                     var p1 = param1;
-                    modifier?.Invoke(s => modification.modify?.Invoke((s, p1, _param2Replace)));
+                    modifier?.Invoke(s => modification.Modify?.Invoke((s, p1, _param2Replace)));
                 }
             }
 
@@ -296,7 +304,7 @@ namespace Common.UnityExtend.Serialization.Tools
         {
             EditorGUILayout.BeginHorizontal();
 
-            param1 = EditorGUILayout.TextField(modification.label, param1);
+            param1 = EditorGUILayout.TextField(modification.Label, param1);
             param2 = EditorGUILayout.TextField(param2);
 
             if (GUILayout.Button("Apply", GUILayout.Width(100)))
@@ -305,7 +313,7 @@ namespace Common.UnityExtend.Serialization.Tools
                 {
                     var p1 = param1;
                     var p2 = param2;
-                    modifier?.Invoke(s => modification.modify?.Invoke((s, p1, p2)));
+                    modifier?.Invoke(s => modification.Modify?.Invoke((s, p1, p2)));
                 }
             }
 

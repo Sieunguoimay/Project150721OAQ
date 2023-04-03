@@ -1,12 +1,22 @@
 ﻿using System;
+using Framework.DependencyInversion;
+using Framework.Resolver;
 using Gameplay.CoreGameplay.Interactors;
 
 namespace Gameplay.Visual.Presenters
 {
-    public class BoardStatePresenter : IRefreshResultHandler
+    public class BoardStatePresenter : 
+        SelfBindingDependencyInversionUnit,
+        IRefreshResultHandler
     {
-        public BoardStateView BoardStateView { get; } = new();
+        private readonly BoardStateView _boardStateView = new();
         public event Action<BoardStatePresenter> BoardStateChangedEvent;
+
+        protected override void OnBind(IBinder binder)
+        {
+            base.OnBind(binder);
+            binder.Bind<BoardStateView>(_boardStateView);
+        }
 
         public void HandleRefreshData(RefreshData refreshData)
         {
@@ -16,7 +26,7 @@ namespace Gameplay.Visual.Presenters
 
         private void ExtractBoardState(RefreshData refreshData)
         {
-            BoardStateView.SetRefreshData(refreshData);
+            _boardStateView.SetRefreshData(refreshData);
         }
     }
 

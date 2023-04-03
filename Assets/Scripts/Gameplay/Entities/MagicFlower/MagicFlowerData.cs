@@ -34,7 +34,6 @@ namespace Gameplay.Entities.MagicFlower
         void CreateBlossomTimestampsArray(int count);
     }
 
-    [CreateAssetMenu(menuName = "Entity/MagicFlowerData")]
     public class MagicFlowerData : EntityAsset<IMagicFlower>, IMagicFlowerData
     {
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal(IEntityLoader entityLoader)

@@ -93,15 +93,15 @@ namespace Gameplay.CoreGameplay.Interactors
 
     public class BoardEntityAccess
     {
-        public BoardEntityAccess(BoardEntity board)
+        public void SetBoardEntity(BoardEntity board)
         {
             Board = board;
             TileEntities = CreateBoardTilesEnumerable(Board).ToArray();
         }
 
-        public TileEntity[] TileEntities { get; }
+        public TileEntity[] TileEntities { get; private set;}
 
-        public BoardEntity Board { get; }
+        public BoardEntity Board { get; private set; }
 
         public TileEntity GetTileAtIndex(int index)
         {

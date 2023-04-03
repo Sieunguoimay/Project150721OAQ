@@ -14,7 +14,6 @@ namespace Framework
         IResolver Resolver { get; }
     }
 
-    [CreateAssetMenu(menuName = "Controller/EntityController")]
     public class EntityController : ScriptableObject, IInstaller
     {
         [SerializeField] private LocalDataServiceAsset dataServiceAsset;

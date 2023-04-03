@@ -1,9 +1,9 @@
 ﻿using System;
+using Framework.DependencyInversion;
 using UnityEngine;
 
 namespace Gameplay.Helpers
 {
-    [CreateAssetMenu(menuName = "Helpers/GridLocator")]
     public class GridLocator : SelfBindingDependencyInversionScriptableObject
     {
         [SerializeField] private float cellSize;

@@ -25,7 +25,6 @@
             _moveMaker.SetStartingCondition(inputData.SideIndex, inputData.StartingTileIndex, inputData.Direction);
             _boardStateMachine.NextAction();
         }
-
         private void OnSimulationProgress(MoveMaker arg1, MoveSimulationProgressData arg2)
         {
             _simulationResultHandler?.OnSimulationProgress(arg2);

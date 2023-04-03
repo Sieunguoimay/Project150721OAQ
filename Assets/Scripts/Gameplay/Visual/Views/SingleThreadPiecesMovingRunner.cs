@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Gameplay.Visual.Board;
 
 namespace Gameplay.Visual.Views
@@ -7,6 +8,12 @@ namespace Gameplay.Visual.Views
     {
         private IReadOnlyList<SingleMovingStep> _movingSteps;
         private readonly IPieceContainer _pieceContainer = new SimplePieceContainer();
+        private MovingStepExecutor _executor;
+
+        protected override Type GetBindingType()
+        {
+            return typeof(SingleThreadPiecesMovingRunner);
+        }
 
         public void RunTheMoves(IReadOnlyList<SingleMovingStep> movingSteps)
         {
@@ -17,7 +24,13 @@ namespace Gameplay.Visual.Views
 
         public override void ResetMovingSteps()
         {
+            _pieceContainer.Clear();
             _movingSteps = null;
+            if (_executor != null)
+            {
+                _executor.Cleanup();
+                _executor = null;
+            }
         }
 
         protected override void NextStep()
@@ -27,8 +40,8 @@ namespace Gameplay.Visual.Views
             if (StepIterator < _movingSteps.Count)
             {
                 var step = _movingSteps[StepIterator++];
-                var executor = CreateStepExecutor(step);
-                executor.Execute();
+                _executor = CreateStepExecutor(step);
+                _executor.Execute();
             }
             else
             {
@@ -44,6 +57,7 @@ namespace Gameplay.Visual.Views
 
         protected override void OnStepExecutionDone()
         {
+            _executor = null;
             NextStep();
         }
     }

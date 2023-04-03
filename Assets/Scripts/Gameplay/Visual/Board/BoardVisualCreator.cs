@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Framework.DependencyInversion;
+using Gameplay.Player;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -8,8 +10,12 @@ namespace Gameplay.Visual.Board
 {
     public class BoardVisualCreator : SelfBindingDependencyInversionMonoBehaviour
     {
-        [FormerlySerializedAs("mandarinTilePrefab")] [SerializeField] private MandarinTileVisual mandarinTileVisualPrefab;
-        [FormerlySerializedAs("citizenTilePrefab")] [SerializeField] private CitizenTileVisual citizenTileVisualPrefab;
+        [FormerlySerializedAs("mandarinTilePrefab")] [SerializeField]
+        private MandarinTileVisual mandarinTileVisualPrefab;
+
+        [FormerlySerializedAs("citizenTilePrefab")] [SerializeField]
+        private CitizenTileVisual citizenTileVisualPrefab;
+
         [SerializeField] private float tileSize;
 
         private IReadOnlyList<Vector2> _polygon;
@@ -53,10 +59,29 @@ namespace Gameplay.Visual.Board
             var boardSides = SpawnBoardSides(boardVisual.transform);
             var boardMetadata = CreateMetadata();
             var allTiles = CreateAllTilesArray(boardSides);
+            var pockets = boardSides.Select(s => CreatePieceBench(s, null)).ToArray();
             AppendIndexToTiles(allTiles);
-            boardVisual.SetReferences(boardSides, allTiles, boardMetadata);
+            boardVisual.SetReferences(boardSides, allTiles, pockets, boardMetadata);
 
             _polygon = null;
+        }
+
+        private static PieceBench CreatePieceBench(BoardSideVisual boardSide, Transform transform)
+        {
+            var pos1 = boardSide.CitizenTiles[0].transform.position;
+            var pos2 = boardSide.CitizenTiles[^1].transform.position;
+            var diff = pos2 - pos1;
+            var pos = pos1 + new Vector3(diff.z, diff.y, -diff.x) * 0.5f;
+            var rot = Quaternion.LookRotation(pos1 - pos, Vector3.up);
+
+            var b = new GameObject($"{nameof(PieceBench)}").AddComponent<PieceBench>();
+            b.SetArrangement(0.25f, 15);
+
+            var t = b.transform;
+            t.SetParent(transform);
+            t.position = pos;
+            t.rotation = rot;
+            return b;
         }
 
         private BoardSideVisual[] SpawnBoardSides(Transform parent)
@@ -78,7 +103,8 @@ namespace Gameplay.Visual.Board
             return boardSides;
         }
 
-        private static BoardSideVisual CreateBoardSide(MandarinTileVisual mandarinTileVisual, IReadOnlyList<CitizenTileVisual> citizenTiles)
+        private static BoardSideVisual CreateBoardSide(MandarinTileVisual mandarinTileVisual,
+            IReadOnlyList<CitizenTileVisual> citizenTiles)
         {
             return new() {MandarinTileVisual = mandarinTileVisual, CitizenTiles = citizenTiles};
         }
@@ -155,7 +181,8 @@ namespace Gameplay.Visual.Board
         private readonly MandarinTileVisual _mandarinTileVisualPrefab;
         private readonly Transform _parent;
 
-        public TileSpawner(CitizenTileVisual citizenTileVisualPrefab, MandarinTileVisual mandarinTileVisualPrefab, Transform parent, float tileSize)
+        public TileSpawner(CitizenTileVisual citizenTileVisualPrefab, MandarinTileVisual mandarinTileVisualPrefab,
+            Transform parent, float tileSize)
         {
             _citizenTileVisualPrefab = citizenTileVisualPrefab;
             _mandarinTileVisualPrefab = mandarinTileVisualPrefab;
@@ -206,7 +233,8 @@ namespace Gameplay.Visual.Board
             tileTransform.SetPositionAndRotation(worldPos, worldRot);
         }
 
-        private void UpdateCitizenTilePosition(Transform tileTransform, Vector2 cornerPos, Vector2 verticalOffset, Vector2 horizontalOffset)
+        private void UpdateCitizenTilePosition(Transform tileTransform, Vector2 cornerPos, Vector2 verticalOffset,
+            Vector2 horizontalOffset)
         {
             var parent = tileTransform.parent;
 

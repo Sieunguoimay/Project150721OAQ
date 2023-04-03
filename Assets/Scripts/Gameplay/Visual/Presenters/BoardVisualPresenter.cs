@@ -1,14 +1,23 @@
 ﻿using System;
+using Framework.DependencyInversion;
 using Gameplay.CoreGameplay.Interactors;
 using Gameplay.Visual.Views;
 
 namespace Gameplay.Visual.Presenters
 {
-    public class BoardVisualPresenter : IRefreshResultHandler
+    public class BoardVisualPresenter : 
+        SelfBindingDependencyInversionUnit, 
+        IRefreshResultHandler
     {
-        public BoardVisualView BoardVisualView { get; set; }
-        
+        private BoardVisualView _boardVisualView;
+
         public event Action<IRefreshResultHandler> BoardStateChangedEvent;
+        protected override void OnSetupDependencies()
+        {
+            base.OnSetupDependencies();
+            _boardVisualView = Resolver.Resolve<BoardVisualView>();
+        }
+
         public void HandleRefreshData(RefreshData refreshData)
         {
             ExtractBoardState(refreshData);
@@ -17,7 +26,7 @@ namespace Gameplay.Visual.Presenters
 
         private void ExtractBoardState(RefreshData refreshData)
         {
-            BoardVisualView.RefreshVisual(refreshData);
+            _boardVisualView.RefreshVisual(refreshData);
         }
     }
 }

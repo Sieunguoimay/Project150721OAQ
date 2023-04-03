@@ -18,6 +18,7 @@ namespace Common.UnityExtend.Serialization.Tools
             window.Init();
             window.Show();
         }
+
         private void OnEnable()
         {
             Selection.selectionChanged -= OnSelectionChanged;
@@ -104,8 +105,12 @@ namespace Common.UnityExtend.Serialization.Tools
         {
             InitIfNeeded();
 
-            EditorGUILayout.BeginVertical();
+            var globalEnabled = GUI.enabled;
+            GUI.enabled = false;
+            EditorGUILayout.ObjectField(GUIContent.none, MonoScript.FromScriptableObject(this), GetType(), false);
+            GUI.enabled = globalEnabled;
 
+            EditorGUILayout.BeginVertical();
             DrawSearchField();
 
             DrawSelectedPath();
@@ -199,7 +204,8 @@ namespace Common.UnityExtend.Serialization.Tools
 
             var findBtnContent = new GUIContent(_searchIcon.image, "Find Instance Assets");
 
-            if (GUILayout.Button(findBtnContent,new GUIStyle(GUI.skin.button){padding = new RectOffset(2,2,2,2)}, GUILayout.Width(20),GUILayout.Height(18)))
+            if (GUILayout.Button(findBtnContent, new GUIStyle(GUI.skin.button) {padding = new RectOffset(2, 2, 2, 2)},
+                GUILayout.Width(20), GUILayout.Height(18)))
             {
                 if (_targetMonoScript != monoScript)
                 {
@@ -270,7 +276,9 @@ namespace Common.UnityExtend.Serialization.Tools
 
         private static bool IsMonoScriptOfScriptableObject(MonoScript ms)
         {
-            return IsMonoScriptOfType(ms, typeof(ScriptableObject));
+            return IsMonoScriptOfType(ms, typeof(ScriptableObject)) 
+                   && !IsMonoScriptOfType(ms, typeof(EditorWindow))
+                   && !IsMonoScriptOfType(ms, typeof(Editor));
         }
 
         private static bool IsMonoScriptOfType(MonoScript ms, Type t)

@@ -1,14 +1,18 @@
-﻿using Gameplay.Visual.Views;
+﻿using Framework.DependencyInversion;
+using Gameplay.Visual.Views;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
-    public class BoardActionDecisionMakingFactory : IBoardActionDecisionMakingFactory
+    public class BoardActionDecisionMakingFactory :
+        SelfBindingGenericDependencyInversionUnit<IBoardActionDecisionMakingFactory>,
+        IBoardActionDecisionMakingFactory
     {
-        private readonly InteractSystem _interactSystem;
+        private InteractSystem _interactSystem;
 
-        public BoardActionDecisionMakingFactory(InteractSystem interactSystem)
+        protected override void OnSetupDependencies()
         {
-            _interactSystem = interactSystem;
+            base.OnSetupDependencies();
+            _interactSystem = Resolver.Resolve<InteractSystem>();
         }
 
         public IBoardActionDecisionMaking CreateDefaultDecisionMaking()

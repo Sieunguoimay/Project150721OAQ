@@ -1,4 +1,5 @@
-﻿using Framework.Services;
+﻿using Framework.DependencyInversion;
+using Framework.Services;
 using Gameplay.CoreGameplay.Controllers;
 using Gameplay.Visual;
 using Gameplay.Visual.Presenters;
@@ -6,26 +7,28 @@ using Gameplay.Visual.Views;
 
 namespace System
 {
-    public class GameplayEventsHandler
+    public class GameplayEventsHandler : DependencyInversionUnit
     {
-        private readonly BoardStatePresenter _boardStatePresenter;
-        private readonly ICoreGameplayController _controller;
-        private readonly BoardVisualView _boardVisualView;
-        private readonly BoardStateMatchVisualVerify _verify;
-        private readonly IMessageService _messageService;
+        private BoardStatePresenter _boardStatePresenter;
+        private BoardStateView _boardStateView;
+        private ICoreGameplayController _controller;
+        private BoardVisualView _boardVisualView;
+        private BoardStateMatchVisualVerify _verify;
+        private IMessageService _messageService;
 
-        public GameplayEventsHandler(IMessageService messageService,
-            BoardStatePresenter boardStatePresenter,
-            ICoreGameplayController controller,
-            BoardVisualView boardVisualView)
+        protected override void OnSetupDependencies()
         {
-            _messageService = messageService;
-            _boardStatePresenter = boardStatePresenter;
-            _controller = controller;
-            _boardVisualView = boardVisualView;
+            base.OnSetupDependencies();
+            _messageService = Resolver.Resolve<IMessageService>();
+            _boardStatePresenter = Resolver.Resolve<BoardStatePresenter>();
+            _boardStateView = Resolver.Resolve<BoardStateView>();
+            _controller = Resolver.Resolve<ICoreGameplayController>();
+            _boardVisualView = Resolver.Resolve<BoardVisualView>();
+        }
 
-            _verify = new BoardStateMatchVisualVerify(_boardStatePresenter.BoardStateView,
-                _boardVisualView.BoardVisual);
+        public void SetupForNewGame()
+        {
+            _verify = new BoardStateMatchVisualVerify(_boardStateView, _boardVisualView.BoardVisual);
             ConnectEvents();
         }
 

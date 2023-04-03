@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Framework.DependencyInversion;
 using UnityEngine;
 
 namespace Gameplay.Visual.Piece

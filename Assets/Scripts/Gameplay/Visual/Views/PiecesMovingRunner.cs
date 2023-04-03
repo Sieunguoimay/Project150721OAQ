@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common;
-using Framework.Resolver;
+using Framework.DependencyInversion;
 using Framework.Services;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 using Gameplay.Helpers;
@@ -13,23 +13,19 @@ using UnityEngine;
 
 namespace Gameplay.Visual.Views
 {
-    public abstract class PiecesMovingRunner
+    public abstract class PiecesMovingRunner : SelfBindingDependencyInversionUnit
     {
         protected int StepIterator;
-
         private GridLocator _gridLocator;
-        private IGameplayContainer _container;
         private BoardVisualView _boardVisualView;
         private IMessageService _messageService;
 
-        // public event Action<PiecesMovingRunner> AllMovingStepsExecutedEvent;
-
-        public void SetupDependencies(IResolver resolver)
+        protected override void OnSetupDependencies()
         {
-            _container = resolver.Resolve<IGameplayContainer>();
-            _gridLocator = resolver.Resolve<GridLocator>();
-            _boardVisualView = resolver.Resolve<BoardVisualView>();
-            _messageService = resolver.Resolve<IMessageService>();
+            base.OnSetupDependencies();
+            _gridLocator = Resolver.Resolve<GridLocator>();
+            _boardVisualView = Resolver.Resolve<BoardVisualView>();
+            _messageService = Resolver.Resolve<IMessageService>();
         }
 
         public abstract void ResetMovingSteps();
@@ -42,14 +38,15 @@ namespace Gameplay.Visual.Views
         {
             _messageService.Dispatch("AllMovingStepsExecutedEvent", this, EventArgs.Empty);
         }
+
         private TileVisual GetTile(int index)
         {
             return _boardVisualView.BoardVisual.TileVisuals[index];
         }
 
-        private IPieceContainer GetPieceBench()
+        private IPieceContainer GetPieceBench(int turnIndex)
         {
-            return _container.PlayTurnTeller.CurrentTurn.PieceBench;
+            return _boardVisualView.BoardVisual.PocketVisuals[turnIndex];
         }
 
         protected MovingStepExecutor CreateStepExecutor(SingleMovingStep singleMovingStep)
@@ -60,8 +57,9 @@ namespace Gameplay.Visual.Views
                 MoveType.Grasp => new GraspExecutor(targetPieceContainerIndex, this),
                 MoveType.Drop => new DropExecutor(targetPieceContainerIndex, this),
                 MoveType.Slam => new SlamExecutor(targetPieceContainerIndex, this),
-                MoveType.Eat => new EatExecutor(targetPieceContainerIndex, this),
-                MoveType.DoubleGrasp => new DoubleGraspExecutor(targetPieceContainerIndex, ((DoubleGraspMovingStep)singleMovingStep).TargetPieceContainerIndex2, this),
+                MoveType.Eat => new EatExecutor(targetPieceContainerIndex, singleMovingStep.TurnIndex, this),
+                MoveType.DoubleGrasp => new DoubleGraspExecutor(targetPieceContainerIndex,
+                    ((DoubleGraspMovingStep) singleMovingStep).TargetPieceContainerIndex2, this),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -136,6 +134,7 @@ namespace Gameplay.Visual.Views
         {
             protected readonly int TargetPieceContainerIndex;
             protected readonly PiecesMovingRunner Handler;
+            private Coroutine _coroutine;
 
             protected MovingStepExecutor(int targetPieceContainerIndex, PiecesMovingRunner handler)
             {
@@ -145,7 +144,18 @@ namespace Gameplay.Visual.Views
 
             public virtual void Execute()
             {
-                PublicExecutor.Instance.Delay(1, () => { Handler.OnStepExecutionDone(); });
+                _coroutine = PublicExecutor.Instance.Delay(1, () =>
+                {
+                    Handler.OnStepExecutionDone();
+                    _coroutine = null;
+                });
+            }
+
+            public void Cleanup()
+            {
+                if (_coroutine == null) return;
+                PublicExecutor.Instance.StopCoroutine(_coroutine);
+                _coroutine = null;
             }
         }
 
@@ -168,7 +178,8 @@ namespace Gameplay.Visual.Views
         {
             private readonly int _targetPieceContainerIndex2;
 
-            public DoubleGraspExecutor(int targetPieceContainerIndex, int targetPieceContainerIndex2, PiecesMovingRunner handler)
+            public DoubleGraspExecutor(int targetPieceContainerIndex, int targetPieceContainerIndex2,
+                PiecesMovingRunner handler)
                 : base(targetPieceContainerIndex, handler)
             {
                 _targetPieceContainerIndex2 = targetPieceContainerIndex2;
@@ -177,8 +188,10 @@ namespace Gameplay.Visual.Views
             public override void Execute()
             {
                 base.Execute();
-                IPieceContainer.TransferAllPiecesOwnership(Handler.GetTile(TargetPieceContainerIndex), Handler.GetTempPieceContainer());
-                IPieceContainer.TransferAllPiecesOwnership(Handler.GetTile(_targetPieceContainerIndex2), Handler.GetTempPieceContainer());
+                IPieceContainer.TransferAllPiecesOwnership(Handler.GetTile(TargetPieceContainerIndex),
+                    Handler.GetTempPieceContainer());
+                IPieceContainer.TransferAllPiecesOwnership(Handler.GetTile(_targetPieceContainerIndex2),
+                    Handler.GetTempPieceContainer());
             }
         }
 
@@ -198,7 +211,7 @@ namespace Gameplay.Visual.Views
 
                 var piece = container.HeldPieces.LastOrDefault();
 
-                if (piece != null && (TileVisual)piece.CurrentPieceContainer != to)
+                if (piece != null && (TileVisual) piece.CurrentPieceContainer != to)
                 {
                     Handler.MoveSinglePiece(piece, to);
                 }
@@ -206,15 +219,23 @@ namespace Gameplay.Visual.Views
                 to.AddPiece(piece);
                 container.RemovePiece(piece);
 
-                Handler.MoveAllPieces(Handler.GetTempPieceContainer().HeldPieces.Where(p => (TileVisual)p.CurrentPieceContainer != to).ToArray(), to);
+                Handler.MoveAllPieces(
+                    Handler.GetTempPieceContainer().HeldPieces.Where(p => (TileVisual) p.CurrentPieceContainer != to)
+                        .ToArray(), to);
             }
         }
 
         protected class EatExecutor : MovingStepExecutor
         {
-            public EatExecutor(int targetPieceContainerIndex, PiecesMovingRunner handler)
+            private readonly int _turnIndex;
+
+            public EatExecutor(
+                int targetPieceContainerIndex,
+                int turnIndex,
+                PiecesMovingRunner handler)
                 : base(targetPieceContainerIndex, handler)
             {
+                _turnIndex = turnIndex;
             }
 
             public override void Execute()
@@ -222,7 +243,7 @@ namespace Gameplay.Visual.Views
                 base.Execute();
 
                 var from = Handler.GetTile(TargetPieceContainerIndex);
-                var to = Handler.GetPieceBench();
+                var to = Handler.GetPieceBench(_turnIndex);
                 var amount = from.HeldPieces.Count;
 
                 Handler.MovePieces(from, to, amount);

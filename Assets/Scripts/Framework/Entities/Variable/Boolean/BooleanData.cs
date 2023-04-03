@@ -12,7 +12,6 @@ namespace Framework.Entities.Variable.Boolean
     {
     }
 
-    [CreateAssetMenu(menuName = "Entity/BooleanData")]
     public class BooleanData : VariableEntityData<bool>, IBooleanData
     {
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal(IEntityLoader entityLoader)

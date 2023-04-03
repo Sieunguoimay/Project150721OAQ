@@ -1,4 +1,7 @@
-﻿using Gameplay.CoreGameplay.Gateway;
+﻿using System;
+using Framework.DependencyInversion;
+using Framework.Resolver;
+using Gameplay.CoreGameplay.Gateway;
 using Gameplay.CoreGameplay.Interactors;
 using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
 using Gameplay.CoreGameplay.Interactors.Simulation;
@@ -7,86 +10,91 @@ namespace Gameplay.CoreGameplay.Controllers
 {
     public interface ICoreGameplayController
     {
-        void Install();
-        void Uninstall();
+        void SetupNewGame();
+        void TearDownGame();
         void RunGameplay();
         void CheckBranching();
         void RequestRefresh(IRefreshResultHandler resultPresenter);
-        // void MovePieceToNewTile(PieceInteractData.PieceMoveData moveData);
-        // void MovePiecesToPocket(PieceInteractData.PieceMoveToPocketData moveData);
-        // void RunSimulation(MoveSimulationInputData inputData);
     }
 
-    public class CoreGameplayController : ICoreGameplayController
+    public class CoreGameplayController : 
+        SelfBindingGenericDependencyInversionUnit<ICoreGameplayController>, 
+        ICoreGameplayController
     {
-        private readonly CoreGameplayContainer _container = new();
+        private BoardActionDecisionMakingDriver _decisionMakingDriver;
+        private IRefreshRequester _refreshRequester;
+        private CoreGameplayBranchingDriver _branchingDriver;
+        private ICoreGameplayDataAccess _dataAccess;
+        private BoardEntityAccess _boardEntityAccess;
+        private TurnDataExtractor _turnDataExtractor;
+        private ISimulatorFactory _simulatorFactory;
 
-        private CoreGameplayInstaller _installer;
-
-        public void SetupDependencies(CoreGameplayInstaller installer)
+        protected override void OnSetupDependencies()
         {
-            _installer = installer;
+            base.OnSetupDependencies();
+            
+            _refreshRequester = Resolver.Resolve<IRefreshRequester>();
+            _dataAccess = Resolver.Resolve<ICoreGameplayDataAccess>();
+            _simulatorFactory = Resolver.Resolve<ISimulatorFactory>();
+            _decisionMakingDriver = Resolver.Resolve<BoardActionDecisionMakingDriver>();
+            _branchingDriver = Resolver.Resolve<CoreGameplayBranchingDriver>();
+            _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
+            _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
         }
 
-        public void Install()
+        public void SetupNewGame()
         {
-            _installer.InstallEntities();
-            _installer.InstallRefreshRequest(_container);
-            // _installer.InstallPiecesInteract(_container);
-            // _installer.InstallBoardMoveSimulator(_container);
-            _installer.InstallSimulatorFactory();
-            _installer.InstallTurnDataExtractor(_container);
-            _installer.InstallMoveDecisionMakingDriver(_container);
-            _installer.InstallGameplayTaskDistributor(_container);
+            SetupEntities();
+            SetupSimulatorFactory();
+            SetupTurnDataExtractor();
+            SetupDecisionMakingDriver();
         }
 
-        public void Uninstall()
+        public void TearDownGame()
         {
-            _installer.Uninstall(_container);
+            _decisionMakingDriver.UninstallDecisionMakings();
         }
 
+        private void SetupEntities()
+        {
+            _dataAccess.RefreshData();
+            
+            var boardData = _dataAccess.GetBoardData();
+            var board = CoreEntitiesFactory.CreateBoardEntity(boardData);
+            _boardEntityAccess.SetBoardEntity(board);
+        }
+
+        private void SetupTurnDataExtractor()
+        {
+            var turnData = _dataAccess.GetTurnData();
+            var turnEntity = CoreEntitiesFactory.CreateTurnEntity(turnData);
+            _turnDataExtractor.SetTurnEntity(turnEntity);
+        }
+
+        private void SetupSimulatorFactory()
+        {
+            _simulatorFactory.CreateAllBoardSimulators();
+        }
+
+        private void SetupDecisionMakingDriver()
+        {
+            _decisionMakingDriver.InstallDecisionMakings();
+        }
+        
 
         public void RunGameplay()
         {
-            _container.BoardActionDecisionMakingDriver.MakeDecisionOfCurrentTurn();
+            _decisionMakingDriver.MakeDecisionOfCurrentTurn();
         }
+
         public void CheckBranching()
         {
-            _container.GameplayBranchingDriver.CheckBranching();
+            _branchingDriver.CheckBranching();
         }
 
         public void RequestRefresh(IRefreshResultHandler resultPresenter)
         {
-            _container.RefreshRequester.Refresh(resultPresenter);
+            _refreshRequester.Refresh(resultPresenter);
         }
-
-        // public void MovePieceToNewTile(PieceInteractData.PieceMoveData moveData)
-        // {
-        //     _container.PiecesInteractor.MovePieceToNewTile(moveData);
-        // }
-        //
-        // public void MovePiecesToPocket(PieceInteractData.PieceMoveToPocketData moveData)
-        // {
-        //     _container.PiecesInteractor.MovePiecesToPocket(moveData);
-        // }
-
-        // public void RunSimulation(MoveSimulationInputData inputData)
-        // {
-        //     _container.BoardMoveSimulator.RunSimulation(inputData);
-        // }
-    }
-
-
-    public class CoreGameplayContainer
-    {
-        public IRefreshRequester RefreshRequester;
-        // public IPiecesInteractor PiecesInteractor;
-        // public BoardMoveSimulator BoardMoveSimulator;
-        // public BoardMoveSimulator GoneWithTheWindSimulator;
-        // public ConcurrentBoardMoveSimulator ConcurrentBoardMoveSimulator;
-        public SimulatorFactory SimulatorFactory;
-        public TurnDataExtractor TurnDataExtractor;
-        public BoardActionDecisionMakingDriver BoardActionDecisionMakingDriver;
-        public CoreGameplayInteractDriver GameplayBranchingDriver;
     }
 }

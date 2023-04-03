@@ -1,4 +1,5 @@
 ﻿using System;
+using Framework.DependencyInversion;
 using Framework.Resolver;
 using Framework.Services.Data;
 using UnityEngine;

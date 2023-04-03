@@ -1,23 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using Framework.DependencyInversion;
 using Gameplay.CoreGameplay.Entities;
-using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
 
 namespace Gameplay.CoreGameplay.Interactors
 {
-    public class TurnDataExtractor
+    public class TurnDataExtractor : SelfBindingDependencyInversionUnit
     {
-        private readonly BoardEntityAccess _boardEntityAccess;
-        private readonly TurnEntity _turnEntity;
+        private BoardEntityAccess _boardEntityAccess;
 
+        private TurnEntity _turnEntity;
         public ExtractedTurnData ExtractedTurnData { get; private set; }
 
-        public TurnDataExtractor(BoardEntityAccess boardEntityAccess, TurnEntity turnEntity)
+        public void SetTurnEntity(TurnEntity turnEntity)
         {
-            _boardEntityAccess = boardEntityAccess;
             _turnEntity = turnEntity;
             ExtractedTurnData = ExtractTurnData();
+        }
+
+        protected override void OnSetupDependencies()
+        {
+            base.OnSetupDependencies();
+            _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
         }
 
         private IReadOnlyList<TileEntity> GetCitizenTileEntitiesByTurn(int turn)

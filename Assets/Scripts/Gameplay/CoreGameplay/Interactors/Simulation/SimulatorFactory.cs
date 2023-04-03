@@ -1,21 +1,23 @@
 ﻿using System;
+using Framework.DependencyInversion;
 using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
 
 namespace Gameplay.CoreGameplay.Interactors.Simulation
 {
     public interface ISimulatorFactory
     {
-        public void CreateAllBoardSimulators(BoardEntityAccess boardEntityAccess);
+        public void CreateAllBoardSimulators();
         public IBoardMoveSimulator GetSimulator(BoardActionType actionType);
     }
 
-    public class SimulatorFactory : DependencyInversionScriptableObjectNode, ISimulatorFactory
+    public class SimulatorFactory : SelfBindingDependencyInversionUnit, ISimulatorFactory
     {
         private BoardMoveSimulator _boardMoveSimulator;
         private BoardMoveSimulator _goneWithTheWindSimulator;
         private ConcurrentBoardMoveSimulator _concurrentBoardMoveSimulator;
         private IBoardMoveSimulationResultHandler _simulationResultHandler;
         private IConcurrentMoveSimulationResultHandler _concurrentSimulationResultHandler;
+        private BoardEntityAccess _boardEntityAccess;
 
         protected override Type GetBindingType()
         {
@@ -27,11 +29,12 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
             base.OnSetupDependencies();
             _simulationResultHandler = Resolver.Resolve<IBoardMoveSimulationResultHandler>();
             _concurrentSimulationResultHandler = Resolver.Resolve<IConcurrentMoveSimulationResultHandler>();
+            _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
         }
 
-        public void CreateAllBoardSimulators(BoardEntityAccess boardEntityAccess)
+        public void CreateAllBoardSimulators()
         {
-            var moveMakerFactory = new MoveMakerFactory(boardEntityAccess);
+            var moveMakerFactory = new MoveMakerFactory(_boardEntityAccess);
             _boardMoveSimulator = new BoardMoveSimulator(_simulationResultHandler, moveMakerFactory.CreateMoveMaker());
             _goneWithTheWindSimulator =
                 new BoardMoveSimulator(_simulationResultHandler, moveMakerFactory.CreateMoveMaker());

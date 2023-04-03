@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Gameplay.Entities
 {
-    [CreateAssetMenu(menuName = "Entity/CurrencyData")]
     public class CurrencyData : EntityAsset<ICurrency>, ICurrencyData
     {
         [field: SerializeField] public double InitialAmount { get; private set; }

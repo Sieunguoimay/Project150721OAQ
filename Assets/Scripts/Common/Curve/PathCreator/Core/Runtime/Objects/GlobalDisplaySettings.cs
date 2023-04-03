@@ -2,7 +2,6 @@
 
 namespace Common.Curve.PathCreator.Core.Runtime.Objects
 {
-    //[CreateAssetMenu()]
     public class GlobalDisplaySettings : ScriptableObject
     {
 

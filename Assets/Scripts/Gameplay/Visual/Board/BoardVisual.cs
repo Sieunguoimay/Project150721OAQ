@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Gameplay.Player;
 using UnityEngine;
 
 namespace Gameplay.Visual.Board
@@ -20,12 +21,18 @@ namespace Gameplay.Visual.Board
     {
         public IReadOnlyList<TileVisual> TileVisuals { get; private set; }
         public IReadOnlyList<BoardSideVisual> SideVisuals { get; private set;}
+        public IReadOnlyList<PieceBench> PocketVisuals { get; private set;}
         public BoardMetadata Metadata { get; private set;}
 
-        public void SetReferences(IReadOnlyList<BoardSideVisual> sides, IReadOnlyList<TileVisual> tiles, BoardMetadata metadata)
+        public void SetReferences(
+            IReadOnlyList<BoardSideVisual> sides,
+            IReadOnlyList<TileVisual> tiles, 
+            IReadOnlyList<PieceBench> pocketVisuals, 
+            BoardMetadata metadata)
         {
             SideVisuals = sides;
             TileVisuals = tiles;
+            PocketVisuals = pocketVisuals;
             Metadata = metadata;
         }
     }

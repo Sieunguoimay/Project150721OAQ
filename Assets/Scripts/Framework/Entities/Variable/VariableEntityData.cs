@@ -14,7 +14,6 @@ namespace Framework.Entities.Variable
         void SetValue(TPrimitive value);
     }
 
-    [CreateAssetMenu(menuName = "Entity/VariableData")]
     public class VariableEntityData<TPrimitive> : EntityAsset<IVariableEntity<TPrimitive>>, IVariableEntityData<TPrimitive>
     {
         protected override IEntity<IEntityData, IEntitySavedData> CreateEntityInternal(IEntityLoader entityLoader)

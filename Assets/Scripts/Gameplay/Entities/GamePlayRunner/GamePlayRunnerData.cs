@@ -13,7 +13,6 @@ namespace Gameplay.Entities.GamePlayRunner
     {
     }
 
-    [CreateAssetMenu(menuName = "Entity/GamePlayRunnerData")]
     public class GamePlayRunnerData : ContainerEntityData<IGamePlayRunner>, IGamePlayRunnerData
     {
         protected override IEntity<IEntityData, IEntitySavedData> CreateContainerEntityInternal()

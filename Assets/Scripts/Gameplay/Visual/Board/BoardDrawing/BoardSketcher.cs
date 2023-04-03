@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.Algorithm;
 using Common.DrawLine;
+using Framework.DependencyInversion;
 using UnityEngine;
 
 namespace Gameplay.Visual.Board.BoardDrawing

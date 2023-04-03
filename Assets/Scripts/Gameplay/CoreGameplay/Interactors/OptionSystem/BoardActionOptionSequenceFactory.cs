@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Framework.DependencyInversion;
 using Gameplay.CoreGameplay.Entities;
 
 namespace Gameplay.CoreGameplay.Interactors.OptionSystem
 {
-    public class BoardActionOptionSequenceFactory
+    public class BoardActionOptionSequenceFactory : SelfBindingDependencyInversionUnit
     {
-        private readonly BoardEntityAccess _boardEntityAccess;
-        private readonly TurnDataExtractor _turnDataExtractor;
+        private BoardEntityAccess _boardEntityAccess;
+        private TurnDataExtractor _turnDataExtractor;
 
-        public BoardActionOptionSequenceFactory(BoardEntityAccess boardEntityAccess,
-            TurnDataExtractor turnDataExtractor)
+        protected override void OnSetupDependencies()
         {
-            _boardEntityAccess = boardEntityAccess;
-            _turnDataExtractor = turnDataExtractor;
+            base.OnSetupDependencies();
+            _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
+            _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
         }
 
         public OptionQueue CreateOptionSequence()
@@ -64,14 +66,9 @@ namespace Gameplay.CoreGameplay.Interactors.OptionSystem
 
         private OptionValue[] CreateTileOptionValues(IEnumerable<TileEntity> tileEntities)
         {
-            var tilesOptionValues = new List<OptionValue>();
-            foreach (var tileEntity in tileEntities)
-            {
-                if (tileEntity.PieceEntities.Count <= 0) continue;
-                tilesOptionValues.Add(CreateTileOptionValue(tileEntity));
-            }
-
-            return tilesOptionValues.ToArray();
+            return (from tileEntity in tileEntities
+                where tileEntity.PieceEntities.Count > 0
+                select CreateTileOptionValue(tileEntity)).Cast<OptionValue>().ToArray();
         }
 
         private IntegerOptionValue CreateTileOptionValue(TileEntity tileEntity)

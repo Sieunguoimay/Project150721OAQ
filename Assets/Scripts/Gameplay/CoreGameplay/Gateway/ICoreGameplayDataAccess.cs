@@ -2,6 +2,7 @@
 {
     public interface ICoreGameplayDataAccess
     {
+        void RefreshData();
         BoardData GetBoardData();
         TurnData GetTurnData();
     }

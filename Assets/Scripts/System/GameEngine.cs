@@ -1,5 +1,9 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Common.UnityExtend.Attribute;
 using Framework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,9 +11,15 @@ namespace System
 {
     public class GameEngine : MonoBehaviour
     {
+#if UNITY_EDITOR
+        [StringSelector(nameof(FindScenes))]
+#endif
         [SerializeField] private string sceneName;
         [SerializeField] private EntityController entityController;
 
+        #if UNITY_EDITOR
+        public IEnumerable<string> FindScenes() => AssetDatabase.FindAssets("t:Scene").Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadAssetAtPath<SceneAsset>).Select(s=> s.name);
+        #endif
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);

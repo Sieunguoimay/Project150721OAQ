@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Framework.Services.Data
 {
-    [CreateAssetMenu]
     public class LocalDataServiceAsset : ScriptableObject, IDataService
     {
         [field: SerializeField] public DataAsset[] Assets { get; private set; }

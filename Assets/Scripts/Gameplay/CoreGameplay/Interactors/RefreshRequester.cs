@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Framework.DependencyInversion;
 using Gameplay.CoreGameplay.Entities;
 using Gameplay.CoreGameplay.Gateway;
 
@@ -9,16 +10,19 @@ namespace Gameplay.CoreGameplay.Interactors
         void Refresh(IRefreshResultHandler resultHandler);
     }
 
-    public class RefreshRequester : IRefreshRequester
+    public class RefreshRequester : 
+        SelfBindingGenericDependencyInversionUnit<IRefreshRequester>, 
+        IRefreshRequester
     {
-        private readonly BoardEntityAccess _boardEntityAccess;
-        private readonly ICoreGameplayDataAccess _dataAccess;
+        private BoardEntityAccess _boardEntityAccess;
+        private ICoreGameplayDataAccess _dataAccess;
         private IRefreshResultHandler _resultHandler;
 
-        public RefreshRequester(BoardEntityAccess boardEntityAccess, ICoreGameplayDataAccess dataAccess)
+        protected override void OnSetupDependencies()
         {
-            _boardEntityAccess = boardEntityAccess;
-            _dataAccess = dataAccess;
+            base.OnSetupDependencies();
+            _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
+            _dataAccess = Resolver.Resolve<ICoreGameplayDataAccess>();
         }
 
         public void Refresh(IRefreshResultHandler resultHandler)
@@ -43,7 +47,9 @@ namespace Gameplay.CoreGameplay.Interactors
             var piecesInSides = new RefreshData.PieceStatistics[sides];
             for (var i = 0; i < sides; i++)
             {
-                piecesInSides[i] = CreatePieceStatistics(_boardEntityAccess.Board.CitizenTiles[(i * tilesPerSide)..((i + 1) * tilesPerSide)].Select(t => t as PieceContainerEntity).ToArray());
+                piecesInSides[i] = CreatePieceStatistics(_boardEntityAccess.Board
+                    .CitizenTiles[(i * tilesPerSide)..((i + 1) * tilesPerSide)].Select(t => t as PieceContainerEntity)
+                    .ToArray());
             }
 
             return new RefreshData

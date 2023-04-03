@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Gameplay.Visual.Board;
 using Gameplay.Visual.Presenters;
 
@@ -12,6 +13,11 @@ namespace Gameplay.Visual.Views
         
         private int _itemsPerStep;
         private int _itemDoneCount;
+        private readonly List<MovingStepExecutor> _executors = new();
+        protected override Type GetBindingType()
+        {
+            return typeof(MultiThreadPiecesMovingRunner);
+        }
 
         public void RunTheMoves(IReadOnlyList<ConcurrentMovingStep> movingSteps, int maxThreads)
         {
@@ -34,6 +40,11 @@ namespace Gameplay.Visual.Views
         {
             _movingSteps = null;
             _pieceContainers = null;
+            foreach (var executor in _executors)
+            {
+                executor.Cleanup();
+            }
+            _executors.Clear();
         }
 
         protected override void NextStep()
@@ -46,12 +57,13 @@ namespace Gameplay.Visual.Views
 
                 _itemsPerStep = step.ConcurrentItems.Length;
                 _itemDoneCount = 0;
-                
+                _executors.Clear();
                 foreach (var item in step.ConcurrentItems)
                 {
                     var executor = CreateStepExecutor(item);
                     _currentThreadIndex = item.ThreadId;
                     executor.Execute();
+                    _executors.Add(executor);
                 }
             }
             else

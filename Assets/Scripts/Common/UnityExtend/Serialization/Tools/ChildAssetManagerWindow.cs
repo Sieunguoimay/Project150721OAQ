@@ -330,26 +330,21 @@ namespace Common.UnityExtend.Serialization.Tools
 
         private static void DrawNewChildAssetMenu(string path, Action<Object> created)
         {
-            if (GUILayout.Button(new GUIContent("+", "New child asset")))
+            if (!GUILayout.Button(new GUIContent("+", "New child asset"))) return;
+            var menu = new GenericMenu();
+            var typesContainsAttribute = Assembly.GetExecutingAssembly().GetTypes()
+                .Where(t => typeof(ScriptableObject).IsAssignableFrom(t));
+            foreach (var t in typesContainsAttribute)
             {
-                var menu = new GenericMenu();
-                var typesContainsAttribute = Assembly.GetExecutingAssembly().GetTypes()
-                    .Where(t => t.GetCustomAttributes<CreateAssetMenuAttribute>(true).Any());
-                foreach (var t in typesContainsAttribute)
+                menu.AddItem(new GUIContent(t.Name), false, () =>
                 {
-                    var att = t.GetCustomAttribute<CreateAssetMenuAttribute>(true);
-                    var menuItem = string.IsNullOrEmpty(att.menuName) ? t.Name : att.menuName;
-                    var assetName = string.IsNullOrEmpty(att.fileName) ? t.Name : att.fileName;
-                    menu.AddItem(new GUIContent(menuItem), false, () =>
-                    {
-                        var newAsset = CreateAssetOfType(t, assetName, path);
-                        Debug.Log($"{menuItem} {assetName}", newAsset);
-                        created?.Invoke(newAsset);
-                    });
-                }
-
-                menu.ShowAsContext();
+                    var newAsset = CreateAssetOfType(t, t.Name, path);
+                    Debug.Log($"{t.Name}", newAsset);
+                    created?.Invoke(newAsset);
+                });
             }
+
+            menu.ShowAsContext();
         }
 
         #region AssetManipulate

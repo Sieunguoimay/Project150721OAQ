@@ -1,4 +1,5 @@
 ﻿using System;
+using Framework.DependencyInversion;
 using Framework.Resolver;
 
 namespace Gameplay.GameState

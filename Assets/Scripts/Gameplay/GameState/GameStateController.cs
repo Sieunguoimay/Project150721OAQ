@@ -1,4 +1,5 @@
 ﻿using System;
+using Framework.DependencyInversion;
 using Framework.Resolver;
 using Framework.Services.Data;
 using Gameplay.Entities.Stage.StageSelector;
@@ -6,7 +7,6 @@ using UnityEngine;
 
 namespace Gameplay.GameState
 {
-    [CreateAssetMenu(menuName = "Controller/GameStateController")]
     public class GameStateController : SelfBindingDependencyInversionScriptableObject
     {
         [SerializeField, DataAssetIdSelector(typeof(IStageSelectorData))]

@@ -1,18 +1,16 @@
-﻿using System;
-using Common.Curve;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace Curve
+namespace Common.Curve.Editor
 {
     [CustomEditor(typeof(Line))]
-    public class LineInspector : Editor
+    public class LineInspector : UnityEditor.Editor
     {
         private void OnSceneGUI()
         {
             var line = target as Line;
             var handleTransform = line.transform;
-            var handleRotation = Tools.pivotRotation == PivotRotation.Local ? handleTransform.rotation : Quaternion.identity;
+            var handleRotation = UnityEditor.Tools.pivotRotation == PivotRotation.Local ? handleTransform.rotation : Quaternion.identity;
             var p0 = handleTransform.TransformPoint(line.p0);
             var p1 = handleTransform.TransformPoint(line.p1);
             Handles.color = Color.white;

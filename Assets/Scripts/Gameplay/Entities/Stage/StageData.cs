@@ -14,7 +14,6 @@ namespace Gameplay.Entities.Stage
     {
     }
 
-    [CreateAssetMenu(menuName = "Entity/StageData")]
     public class StageData : ContainerEntityData<IStage>, IStageData
     {
         [field: SerializeField] public MatchData matchData;

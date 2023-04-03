@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 551b972fd2444393a02546bd97d74379, type: 3}
+  m_Name: dependency_inversion_controller
+  m_EditorClassIdentifier: 
+  children:
+  - {fileID: 11400000, guid: 621497ea03691ea469324f0583b1507f, type: 2}
+  - {fileID: 11400000, guid: e58bc8fb15e5e1a4cbbec8cbd3553ca3, type: 2}
+  - {fileID: 11400000, guid: fe9c63907001f57498703a3a57c5014c, type: 2}
+  - {fileID: 11400000, guid: 6b927e127a77d1c40aaad702d410946e, type: 2}
+  - {fileID: 11400000, guid: 26321c6c367e9e4418047ce4c4c9a718, type: 2}
+  prefabs:
+  - {fileID: 5592389154637034425, guid: 37681356262e09a4b84806d9f1b755e0, type: 3}
+  - {fileID: 3729837721090317618, guid: adb11da177f276743bfcd905a909d574, type: 3}
+  - {fileID: 2453423506486198347, guid: 98a5fddcc076cbf4398f90c4314d41ca, type: 3}

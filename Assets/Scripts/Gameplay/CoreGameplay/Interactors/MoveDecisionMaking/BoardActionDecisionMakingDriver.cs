@@ -1,31 +1,31 @@
-﻿using Gameplay.CoreGameplay.Interactors.OptionSystem;
+﻿using Framework.DependencyInversion;
+using Gameplay.CoreGameplay.Interactors.OptionSystem;
 using Gameplay.CoreGameplay.Interactors.Simulation;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
-    public class BoardActionDecisionMakingDriver : IBoardActionDecisionMakingResultHandler
+    public class BoardActionDecisionMakingDriver :
+        SelfBindingDependencyInversionUnit,
+        IBoardActionDecisionMakingResultHandler
     {
-        private readonly TurnDataExtractor _turnDataExtractor;
-        private readonly IBoardActionDecisionMakingFactory _factory;
-
-        private readonly BoardActionOptionSequenceFactory _boardActionOptionSequenceFactory;
+        private TurnDataExtractor _turnDataExtractor;
+        private IBoardActionDecisionMakingFactory _factory;
+        private BoardActionOptionSequenceFactory _boardActionOptionSequenceFactory;
 
         private IBoardActionDecisionMaking[] _defaultDecisionMakings;
         private IBoardActionDecisionMaking[] _decisionMakings;
-        private readonly ISimulatorFactory _simulatorFactory;
+        private ISimulatorFactory _simulatorFactory;
         private ExtractedTurnData CurrentTurnData => _turnDataExtractor.ExtractedTurnData;
 
         private BoardActionData[] _boardActionDataList;
-        public BoardActionDecisionMakingDriver(
-            TurnDataExtractor turnDataExtractor, 
-            IBoardActionDecisionMakingFactory factory,
-            BoardActionOptionSequenceFactory boardActionOptionSequenceFactory,
-            ISimulatorFactory simulatorFactory)
+
+        protected override void OnSetupDependencies()
         {
-            _simulatorFactory = simulatorFactory;
-            _turnDataExtractor = turnDataExtractor;
-            _factory = factory;
-            _boardActionOptionSequenceFactory = boardActionOptionSequenceFactory;
+            base.OnSetupDependencies();
+            _simulatorFactory = Resolver.Resolve<ISimulatorFactory>();
+            _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
+            _factory = Resolver.Resolve<IBoardActionDecisionMakingFactory>();
+            _boardActionOptionSequenceFactory = Resolver.Resolve<BoardActionOptionSequenceFactory>();
         }
 
         public void InstallDecisionMakings()
@@ -149,7 +149,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         public IBoardMoveSimulator Simulator;
         public OptionQueue OptionQueue;
     }
-    
+
     public interface IBoardActionDecisionMakingResultHandler
     {
         void OnDecisionResult(BoardActionDecisionResultData resultData);
@@ -161,5 +161,4 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
         IBoardActionDecisionMaking CreatePlayerDecisionMaking();
         IBoardActionDecisionMaking CreateComputerDecisionMaking();
     }
-
 }
