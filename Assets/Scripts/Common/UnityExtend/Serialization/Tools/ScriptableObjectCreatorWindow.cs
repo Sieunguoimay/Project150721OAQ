@@ -49,6 +49,7 @@ namespace Common.UnityExtend.Serialization.Tools
         private static GUIStyle _horizontalLayoutStyle;
         private static GUIStyle _createBtnStyle;
         private static GUIContent _searchIcon;
+        private static GUIContent _refreshIcon;
 
         private static string _selectedPath;
         private static Object _globalSelectedObject;
@@ -76,6 +77,7 @@ namespace Common.UnityExtend.Serialization.Tools
                 alignment = TextAnchor.MiddleLeft
             };
             _searchIcon = EditorGUIUtility.IconContent("Search Icon");
+            _refreshIcon = EditorGUIUtility.IconContent("Refresh");
         }
 
         private void Init()
@@ -111,13 +113,24 @@ namespace Common.UnityExtend.Serialization.Tools
             GUI.enabled = globalEnabled;
 
             EditorGUILayout.BeginVertical();
-            DrawSearchField();
-
             DrawSelectedPath();
+
+            EditorGUILayout.BeginHorizontal();
+            DrawSearchField();
+            DrawRefreshButton();
+            EditorGUILayout.EndHorizontal();
 
             DrawMatchedTypes();
 
             EditorGUILayout.EndVertical();
+        }
+
+        private void DrawRefreshButton()
+        {
+            if (GUILayout.Button(new GUIContent(_refreshIcon.image,"Refresh"), GUILayout.Width(25)))
+            {
+                Init();
+            }
         }
 
         private void DrawSearchField()
