@@ -5,12 +5,13 @@ namespace Gameplay.Cards
 {
     public class CardSelector : ScriptableObject
     {
-        private Card _selectedCard;
         public event EventHandler CardSelected;
+
+        [field: System.NonSerialized] public Card SelectedCard { get; private set; }
 
         public void SelectCard(Card card)
         {
-            _selectedCard = card;
+            SelectedCard = card;
             CardSelected?.Invoke(this, EventArgs.Empty);
         }
     }

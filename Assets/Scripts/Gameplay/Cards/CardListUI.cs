@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Gameplay.Cards
 {
@@ -9,9 +11,15 @@ namespace Gameplay.Cards
         [SerializeField] private Transform cardListParent;
         [SerializeField] private CardSelector cardSelector;
 
+        private readonly List<CardUI> _cardUis = new();
         private void Start()
         {
             PopulateCardList();
+        }
+
+        private void OnDestroy()
+        {
+            TearDownCardList();
         }
 
         public void PopulateCardList()
@@ -22,14 +30,18 @@ namespace Gameplay.Cards
                 var cardObject = Instantiate(cardPrefab, cardListParent);
                 var cardUI = cardObject.GetComponent<CardUI>();
                 cardUI.SetCard(card);
-                cardUI.OnCardSelected += OnCardSelected;
+                cardUI.Setup(cardSelector);
+                _cardUis.Add(cardUI);
             }
         }
 
-        private void OnCardSelected(Card card)
+        public void TearDownCardList()
         {
-            Debug.Log(card.cardName);
-            cardSelector.SelectCard(card);
+            foreach (var cardUi in _cardUis)
+            {
+                cardUi.TearDown();
+                Destroy(cardUi.gameObject);
+            }
         }
     }
 }
