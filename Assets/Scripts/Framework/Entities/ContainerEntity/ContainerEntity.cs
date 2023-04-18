@@ -69,7 +69,7 @@ namespace Framework.Entities.ContainerEntity
                     _entityLoader.DestroyEntity(la);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //
             }
