@@ -27,7 +27,7 @@ namespace Common.UnityExtend.Attribute
     [CustomPropertyDrawer(typeof(PathSelectorAttribute))]
     public class PathSelectorDrawer : PropertyDrawer
     {
-        private GenericMenu _menu;
+        private bool _changed;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -36,60 +36,40 @@ namespace Common.UnityExtend.Attribute
             position = EditorGUI.PrefixLabel(position, label);
             if (property.propertyType == SerializedPropertyType.String)
             {
-                if (!CreateMenuWithStringProperty(position, property, objectSelector)) return;
+                CreateMenuWithStringProperty(position, property, objectSelector)?.ShowAsContext();
             }
-
-            _menu?.ShowAsContext();
         }
 
-        private bool _changed;
-
-        private bool CreateMenuWithStringProperty(Rect position, SerializedProperty property,
+        private GenericMenu CreateMenuWithStringProperty(Rect position, SerializedProperty property,
             PathSelectorAttribute objectSelector)
         {
             position.width = 100;
 
-            var path = string.IsNullOrEmpty(property.stringValue) ? new string[0] : property.stringValue.Split('.');
+            var pathSegments = string.IsNullOrEmpty(property.stringValue) ? Array.Empty<string>() : property.stringValue.Split('.');
             var siblingObject = GetSiblingObject(property, objectSelector);
             var rootType = objectSelector.IsTypeProvided ? siblingObject as Type : siblingObject?.GetType();
-            if (rootType == null) return false;
-            var open = false;
-            for (var i = 0; i < path.Length; i++)
+            if (rootType == null) return null;
+
+            GenericMenu menu = null;
+            for (var i = 0; i < pathSegments.Length; i++)
             {
-                var p = path[i];
+                var pathSegment = pathSegments[i];
 
                 if (i > 0)
                 {
-                    rootType = ReflectionUtility.GetReturnTypeOfMember(rootType, path[i - 1], true);
+                    rootType = ReflectionUtility.GetReturnTypeOfMember(rootType, pathSegments[i - 1], true);
                 }
 
-                var openWindow = EditorGUI.DropdownButton(position,
-                    new GUIContent(ReflectionUtility.FormatName.Extract(p)), FocusType.Keyboard);
+                var guiContent = new GUIContent(ReflectionUtility.FormatName.Extract(pathSegment), pathSegment);
+                var openWindow = EditorGUI.DropdownButton(position, guiContent, FocusType.Keyboard);
+                
                 position.x += 102;
 
-                if (!openWindow) continue;
-                if (rootType == null) continue;
-
-                _menu = new GenericMenu();
-
-                var ids = GetIds(rootType, objectSelector.IsGetPath);
-
-                if (ids == null) continue;
-
-                foreach (var id in ids)
+                if (openWindow && rootType != null)
                 {
-                    var i1 = i;
-                    _menu.AddItem(new GUIContent(id), property.stringValue == id, data =>
-                    {
-                        path[i1] = ModifyValue((string) data);
-                        property.serializedObject.Update();
-                        property.stringValue = string.Join('.', path);
-                        property.serializedObject.ApplyModifiedProperties();
-                        _changed = true;
-                    }, id);
+                    var menuItems = GetIds(rootType, objectSelector.IsGetPath);
+                    menu = CreateMenu(property, menuItems, i, pathSegments);
                 }
-
-                open = true;
             }
 
             if (_changed)
@@ -100,30 +80,59 @@ namespace Common.UnityExtend.Attribute
 
             position.width = 25;
 
-            if (path.Length > 0)
+            if (pathSegments.Length > 0)
             {
-                var remove = GUI.Button(position, "-");
-                if (remove)
+                if (GUI.Button(position, new GUIContent("-","Remove last path segment")))
                 {
-                    property.serializedObject.Update();
-                    property.stringValue = string.Join('.', path.Where((_, index) => index != path.Length - 1));
-                    property.serializedObject.ApplyModifiedProperties();
+                    RemoveLastPathSegment(property, pathSegments);
                 }
 
                 position.x += 27;
             }
 
-            var add = GUI.Button(position, "+");
-            if (add)
+            if (GUI.Button(position, new GUIContent("+","Add path segment")))
             {
-                property.serializedObject.Update();
-                property.stringValue = string.IsNullOrEmpty(property.stringValue)
-                    ? "null"
-                    : string.Concat(property.stringValue, ".");
-                property.serializedObject.ApplyModifiedProperties();
+                AddPathSegment(property);
             }
 
-            return open;
+            return menu;
+        }
+
+        private static void AddPathSegment(SerializedProperty property)
+        {
+            property.serializedObject.Update();
+            property.stringValue = string.IsNullOrEmpty(property.stringValue)
+                ? "null"
+                : string.Concat(property.stringValue, ".");
+            property.serializedObject.ApplyModifiedProperties();
+        }
+
+        private static void RemoveLastPathSegment(SerializedProperty property, string[] pathSegments)
+        {
+            property.serializedObject.Update();
+            property.stringValue = string.Join('.', pathSegments.Where((_, index) => index != pathSegments.Length - 1));
+            property.serializedObject.ApplyModifiedProperties();
+        }
+
+        private GenericMenu CreateMenu(SerializedProperty property, IEnumerable<string> ids, int segmentIndex, string[] pathSegments)
+        {
+            var menu = new GenericMenu();
+
+            foreach (var id in ids)
+            {
+                menu.AddItem(new GUIContent(id), property.stringValue == id, data => OnSelected(property, data, pathSegments, segmentIndex), id);
+            }
+
+            return menu;
+        }
+
+        private void OnSelected(SerializedProperty property, object data, string[] pathSegments, int segmentIndex)
+        {
+            pathSegments[segmentIndex] = ModifyValue((string)data);
+            property.serializedObject.Update();
+            property.stringValue = string.Join('.', pathSegments);
+            property.serializedObject.ApplyModifiedProperties();
+            _changed = true;
         }
 
         protected virtual object GetSiblingObject(SerializedProperty property,
@@ -139,7 +148,7 @@ namespace Common.UnityExtend.Attribute
             var types = type.GetInterfaces();
             if (types.Length > 0)
             {
-                var interfaces = types.Concat(new[] {type});
+                var interfaces = types.Concat(new[] { type });
                 var methods = interfaces.SelectMany(i =>
                     i.GetMethods().Where(WhereMethod)
                         .Select(mi => $"{i.Name}/{ReflectionUtility.FormatName.FormatMethodName(mi)}"));

@@ -81,7 +81,7 @@ namespace Common.UnityExtend.Reflection
 
                 _targetMethodInfo.Invoke(targetObject.Executor.CachedRuntimeObject, _numMethodParameters == 1
                     ? new[] {Format(_sourcePathExecutor.ExecutePath())}
-                    : new object[0]);
+                    : Array.Empty<object>());
             }
 
             public void SetupReflection(object sourceObject)
@@ -90,7 +90,7 @@ namespace Common.UnityExtend.Reflection
                 targetObject.Setup(true);
 
                 _targetMethodInfo = ReflectionUtility.GetMethodInfo(targetObject.PathFinalType, targetMethodName, true);
-                _sourceMethodInfo = //sourcePathExecutor.RuntimePathFinalType;
+                _sourceMethodInfo = 
                     ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), sourceObjectMethodName.Split('.'), true);
 
                 _sourcePathExecutor.Setup(sourceObjectMethodName, sourceObject, false);
