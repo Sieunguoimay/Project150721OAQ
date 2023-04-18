@@ -43,25 +43,22 @@ namespace Common.UnityExtend.Reflection
         {
             if (source == null) return null;
             var type = source.GetType();
-            var f = GetFieldInfo(type, name, isNameFormatted);
-            if (f != null) return f.GetValue(source);
-            var p = GetPropertyInfo(type, name, isNameFormatted);
-            if (p != null) return p.GetValue(source);
-            var mi = GetMethodInfo(type, name, isNameFormatted);
-            if (mi != null && mi.GetParameters().Length == 0) return mi.Invoke(source, null);
-            return null;
+            var m = GetMemberInfo(type, name, isNameFormatted);
+            return m != null ? GetDataFromMember(source, m) : null;
         }
 
         public static Type GetReturnTypeOfMember(Type type, string name, bool isNameFormatted)
         {
             if (type == null) return null;
-            var f = GetFieldInfo(type, name, isNameFormatted);
-            if (f != null) return f.FieldType;
-            var p = GetPropertyInfo(type, name, isNameFormatted);
-            if (p != null) return p.PropertyType;
-            var mi = GetMethodInfo(type, name, isNameFormatted);
-            if (mi != null) return mi.ReturnType;
-            return null;
+            var m = GetMemberInfo(type, name, isNameFormatted);
+            return m != null ? GetReturnTypeOfMember(m) : null;
+        }
+
+        public static MemberInfo GetMemberInfo(Type type, string name, bool isNameFormatted)
+        {
+            var fields = GetAllMembers(type);
+            return fields.FirstOrDefault(
+                m => isNameFormatted ? FormatName.FormatMemberName(m).Equals(name) : m.Name.Equals(name));
         }
 
         public static FieldInfo GetFieldInfo(Type type, string name, bool isNameFormatted)
@@ -134,10 +131,10 @@ namespace Common.UnityExtend.Reflection
         {
             if (obj is GameObject go)
             {
-                return go.GetComponents<Component>().SelectMany(c => { return c.GetType().GetInterfaces().Concat(new[] {c.GetType()}); }).Concat(new[] {go.GetType()});
+                return go.GetComponents<Component>().SelectMany(c => { return c.GetType().GetInterfaces().Concat(new[] { c.GetType() }); }).Concat(new[] { go.GetType() });
             }
 
-            return obj.GetType().GetInterfaces().Concat(new[] {obj.GetType()});
+            return obj.GetType().GetInterfaces().Concat(new[] { obj.GetType() });
         }
 
         public static IEnumerable<TInfo> GetAllInfos<TInfo>(Type type, Func<Type, IEnumerable<TInfo>> get)
@@ -155,7 +152,7 @@ namespace Common.UnityExtend.Reflection
                 t = t.BaseType;
             }
 
-            if (type is not {IsInterface: true}) yield break;
+            if (type is not { IsInterface: true }) yield break;
             {
                 foreach (var i in type.GetInterfaces())
                 {
@@ -179,7 +176,7 @@ namespace Common.UnityExtend.Reflection
 
         public static IEnumerable<(Type, IEnumerable<MethodInfo>)> GetAllMethodsAndInterfaces(Type type)
         {
-            return type.GetInterfaces().Concat(new[] {type}).Select(i => (i, i.GetMethods())).Select(dummy => ((Type, IEnumerable<MethodInfo>)) dummy);
+            return type.GetInterfaces().Concat(new[] { type }).Select(i => (i, i.GetMethods())).Select(dummy => ((Type, IEnumerable<MethodInfo>))dummy);
         }
 
         public static IEnumerable<PropertyInfo> GetAllProperties(Type type)
@@ -190,6 +187,33 @@ namespace Common.UnityExtend.Reflection
         public static IEnumerable<FieldInfo> GetAllFields(Type type)
         {
             return GetAllInfos(type, t => t.GetFields(FieldFlags)).Distinct();
+        }
+
+        public static IEnumerable<MemberInfo> GetAllMembers(Type type)
+        {
+            return GetAllInfos(type, t => t.GetMembers(FieldFlags)).Distinct();
+        }
+
+        public static Type GetReturnTypeOfMember(MemberInfo m)
+        {
+            return m.MemberType switch
+            {
+                MemberTypes.Field => (m as FieldInfo)?.FieldType,
+                MemberTypes.Method => (m as MethodInfo)?.ReturnType,
+                MemberTypes.Property => (m as PropertyInfo)?.PropertyType,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+
+        public static object GetDataFromMember(object source, MemberInfo m)
+        {
+            return m.MemberType switch
+            {
+                MemberTypes.Field => (m as FieldInfo)?.GetValue(source),
+                MemberTypes.Method => (m as MethodInfo)?.Invoke(source, null),
+                MemberTypes.Property => (m as PropertyInfo)?.GetValue(source),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
         public static class FormatName
@@ -208,6 +232,17 @@ namespace Common.UnityExtend.Reflection
             public static string FormatFieldName(FieldInfo p)
             {
                 return $"{p.Name}: {p.FieldType.Name}";
+            }
+
+            public static string FormatMemberName(MemberInfo m)
+            {
+                return m.MemberType switch
+                {
+                    MemberTypes.Field => FormatFieldName(m as FieldInfo),
+                    MemberTypes.Method => FormatMethodName(m as MethodInfo),
+                    MemberTypes.Property => FormatPropertyName(m as PropertyInfo),
+                    _ => m.Name
+                };
             }
 
             public static string ExtractPropertyName(string formattedName)

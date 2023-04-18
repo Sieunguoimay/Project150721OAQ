@@ -17,19 +17,14 @@ namespace Common.UnityExtend.Serialization
         public static object GetSiblingProperty(SerializedProperty property, string name)
         {
             var src = GetObjectToWhichPropertyBelong(property);
-            var type = src.GetType();
-            var prop = ReflectionUtility. GetPropertyInfo(type, name, false);
-            var field = ReflectionUtility.GetFieldInfo(type, name, false);
-            return prop == null ? field?.GetValue(src) : prop.GetValue(src, null);
+            return ReflectionUtility.GetDataFromMember(src, name, false);
         }
 
         public static Type GetSiblingPropertyType(SerializedProperty property, string name)
         {
             var src = GetObjectToWhichPropertyBelong(property);
             var type = src.GetType();
-            var prop = ReflectionUtility.GetPropertyInfo(type, name, false);
-            var field = ReflectionUtility.GetFieldInfo(type, name, false);
-            return prop == null ? field?.FieldType : prop.PropertyType;
+            return ReflectionUtility.GetReturnTypeOfMember(type, name, false);
         }
 
         public static object GetObjectToWhichPropertyBelong(SerializedProperty prop)

@@ -22,67 +22,147 @@ namespace Common.UnityExtend.Attribute
         }
     }
 
+    public class PathSegment
+    {
+        public PathSegment(string memberName, Type reflectionType, bool valid)
+        {
+            MemberName = memberName;
+            ReflectionType = reflectionType;
+            Valid = valid;
+        }
+
+        public bool Valid { get; }
+        public string MemberName { get; }
+        public Type ReflectionType { get; }
+    }
+
+    public class Path
+    {
+        public IReadOnlyList<PathSegment> PathSegments { get; private set; }
+
+        private Type _rootType;
+        private string _path;
+
+        public void UpdatePathSegments(Type rootType, string path)
+        {
+            if (_rootType == rootType && _path == path && PathSegments!=null) return;
+
+            _rootType = rootType;
+            _path = path;
+
+            var segments = string.IsNullOrEmpty(path) ? Array.Empty<string>() : path.Split('.');
+            var pathSegments = new PathSegment[segments.Length];
+            for (var i = 0; i < segments.Length; i++)
+            {
+                var valid = !string.IsNullOrEmpty(segments[i]) && ReflectionUtility.GetAllMembers(rootType).Any(m => m.Name.Equals(ReflectionUtility.FormatName.Extract(segments[i])));
+                pathSegments[i] = new PathSegment(segments[i], rootType, valid);
+                rootType = ReflectionUtility.GetReturnTypeOfMember(rootType, segments[i], true);
+            }
+
+            PathSegments = pathSegments;
+        }
+    }
+
 #if UNITY_EDITOR
 
     [CustomPropertyDrawer(typeof(PathSelectorAttribute))]
     public class PathSelectorDrawer : PropertyDrawer
     {
-        private bool _changed;
+        private readonly Path _path = new();
+        private Type _rootType;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            if (attribute is not PathSelectorAttribute objectSelector) return;
+            if (attribute is not PathSelectorAttribute attr) return;
 
             position = EditorGUI.PrefixLabel(position, label);
+
             if (property.propertyType == SerializedPropertyType.String)
             {
-                CreateMenuWithStringProperty(position, property, objectSelector)?.ShowAsContext();
+                DrawPathSelector(position, property, attr);
             }
         }
 
-        private GenericMenu CreateMenuWithStringProperty(Rect position, SerializedProperty property,
-            PathSelectorAttribute objectSelector)
+        private void DrawPathSelector(Rect position, SerializedProperty property, PathSelectorAttribute attr)
+        {
+            var pathSegments = GetPathSegments(property);
+            var rootType = GetRootType(property, attr);
+
+            _path.UpdatePathSegments(rootType, property.stringValue);
+
+            var typeToShowMenu = DrawPathSegments(ref position, _path.PathSegments, out var segmentIndex);
+            DrawPathSegmentModifyingButtons(position, property, pathSegments);
+            if (segmentIndex != -1)
+            {
+                ShowMenu(property, typeToShowMenu, attr, segmentIndex, pathSegments);
+            }
+        }
+
+        private static string[] GetPathSegments(SerializedProperty property)
+        {
+            return string.IsNullOrEmpty(property.stringValue) ? Array.Empty<string>() : property.stringValue.Split('.');
+        }
+
+        private static Type DrawPathSegments(ref Rect position, IReadOnlyList<PathSegment> pathSegments, out int pathSegmentIndexToOpenMenu)
         {
             position.width = 100;
+            pathSegmentIndexToOpenMenu = -1;
 
-            var pathSegments = string.IsNullOrEmpty(property.stringValue) ? Array.Empty<string>() : property.stringValue.Split('.');
-            var siblingObject = GetSiblingObject(property, objectSelector);
-            var rootType = objectSelector.IsTypeProvided ? siblingObject as Type : siblingObject?.GetType();
-            if (rootType == null) return null;
-
-            GenericMenu menu = null;
-            for (var i = 0; i < pathSegments.Length; i++)
+            for (var i = 0; i < pathSegments.Count; i++)
             {
                 var pathSegment = pathSegments[i];
 
-                if (i > 0)
-                {
-                    rootType = ReflectionUtility.GetReturnTypeOfMember(rootType, pathSegments[i - 1], true);
-                }
+                var guiContent = new GUIContent(ReflectionUtility.FormatName.Extract(pathSegment.MemberName), pathSegment.MemberName);
 
-                var guiContent = new GUIContent(ReflectionUtility.FormatName.Extract(pathSegment), pathSegment);
+                var color = GUI.color;
+                GUI.color = pathSegment.Valid ? color : Color.red;
                 var openWindow = EditorGUI.DropdownButton(position, guiContent, FocusType.Keyboard);
-                
+                GUI.color = color;
+
                 position.x += 102;
 
-                if (openWindow && rootType != null)
+                if (openWindow && pathSegment.ReflectionType != null)
                 {
-                    var menuItems = GetIds(rootType, objectSelector.IsGetPath);
-                    menu = CreateMenu(property, menuItems, i, pathSegments);
+                    pathSegmentIndexToOpenMenu = i;
+
+                    return pathSegment.ReflectionType;
                 }
             }
 
-            if (_changed)
+            return null;
+        }
+
+        private Type GetRootType(SerializedProperty property, PathSelectorAttribute pathSelector)
+        {
+            var siblingObject = GetSiblingObject(property, pathSelector);
+            return pathSelector.IsTypeProvided ? siblingObject as Type : siblingObject?.GetType();
+        }
+
+        private static void ShowMenu(SerializedProperty property, Type rootType, PathSelectorAttribute objectSelector, int index, string[] pathSegments)
+        {
+            var menuItems = GetIds(rootType, objectSelector.IsGetPath);
+            CreateMenu(property, menuItems, index, pathSegments).ShowAsContext();
+        }
+
+        private static GenericMenu CreateMenu(SerializedProperty property, IEnumerable<string> ids, int segmentIndex, string[] pathSegments)
+        {
+            var menu = new GenericMenu();
+
+            foreach (var id in ids)
             {
-                _changed = false;
-                GUI.changed = true;
+                menu.AddItem(new GUIContent(id), property.stringValue == id, data => UpdatePathString(property, data, pathSegments, segmentIndex), id);
             }
 
+            return menu;
+        }
+
+        private void DrawPathSegmentModifyingButtons(Rect position, SerializedProperty property, string[] pathSegments)
+        {
             position.width = 25;
 
             if (pathSegments.Length > 0)
             {
-                if (GUI.Button(position, new GUIContent("-","Remove last path segment")))
+                if (GUI.Button(position, new GUIContent("-", "Remove last path segment")))
                 {
                     RemoveLastPathSegment(property, pathSegments);
                 }
@@ -90,49 +170,37 @@ namespace Common.UnityExtend.Attribute
                 position.x += 27;
             }
 
-            if (GUI.Button(position, new GUIContent("+","Add path segment")))
+            if (GUI.Button(position, new GUIContent("+", "Add path segment")))
             {
                 AddPathSegment(property);
             }
-
-            return menu;
         }
 
-        private static void AddPathSegment(SerializedProperty property)
+        private void AddPathSegment(SerializedProperty property)
         {
             property.serializedObject.Update();
             property.stringValue = string.IsNullOrEmpty(property.stringValue)
                 ? "null"
                 : string.Concat(property.stringValue, ".");
             property.serializedObject.ApplyModifiedProperties();
+            _path.UpdatePathSegments(_rootType, property.stringValue);
         }
 
-        private static void RemoveLastPathSegment(SerializedProperty property, string[] pathSegments)
+        private void RemoveLastPathSegment(SerializedProperty property, string[] pathSegments)
         {
             property.serializedObject.Update();
             property.stringValue = string.Join('.', pathSegments.Where((_, index) => index != pathSegments.Length - 1));
             property.serializedObject.ApplyModifiedProperties();
+            _path.UpdatePathSegments(_rootType, property.stringValue);
         }
 
-        private GenericMenu CreateMenu(SerializedProperty property, IEnumerable<string> ids, int segmentIndex, string[] pathSegments)
-        {
-            var menu = new GenericMenu();
 
-            foreach (var id in ids)
-            {
-                menu.AddItem(new GUIContent(id), property.stringValue == id, data => OnSelected(property, data, pathSegments, segmentIndex), id);
-            }
-
-            return menu;
-        }
-
-        private void OnSelected(SerializedProperty property, object data, string[] pathSegments, int segmentIndex)
+        private static void UpdatePathString(SerializedProperty property, object data, string[] pathSegments, int segmentIndex)
         {
             pathSegments[segmentIndex] = ModifyValue((string)data);
             property.serializedObject.Update();
             property.stringValue = string.Join('.', pathSegments);
             property.serializedObject.ApplyModifiedProperties();
-            _changed = true;
         }
 
         protected virtual object GetSiblingObject(SerializedProperty property,
@@ -143,12 +211,10 @@ namespace Common.UnityExtend.Attribute
 
         private static IEnumerable<string> GetIds(Type type, bool isGetPath)
         {
-            // var result = ReflectionUtility.GetAllMethodsAndInterfaces(type);
-            // return result.SelectMany(r => r.Item2.Where(m => m.ReturnType == typeof(void)).Select(mi => $"{r.Item1.Name}/{ReflectionUtility.FormatName.FormatMethodName(mi)}"));
-            var types = type.GetInterfaces();
-            if (types.Length > 0)
+            var allInterfaces = type.GetInterfaces();
+            if (allInterfaces.Length > 0)
             {
-                var interfaces = types.Concat(new[] { type });
+                var interfaces = allInterfaces.Concat(new[] { type }).ToArray();
                 var methods = interfaces.SelectMany(i =>
                     i.GetMethods().Where(WhereMethod)
                         .Select(mi => $"{i.Name}/{ReflectionUtility.FormatName.FormatMethodName(mi)}"));
@@ -156,7 +222,7 @@ namespace Common.UnityExtend.Attribute
                     i.GetProperties().Select(pi => $"{i.Name}/{ReflectionUtility.FormatName.FormatPropertyName(pi)}"));
                 var fields = interfaces.SelectMany(i =>
                     i.GetFields().Select(fi => $"{i.Name}/{ReflectionUtility.FormatName.FormatFieldName(fi)}"));
-                return new string[0].Concat(methods).Concat(props).Concat(fields);
+                return Array.Empty<string>().Concat(methods).Concat(props).Concat(fields);
             }
             else
             {
@@ -164,15 +230,17 @@ namespace Common.UnityExtend.Attribute
                     .Select(ReflectionUtility.FormatName.FormatMethodName);
                 var props = type.GetProperties().Select(ReflectionUtility.FormatName.FormatPropertyName);
                 var fields = type.GetFields().Select(ReflectionUtility.FormatName.FormatFieldName);
-                return new string[0].Concat(methods).Concat(props).Concat(fields);
+                return Array.Empty<string>().Concat(methods).Concat(props).Concat(fields);
             }
 
             bool WhereMethod(MethodInfo m)
             {
-                var hasParams = m.GetParameters().Length == 0;
+                var noParams = m.GetParameters().Length == 0;
                 var hasReturnValue = m.ReturnType != typeof(void);
                 var isGetProperty = m.Name.StartsWith("get_");
-                return !isGetProperty && (!isGetPath || !hasParams && hasReturnValue);
+                if (isGetProperty) return false;
+                if (!isGetPath) return true;
+                return noParams && hasReturnValue;
             }
         }
 

@@ -343,7 +343,7 @@ MonoBehaviour:
     - eventName: OnSelectedChanged()
       use: 0
     - eventName: OnCardDataSet()
-      use: 1
+      use: 0
     - eventName: ThisEnabled()
       use: 0
     - eventName: ThisDisabled()
