@@ -28,7 +28,7 @@ namespace Common.UnityExtend.Attribute
 
         protected virtual string GetName(Object obj)
         {
-            return obj?.name;
+            return obj != null ? obj.name : null;
         }
 
         protected virtual IEnumerable<Object> GetObjects(SerializedProperty property, StringSelectorAttribute objectSelector)

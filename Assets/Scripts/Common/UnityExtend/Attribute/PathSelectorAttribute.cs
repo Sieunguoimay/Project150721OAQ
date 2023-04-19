@@ -45,18 +45,25 @@ namespace Common.UnityExtend.Attribute
 
         public void UpdatePathSegments(Type rootType, string path)
         {
-            if (_rootType == rootType && _path == path && PathSegments!=null) return;
-
+            if (_rootType == rootType) return;
             _rootType = rootType;
+            UpdatePathSegments(path);
+        }
+
+        public void UpdatePathSegments(string path)
+        {
+            if (_path == path && PathSegments != null) return;
+            if (_rootType == null) return;
+
             _path = path;
 
             var segments = string.IsNullOrEmpty(path) ? Array.Empty<string>() : path.Split('.');
             var pathSegments = new PathSegment[segments.Length];
             for (var i = 0; i < segments.Length; i++)
             {
-                var valid = !string.IsNullOrEmpty(segments[i]) && ReflectionUtility.GetAllMembers(rootType).Any(m => m.Name.Equals(ReflectionUtility.FormatName.Extract(segments[i])));
-                pathSegments[i] = new PathSegment(segments[i], rootType, valid);
-                rootType = ReflectionUtility.GetReturnTypeOfMember(rootType, segments[i], true);
+                var valid = !string.IsNullOrEmpty(segments[i]) && ReflectionUtility.GetAllMembers(_rootType).Any(m => m.Name.Equals(ReflectionUtility.FormatName.Extract(segments[i])));
+                pathSegments[i] = new PathSegment(segments[i], _rootType, valid);
+                _rootType = ReflectionUtility.GetReturnTypeOfMember(_rootType, segments[i], true);
             }
 
             PathSegments = pathSegments;
@@ -69,7 +76,6 @@ namespace Common.UnityExtend.Attribute
     public class PathSelectorDrawer : PropertyDrawer
     {
         private readonly Path _path = new();
-        private Type _rootType;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -183,7 +189,7 @@ namespace Common.UnityExtend.Attribute
                 ? "null"
                 : string.Concat(property.stringValue, ".");
             property.serializedObject.ApplyModifiedProperties();
-            _path.UpdatePathSegments(_rootType, property.stringValue);
+            _path.UpdatePathSegments(property.stringValue);
         }
 
         private void RemoveLastPathSegment(SerializedProperty property, string[] pathSegments)
@@ -191,7 +197,7 @@ namespace Common.UnityExtend.Attribute
             property.serializedObject.Update();
             property.stringValue = string.Join('.', pathSegments.Where((_, index) => index != pathSegments.Length - 1));
             property.serializedObject.ApplyModifiedProperties();
-            _path.UpdatePathSegments(_rootType, property.stringValue);
+            _path.UpdatePathSegments(property.stringValue);
         }
 
 
