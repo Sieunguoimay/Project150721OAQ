@@ -51,7 +51,7 @@ namespace Common.UnityExtend.Reflection
         {
             if (type == null) return null;
             var m = GetMemberInfo(type, name, isNameFormatted);
-            return m != null ? GetReturnTypeOfMember(m) : null;
+            return m != null ? GetUnderlyingType(m) : null;
         }
 
         public static MemberInfo GetMemberInfo(Type type, string name, bool isNameFormatted)
@@ -194,25 +194,31 @@ namespace Common.UnityExtend.Reflection
             return GetAllInfos(type, t => t.GetMembers(FieldFlags)).Distinct();
         }
 
-        public static Type GetReturnTypeOfMember(MemberInfo m)
+        public static Type GetUnderlyingType(MemberInfo member)
         {
-            return m.MemberType switch
+            return member.MemberType switch
             {
-                MemberTypes.Field => (m as FieldInfo)?.FieldType,
-                MemberTypes.Method => (m as MethodInfo)?.ReturnType,
-                MemberTypes.Property => (m as PropertyInfo)?.PropertyType,
-                _ => throw new ArgumentOutOfRangeException()
+                MemberTypes.Event => ((EventInfo)member).EventHandlerType,
+                MemberTypes.Field => ((FieldInfo)member).FieldType,
+                MemberTypes.Method => ((MethodInfo)member).ReturnType,
+                MemberTypes.Property => ((PropertyInfo)member).PropertyType,
+                _ => throw new ArgumentException(
+                                     "Input MemberInfo must be if type EventInfo, FieldInfo, MethodInfo, or PropertyInfo"),
             };
         }
 
-        public static object GetDataFromMember(object source, MemberInfo m)
+        public static object GetDataFromMember(object source, MemberInfo member)
         {
-            return m.MemberType switch
+            //var flags = BindingFlags.GetField | BindingFlags.GetProperty | BindingFlags.InvokeMethod;
+            //return source.GetType().InvokeMember(m.Name, flags, null, source, Array.Empty<object>());
+
+            return member.MemberType switch
             {
-                MemberTypes.Field => (m as FieldInfo)?.GetValue(source),
-                MemberTypes.Method => (m as MethodInfo)?.Invoke(source, null),
-                MemberTypes.Property => (m as PropertyInfo)?.GetValue(source),
-                _ => throw new ArgumentOutOfRangeException()
+                MemberTypes.Field => ((FieldInfo)member).GetValue(source),
+                MemberTypes.Method => ((MethodInfo)member).Invoke(source, Array.Empty<object>()),
+                MemberTypes.Property => ((PropertyInfo)member).GetValue(source),
+                _ => throw new ArgumentException(
+                                     "Input MemberInfo must be if type EventInfo, FieldInfo, MethodInfo, or PropertyInfo"),
             };
         }
 

@@ -73,7 +73,7 @@ namespace Common.UnityExtend.Reflection
             private Type _sourceMethodInfo;
             private int _numMethodParameters = 0;
 
-            private UnityObjectPathSelector.PathExecutor _sourcePathExecutor = new();
+            private readonly UnityObjectPathSelector.PathExecutor _sourcePathExecutor = new();
 
             public void Transfer(object sourceObject)
             {
