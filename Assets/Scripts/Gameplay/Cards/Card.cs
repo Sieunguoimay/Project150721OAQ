@@ -7,4 +7,9 @@ namespace Gameplay.Cards
         public string cardName;
         public Sprite icon;
     }
+
+    public enum CardType
+    {
+        
+    }
 }

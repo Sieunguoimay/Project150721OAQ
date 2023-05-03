@@ -6,7 +6,7 @@ namespace Gameplay.Cards
 {
     public class CardListUI : MonoBehaviour
     {
-        [SerializeField] private CardRepository cardRepository;
+        [SerializeField] private CardContainer cardContainer;
         [SerializeField] private GameObject cardPrefab;
         [SerializeField] private Transform cardListParent;
         [SerializeField] private CardSelector cardSelector;
@@ -24,7 +24,7 @@ namespace Gameplay.Cards
 
         public void PopulateCardList()
         {
-            var cards = cardRepository.GetAll();
+            var cards = cardContainer.GetAll();
             foreach (var card in cards)
             {
                 var cardObject = Instantiate(cardPrefab, cardListParent);

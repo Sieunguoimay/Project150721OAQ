@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Gameplay.Cards
 {
-    public class CardRepository : ScriptableObject
+    public class CardContainer : ScriptableObject
     {
         [SerializeField] private Card[] cards;
 

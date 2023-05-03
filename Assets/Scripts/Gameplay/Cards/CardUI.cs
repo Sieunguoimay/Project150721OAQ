@@ -9,10 +9,9 @@ namespace Gameplay.Cards
         [SerializeField] private Image iconImage;
         private CardSelector _selector;
         public event Action<Card> OnCardClicked;
-        private event Action OnSelectedChanged;
-        private event Action OnCardDataSet;
+        public event Action OnSelectedChanged;
+        public event Action OnCardDataSet;
         [field: System.NonSerialized] public bool IsSelected { get; private set; }
-
         [field: System.NonSerialized] public Card CardData { get; private set; }
 
         public void Setup(CardSelector selector)
