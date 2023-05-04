@@ -114,6 +114,8 @@ namespace Common.UnityExtend.Attribute
             position.width = 100;
             pathSegmentIndexToOpenMenu = -1;
 
+            if (pathSegments == null) return null;
+
             for (var i = 0; i < pathSegments.Count; i++)
             {
                 var pathSegment = pathSegments[i];

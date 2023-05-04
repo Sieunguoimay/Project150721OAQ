@@ -94,7 +94,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d58d3beebee949b4bf64b44fb930b73d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iconImage: {fileID: 2245726598554173063}
 --- !u!114 &2706450696270820208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -442,6 +441,7 @@ GameObject:
   - component: {fileID: 8078436468067709673}
   - component: {fileID: 5204839219333011455}
   - component: {fileID: 2245726598554173063}
+  - component: {fileID: 513547377404028380}
   m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
@@ -507,3 +507,37 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &513547377404028380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9067084286282606761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455983aff86949dcb537bba83bc5632f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pathSelector:
+    sourceObject: {fileID: 1685158855132094560}
+    path: 
+  eventItemList:
+    eventItems:
+    - eventName: OnCardClicked(Card)
+      use: 0
+    - eventName: OnSelectedChanged()
+      use: 0
+    - eventName: OnCardDataSet()
+      use: 1
+    - eventName: ThisEnabled()
+      use: 0
+    - eventName: ThisDisabled()
+      use: 0
+  items:
+  - sourceObjectMethodName: 'CardData: Card.icon: Sprite'
+    targetObject:
+      sourceObject: {fileID: 2245726598554173063}
+      path: 
+    targetMethodName: 'set_overrideSprite(Sprite): Void'
+    formatType: 0

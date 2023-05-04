@@ -6,7 +6,6 @@ namespace Gameplay.Cards
 {
     public class CardUI : MonoBehaviour
     {
-        [SerializeField] private Image iconImage;
         private CardSelector _selector;
         public event Action<Card> OnCardClicked;
         public event Action OnSelectedChanged;
@@ -35,7 +34,6 @@ namespace Gameplay.Cards
         public void SetCard(Card card)
         {
             CardData = card;
-            iconImage.sprite = CardData.icon;
             OnCardDataSet?.Invoke();
         }
 
