@@ -9,14 +9,14 @@ namespace Gameplay.CoreGameplay.Interactors
     public class CoreGameplayBranchingDriver : SelfBindingDependencyInversionUnit
     {
         private TurnDataExtractor _turnDataExtractor;
-        private BoardActionDecisionMakingDriver _boardActionDecisionMakingDriver;
+        private DecisionMakingController _boardActionDecisionMakingDriver;
         private BoardEntityAccess _boardEntityAccess;
 
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
             _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
-            _boardActionDecisionMakingDriver = Resolver.Resolve<BoardActionDecisionMakingDriver>();
+            _boardActionDecisionMakingDriver = Resolver.Resolve<DecisionMakingController>();
             _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
         }
 

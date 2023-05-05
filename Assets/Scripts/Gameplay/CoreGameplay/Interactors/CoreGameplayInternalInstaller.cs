@@ -48,19 +48,19 @@ namespace Gameplay.CoreGameplay.Interactors
                 resolver.Resolve<IBoardMoveSimulationResultHandler>());
             _coreGameplayContainer.Bind<IConcurrentMoveSimulationResultHandler>(
                 resolver.Resolve<IConcurrentMoveSimulationResultHandler>());
-            _coreGameplayContainer.Bind<IBoardActionDecisionMakingFactory>(
-                resolver.Resolve<IBoardActionDecisionMakingFactory>());
+            _coreGameplayContainer.Bind<IDecisionMakingFactory>(
+                resolver.Resolve<IDecisionMakingFactory>());
             _coreGameplayContainer.Bind<ICoreGameplayDataAccess>(
                 resolver.Resolve<ICoreGameplayDataAccess>());
         }
 
         private void InstallInternalComponents()
         {
-            AddChildDependencyInversionUnit(new BoardActionOptionSequenceFactory());
+            AddChildDependencyInversionUnit(new OptionSequenceFactory());
             AddChildDependencyInversionUnit(new RefreshRequester());
             AddChildDependencyInversionUnit(new CoreGameplayBranchingDriver());
             AddChildDependencyInversionUnit(new SimulatorFactory());
-            AddChildDependencyInversionUnit(new BoardActionDecisionMakingDriver());
+            AddChildDependencyInversionUnit(new DecisionMakingController());
 
             _turnDataExtractor = new TurnDataExtractor();
             _coreGameplayController = new CoreGameplayController();

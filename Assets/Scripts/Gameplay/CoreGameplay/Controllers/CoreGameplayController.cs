@@ -21,7 +21,7 @@ namespace Gameplay.CoreGameplay.Controllers
         SelfBindingGenericDependencyInversionUnit<ICoreGameplayController>, 
         ICoreGameplayController
     {
-        private BoardActionDecisionMakingDriver _decisionMakingDriver;
+        private DecisionMakingController _decisionMakingDriver;
         private IRefreshRequester _refreshRequester;
         private CoreGameplayBranchingDriver _branchingDriver;
         private ICoreGameplayDataAccess _dataAccess;
@@ -36,7 +36,7 @@ namespace Gameplay.CoreGameplay.Controllers
             _refreshRequester = Resolver.Resolve<IRefreshRequester>();
             _dataAccess = Resolver.Resolve<ICoreGameplayDataAccess>();
             _simulatorFactory = Resolver.Resolve<ISimulatorFactory>();
-            _decisionMakingDriver = Resolver.Resolve<BoardActionDecisionMakingDriver>();
+            _decisionMakingDriver = Resolver.Resolve<DecisionMakingController>();
             _branchingDriver = Resolver.Resolve<CoreGameplayBranchingDriver>();
             _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
             _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
@@ -81,7 +81,6 @@ namespace Gameplay.CoreGameplay.Controllers
             _decisionMakingDriver.InstallDecisionMakings();
         }
         
-
         public void RunGameplay()
         {
             _decisionMakingDriver.MakeDecisionOfCurrentTurn();

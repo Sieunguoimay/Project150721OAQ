@@ -7,9 +7,10 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
     public interface ISimulatorFactory
     {
         public void CreateAllBoardSimulators();
-        public IBoardMoveSimulator GetSimulator(BoardActionType actionType);
+        public IBoardMoveSimulator GetSimulator(SimulationType actionType);
+        public void RunSimulation();
     }
-
+    
     public class SimulatorFactory : SelfBindingDependencyInversionUnit, ISimulatorFactory
     {
         private BoardMoveSimulator _boardMoveSimulator;
@@ -42,15 +43,20 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
                 new ConcurrentBoardMoveSimulator(_concurrentSimulationResultHandler, moveMakerFactory);
         }
 
-        public IBoardMoveSimulator GetSimulator(BoardActionType actionType)
+        public IBoardMoveSimulator GetSimulator(SimulationType simulationType)
         {
-            return actionType switch
+            return simulationType switch
             {
-                BoardActionType.Basic => _boardMoveSimulator,
-                BoardActionType.GoneWithTheWind => _goneWithTheWindSimulator,
-                BoardActionType.Concurrent => _concurrentBoardMoveSimulator,
-                _ => throw new ArgumentOutOfRangeException(nameof(actionType), actionType, null)
+                SimulationType.Basic => _boardMoveSimulator,
+                SimulationType.GoneWithTheWind => _goneWithTheWindSimulator,
+                SimulationType.Concurrent => _concurrentBoardMoveSimulator,
+                _ => throw new ArgumentOutOfRangeException(nameof(simulationType), simulationType, null)
             };
+        }
+
+        public void RunSimulation()
+        {
+            throw new NotImplementedException();
         }
     }
 

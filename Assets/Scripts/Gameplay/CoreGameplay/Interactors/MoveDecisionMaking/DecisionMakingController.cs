@@ -4,36 +4,34 @@ using Gameplay.CoreGameplay.Interactors.Simulation;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
-    public class BoardActionDecisionMakingDriver :
+    public class DecisionMakingController :
         SelfBindingDependencyInversionUnit,
-        IBoardActionDecisionMakingResultHandler
+        IDecisionMakingResultHandler
     {
         private TurnDataExtractor _turnDataExtractor;
-        private IBoardActionDecisionMakingFactory _factory;
-        private BoardActionOptionSequenceFactory _boardActionOptionSequenceFactory;
+        private IDecisionMakingFactory _factory;
+        private OptionSequenceFactory _boardActionOptionSequenceFactory;
 
-        private IBoardActionDecisionMaking[] _defaultDecisionMakings;
-        private IBoardActionDecisionMaking[] _decisionMakings;
+        private IDecisionMaker[] _defaultDecisionMakings;
+        private IDecisionMaker[] _decisionMakings;
         private ISimulatorFactory _simulatorFactory;
         private ExtractedTurnData CurrentTurnData => _turnDataExtractor.ExtractedTurnData;
-
-        private BoardActionData[] _boardActionDataList;
 
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
             _simulatorFactory = Resolver.Resolve<ISimulatorFactory>();
             _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
-            _factory = Resolver.Resolve<IBoardActionDecisionMakingFactory>();
-            _boardActionOptionSequenceFactory = Resolver.Resolve<BoardActionOptionSequenceFactory>();
+            _factory = Resolver.Resolve<IDecisionMakingFactory>();
+            _boardActionOptionSequenceFactory = Resolver.Resolve<OptionSequenceFactory>();
         }
 
         public void InstallDecisionMakings()
         {
             var numTurns = CurrentTurnData.NumTurns;
 
-            _defaultDecisionMakings = new IBoardActionDecisionMaking[numTurns];
-            _decisionMakings = new IBoardActionDecisionMaking[numTurns];
+            _defaultDecisionMakings = new IDecisionMaker[numTurns];
+            _decisionMakings = new IDecisionMaker[numTurns];
 
             for (var i = 0; i < numTurns; i++)
             {
@@ -51,12 +49,17 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         public void MakeDecisionOfCurrentTurn()
         {
-            var decisionMaking = _decisionMakings[CurrentTurnData.CurrentTurnIndex];
+            MakeDecision(CurrentTurnData.CurrentTurnIndex);
+        }
+
+        private void MakeDecision(int turnIndex)
+        {
+            var decisionMaking = _decisionMakings[turnIndex];
             var optionQueue = _boardActionOptionSequenceFactory.CreateOptionSequence();
             decisionMaking.MakeDecision(new DecisionMakingData
             {
                 OptionQueue = optionQueue,
-                ActionType = BoardActionType.Basic
+                ActionType = SimulationType.Basic
             }, this);
 
             StartCooldownTimer();
@@ -87,24 +90,24 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         public void OnCooldownTimerEnded()
         {
-            _decisionMakings[CurrentTurnData.CurrentTurnIndex].ForceEnd();
+            _decisionMakings[CurrentTurnData.CurrentTurnIndex].Cancel();
 
             HandleDecisionMakingFailed();
         }
 
         private void HandleDecisionMakingFailed()
         {
-            MakeDecisionByDefault();
+            MakeDecisionByDefault(CurrentTurnData.CurrentTurnIndex);
         }
 
-        private void MakeDecisionByDefault()
+        private void MakeDecisionByDefault(int turnIndex)
         {
-            var decisionMaking = _defaultDecisionMakings[CurrentTurnData.CurrentTurnIndex];
+            var decisionMaking = _defaultDecisionMakings[turnIndex];
             var decisionMakingData = _boardActionOptionSequenceFactory.CreateOptionSequence();
             decisionMaking.MakeDecision(new DecisionMakingData
             {
                 OptionQueue = decisionMakingData,
-                ActionType = BoardActionType.Basic
+                ActionType = SimulationType.Basic
             }, new DefaultBoardActionDecisionMakingResultHandler(this));
         }
 
@@ -113,11 +116,11 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             _simulatorFactory.GetSimulator(resultData.ActionType).RunSimulation(resultData.SimulationInputData);
         }
 
-        private class DefaultBoardActionDecisionMakingResultHandler : IBoardActionDecisionMakingResultHandler
+        private class DefaultBoardActionDecisionMakingResultHandler : IDecisionMakingResultHandler
         {
-            private readonly BoardActionDecisionMakingDriver _driver;
+            private readonly DecisionMakingController _driver;
 
-            public DefaultBoardActionDecisionMakingResultHandler(BoardActionDecisionMakingDriver driver)
+            public DefaultBoardActionDecisionMakingResultHandler(DecisionMakingController driver)
             {
                 _driver = driver;
             }
@@ -133,10 +136,10 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
     {
         public bool Success;
         public MoveSimulationInputData SimulationInputData;
-        public BoardActionType ActionType;
+        public SimulationType ActionType;
     }
 
-    public enum BoardActionType
+    public enum SimulationType
     {
         Basic,
         GoneWithTheWind,
@@ -145,20 +148,20 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
     public class BoardActionData
     {
-        public BoardActionType ActionType;
+        public SimulationType ActionType;
         public IBoardMoveSimulator Simulator;
         public OptionQueue OptionQueue;
     }
 
-    public interface IBoardActionDecisionMakingResultHandler
+    public interface IDecisionMakingResultHandler
     {
         void OnDecisionResult(BoardActionDecisionResultData resultData);
     }
 
-    public interface IBoardActionDecisionMakingFactory
+    public interface IDecisionMakingFactory
     {
-        IBoardActionDecisionMaking CreateDefaultDecisionMaking();
-        IBoardActionDecisionMaking CreatePlayerDecisionMaking();
-        IBoardActionDecisionMaking CreateComputerDecisionMaking();
+        IDecisionMaker CreateDefaultDecisionMaking();
+        IDecisionMaker CreatePlayerDecisionMaking();
+        IDecisionMaker CreateComputerDecisionMaking();
     }
 }

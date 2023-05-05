@@ -6,11 +6,11 @@ using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
-    public interface IBoardActionDecisionMaking
+    public interface IDecisionMaker
     {
-        void MakeDecision(DecisionMakingData optionQueue, IBoardActionDecisionMakingResultHandler driver);
+        void MakeDecision(DecisionMakingData optionQueue, IDecisionMakingResultHandler driver);
 
-        void ForceEnd();
+        void Cancel();
 
         public static BoardActionDecisionResultData CreateResultData(DecisionMakingData optionQueue)
         {
@@ -23,14 +23,14 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             };
         }
 
-        private static BoardActionType GetActionType(OptionQueue optionQueue)
+        private static SimulationType GetActionType(OptionQueue optionQueue)
         {
             if (optionQueue.Options.Count(o => o is TileOptionItem) > 1)
             {
-                return BoardActionType.Concurrent;
+                return SimulationType.Concurrent;
             }
 
-            return BoardActionType.GoneWithTheWind;
+            return SimulationType.GoneWithTheWind;
         }
 
         public static MoveSimulationInputData CreateConcurrentSimulationInputData(
@@ -69,6 +69,6 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
     public class DecisionMakingData
     {
         public OptionQueue OptionQueue;
-        public BoardActionType ActionType;
+        public SimulationType ActionType;
     }
 }

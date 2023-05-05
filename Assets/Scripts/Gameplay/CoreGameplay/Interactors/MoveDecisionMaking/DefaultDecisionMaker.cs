@@ -6,13 +6,13 @@ using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
-    public class DefaultDecisionMaking : IBoardActionDecisionMaking
+    public class DefaultDecisionMaker : IDecisionMaker
     {
-        private IBoardActionDecisionMakingResultHandler _driver;
+        private IDecisionMakingResultHandler _driver;
         private Coroutine _coroutine;
         private OptionQueueIterator _queueIterator;
 
-        public void MakeDecision(DecisionMakingData optionQueue, IBoardActionDecisionMakingResultHandler driver)
+        public void MakeDecision(DecisionMakingData optionQueue, IDecisionMakingResultHandler driver)
         {
             _driver = driver;
             _queueIterator = new OptionQueueIterator(optionQueue.OptionQueue, null);
@@ -24,12 +24,12 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
             _coroutine = PublicExecutor.Instance.Delay(1f, () =>
             {
-                var result = IBoardActionDecisionMaking.CreateResultData(optionQueue);
+                var result = IDecisionMaker.CreateResultData(optionQueue);
                 _driver.OnDecisionResult(result);
             });
         }
 
-        public void ForceEnd()
+        public void Cancel()
         {
             //Only for multi-frame decision making
             PublicExecutor.Instance.StopCoroutine(_coroutine);

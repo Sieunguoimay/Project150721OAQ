@@ -6,7 +6,7 @@ using Gameplay.CoreGameplay.Entities;
 
 namespace Gameplay.CoreGameplay.Interactors.OptionSystem
 {
-    public class BoardActionOptionSequenceFactory : SelfBindingDependencyInversionUnit
+    public class OptionSequenceFactory : SelfBindingDependencyInversionUnit
     {
         private BoardEntityAccess _boardEntityAccess;
         private TurnDataExtractor _turnDataExtractor;

@@ -5,19 +5,20 @@ using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
-    public class PlayerDecisionMaking : IBoardActionDecisionMaking, OptionQueueIterator.IOptionQueueIterationHandler
+    public class PlayerDecisionMaker 
+        : IDecisionMaker, OptionQueueIterator.IOptionQueueIterationHandler
     {
         private readonly InteractSystem _interactSystem;
-        private IBoardActionDecisionMakingResultHandler _driver;
+        private IDecisionMakingResultHandler _driver;
         private OptionQueueIterator _queueIterator;
         private DecisionMakingData _optionQueue;
 
-        public PlayerDecisionMaking(InteractSystem interactSystem)
+        public PlayerDecisionMaker(InteractSystem interactSystem)
         {
             _interactSystem = interactSystem;
         }
 
-        public void MakeDecision(DecisionMakingData optionQueue, IBoardActionDecisionMakingResultHandler driver)
+        public void MakeDecision(DecisionMakingData optionQueue, IDecisionMakingResultHandler driver)
         {
             _optionQueue = optionQueue;
             _driver = driver;
@@ -25,14 +26,14 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
             _queueIterator.NextOptionItem();
         }
 
-        public void ForceEnd()
+        public void Cancel()
         {
             _interactSystem.Dismiss();
         }
 
         public void OnOptionsQueueEmpty()
         {
-            _driver.OnDecisionResult(IBoardActionDecisionMaking.CreateResultData(_optionQueue));
+            _driver.OnDecisionResult(IDecisionMaker.CreateResultData(_optionQueue));
         }
 
         public void HandleOptionItem()
