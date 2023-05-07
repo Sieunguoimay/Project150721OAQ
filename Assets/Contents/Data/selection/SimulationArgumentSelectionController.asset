@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-3273726050220669132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3188c883fabde7d44a4bdf24bf25393d, type: 3}
+  m_Name: DirectionSelection
+  m_EditorClassIdentifier: 
+  children: []
+  argumentType: 2
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b112343ab5c71743acc1a299fdcb6c8, type: 3}
+  m_Name: SimulationArgumentSelectionController
+  m_EditorClassIdentifier: 
+  children:
+  - {fileID: 8228390192802532008}
+  - {fileID: -3273726050220669132}
+  - {fileID: 4850089357744073500}
+  supporedSelections:
+  - {fileID: 8228390192802532008}
+  - {fileID: -3273726050220669132}
+  - {fileID: 4850089357744073500}
+  followSelectionSequences:
+  - CardType: 0
+    sequence: 0100000002000000
+  - CardType: 1
+    sequence: 010000000100000002000000
+  - CardType: 2
+    sequence: 0100000002000000
+  - CardType: 3
+    sequence: 0100000002000000
+--- !u!114 &4850089357744073500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 538ac4efc6712444b92297ea3a0386eb, type: 3}
+  m_Name: TileSelection
+  m_EditorClassIdentifier: 
+  children: []
+  argumentType: 1
+--- !u!114 &8228390192802532008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c78e8a1d05ff28942bd65976281887dc, type: 3}
+  m_Name: CardSelection
+  m_EditorClassIdentifier: 
+  children: []
+  argumentType: 0
+  cards:
+  - {fileID: 1641577159617181467, guid: 3a6a796a57348874e9c0cf4a4e61e104, type: 2}
+  - {fileID: 3176090362060156598, guid: 3a6a796a57348874e9c0cf4a4e61e104, type: 2}
+  - {fileID: -4057192021795585564, guid: 3a6a796a57348874e9c0cf4a4e61e104, type: 2}

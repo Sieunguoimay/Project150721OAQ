@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Common
 {
-    public class Singleton<TObject> : MonoBehaviour where TObject : MonoBehaviour
+    public class SingletonMonoBehaviour<TObject> : MonoBehaviour where TObject : MonoBehaviour
     {
         private static TObject _instance;
 

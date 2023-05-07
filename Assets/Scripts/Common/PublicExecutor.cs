@@ -1,6 +1,6 @@
 ﻿namespace Common
 {
-    public class PublicExecutor : Singleton<PublicExecutor>
+    public class PublicExecutor : SingletonMonoBehaviour<PublicExecutor>
     {
     }
 }

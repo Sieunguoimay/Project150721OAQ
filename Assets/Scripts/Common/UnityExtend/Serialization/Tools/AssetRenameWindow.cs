@@ -77,27 +77,27 @@ namespace Common.UnityExtend.Serialization.Tools
                     DrawNoParamsModifier(ModifyNameOfSelected, _toLowerCaseAndUnderscore);
                     break;
                 case 1:
-                {
-                    Draw2ParamsModifier(ModifyStringFieldOfReferenced, _prefixModification, ref _param1Prefix, false);
-                    Draw2ParamsModifier(ModifyStringFieldOfReferenced, _suffixModification, ref _param1Suffix, false);
-                    DrawNameModifier2Params(ModifyStringFieldOfReferenced, _replaceModification, ref _param1Replace,
-                        ref _param2Replace);
-                    DrawNoParamsModifier(ModifyStringFieldOfReferenced, _toLowerCaseAndUnderscore);
-
-                    EditorGUILayout.BeginHorizontal();
-                    if (GUILayout.Button("Replace Tag"))
                     {
-                        ChangeTag(_param1Replace, _param2Replace);
-                    }
+                        Draw2ParamsModifier(ModifyStringFieldOfReferenced, _prefixModification, ref _param1Prefix, false);
+                        Draw2ParamsModifier(ModifyStringFieldOfReferenced, _suffixModification, ref _param1Suffix, false);
+                        DrawNameModifier2Params(ModifyStringFieldOfReferenced, _replaceModification, ref _param1Replace,
+                            ref _param2Replace);
+                        DrawNoParamsModifier(ModifyStringFieldOfReferenced, _toLowerCaseAndUnderscore);
 
-                    if (GUILayout.Button("Log Fields"))
-                    {
-                        LogFields();
-                    }
+                        EditorGUILayout.BeginHorizontal();
+                        if (GUILayout.Button("Replace Tag"))
+                        {
+                            ChangeTag(_param1Replace, _param2Replace);
+                        }
 
-                    EditorGUILayout.EndHorizontal();
-                    break;
-                }
+                        if (GUILayout.Button("Log Fields"))
+                        {
+                            LogFields();
+                        }
+
+                        EditorGUILayout.EndHorizontal();
+                        break;
+                    }
                 case 2:
                     Draw2ParamsModifier(RenamePrefabs, _prefixModification, ref _param1Prefix, false);
                     Draw2ParamsModifier(RenamePrefabs, _suffixModification, ref _param1Suffix, false);
@@ -105,7 +105,7 @@ namespace Common.UnityExtend.Serialization.Tools
                         ref _param2Replace);
                     break;
                 case 3:
-                    DrawReplaceReferences();
+                    DrawRegexRename();
                     break;
             }
 
@@ -157,85 +157,32 @@ namespace Common.UnityExtend.Serialization.Tools
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawReplaceReferences()
+        private string _regexPattern;
+        private string _newString;
+        private void DrawRegexRename()
         {
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Reference Prefixes");
-            EditorGUILayout.LabelField("Asset Prefixes (Separate by ;)");
+            EditorGUILayout.LabelField("Regex", GUILayout.Width(50));
+            _regexPattern = EditorGUILayout.TextField(_regexPattern);
+            EditorGUILayout.LabelField("->", GUILayout.Width(20));
+            _newString = EditorGUILayout.TextField(_newString);
             EditorGUILayout.EndHorizontal();
-            for (var i = 0; i < _referencePrefixes.Length; i++)
+            if (GUILayout.Button("Rename"))
             {
-                EditorGUILayout.BeginHorizontal();
-                _referencePrefixes[i] = EditorGUILayout.TextField(_referencePrefixes[i]);
-                _assetPrefixes[i] = EditorGUILayout.TextField(_assetPrefixes[i]);
-                EditorGUILayout.EndHorizontal();
-            }
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("-", GUILayout.Width(20)))
-            {
-                Array.Resize(ref _referencePrefixes, _referencePrefixes.Length - 1);
-                Array.Resize(ref _assetPrefixes, _assetPrefixes.Length - 1);
-            }
-
-            if (GUILayout.Button("+", GUILayout.Width(20)))
-            {
-                Array.Resize(ref _referencePrefixes, _referencePrefixes.Length + 1);
-                Array.Resize(ref _assetPrefixes, _assetPrefixes.Length + 1);
-            }
-
-            if (GUILayout.Button("Load Preset", GUILayout.Width(80)))
-            {
-                _referencePrefixes = new[]
+                foreach (var item in Selection.objects)
                 {
-                    "ReferencePrefix_"
-                };
-
-                _assetPrefixes = new[]
-                {
-                    "AssetPrefix_"
-                };
+                    if (MatchPattern(item.name))
+                    {
+                        AssetDatabase.RenameAsset(AssetDatabase.GetAssetPath(item), _newString);
+                        Debug.Log("match " + item.name);
+                    }
+                }
+                AssetDatabase.SaveAssets();
             }
-
-            if (GUILayout.Button("Clear All", GUILayout.Width(80)))
-            {
-                _referencePrefixes = new string[0];
-                _assetPrefixes = new string[0];
-            }
-
-            var prevColor = GUI.color;
-            GUI.color = Color.green;
-
-            if (GUILayout.Button("Replace References"))
-            {
-                ReplaceReference(GetMap());
-            }
-
-            GUI.color = prevColor;
-
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-
-            _propertyName = EditorGUILayout.TextField(_propertyName);
-            if (GUILayout.Button("Replace References inside prefab variants"))
-            {
-                ReplaceReferenceInsidePrefabVariants(GetMap(), _propertyName);
-            }
-
-            EditorGUILayout.EndHorizontal();
         }
-
-        private Dictionary<string, string[]> GetMap()
+        private bool MatchPattern(string name)
         {
-            var map = new Dictionary<string, string[]>();
-
-            for (var i = 0; i < _referencePrefixes.Length; i++)
-            {
-                map.Add(_referencePrefixes[i], _assetPrefixes[i].Split(';'));
-            }
-
-            return map;
+            return Regex.IsMatch(name, _regexPattern, RegexOptions.IgnoreCase);
         }
 
         private class NoParamsModification
