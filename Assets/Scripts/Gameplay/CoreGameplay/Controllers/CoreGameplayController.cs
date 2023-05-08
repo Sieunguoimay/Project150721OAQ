@@ -21,13 +21,14 @@ namespace Gameplay.CoreGameplay.Controllers
         SelfBindingGenericDependencyInversionUnit<ICoreGameplayController>, 
         ICoreGameplayController
     {
-        private DecisionMakingController _decisionMakingDriver;
+        //private DecisionMakingController _decisionMakingDriver;
         private IRefreshRequester _refreshRequester;
         private CoreGameplayBranchingDriver _branchingDriver;
         private ICoreGameplayDataAccess _dataAccess;
         private BoardEntityAccess _boardEntityAccess;
         private TurnDataExtractor _turnDataExtractor;
         private ISimulatorFactory _simulatorFactory;
+        private SimulationArgumentSelectionController _simulationArgumentSelectionController;
 
         protected override void OnSetupDependencies()
         {
@@ -36,10 +37,11 @@ namespace Gameplay.CoreGameplay.Controllers
             _refreshRequester = Resolver.Resolve<IRefreshRequester>();
             _dataAccess = Resolver.Resolve<ICoreGameplayDataAccess>();
             _simulatorFactory = Resolver.Resolve<ISimulatorFactory>();
-            _decisionMakingDriver = Resolver.Resolve<DecisionMakingController>();
+            //_decisionMakingDriver = Resolver.Resolve<DecisionMakingController>();
             _branchingDriver = Resolver.Resolve<CoreGameplayBranchingDriver>();
             _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
             _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
+            _simulationArgumentSelectionController = Resolver.Resolve<SimulationArgumentSelectionController>();
         }
 
         public void SetupNewGame()
@@ -47,12 +49,12 @@ namespace Gameplay.CoreGameplay.Controllers
             SetupEntities();
             SetupSimulatorFactory();
             SetupTurnDataExtractor();
-            SetupDecisionMakingDriver();
+            //SetupDecisionMakingDriver();
         }
 
         public void TearDownGame()
         {
-            _decisionMakingDriver.UninstallDecisionMakings();
+            //_decisionMakingDriver.UninstallDecisionMakings();
         }
 
         private void SetupEntities()
@@ -76,19 +78,20 @@ namespace Gameplay.CoreGameplay.Controllers
             _simulatorFactory.CreateAllBoardSimulators();
         }
 
-        private void SetupDecisionMakingDriver()
-        {
-            _decisionMakingDriver.InstallDecisionMakings();
-        }
+        //private void SetupDecisionMakingDriver()
+        //{
+            //_decisionMakingDriver.InstallDecisionMakings();
+        //}
         
         public void RunGameplay()
         {
-            _decisionMakingDriver.MakeDecisionOfCurrentTurn();
+            //_decisionMakingDriver.MakeDecisionOfCurrentTurn();
+            _simulationArgumentSelectionController.StartSelectionSequence();
         }
 
         public void CheckBranching()
         {
-            _branchingDriver.CheckBranching();
+            _branchingDriver.RunBranching();
         }
 
         public void RequestRefresh(IRefreshResultHandler resultPresenter)

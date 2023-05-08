@@ -78,7 +78,6 @@ namespace Gameplay.CoreGameplay.Interactors.OptionSystem
         }
     }
 
-
     public class DirectionOptionItem : OptionItem
     {
         public bool SelectedDirection => ((BooleanOptionValue) SelectedValue).Value;

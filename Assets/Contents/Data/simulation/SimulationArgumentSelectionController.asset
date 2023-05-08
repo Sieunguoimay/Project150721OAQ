@@ -75,3 +75,4 @@ MonoBehaviour:
   - {fileID: 1641577159617181467, guid: 3a6a796a57348874e9c0cf4a4e61e104, type: 2}
   - {fileID: 3176090362060156598, guid: 3a6a796a57348874e9c0cf4a4e61e104, type: 2}
   - {fileID: -4057192021795585564, guid: 3a6a796a57348874e9c0cf4a4e61e104, type: 2}
+  debug: 1

@@ -1,16 +1,34 @@
 using Common;
+using Gameplay.CoreGameplay.Interactors;
 using SNM;
 using System;
+using System.Linq;
 
 public class TileSelection : BaseSelection
 {
+    private TurnDataExtractor _turnDataExtractor;
+    private BoardEntityAccess _boardEntityAccess;
+
+    private int[] _tileIndices;
+    protected override void OnSetupDependencies()
+    {
+        base.OnSetupDependencies();
+        _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
+        _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
+    }
     public override object GetSelectedData(int selectedIndex)
     {
-        return UnityEngine.Random.Range(0, 5);
+        if (selectedIndex == -1) return -1;
+        return _tileIndices[selectedIndex];
     }
 
-    public override void StartSelection(SimulationArgumentSelectionController selectionController)
+    protected override void OnStartSelection()
     {
-        InvokeOnSelectionResult(new SimulationArgument { argumentType = SimulationArgumentType.Tile, selectedValue = 0 });
+        _tileIndices = _turnDataExtractor.ExtractedTurnData.CitizenTileEntitiesOfCurrentTurn.Where(t => t.PieceEntities.Any()).Select(t => Array.IndexOf(_boardEntityAccess.TileEntities, t)).ToArray();
+        InvokeOnSelectionResult(new SimulationArgument
+        {
+            argumentType = SimulationArgumentType.Tile,
+            selectedValue = _tileIndices.Length > 0 ? UnityEngine.Random.Range(0, _tileIndices.Length) : -1
+        });
     }
 }

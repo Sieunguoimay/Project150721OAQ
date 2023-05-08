@@ -16,15 +16,23 @@ public abstract class BaseSelection : DependencyInversionScriptableObjectNode, I
 {
     [SerializeField] private SimulationArgumentType argumentType;
 
+    private bool _onDuty;
+
     public SimulationArgumentType ArgumentType => argumentType;
 
     public event Action<SimulationArgument> OnSelectionResult;
 
     public abstract object GetSelectedData(int selectedIndex);
 
-    public abstract void StartSelection(SimulationArgumentSelectionController selectionController);
+    public void StartSelection(SimulationArgumentSelectionController selectionController)
+    {
+        _onDuty = true;
+        OnStartSelection();
+    }
+    protected abstract void OnStartSelection();
     protected void InvokeOnSelectionResult(SimulationArgument argument)
     {
+        if (!_onDuty) return;
         OnSelectionResult?.Invoke(argument);
     }
 }
@@ -32,27 +40,62 @@ public abstract class BaseSelection : DependencyInversionScriptableObjectNode, I
 public class CardSelection : BaseSelection
 {
     [SerializeField] private Card[] cards;
-
-    private SimulationArgumentSelectionController _selectionController;
+    [SerializeField] private bool debug = false;
 
     public override object GetSelectedData(int selectedIndex)
     {
-        return cards[selectedIndex];
+        if (selectedIndex == -1) return CardType.None;
+        return cards[selectedIndex].CardType;
     }
 
-    public override void StartSelection(SimulationArgumentSelectionController selectionController)
+    protected override void OnStartSelection()
     {
-        _selectionController = selectionController;
-        PublicExecutor.Instance.Delay(1, () =>
-        {
+        if (debug) return;
 
-        });
-        var selected = cards.GetRandom();
-        OnCardSelectionResult(selected);
+        if (Application.isPlaying)
+        {
+            PublicExecutor.Instance.Delay(1, () =>
+            {
+                var selected = cards.GetRandom();
+                OnCardSelectionResult(selected);
+            });
+        }
+        else
+        {
+            var selected = cards.GetRandom();
+            OnCardSelectionResult(selected);
+        }
     }
 
     private void OnCardSelectionResult(Card card)
     {
-        InvokeOnSelectionResult(new SimulationArgument { argumentType = SimulationArgumentType.Card, selectedValue = Array.IndexOf(cards, card) });
+        InvokeOnSelectionResult(new SimulationArgument
+        {
+            argumentType = SimulationArgumentType.Card,
+            selectedValue = card != null ? Array.IndexOf(cards, card) : -1
+        });
     }
+
+#if UNITY_EDITOR
+    [ContextMenu("Test 0")]
+    private void Test()
+    {
+        OnCardSelectionResult(null);
+    }
+    [ContextMenu("Test 1")]
+    private void Test1()
+    {
+        OnCardSelectionResult(cards[0]);
+    }
+    [ContextMenu("Test 2")]
+    private void Test2()
+    {
+        OnCardSelectionResult(cards[1]);
+    }
+    [ContextMenu("Test 3")]
+    private void Test3()
+    {
+        OnCardSelectionResult(cards[2]);
+    }
+#endif
 }

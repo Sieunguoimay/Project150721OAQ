@@ -1,15 +1,17 @@
-using Common;
-using SNM;
-
 public class DirectionSelection : BaseSelection
 {
+    private readonly bool[] _directions = new bool[2] { true, false };
     public override object GetSelectedData(int selectedIndex)
     {
-        return UnityEngine.Random.Range(0, 5);
+        return _directions[selectedIndex];
     }
 
-    public override void StartSelection(SimulationArgumentSelectionController selectionController)
+    protected override void OnStartSelection()
     {
-        InvokeOnSelectionResult(new SimulationArgument { argumentType = SimulationArgumentType.Direction, selectedValue = 0 });
+        InvokeOnSelectionResult(new SimulationArgument
+        {
+            argumentType = SimulationArgumentType.Direction,
+            selectedValue = UnityEngine.Random.Range(0, 2)
+        });
     }
 }

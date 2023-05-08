@@ -9,18 +9,20 @@ namespace Gameplay.CoreGameplay.Interactors
     public class CoreGameplayBranchingDriver : SelfBindingDependencyInversionUnit
     {
         private TurnDataExtractor _turnDataExtractor;
-        private DecisionMakingController _boardActionDecisionMakingDriver;
+        //private DecisionMakingController _boardActionDecisionMakingDriver;
         private BoardEntityAccess _boardEntityAccess;
+        private SimulationArgumentSelectionController _simulationArgumentSelectionController;
 
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
             _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
-            _boardActionDecisionMakingDriver = Resolver.Resolve<DecisionMakingController>();
+            //_boardActionDecisionMakingDriver = Resolver.Resolve<DecisionMakingController>();
             _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
+            _simulationArgumentSelectionController = Resolver.Resolve<SimulationArgumentSelectionController>();
         }
 
-        public void CheckBranching()
+        public void RunBranching()
         {
             CheckPiecesInMandarinTiles();
         }
@@ -43,7 +45,8 @@ namespace Gameplay.CoreGameplay.Interactors
         {
             if (AnyTileOnCurrentSideHasPieces())
             {
-                RunMoveDecisionMaking();
+                //RunMoveDecisionMaking();
+                _simulationArgumentSelectionController.StartSelectionSequence();
             }
             else
             {
@@ -88,9 +91,9 @@ namespace Gameplay.CoreGameplay.Interactors
         {
         }
 
-        private void RunMoveDecisionMaking()
-        {
-            _boardActionDecisionMakingDriver.MakeDecisionOfCurrentTurn();
-        }
+        //private void RunMoveDecisionMaking()
+        //{
+        //    _boardActionDecisionMakingDriver.MakeDecisionOfCurrentTurn();
+        //}
     }
 }

@@ -3,7 +3,6 @@ using Gameplay.Cards;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Burst.Intrinsics;
 using UnityEngine;
 
 public class SimulationArgumentSelectionController : DependencyInversionScriptableObjectNode
@@ -90,11 +89,11 @@ public class SimulationArgumentSelectionController : DependencyInversionScriptab
 
     private FollowSelectionSequence GetFollowSequenceOfCard(int selectedIndex)
     {
-        var card = (Card)GetSelectionByArgumentType(SimulationArgumentType.Card).GetSelectedData(selectedIndex);
-        return followSelectionSequences.FirstOrDefault(s => s.CardType == card.CardType);
+        var cardType = (CardType)GetSelectionByArgumentType(SimulationArgumentType.Card).GetSelectedData(selectedIndex);
+        return followSelectionSequences.FirstOrDefault(s => s.CardType == cardType);
 
     }
-    private ISelection GetSelectionByArgumentType(SimulationArgumentType type)
+    public ISelection GetSelectionByArgumentType(SimulationArgumentType type)
     {
         return SupportedSelections.FirstOrDefault(s => s.ArgumentType == type);
     }
@@ -118,7 +117,7 @@ public class SimulationArgumentSelectionController : DependencyInversionScriptab
         {
             var s = GetSelectionByArgumentType(a.argumentType);
             var v = s.GetSelectedData(a.selectedValue);
-            if(v is Card c)
+            if (v is Card c)
             {
                 return $"({a.argumentType} {c.CardType})";
             }

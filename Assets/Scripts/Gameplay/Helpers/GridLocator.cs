@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Gameplay.Helpers
 {
-    public class GridLocator : SelfBindingDependencyInversionScriptableObject
+    public class GridLocator : DependencyInversionScriptableObjectNode
     {
         [SerializeField] private float cellSize;
 
