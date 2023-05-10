@@ -6,12 +6,12 @@ using UnityEngine;
 
 namespace Framework.DependencyInversion
 {
-    public class DependencyInversionController : DependencyInversionScriptableObjectNode
+    public class DependencyInversionController : ScriptableEntity
     {
         [SerializeField] private GameObject[] prefabs;
 
         private GameObject[] _spawnedGameObjects;
-        private IDependencyInversionUnit[] _dependencyInversionUnits;
+        private IDependencyInversion[] _dependencyInversionUnits;
         private IInjectable[] _injectables;
 
         protected override void OnBind(IBinder binder)
@@ -84,7 +84,7 @@ namespace Framework.DependencyInversion
         private void FindAllDependencyInversionUnits()
         {
             _dependencyInversionUnits =
-                GetInterfaceInChildrenOfSpawnedGameObjects<IDependencyInversionUnit>().ToArray();
+                GetInterfaceInChildrenOfSpawnedGameObjects<IDependencyInversion>().ToArray();
         }
 
         private void FindInjectablesOnly()

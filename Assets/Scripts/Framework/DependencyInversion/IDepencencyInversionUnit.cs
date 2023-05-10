@@ -19,7 +19,7 @@ namespace Framework.DependencyInversion
         }
     }
 
-    public abstract class InjectableScriptableObject : ScriptableObject, IInjectable
+    public abstract class ScriptableInjectable : ScriptableObject, IInjectable
     {
         protected IResolver Resolver { get; private set; }
 
@@ -49,7 +49,7 @@ namespace Framework.DependencyInversion
         }
     }
 
-    public interface IDependencyInversionUnit : IInjectable
+    public interface IDependencyInversion : IInjectable
     {
         void Bind(IBinder binder);
         void SetupDependencies();
@@ -57,8 +57,8 @@ namespace Framework.DependencyInversion
         void Unbind(IBinder binder);
     }
 
-    public abstract class DependencyInversionScriptableObject : InjectableScriptableObject,
-        IDependencyInversionUnit
+    public abstract class ScriptableDependencyInversion : ScriptableInjectable,
+        IDependencyInversion
     {
         public void Bind(IBinder binder)
         {
@@ -97,7 +97,7 @@ namespace Framework.DependencyInversion
         }
     }
 
-    public abstract class DependencyInversionUnit : Injectable, IDependencyInversionUnit
+    public abstract class DependencyInversionUnit : Injectable, IDependencyInversion
     {
         public void Bind(IBinder binder)
         {
@@ -137,7 +137,7 @@ namespace Framework.DependencyInversion
     }
 
     public abstract class SelfBindingDependencyInversionScriptableObject
-        : DependencyInversionScriptableObject
+        : ScriptableDependencyInversion
     {
         protected override void OnBind(IBinder binder)
         {

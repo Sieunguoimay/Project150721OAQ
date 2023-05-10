@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class SimulationArgumentSelectionController : DependencyInversionScriptableObjectNode
+public class SimulationArgumentSelectionController : ScriptableEntity
 {
     [SerializeField] private BaseSelection[] supporedSelections;
     [SerializeField, UseMemberValueAsLabel(nameof(FollowSelectionSequence.CardType))]

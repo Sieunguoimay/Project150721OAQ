@@ -3,7 +3,7 @@ using Framework.Resolver;
 
 namespace Framework.DependencyInversion
 {
-    public abstract class DependencyInversionMonoBehaviour : InjectableMonoBehaviour, IDependencyInversionUnit
+    public abstract class DependencyInversionMonoBehaviour : InjectableMonoBehaviour, IDependencyInversion
     {
         public void Bind(IBinder binder)
         {

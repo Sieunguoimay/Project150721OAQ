@@ -7,7 +7,7 @@ namespace System
 {
     public class DependencyInversionEngine : MonoBehaviour
     {
-        [SerializeField] private DependencyInversionScriptableObjectNode controller;
+        [SerializeField] private ScriptableEntity controller;
 
         private IBinder _binder;
         private IResolver _resolver;

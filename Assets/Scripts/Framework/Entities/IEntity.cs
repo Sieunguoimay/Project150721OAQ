@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Framework.Entities
 {
-    public interface IEntity<out TData, out TSavedData> : IDependencyInversionUnit
+    public interface IEntity<out TData, out TSavedData> : IDependencyInversion
         where TData : IEntityData where TSavedData : IEntitySavedData
     {
         TData Data { get; }

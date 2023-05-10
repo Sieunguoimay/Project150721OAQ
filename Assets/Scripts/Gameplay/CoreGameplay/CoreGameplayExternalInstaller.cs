@@ -10,7 +10,7 @@ using Gameplay.Visual.Views;
 
 namespace Gameplay.CoreGameplay
 {
-    public class CoreGameplayExternalInstaller : DependencyInversionScriptableObjectNode
+    public class CoreGameplayExternalInstaller : ScriptableEntity
     {
         protected override void OnBind(IBinder binder)
         {

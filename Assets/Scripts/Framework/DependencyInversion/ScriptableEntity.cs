@@ -7,10 +7,10 @@ using UnityEngine;
 
 namespace Framework.DependencyInversion
 {
-    public class DependencyInversionScriptableObjectNode : SelfBindingDependencyInversionScriptableObject,
+    public class ScriptableEntity : SelfBindingDependencyInversionScriptableObject,
         IHierarchyNode
     {
-        [SerializeField, TypeConstraint(typeof(IDependencyInversionUnit))]
+        [SerializeField, TypeConstraint(typeof(IDependencyInversion))]
         private UnityEngine.Object[] children;
         public IHierarchyNode[] Children { get; private set; }
 
@@ -20,7 +20,7 @@ namespace Framework.DependencyInversion
         protected override void OnBind(IBinder binder)
         {
             base.OnBind(binder);
-            _container.DependencyInversionUnitChildren.AddRange(SerializedChildren.Select(sc => sc as IDependencyInversionUnit));
+            _container.DependencyInversionUnitChildren.AddRange(SerializedChildren.Select(sc => sc as IDependencyInversion));
             _container.OnBind(binder);
             Children = _container.DependencyInversionUnitChildren.OfType<IHierarchyNode>().ToArray();
         }
@@ -49,7 +49,7 @@ namespace Framework.DependencyInversion
             _container.OnTearDownDependencies();
         }
 
-        protected void AddChildDependencyInversionUnit(IDependencyInversionUnit unit)
+        protected void AddChildDependencyInversionUnit(IDependencyInversion unit)
         {
             _container.AddChildDependencyInversionUnit(unit);
         }

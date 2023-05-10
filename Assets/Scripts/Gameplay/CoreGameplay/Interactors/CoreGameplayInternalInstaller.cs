@@ -8,7 +8,7 @@ using Gameplay.CoreGameplay.Interactors.Simulation;
 
 namespace Gameplay.CoreGameplay.Interactors
 {
-    public class CoreGameplayInternalInstaller : DependencyInversionScriptableObjectNode
+    public class CoreGameplayInternalInstaller : ScriptableEntity
     {
         private TurnDataExtractor _turnDataExtractor;
         private CoreGameplayController _coreGameplayController;

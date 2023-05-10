@@ -45,7 +45,7 @@ namespace Framework.DependencyInversion
             base.OnTearDownDependencies();
             _container.OnTearDownDependencies();
         }
-        protected void AddChildDependencyInversionUnit(IDependencyInversionUnit unit)
+        protected void AddChildDependencyInversionUnit(IDependencyInversion unit)
         {
             _container.AddChildDependencyInversionUnit(unit);
         }
@@ -54,7 +54,7 @@ namespace Framework.DependencyInversion
 
     public class DependencyInversionUnitContainer
     {
-        public List<IDependencyInversionUnit> DependencyInversionUnitChildren { get; } = new();
+        public List<IDependencyInversion> DependencyInversionUnitChildren { get; } = new();
 
         public void OnBind(IBinder binder)
         {
@@ -96,7 +96,7 @@ namespace Framework.DependencyInversion
             }
         }
 
-        public void AddChildDependencyInversionUnit(IDependencyInversionUnit unit)
+        public void AddChildDependencyInversionUnit(IDependencyInversion unit)
         {
             DependencyInversionUnitChildren.Add(unit);
         }

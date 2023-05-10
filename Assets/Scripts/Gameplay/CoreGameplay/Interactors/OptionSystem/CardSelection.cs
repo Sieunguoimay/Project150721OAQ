@@ -12,7 +12,7 @@ public interface ISelection
     object GetSelectedData(int selectedIndex);
     event Action<SimulationArgument> OnSelectionResult;
 }
-public abstract class BaseSelection : DependencyInversionScriptableObjectNode, ISelection
+public abstract class BaseSelection : ScriptableEntity, ISelection
 {
     [SerializeField] private SimulationArgumentType argumentType;
 

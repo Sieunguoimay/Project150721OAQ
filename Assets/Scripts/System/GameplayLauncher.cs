@@ -6,7 +6,7 @@ using Gameplay.Visual.Views;
 
 namespace System
 {
-    public class GameplayLauncher : DependencyInversionScriptableObjectNode
+    public class GameplayLauncher : ScriptableEntity
     {
         private GameplayEventsHandler _gameplayEventsHandler;
         private ICoreGameplayController _coreGameplayController;
