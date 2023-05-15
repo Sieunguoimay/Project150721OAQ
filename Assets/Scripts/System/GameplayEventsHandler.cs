@@ -12,7 +12,7 @@ namespace System
         private BoardStatePresenter _boardStatePresenter;
         private BoardStateView _boardStateView;
         private ICoreGameplayController _controller;
-        private BoardVisualView _boardVisualView;
+        private BoardVisualGenerator _boardVisualView;
         private BoardStateMatchVisualVerify _verify;
         private IMessageService _messageService;
 
@@ -23,7 +23,7 @@ namespace System
             _boardStatePresenter = Resolver.Resolve<BoardStatePresenter>();
             _boardStateView = Resolver.Resolve<BoardStateView>();
             _controller = Resolver.Resolve<ICoreGameplayController>();
-            _boardVisualView = Resolver.Resolve<BoardVisualView>();
+            _boardVisualView = Resolver.Resolve<BoardVisualGenerator>();
         }
 
         public void SetupForNewGame()
@@ -50,7 +50,7 @@ namespace System
             _messageService.Unregister("AllMovingStepsExecutedEvent", OnAllMovingStepsDone);
         }
 
-        private void OnBoardVisualReady(BoardVisualView obj)
+        private void OnBoardVisualReady(BoardVisualGenerator obj)
         {
             _controller.RunGameplay();
         }

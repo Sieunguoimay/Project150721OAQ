@@ -9,13 +9,13 @@ namespace Gameplay.Visual.Presenters
         SelfBindingDependencyInversionUnit, 
         IRefreshResultHandler
     {
-        private BoardVisualView _boardVisualView;
+        private BoardVisualGenerator _boardVisualView;
 
         public event Action<IRefreshResultHandler> BoardStateChangedEvent;
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
-            _boardVisualView = Resolver.Resolve<BoardVisualView>();
+            _boardVisualView = Resolver.Resolve<BoardVisualGenerator>();
         }
 
         public void HandleRefreshData(RefreshData refreshData)

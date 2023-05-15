@@ -17,14 +17,14 @@ namespace Gameplay.Visual.Views
     {
         protected int StepIterator;
         private GridLocator _gridLocator;
-        private BoardVisualView _boardVisualView;
+        private BoardVisualGenerator _boardVisualView;
         private IMessageService _messageService;
 
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
             _gridLocator = Resolver.Resolve<GridLocator>();
-            _boardVisualView = Resolver.Resolve<BoardVisualView>();
+            _boardVisualView = Resolver.Resolve<BoardVisualGenerator>();
             _messageService = Resolver.Resolve<IMessageService>();
         }
 
@@ -39,12 +39,12 @@ namespace Gameplay.Visual.Views
             _messageService.Dispatch("AllMovingStepsExecutedEvent", this, EventArgs.Empty);
         }
 
-        private TileVisual GetTile(int index)
+        private TileVisual GetTileByIndex(int index)
         {
             return _boardVisualView.BoardVisual.TileVisuals[index];
         }
 
-        private IPieceContainer GetPieceBench(int turnIndex)
+        private IPieceContainer GetPieceBenchByIndex(int turnIndex)
         {
             return _boardVisualView.BoardVisual.PocketVisuals[turnIndex];
         }
@@ -169,7 +169,7 @@ namespace Gameplay.Visual.Views
             public override void Execute()
             {
                 base.Execute();
-                var targetTile = Handler.GetTile(TargetPieceContainerIndex);
+                var targetTile = Handler.GetTileByIndex(TargetPieceContainerIndex);
                 IPieceContainer.TransferAllPiecesOwnership(targetTile, Handler.GetTempPieceContainer());
             }
         }
@@ -188,9 +188,9 @@ namespace Gameplay.Visual.Views
             public override void Execute()
             {
                 base.Execute();
-                IPieceContainer.TransferAllPiecesOwnership(Handler.GetTile(TargetPieceContainerIndex),
+                IPieceContainer.TransferAllPiecesOwnership(Handler.GetTileByIndex(TargetPieceContainerIndex),
                     Handler.GetTempPieceContainer());
-                IPieceContainer.TransferAllPiecesOwnership(Handler.GetTile(_targetPieceContainerIndex2),
+                IPieceContainer.TransferAllPiecesOwnership(Handler.GetTileByIndex(_targetPieceContainerIndex2),
                     Handler.GetTempPieceContainer());
             }
         }
@@ -207,7 +207,7 @@ namespace Gameplay.Visual.Views
                 base.Execute();
 
                 var container = Handler.GetTempPieceContainer();
-                var to = Handler.GetTile(TargetPieceContainerIndex);
+                var to = Handler.GetTileByIndex(TargetPieceContainerIndex);
 
                 var piece = container.HeldPieces.LastOrDefault();
 
@@ -242,8 +242,8 @@ namespace Gameplay.Visual.Views
             {
                 base.Execute();
 
-                var from = Handler.GetTile(TargetPieceContainerIndex);
-                var to = Handler.GetPieceBench(_turnIndex);
+                var from = Handler.GetTileByIndex(TargetPieceContainerIndex);
+                var to = Handler.GetPieceBenchByIndex(_turnIndex);
                 var amount = from.HeldPieces.Count;
 
                 Handler.MovePieces(from, to, amount);

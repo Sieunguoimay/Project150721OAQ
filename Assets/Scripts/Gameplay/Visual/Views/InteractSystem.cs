@@ -17,8 +17,7 @@ namespace Gameplay.Visual.Views
         [SerializeField] private TileSelector tileSelector;
         [SerializeField] private ActionChooser actionChooser;
         
-        private BoardVisualView _boardVisualView;
-        private Action<OptionQueue> _optionSelectedHandler;
+        private BoardVisualGenerator _boardVisualGenerator;
         private TileVisual _selectedTileVisual;
         private Action<bool> _directionSelectedHandler;
         private Action<int> _tileSelectedHandler;
@@ -26,7 +25,7 @@ namespace Gameplay.Visual.Views
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
-            _boardVisualView = Resolver.Resolve<BoardVisualView>();
+            _boardVisualGenerator = Resolver.Resolve<BoardVisualGenerator>();
         }
 
         public void ShowActionChooser(Action<bool> directionSelectedHandler)
@@ -39,7 +38,7 @@ namespace Gameplay.Visual.Views
         public void ShowTileSelector(IEnumerable<int> tileIndices, Action<int>tileSelectedHandler)
         {
             _tileSelectedHandler = tileSelectedHandler;
-            var tileVisuals = tileIndices.Select(v => _boardVisualView.BoardVisual.TileVisuals[v]).ToArray();
+            var tileVisuals = tileIndices.Select(v => _boardVisualGenerator.BoardVisual.TileVisuals[v]).ToArray();
             tileSelector.Show(tileVisuals, OnTileSelected);
         }
 

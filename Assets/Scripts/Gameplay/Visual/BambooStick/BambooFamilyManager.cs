@@ -19,6 +19,10 @@ namespace Gameplay.Visual.BambooStick
         {
             _boardSketcher = resolver.Resolve<BoardSketcher>();
         }
+        protected override void OnSetupDependencies()
+        {
+            base.OnSetupDependencies();
+        }
 
         public void ResetAll()
         {

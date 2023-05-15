@@ -9,14 +9,14 @@ using Gameplay.Visual.Piece;
 
 namespace Gameplay.Visual.Views
 {
-    public class BoardVisualView : SelfBindingDependencyInversionMonoBehaviour
+    public class BoardVisualGenerator : SelfBindingDependencyInversionMonoBehaviour
     {
         private BambooFamilyManager _bambooFamily;
         private BoardVisualCreator _boardVisualCreator;
         private PieceVisualGenerator _pieceVisualGenerator;
         private GridLocator _gridLocator;
         public BoardVisual BoardVisual { get; private set; }
-        public event Action<BoardVisualView> VisualReadyEvent;
+        public event Action<BoardVisualGenerator> VisualReadyEvent;
 
         protected override void OnSetupDependencies()
         {
