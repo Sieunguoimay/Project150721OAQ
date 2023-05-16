@@ -89,7 +89,7 @@ public class SimulationArgumentSelectionController : ScriptableEntity
 
     private FollowSelectionSequence GetFollowSequenceOfCard(int selectedIndex)
     {
-        var cardType = (CardType)GetSelectionByArgumentType(SimulationArgumentType.Card).GetSelectedData(selectedIndex);
+        var cardType = (CardType)GetSelectionByArgumentType(SimulationArgumentType.Card).GetOptionDataByIndex(selectedIndex);
         return followSelectionSequences.FirstOrDefault(s => s.CardType == cardType);
 
     }
@@ -116,7 +116,7 @@ public class SimulationArgumentSelectionController : ScriptableEntity
         var arr = ArgumentList.Select(a =>
         {
             var s = GetSelectionByArgumentType(a.argumentType);
-            var v = s.GetSelectedData(a.selectedValue);
+            var v = s.GetOptionDataByIndex(a.selectedValue);
             if (v is Card c)
             {
                 return $"({a.argumentType} {c.CardType})";

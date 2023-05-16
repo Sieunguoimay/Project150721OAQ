@@ -1,7 +1,7 @@
 public class DirectionSelection : BaseSelection
 {
     private readonly bool[] _directions = new bool[2] { true, false };
-    public override object GetSelectedData(int selectedIndex)
+    public override object GetOptionDataByIndex(int selectedIndex)
     {
         return _directions[selectedIndex];
     }

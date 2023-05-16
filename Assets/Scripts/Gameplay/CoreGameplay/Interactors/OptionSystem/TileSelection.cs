@@ -16,7 +16,7 @@ public class TileSelection : BaseSelection
         _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
         _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
     }
-    public override object GetSelectedData(int selectedIndex)
+    public override object GetOptionDataByIndex(int selectedIndex)
     {
         if (selectedIndex == -1) return -1;
         return _tileIndices[selectedIndex];

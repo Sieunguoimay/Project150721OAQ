@@ -37,7 +37,7 @@ public class SimulationController : ScriptableEntity
         if (firstArgument.argumentType == SimulationArgumentType.Card)
         {
             var cardSelection = selectionController.GetSelectionByArgumentType(SimulationArgumentType.Card);
-            var cardType = (CardType)cardSelection.GetSelectedData(firstArgument.selectedValue);
+            var cardType = (CardType)cardSelection.GetOptionDataByIndex(firstArgument.selectedValue);
             RunSimulationByCardType(arguments, cardType);
         }
         else if (firstArgument.argumentType == SimulationArgumentType.Tile)
@@ -70,25 +70,25 @@ public class SimulationController : ScriptableEntity
     {
         var tileSelection = selectionController.GetSelectionByArgumentType(SimulationArgumentType.Tile);
         var directionSelection = selectionController.GetSelectionByArgumentType(SimulationArgumentType.Direction);
-        var tileIndex1 = (int)tileSelection.GetSelectedData(arg1.selectedValue);
-        var tileIndex2 = (int)tileSelection.GetSelectedData(arg2.selectedValue);
-        var direction = (bool)directionSelection.GetSelectedData(arg3.selectedValue);
+        var tileIndex1 = (int)tileSelection.GetOptionDataByIndex(arg1.selectedValue);
+        var tileIndex2 = (int)tileSelection.GetOptionDataByIndex(arg2.selectedValue);
+        var direction = (bool)directionSelection.GetOptionDataByIndex(arg3.selectedValue);
         RunConcurrentSimulation(tileIndex1, tileIndex2, direction);
     }
     private void RunBasicSimulation(SimulationArgument arg1, SimulationArgument arg2)
     {
         var tileSelection = selectionController.GetSelectionByArgumentType(SimulationArgumentType.Tile);
         var directionSelection = selectionController.GetSelectionByArgumentType(SimulationArgumentType.Direction);
-        var tileIndex = (int)tileSelection.GetSelectedData(arg1.selectedValue);
-        var direction = (bool)directionSelection.GetSelectedData(arg2.selectedValue);
+        var tileIndex = (int)tileSelection.GetOptionDataByIndex(arg1.selectedValue);
+        var direction = (bool)directionSelection.GetOptionDataByIndex(arg2.selectedValue);
         RunBasicSimulation(tileIndex, direction);
     }
     private void RunGoneWithTheWindSimulation(SimulationArgument arg1, SimulationArgument arg2)
     {
         var tileSelection = selectionController.GetSelectionByArgumentType(SimulationArgumentType.Tile);
         var directionSelection = selectionController.GetSelectionByArgumentType(SimulationArgumentType.Direction);
-        var tileIndex = (int)tileSelection.GetSelectedData(arg1.selectedValue);
-        var direction = (bool)directionSelection.GetSelectedData(arg2.selectedValue);
+        var tileIndex = (int)tileSelection.GetOptionDataByIndex(arg1.selectedValue);
+        var direction = (bool)directionSelection.GetOptionDataByIndex(arg2.selectedValue);
         RunGoneWithTheWindSimulation(tileIndex, direction);
     }
 
