@@ -164,15 +164,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pathSelector:
     sourceObject: {fileID: 1685158855132094560}
-    path: 
+    path: 'CardData: Card'
   eventItemList:
     eventItems:
-    - eventName: OnCardClicked(Card)
-      use: 0
-    - eventName: OnSelectedChanged()
+    - eventName: OnSelectedChanged(Card)
       use: 1
-    - eventName: OnCardDataSet()
-      use: 0
     - eventName: ThisEnabled()
       use: 1
     - eventName: ThisDisabled()
@@ -337,14 +333,10 @@ MonoBehaviour:
     path: 
   eventItemList:
     eventItems:
-    - eventName: OnCardClicked(Card)
-      use: 0
-    - eventName: OnSelectedChanged()
-      use: 0
     - eventName: OnCardDataSet()
       use: 0
     - eventName: ThisEnabled()
-      use: 0
+      use: 1
     - eventName: ThisDisabled()
       use: 0
   items:
@@ -524,14 +516,10 @@ MonoBehaviour:
     path: 
   eventItemList:
     eventItems:
-    - eventName: OnCardClicked(Card)
-      use: 0
-    - eventName: OnSelectedChanged()
-      use: 0
     - eventName: OnCardDataSet()
       use: 1
     - eventName: ThisEnabled()
-      use: 0
+      use: 1
     - eventName: ThisDisabled()
       use: 0
   items:

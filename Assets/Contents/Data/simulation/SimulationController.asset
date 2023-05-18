@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7afe7b30f0e34bc4e821c6c94e7c5474, type: 3}
   m_Name: SimulationController
   m_EditorClassIdentifier: 
-  children: []
+  children:
+  - {fileID: 11400000, guid: 1e04be8dfbb8c284484c910d2a21b510, type: 2}
   selectionController: {fileID: 11400000, guid: 1e04be8dfbb8c284484c910d2a21b510, type: 2}

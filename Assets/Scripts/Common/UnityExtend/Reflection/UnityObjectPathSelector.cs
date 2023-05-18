@@ -152,6 +152,7 @@ namespace Common.UnityExtend.Reflection
 
             public object GetMemberValue(object obj)
             {
+                if(obj==null) return null;
                 if (_isArray) return (obj as Array)?.GetValue(_arrayIndex);
                 if (_fieldInfo != null) return _fieldInfo.GetValue(obj);
                 if (_propertyInfo != null) return _propertyInfo.GetValue(obj);

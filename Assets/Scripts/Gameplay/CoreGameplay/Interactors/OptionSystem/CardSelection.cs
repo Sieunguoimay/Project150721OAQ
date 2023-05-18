@@ -23,19 +23,26 @@ public abstract class BaseSelection : ScriptableEntity, ISelection
     public SimulationArgumentType ArgumentType => argumentType;
 
     public event Action<SimulationArgument> OnSelectionResult;
+    public event Action<ISelection> OnSelectingChanged;
 
     public abstract object GetOptionDataByIndex(int selectedIndex);
 
     public void StartSelection(SimulationArgumentSelectionController selectionController)
     {
-        _isSelecting = true;
+        SetSelecting(true);
         OnStartSelection();
     }
     protected abstract void OnStartSelection();
     protected void InvokeOnSelectionResult(SimulationArgument argument)
     {
         if (!_isSelecting) return;
+        SetSelecting(false);
         OnSelectionResult?.Invoke(argument);
+    }
+    private void SetSelecting(bool isSelecting)
+    {
+        _isSelecting = isSelecting;
+        OnSelectingChanged?.Invoke(this);
     }
 }
 
@@ -45,7 +52,38 @@ public class CardSelection : BaseSelection
     [SerializeField] private bool debug = false;
 
     public Card SelectedCard { get; private set; }
+
     public event Action<CardSelection> OnSelectedCardChanged;
+
+    protected override void OnSetupDependencies()
+    {
+        base.OnSetupDependencies();
+        foreach (var card in cards)
+        {
+            card.OnSelectedChanged -= OnCardSelectedChanged;
+            card.OnSelectedChanged += OnCardSelectedChanged;
+        }
+    }
+
+    protected override void OnTearDownDependencies()
+    {
+        base.OnTearDownDependencies();
+        foreach (var card in cards)
+        {
+            card.OnSelectedChanged -= OnCardSelectedChanged;
+        }
+    }
+
+    private void OnCardSelectedChanged(Card card)
+    {
+        if(IsSelecting)
+        {
+            if(card.IsSelected)
+            {
+                SelectCard(card);
+            }
+        }
+    }
 
     public override object GetOptionDataByIndex(int optionIndex)
     {
@@ -56,21 +94,10 @@ public class CardSelection : BaseSelection
     protected override void OnStartSelection()
     {
         SelectedCard = null;
-        //if (debug) return;
-
-        //if (Application.isPlaying)
-        //{
-        //    PublicExecutor.Instance.Delay(1, () =>
-        //    {
-        //        var selected = cards.GetRandom();
-        //        SelectCard(selected);
-        //    });
-        //}
-        //else
-        //{
-        //    var selected = cards.GetRandom();
-        //    SelectCard(selected);
-        //}
+        if (debug)
+        {
+            SelectCard(cards.GetRandom());
+        }
     }
 
     public void SelectCard(Card card)

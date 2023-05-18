@@ -25,7 +25,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1eed5a2ccf5240cea66864b22b6ffc7e, type: 3}
-  m_Name: CardRepository
+  m_Name: CardContainer
   m_EditorClassIdentifier: 
   cards:
   - {fileID: 1641577159617181467}

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Gameplay.Cards
 {
@@ -7,21 +8,14 @@ namespace Gameplay.Cards
         public CardType CardType;
         public string cardName;
         public Sprite icon;
-        private void Awake()
+
+        [field: System.NonSerialized] public bool IsSelected { get; private set; }
+        public event Action<Card> OnSelectedChanged;
+
+        public void SetSelected(bool selected)
         {
-            Debug.Log($"{name} Awake");
-        }
-        private void OnEnable()
-        {
-            Debug.Log($"{name} OnEnable");
-        }
-        private void OnDisable()
-        {
-            Debug.Log($"{name} OnDisable");
-        }
-        private void OnDestroy()
-        {
-            Debug.Log($"{name} OnDestroy");
+            IsSelected = selected;
+            OnSelectedChanged?.Invoke(this);
         }
     }
 

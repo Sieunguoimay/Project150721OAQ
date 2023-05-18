@@ -9,7 +9,6 @@ namespace Gameplay.Cards
         [SerializeField] private CardContainer cardContainer;
         [SerializeField] private GameObject cardPrefab;
         [SerializeField] private Transform cardListParent;
-        [SerializeField] private CardSelector cardSelector;
 
         private readonly List<CardUI> _cardUis = new();
         private void Start()
@@ -30,7 +29,6 @@ namespace Gameplay.Cards
                 var cardObject = Instantiate(cardPrefab, cardListParent);
                 var cardUI = cardObject.GetComponent<CardUI>();
                 cardUI.SetCard(card);
-                cardUI.Setup(cardSelector);
                 _cardUis.Add(cardUI);
             }
         }
@@ -39,8 +37,16 @@ namespace Gameplay.Cards
         {
             foreach (var cardUi in _cardUis)
             {
-                cardUi.TearDown();
                 Destroy(cardUi.gameObject);
+            }
+        }
+
+        public void SetSelectable(bool selectable)
+        {
+            cardListParent.gameObject.SetActive(selectable);
+            foreach(var card in cardContainer.GetAll())
+            {
+                card.SetSelected(false);
             }
         }
     }
