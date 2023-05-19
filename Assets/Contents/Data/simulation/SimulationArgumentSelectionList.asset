@@ -72,4 +72,4 @@ MonoBehaviour:
   children: []
   argumentType: 0
   cardContainer: {fileID: 11400000, guid: 3a6a796a57348874e9c0cf4a4e61e104, type: 2}
-  debug: 1
+  debug: 0
