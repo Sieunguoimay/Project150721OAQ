@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class SimulationController : ScriptableEntity
+public class SimulationSelectionAdapter : ScriptableEntity
 {
-    [SerializeField] private SimulationArgumentSelectionController selectionController;
+    [SerializeField] private SimulationArgumentSelectionList selectionController;
 
     private ISimulatorFactory _simulatorFactory;
     private TurnDataExtractor _turnDataExtractor;
@@ -28,7 +28,7 @@ public class SimulationController : ScriptableEntity
         selectionController.OnArgumentsSelectionResult -= OnSelectionResult;
     }
 
-    private void OnSelectionResult(SimulationArgumentSelectionController obj)
+    private void OnSelectionResult(SimulationArgumentSelectionList obj)
     {
         var arguments = selectionController.ArgumentList;
         if (arguments == null || arguments.Count <= 1) return;

@@ -23,7 +23,7 @@ namespace Gameplay.Cards
 
         public void PopulateCardList()
         {
-            var cards = cardContainer.GetAll();
+            var cards = cardContainer.Cards;
             foreach (var card in cards)
             {
                 var cardObject = Instantiate(cardPrefab, cardListParent);
@@ -44,7 +44,7 @@ namespace Gameplay.Cards
         public void SetSelectable(bool selectable)
         {
             cardListParent.gameObject.SetActive(selectable);
-            foreach(var card in cardContainer.GetAll())
+            foreach(var card in cardContainer.Cards)
             {
                 card.SetSelected(false);
             }

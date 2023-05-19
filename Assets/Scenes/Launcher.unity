@@ -763,6 +763,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneName: GameScene
   entityController: {fileID: 11400000, guid: fc0366b81c3c14f478c3b9c5c65195ff, type: 2}
+  addressablesManager: {fileID: 11400000, guid: 091b58b3d3ae379478a8e4c3413ea645, type: 2}
+  assetGroupName: Default Local Group
 --- !u!4 &858286693
 Transform:
   m_ObjectHideFlags: 0

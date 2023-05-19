@@ -3,12 +3,15 @@ using Framework.DependencyInversion;
 using Gameplay.Cards;
 using SNM;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 public interface ISelection
 {
     SimulationArgumentType ArgumentType { get; }
-    void StartSelection(SimulationArgumentSelectionController selectionController);
+    void StartSelection(SimulationArgumentSelectionList selectionController);
     object GetOptionDataByIndex(int selectedIndex);
     event Action<SimulationArgument> OnSelectionResult;
 }
@@ -27,7 +30,7 @@ public abstract class BaseSelection : ScriptableEntity, ISelection
 
     public abstract object GetOptionDataByIndex(int selectedIndex);
 
-    public void StartSelection(SimulationArgumentSelectionController selectionController)
+    public void StartSelection(SimulationArgumentSelectionList selectionController)
     {
         SetSelecting(true);
         OnStartSelection();
@@ -48,17 +51,18 @@ public abstract class BaseSelection : ScriptableEntity, ISelection
 
 public class CardSelection : BaseSelection
 {
-    [SerializeField] private Card[] cards;
+    [SerializeField] private CardContainer cardContainer;
     [SerializeField] private bool debug = false;
 
     public Card SelectedCard { get; private set; }
+    public IReadOnlyList<Card> Cards => cardContainer.Cards;
 
     public event Action<CardSelection> OnSelectedCardChanged;
 
     protected override void OnSetupDependencies()
     {
         base.OnSetupDependencies();
-        foreach (var card in cards)
+        foreach (var card in Cards)
         {
             card.OnSelectedChanged -= OnCardSelectedChanged;
             card.OnSelectedChanged += OnCardSelectedChanged;
@@ -68,7 +72,7 @@ public class CardSelection : BaseSelection
     protected override void OnTearDownDependencies()
     {
         base.OnTearDownDependencies();
-        foreach (var card in cards)
+        foreach (var card in Cards)
         {
             card.OnSelectedChanged -= OnCardSelectedChanged;
         }
@@ -76,9 +80,9 @@ public class CardSelection : BaseSelection
 
     private void OnCardSelectedChanged(Card card)
     {
-        if(IsSelecting)
+        if (IsSelecting)
         {
-            if(card.IsSelected)
+            if (card.IsSelected)
             {
                 SelectCard(card);
             }
@@ -88,7 +92,7 @@ public class CardSelection : BaseSelection
     public override object GetOptionDataByIndex(int optionIndex)
     {
         if (optionIndex == -1) return CardType.None;
-        return cards[optionIndex].CardType;
+        return Cards[optionIndex].CardType;
     }
 
     protected override void OnStartSelection()
@@ -96,7 +100,7 @@ public class CardSelection : BaseSelection
         SelectedCard = null;
         if (debug)
         {
-            SelectCard(cards.GetRandom());
+            SelectCard(Cards.GetRandom());
         }
     }
 
@@ -107,7 +111,7 @@ public class CardSelection : BaseSelection
         InvokeOnSelectionResult(new SimulationArgument
         {
             argumentType = SimulationArgumentType.Card,
-            selectedValue = card != null ? Array.IndexOf(cards, card) : -1
+            selectedValue = card != null ? Cards.Select((c, i) => (c, i)).FirstOrDefault(c => c.c == card).i : -1
         });
     }
 
@@ -120,17 +124,17 @@ public class CardSelection : BaseSelection
     [ContextMenu("Test 1")]
     private void Test1()
     {
-        SelectCard(cards[0]);
+        SelectCard(Cards[0]);
     }
     [ContextMenu("Test 2")]
     private void Test2()
     {
-        SelectCard(cards[1]);
+        SelectCard(Cards[1]);
     }
     [ContextMenu("Test 3")]
     private void Test3()
     {
-        SelectCard(cards[2]);
+        SelectCard(Cards[2]);
     }
 #endif
 }

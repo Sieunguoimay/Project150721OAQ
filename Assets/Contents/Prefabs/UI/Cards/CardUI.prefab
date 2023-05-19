@@ -523,7 +523,7 @@ MonoBehaviour:
     - eventName: ThisDisabled()
       use: 0
   items:
-  - sourceObjectMethodName: 'CardData: Card.icon: Sprite'
+  - sourceObjectMethodName: 'CardData: Card.Icon: Sprite'
     targetObject:
       sourceObject: {fileID: 2245726598554173063}
       path: 

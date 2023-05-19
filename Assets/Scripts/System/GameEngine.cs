@@ -5,6 +5,7 @@ using Common.UnityExtend.Attribute;
 using Framework;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 
 namespace System
@@ -16,10 +17,13 @@ namespace System
 #endif
         [SerializeField] private string sceneName;
         [SerializeField] private EntityController entityController;
+        [SerializeField] private AddressablesManager addressablesManager;
+        [SerializeField, StringSelector(nameof(GetAllAssetGroups))] private string assetGroupName;
 
-        #if UNITY_EDITOR
-        public IEnumerable<string> FindScenes() => AssetDatabase.FindAssets("t:Scene").Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadAssetAtPath<SceneAsset>).Select(s=> s.name);
-        #endif
+#if UNITY_EDITOR
+        public IEnumerable<string> FindScenes() => AssetDatabase.FindAssets("t:Scene").Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadAssetAtPath<SceneAsset>).Select(s => s.name);
+        public IEnumerable<string> GetAllAssetGroups() => addressablesManager?.Groups.Select(g => g.name);
+#endif
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
@@ -28,12 +32,17 @@ namespace System
         private void Start()
         {
             entityController.Load();
-            LoadGameScene();
+
+            LoadAddressables(() =>
+            {
+                LoadGameScene();
+            });
         }
 
         private void OnDestroy()
         {
             // UnloadGameScene();
+            UnloadAddressables();
             entityController.Unload();
         }
 
@@ -87,6 +96,16 @@ namespace System
             }
 
             onDone?.Invoke();
+        }
+        private void LoadAddressables(Action onDone)
+        {
+            addressablesManager.CreateInstance();
+            if (string.IsNullOrEmpty(assetGroupName)) return;
+            addressablesManager.LoadGroup(assetGroupName, onDone);
+        }
+        private void UnloadAddressables()
+        {
+            addressablesManager.ReleaseCurrentGroup();
         }
     }
 }

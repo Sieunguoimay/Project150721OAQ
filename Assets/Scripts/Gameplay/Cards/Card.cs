@@ -7,7 +7,7 @@ namespace Gameplay.Cards
     {
         public CardType CardType;
         public string cardName;
-        public Sprite icon;
+        public AssetSelector iconSelector;
 
         [field: System.NonSerialized] public bool IsSelected { get; private set; }
         public event Action<Card> OnSelectedChanged;
@@ -17,6 +17,7 @@ namespace Gameplay.Cards
             IsSelected = selected;
             OnSelectedChanged?.Invoke(this);
         }
+        public Sprite Icon => iconSelector.GetAsset<Sprite>();
     }
 
     public enum CardType

@@ -11,7 +11,7 @@ namespace Gameplay.CoreGameplay.Interactors
         private TurnDataExtractor _turnDataExtractor;
         //private DecisionMakingController _boardActionDecisionMakingDriver;
         private BoardEntityAccess _boardEntityAccess;
-        private SimulationArgumentSelectionController _simulationArgumentSelectionController;
+        private SimulationArgumentSelectionList _simulationArgumentSelectionController;
 
         protected override void OnSetupDependencies()
         {
@@ -19,7 +19,7 @@ namespace Gameplay.CoreGameplay.Interactors
             _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
             //_boardActionDecisionMakingDriver = Resolver.Resolve<DecisionMakingController>();
             _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
-            _simulationArgumentSelectionController = Resolver.Resolve<SimulationArgumentSelectionController>();
+            _simulationArgumentSelectionController = Resolver.Resolve<SimulationArgumentSelectionList>();
         }
 
         public void RunBranching()

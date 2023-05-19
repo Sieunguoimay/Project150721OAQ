@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d5c09ef034b5d43b00ee0f42215b9a, type: 3}
+  m_Name: AddressablesManager
+  m_EditorClassIdentifier: 
+  groups:
+  - name: Built In Data
+    assetPaths:
+    - Resources
+    - DOTweenSettings
+    - LineBreaking Following Characters
+    - LineBreaking Leading Characters
+    - TMP Settings
+    - Fonts & Materials/LiberationSans SDF - Drop Shadow
+    - Fonts & Materials/LiberationSans SDF - Fallback
+    - Fonts & Materials/LiberationSans SDF - Outline
+    - Fonts & Materials/LiberationSans SDF
+    - Fonts & Materials/LiberationSans SDF
+    - Shaders/TMPro
+    - Shaders/TMPro_Properties
+    - Shaders/TMPro_Surface
+    - Shaders/TMP_Bitmap-Custom-Atlas
+    - Shaders/TMP_Bitmap-Mobile
+    - Shaders/TMP_Bitmap
+    - Shaders/TMP_SDF Overlay
+    - Shaders/TMP_SDF-Mobile Masking
+    - Shaders/TMP_SDF-Mobile Overlay
+    - Shaders/TMP_SDF-Mobile
+    - Shaders/TMP_SDF-Surface-Mobile
+    - Shaders/TMP_SDF-Surface
+    - Shaders/TMP_SDF
+    - Shaders/TMP_Sprite
+    - Sprite Assets/EmojiOne
+    - Style Sheets/Default Style Sheet
+    - Cursors/cutCursor-add
+    - Cursors/cutCursor
+    - Materials/Collider
+    - Materials/EdgePicker
+    - Materials/EdgePickerHDRP
+    - Materials/FacePicker
+    - Materials/FacePickerHDRP
+    - Materials/InvisibleFace
+    - Materials/NoDraw
+    - Materials/ProBuilderDefault
+    - Materials/StandardVertexColorHDRP
+    - Materials/StandardVertexColorLWRP
+    - Materials/Trigger
+    - Materials/UnlitVertexColor
+    - Materials/VertexPicker
+    - Materials/VertexPickerHDRP
+    - Textures/GridBox_Default
+    - EditorSceneList
+    - Launcher
+    - GameScene
+  - name: Default Local Group
+    assetPaths:
+    - Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png
+    - Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png[ico_two_arrows_concurrent]

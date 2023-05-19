@@ -8,6 +8,6 @@ namespace Gameplay.Cards
     {
         [SerializeField] private Card[] cards;
 
-        public IEnumerable<Card> GetAll() => cards.ToList();
+        public IReadOnlyList<Card> Cards => cards;
     }
 }

@@ -28,7 +28,7 @@ namespace Gameplay.CoreGameplay.Controllers
         private BoardEntityAccess _boardEntityAccess;
         private TurnDataExtractor _turnDataExtractor;
         private ISimulatorFactory _simulatorFactory;
-        private SimulationArgumentSelectionController _simulationArgumentSelectionController;
+        private SimulationArgumentSelectionList _simulationArgumentSelectionController;
 
         protected override void OnSetupDependencies()
         {
@@ -41,7 +41,7 @@ namespace Gameplay.CoreGameplay.Controllers
             _branchingDriver = Resolver.Resolve<CoreGameplayBranchingDriver>();
             _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
             _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
-            _simulationArgumentSelectionController = Resolver.Resolve<SimulationArgumentSelectionController>();
+            _simulationArgumentSelectionController = Resolver.Resolve<SimulationArgumentSelectionList>();
         }
 
         public void SetupNewGame()

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class SimulationArgumentSelectionController : ScriptableEntity
+public class SimulationArgumentSelectionList : ScriptableEntity
 {
     [SerializeField] private BaseSelection[] supporedSelections;
     [SerializeField, UseMemberValueAsLabel(nameof(FollowSelectionSequence.CardType))]
@@ -17,7 +17,7 @@ public class SimulationArgumentSelectionController : ScriptableEntity
     private ISelection _currentSelection;
     private bool _firstSelection;
 
-    public event Action<SimulationArgumentSelectionController> OnArgumentsSelectionResult;
+    public event Action<SimulationArgumentSelectionList> OnArgumentsSelectionResult;
     public IEnumerable<ISelection> SupportedSelections => supporedSelections;
 
     public void AddArgument(SimulationArgumentType type, int selectedValue)

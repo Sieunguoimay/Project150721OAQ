@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7afe7b30f0e34bc4e821c6c94e7c5474, type: 3}
-  m_Name: SimulationController
+  m_Script: {fileID: 11500000, guid: 3a189bb168d8d90478a09ea08c2f3d72, type: 3}
+  m_Name: DefaultObject
   m_EditorClassIdentifier: 
-  children:
-  - {fileID: 11400000, guid: 1e04be8dfbb8c284484c910d2a21b510, type: 2}
-  selectionController: {fileID: 11400000, guid: 1e04be8dfbb8c284484c910d2a21b510, type: 2}
+  m_AddressableAssetSettingsGuid: 5ea6f97c4abb073468493c65157826ac
