@@ -29,7 +29,11 @@ public abstract class BaseSelection : ScriptableEntity, ISelection
     public event Action<ISelection> OnSelectingChanged;
 
     public abstract object GetOptionDataByIndex(int selectedIndex);
-
+    protected override void OnSetupDependencies()
+    {
+        base.OnSetupDependencies();
+        _isSelecting = false;
+    }
     public void StartSelection(SimulationArgumentSelectionList selectionController)
     {
         SetSelecting(true);

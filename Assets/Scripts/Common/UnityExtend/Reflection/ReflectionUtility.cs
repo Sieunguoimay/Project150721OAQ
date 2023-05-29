@@ -273,5 +273,31 @@ namespace Common.UnityExtend.Reflection
                     : formattedName.Split(':').FirstOrDefault();
             }
         }
+
+        public static Type GetTypeByName(string attName)
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            return GetTypeByName(assemblies, attName);
+        }
+
+        public static Type GetTypeByName(IReadOnlyList<Assembly> assemblies, string attName)
+        {
+            Type attType = null;
+            foreach (var ass in assemblies)
+            {
+                var at = ass.GetType(attName);
+                if (at != null)
+                {
+                    attType = at;
+                    break;
+                }
+            }
+            if (attType == null)
+            {
+                Debug.LogError($"Cannot find the attribute with name {attName}");
+            }
+            return null;
+        }
+
     }
 }

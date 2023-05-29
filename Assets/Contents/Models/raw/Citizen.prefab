@@ -363,6 +363,7 @@ GameObject:
   - component: {fileID: 2209858066835283012}
   - component: {fileID: 695480551792940659}
   - component: {fileID: 2042913372378737451}
+  - component: {fileID: 1356845454972226639}
   m_Layer: 0
   m_Name: Animator
   m_TagString: Untagged
@@ -451,6 +452,96 @@ MonoBehaviour:
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0}
     m_Visible: 0
+--- !u!114 &1356845454972226639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3481222136200255158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d3b2fbb599d675459b4d4f731907ca8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cacheData:
+    controllerAsset: {fileID: 9100000, guid: b390e6abb243b6d4bb9e180d30e399e5, type: 2}
+    layers:
+    - layerName: Base Layer
+      states:
+      - name: idle
+        nameHash: -601574123
+        motion: {fileID: 7400000, guid: 9367f6daabbb64042afdf0ed5314e4e2, type: 2}
+        speed: 1
+        transitions: []
+        onStateEnter:
+          m_PersistentCalls:
+            m_Calls: []
+        onStateExit:
+          m_PersistentCalls:
+            m_Calls: []
+        isCurrent: 0
+      - name: sit_down
+        nameHash: 1318590662
+        motion: {fileID: 7400000, guid: 7513a6163382ad84999b81742fcb2977, type: 2}
+        speed: 1
+        transitions:
+        - destinationState: sitting
+        onStateEnter:
+          m_PersistentCalls:
+            m_Calls: []
+        onStateExit:
+          m_PersistentCalls:
+            m_Calls: []
+        isCurrent: 0
+      - name: stand_up
+        nameHash: 1805213095
+        motion: {fileID: 7400000, guid: 7513a6163382ad84999b81742fcb2977, type: 2}
+        speed: -1
+        transitions: []
+        onStateEnter:
+          m_PersistentCalls:
+            m_Calls: []
+        onStateExit:
+          m_PersistentCalls:
+            m_Calls: []
+        isCurrent: 0
+      - name: jump_interval
+        nameHash: 993520828
+        motion: {fileID: 7400000, guid: 7551d47d093909147a72da9027a9dc38, type: 2}
+        speed: 1
+        transitions: []
+        onStateEnter:
+          m_PersistentCalls:
+            m_Calls: []
+        onStateExit:
+          m_PersistentCalls:
+            m_Calls: []
+        isCurrent: 0
+      - name: land
+        nameHash: -1476340264
+        motion: {fileID: 7400000, guid: 3f43307c290046f48b253c12dbfa78f2, type: 2}
+        speed: 1
+        transitions: []
+        onStateEnter:
+          m_PersistentCalls:
+            m_Calls: []
+        onStateExit:
+          m_PersistentCalls:
+            m_Calls: []
+        isCurrent: 0
+      - name: sitting
+        nameHash: -390694685
+        motion: {fileID: 0}
+        speed: 1
+        transitions: []
+        onStateEnter:
+          m_PersistentCalls:
+            m_Calls: []
+        onStateExit:
+          m_PersistentCalls:
+            m_Calls: []
+        isCurrent: 0
 --- !u!1 &3804107264244022917
 GameObject:
   m_ObjectHideFlags: 0
@@ -562,14 +653,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdd932c911368994990ebdb44cf82a66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: {x: 0.15, y: 0.3, z: 0.15}
-  animatorListener: {fileID: 695480551792940659}
-  jumpTimeline: {fileID: 5262788228897660633}
-  flockingConfigData:
-    maxSpeed: 3
-    maxAcceleration: 10
-    arriveDistance: 1
-    spacing: 0.3
   animator: {fileID: 749143441569234613}
 --- !u!114 &749143441569234613
 MonoBehaviour:

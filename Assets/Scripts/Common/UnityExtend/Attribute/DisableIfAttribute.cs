@@ -10,11 +10,14 @@ namespace Sieunguoimay.Attribute
         public readonly string PropertyName;
         public readonly bool Value;
 
-        public DisableIfAttribute(string propertyName,bool value)
+        public DisableIfAttribute(string propertyName, bool value)
         {
             PropertyName = propertyName;
             Value = value;
         }
+    }
+    public class DisableAttribute : PropertyAttribute
+    {
     }
 #if UNITY_EDITOR
 
@@ -44,7 +47,7 @@ namespace Sieunguoimay.Attribute
             EditorGUI.BeginProperty(position, label, property);
             var ge = GUI.enabled;
             GUI.enabled = !_shouldDisable;
-            EditorGUI.PropertyField(position, property, label,true);
+            EditorGUI.PropertyField(position, property, label, true);
             GUI.enabled = ge;
             EditorGUI.EndProperty();
         }
@@ -53,6 +56,23 @@ namespace Sieunguoimay.Attribute
             return EditorGUI.GetPropertyHeight(property);
         }
 
+    }
+    [CustomPropertyDrawer(typeof(DisableAttribute))]
+    public class DisableAttributeDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            EditorGUI.BeginProperty(position, label, property);
+            var ge = GUI.enabled;
+            GUI.enabled = false;
+            EditorGUI.PropertyField(position, property, label, true);
+            GUI.enabled = ge;
+            EditorGUI.EndProperty();
+        }
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return EditorGUI.GetPropertyHeight(property);
+        }
     }
 #endif
 }

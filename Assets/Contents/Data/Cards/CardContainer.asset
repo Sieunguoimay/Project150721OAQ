@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CardType: 2
   cardName: Gone with The Wind
-  icon: {fileID: 21300000, guid: 24b9a5de46219704db9d4197ae96de8d, type: 3}
   iconSelector:
-    assetPath: Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png[ico_two_arrows_concurrent]
-    editorAsset: {fileID: 21300000, guid: 8e05dc181271e454eae783942c3993ee, type: 3}
+    assetPath: 
+    directAsset: {fileID: 21300000, guid: a67b58d6cddcd4345b1e001340de5a76, type: 3}
+    addressabled: 0
+    editorAsset: {fileID: 21300000, guid: a67b58d6cddcd4345b1e001340de5a76, type: 3}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48,9 +49,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CardType: 1
   cardName: Concurrent
-  icon: {fileID: 21300000, guid: 24b9a5de46219704db9d4197ae96de8d, type: 3}
   iconSelector:
     assetPath: Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png[ico_two_arrows_concurrent]
+    directAsset: {fileID: 0}
+    addressabled: 1
     editorAsset: {fileID: 21300000, guid: 8e05dc181271e454eae783942c3993ee, type: 3}
 --- !u!114 &3176090362060156598
 MonoBehaviour:
@@ -66,7 +68,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CardType: 3
   cardName: Future Foreseen
-  icon: {fileID: 21300000, guid: 24b9a5de46219704db9d4197ae96de8d, type: 3}
   iconSelector:
     assetPath: Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png[ico_two_arrows_concurrent]
+    directAsset: {fileID: 0}
+    addressabled: 1
     editorAsset: {fileID: 21300000, guid: 8e05dc181271e454eae783942c3993ee, type: 3}

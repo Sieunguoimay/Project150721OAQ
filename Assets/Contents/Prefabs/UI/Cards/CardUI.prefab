@@ -170,7 +170,7 @@ MonoBehaviour:
     - eventName: OnSelectedChanged(Card)
       use: 1
     - eventName: ThisEnabled()
-      use: 1
+      use: 0
     - eventName: ThisDisabled()
       use: 0
   items:

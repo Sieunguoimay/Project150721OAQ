@@ -20,9 +20,15 @@ namespace Framework.DependencyInversion
         protected override void OnBind(IBinder binder)
         {
             base.OnBind(binder);
-            _container.DependencyInversionUnitChildren.AddRange(SerializedChildren.Select(sc => sc as IDependencyInversion));
-            _container.OnBind(binder);
-            Children = _container.DependencyInversionUnitChildren.OfType<IHierarchyNode>().ToArray();
+            try
+            {
+                _container.DependencyInversionUnitChildren.AddRange(SerializedChildren.Select(sc => sc as IDependencyInversion));
+                _container.OnBind(binder);
+                Children = _container.DependencyInversionUnitChildren.OfType<IHierarchyNode>().ToArray();
+            }catch (Exception)
+            {
+                Debug.Log("Err");
+            }
         }
 
         protected override void OnUnbind(IBinder binder)

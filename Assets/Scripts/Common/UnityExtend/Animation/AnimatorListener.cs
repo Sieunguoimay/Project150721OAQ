@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Common.Animation
 {
-    public sealed class AnimatorListener : MonoBehaviour
+    public sealed class AnimatorListener : MonoBehaviour, IAnimationStateEventHandler
     {
         public event Action<AnimatorStateInfo, int> StateEnter;
         public event Action<AnimatorStateInfo, int> StateExit;

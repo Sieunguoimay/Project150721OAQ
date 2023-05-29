@@ -1,4 +1,6 @@
 using Common;
+using Common.UnityExtend.Reflection;
+using Common.UnityExtend.Serialization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,7 +27,6 @@ public class AddressablesManager : ScriptableObject
     }
 
     public Dictionary<string, AsyncOperationHandle<UnityEngine.Object>> _operationDictionary;
-    //private readonly Dictionary<string, UnityEngine.Object> _cachedAssets = new();
     private AsyncOperationHandle<IList<UnityEngine.Object>> _handler;
     private PathGroup _currentPathGroup;
     private Action _onDone;
@@ -95,14 +96,43 @@ public class AddressablesManager : ScriptableObject
     }
 
 #if UNITY_EDITOR
+    [ContextMenu(nameof(ForceUpdateAssetSelector))]
+    public void ForceUpdateAssetSelector() => ForceUpdateAssetSelectors();
+
+    [ContextMenu(nameof(CacheAddressableAddressAndUpdateAssetSelector))]
+    public void CacheAddressableAddressAndUpdateAssetSelector()
+    {
+        CachePathsFromAddressables();
+        ForceUpdateAssetSelector();
+    }
+
+    [MenuItem("Tools/Addressables/ForceUpdateAssetSelectors")]
+    public static void ForceUpdateAssetSelectors()
+    {
+        var type = typeof(AssetSelector);
+        SerializeUtility.TraverseAllUnityScriptableAssets((o) =>
+        {
+            EditorUtility.DisplayProgressBar("ForceUpdateAssetSelectors", $"{o.name}", 0f);
+            var modified = false;
+            foreach (var f in o.GetType().GetFields(ReflectionUtility.FieldFlags).Where(f => f.FieldType.Equals(type)))
+            {
+                Debug.Log($"{f.Name} {o.name} {AssetDatabase.GetAssetPath(o)}");
+                (f.GetValue(o) as AssetSelector)?.UpdateSerialize();
+                modified = true;
+            }
+            return modified;
+        });
+        EditorUtility.ClearProgressBar();
+    }
+
     [ContextMenu(nameof(ForceRelease))]
     public void ForceRelease()
     {
         ReleaseCurrentGroup();
     }
 
-    [ContextMenu(nameof(CachePathGroupsFromAddressables))]
-    public void CachePathGroupsFromAddressables()
+    [ContextMenu(nameof(CachePathsFromAddressables))]
+    public void CachePathsFromAddressables()
     {
         var setting = AddressableAssetSettingsDefaultObject.Settings;
         var addressableGroups = setting.groups;
@@ -115,7 +145,6 @@ public class AddressablesManager : ScriptableObject
                 assetPaths = TraverseAddressableEntries(addressableGroups[i]).Select(e => e.address).ToArray()
             };
         }
-        var locators = Addressables.ResourceLocators;
     }
 
     public static AddressableAssetEntry GetAddressableEntryForAsset(UnityEngine.Object asset)
@@ -156,7 +185,7 @@ public class AddressablesManager : ScriptableObject
 
     private static IEnumerable<AddressableAssetEntry> TraverseAddressableSubEntries(AddressableAssetEntry entry)
     {
-        foreach(var e in GetSubAssets(entry))
+        foreach (var e in GetSubAssets(entry))
         {
             yield return e;
         }
@@ -183,6 +212,5 @@ public class AddressablesManager : ScriptableObject
             yield return e;
         }
     }
-
 #endif
 }

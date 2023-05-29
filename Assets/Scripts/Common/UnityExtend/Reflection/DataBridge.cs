@@ -77,7 +77,13 @@ namespace Common.UnityExtend.Reflection
 
             public void Transfer(object sourceObject)
             {
-                SetupReflection(sourceObject);
+                try
+                {
+                    SetupReflection(sourceObject);
+                }catch(Exception e)
+                {
+                    Debug.LogError($"{e.Message}. {sourceObject.GetType()}");
+                }
 
                 _targetMethodInfo.Invoke(targetObject.Executor.CachedRuntimeObject, _numMethodParameters == 1
                     ? new[] {Format(_sourcePathExecutor.ExecutePath())}

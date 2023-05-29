@@ -24,13 +24,16 @@ namespace Gameplay.Cards
         public void PopulateCardList()
         {
             var cards = cardContainer.Cards;
+            cardPrefab.gameObject.SetActive(false);
             foreach (var card in cards)
             {
                 var cardObject = Instantiate(cardPrefab, cardListParent);
                 var cardUI = cardObject.GetComponent<CardUI>();
                 cardUI.SetCard(card);
                 _cardUis.Add(cardUI);
+                cardObject.gameObject.SetActive(true);
             }
+            cardPrefab.gameObject.SetActive(true);
         }
 
         public void TearDownCardList()

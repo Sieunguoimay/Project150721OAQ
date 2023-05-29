@@ -1,22 +1,43 @@
 using System;
-using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.AddressableAssets;
 #endif
 using UnityEngine;
+using UnityEngine.Rendering;
 
 [Serializable]
 public class AssetSelector
 {
     [SerializeField] private string assetPath;
+    [SerializeField] private UnityEngine.Object directAsset;
+    [SerializeField] private bool addressabled;
+
 #if UNITY_EDITOR
     [SerializeField] private UnityEngine.Object editorAsset;
+
+    public void UpdateSerialize()
+    {
+        var found = AddressablesManager.GetAddressableEntryForAsset(editorAsset);
+        if (found != null)
+        {
+            addressabled = true;
+            assetPath = found.address;
+            directAsset = null;
+        }
+        else
+        {
+            addressabled = false;
+            assetPath = "";
+            directAsset = editorAsset;
+        }
+    }
 #endif
     public TObject GetAsset<TObject>() where TObject : UnityEngine.Object
     {
-        var asset = AddressablesManager.Instance.GetRuntimeAssetByAddress(assetPath);
-        if (asset is TObject a)
+        if (!Application.isPlaying) return editorAsset as TObject;
+
+        var runtimeAsset = addressabled ? AddressablesManager.Instance.GetRuntimeAssetByAddress(assetPath) : directAsset;
+        if (runtimeAsset is TObject a)
             return a;
         Debug.LogError($"Cannot cast asset to {typeof(TObject)}");
         return null;
@@ -30,10 +51,8 @@ public class AssetSelectorPropertyDrawer : PropertyDrawer
 {
     private bool _valid;
     private bool _firstFrame = true;
-    private GUIContent _label;
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
-        _label = label;
         var assetPath = property.FindPropertyRelative("assetPath");
         var editorAsset = property.FindPropertyRelative("editorAsset");
         if (_firstFrame)

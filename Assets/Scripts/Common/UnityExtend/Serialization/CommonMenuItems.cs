@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 namespace Common.UnityExtend.Serialization
 {
-    public static class MenuItemExtend
+    public static class CommonMenuItems
     {
         private const string LauncherScene = "Assets/Scenes/Launcher.unity";
         

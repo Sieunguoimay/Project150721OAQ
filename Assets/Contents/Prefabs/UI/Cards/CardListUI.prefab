@@ -67,9 +67,9 @@ MonoBehaviour:
   items:
   - sourceObjectMethodName: 'IsSelecting: Boolean'
     targetObject:
-      sourceObject: {fileID: 281647043734841020}
+      sourceObject: {fileID: 6546741076374385417}
       path: 
-    targetMethodName: 'SetSelectable(Boolean): Void'
+    targetMethodName: 'SetActive(Boolean): Void'
     formatType: 0
 --- !u!1 &5745329036370778829
 GameObject:

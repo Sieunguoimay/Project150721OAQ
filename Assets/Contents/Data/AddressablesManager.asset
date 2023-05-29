@@ -65,3 +65,21 @@ MonoBehaviour:
     assetPaths:
     - Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png
     - Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png[ico_two_arrows_concurrent]
+    - Assets/Contents/Data/Cards/CardContainer.asset
+    - Assets/Contents/Data/Cards/CardContainer.asset[Card_Concurrent]
+    - Assets/Contents/Data/Cards/CardContainer.asset[Card_FutureForeseen]
+    - Assets/Contents/Data/Cards/CardContainer.asset[Card_GoneWithTheWind]
+    - Assets/Contents/Data/simulation
+    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset
+    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[CardSelection]
+    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[DirectionSelection]
+    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[TileSelection]
+    - Assets/Contents/Data/simulation/SimulationSelectionAdapter.asset
+    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset
+    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[CardSelection]
+    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[DirectionSelection]
+    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[TileSelection]
+    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[CardSelection]
+    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[DirectionSelection]
+    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[TileSelection]
+    - Assets/Contents/Data/simulation/SimulationSelectionAdapter.asset
