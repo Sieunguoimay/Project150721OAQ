@@ -268,7 +268,7 @@ namespace Common.UnityExtend.Serialization.Tools
             var selected = Selection.activeObject;
             var assetPath = AssetDatabase.GetAssetPath(selected);
             var type = monoScript.GetClass();
-            ChildAssetManagerWindow.CreateAssetOfType(type, CreateAssetName(type), assetPath);
+            ChildAssetManagerWindow.CreateObject(type, CreateAssetName(type), assetPath);
         }
 
         private static string CreateAssetName(MemberInfo type)

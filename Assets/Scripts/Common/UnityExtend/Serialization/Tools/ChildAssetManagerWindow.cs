@@ -18,6 +18,7 @@ namespace Common.UnityExtend.Serialization.Tools
         private Object _editObject;
         private string _name;
         private bool _showEditForAll;
+        private Vector2 _scrollPosition;
 
         [MenuItem("Tools/Child Assets")]
         public static void Open()
@@ -58,14 +59,14 @@ namespace Common.UnityExtend.Serialization.Tools
                 _currentTarget = target;
 
                 var allAssets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(_currentTarget));
-                _assets = allAssets.Where(AssetDatabase.IsSubAsset).ToArray();
-                _rootAsset = allAssets.FirstOrDefault(a => !AssetDatabase.IsSubAsset(a));
+                _assets = allAssets.Where(a => !AssetDatabase.IsMainAsset(a)).ToArray();
+                _rootAsset = allAssets.FirstOrDefault(a => AssetDatabase.IsMainAsset(a));
                 if (_rootAsset != _currentTarget)
                 {
                     _editObject = _currentTarget;
                 }
             }
-
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
             EditorGUILayout.BeginHorizontal();
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.ObjectField(_rootAsset, typeof(Object), false);
@@ -92,8 +93,8 @@ namespace Common.UnityExtend.Serialization.Tools
                 _renameObject = newAsset;
                 GUI.FocusControl(null);
             });
-            
-            if (GUILayout.Button(new GUIContent("...","Open ScriptableObject window"), GUILayout.Width(20)))
+
+            if (GUILayout.Button(new GUIContent("...", "Open ScriptableObject window"), GUILayout.Width(20)))
             {
                 ScriptableObjectCreatorWindow.Open();
             }
@@ -113,6 +114,7 @@ namespace Common.UnityExtend.Serialization.Tools
             {
                 _multiTargetDuplicateActive = false;
             }
+            EditorGUILayout.EndScrollView();
         }
 
         private void DrawSubAssets()
@@ -127,7 +129,7 @@ namespace Common.UnityExtend.Serialization.Tools
                 {
                     GUI.skin.button.alignment = TextAnchor.MiddleLeft;
 
-                    if (GUILayout.Button(EditorGUIUtility.ObjectContent(asset,typeof(Object)),EditorStyles.objectField, GUILayout.Height(18)))
+                    if (GUILayout.Button(EditorGUIUtility.ObjectContent(asset, typeof(Object)), EditorStyles.objectField, GUILayout.Height(18)))
                     {
                         EditorGUIUtility.PingObject(asset);
                         Selection.activeObject = asset;
@@ -309,7 +311,7 @@ namespace Common.UnityExtend.Serialization.Tools
         {
             if (!_pulling)
             {
-                if (GUILayout.Button(new GUIContent("->", "To SubAsset"),GUILayout.Width(25)))
+                if (GUILayout.Button(new GUIContent("->", "To SubAsset"), GUILayout.Width(25)))
                 {
                     _pulling = true;
                 }
@@ -338,7 +340,7 @@ namespace Common.UnityExtend.Serialization.Tools
             {
                 menu.AddItem(new GUIContent(t.Name), false, () =>
                 {
-                    var newAsset = CreateAssetOfType(t, t.Name, path);
+                    var newAsset = CreateObject(t, t.Name, path);
                     Debug.Log($"{t.Name}", newAsset);
                     created?.Invoke(newAsset);
                 });
@@ -351,7 +353,7 @@ namespace Common.UnityExtend.Serialization.Tools
 
         private static void DuplicateChildAsset(Object asset, Object[] assets)
         {
-            var newAsset = CreateAssetOfType(asset.GetType(), "", AssetDatabase.GetAssetPath(asset));
+            var newAsset = CloneObject(asset, "", AssetDatabase.GetAssetPath(asset));
             EditorUtility.CopySerialized(asset, newAsset);
             var n = $"{asset.name}";
             var count = 0;
@@ -384,7 +386,7 @@ namespace Common.UnityExtend.Serialization.Tools
             }
 
             // AssetDatabase.RemoveObjectFromAsset(_editObject);
-            var newAsset = CreateInstance(childAsset.GetType());
+            var newAsset = UnityEngine.Object.Instantiate(childAsset);
             EditorUtility.CopySerialized(childAsset, newAsset);
             AssetDatabase.CreateAsset(newAsset, path);
             AssetDatabase.SaveAssets();
@@ -396,7 +398,7 @@ namespace Common.UnityExtend.Serialization.Tools
             if (freeAsset == null) return;
             if (!AssetDatabase.IsSubAsset(parent))
             {
-                var child = CreateAssetOfType(freeAsset.GetType(), freeAsset.name, AssetDatabase.GetAssetPath(parent));
+                var child = CloneObject(freeAsset, freeAsset.name, AssetDatabase.GetAssetPath(parent));
                 EditorUtility.CopySerialized(freeAsset, child);
                 // AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(freeAsset));
                 AssetDatabase.SaveAssets();
@@ -417,13 +419,36 @@ namespace Common.UnityExtend.Serialization.Tools
         }
 
 
-        public static Object CreateAssetOfType(Type type, string assetName, string path)
+        public static Object CloneObject(Object type, string assetName, string path)
         {
             if (string.IsNullOrEmpty(path))
             {
                 path = "Assets";
             }
-            
+
+            var instance = UnityEngine.Object.Instantiate(type);
+            instance.name = assetName;
+            if (AssetDatabase.IsValidFolder(path))
+            {
+                AssetDatabase.CreateAsset(instance, Path.Combine(path, assetName + ".asset"));
+            }
+            else
+            {
+                AssetDatabase.AddObjectToAsset(instance, path);
+            }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            return instance;
+        }
+
+        public static Object CreateObject(Type type, string assetName, string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                path = "Assets";
+            }
+
             var instance = CreateInstance(type);
             instance.name = assetName;
             if (AssetDatabase.IsValidFolder(path))

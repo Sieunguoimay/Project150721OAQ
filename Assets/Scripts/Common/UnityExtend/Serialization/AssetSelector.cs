@@ -2,7 +2,7 @@ using Common.UnityExtend.Attribute;
 using Common.UnityExtend.Reflection;
 using Common.UnityExtend.Serialization;
 using System;
-using System.Reflection;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -63,7 +63,7 @@ public class AssetSelectorPropertyDrawer : PropertyDrawer
     private SerializedProperty directAsset;
     private SerializedProperty addressabled;
 
-    private AssetSelector.AssetTypeAttribute assetTypeAttribute;
+    private AssetSelector.AssetTypeAttribute _assetTypeAttribute;
 
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
@@ -82,18 +82,17 @@ public class AssetSelectorPropertyDrawer : PropertyDrawer
         var color = GUI.color;
         GUI.color = _valid ? color : Color.red;
 
-        property.serializedObject.Update();
-
-        EditorGUI.BeginChangeCheck();
-        var content = assetTypeAttribute != null ? new GUIContent(label.text + $" ({assetTypeAttribute.type.Name})") : label;
-        EditorGUI.PropertyField(position, editorAsset, content, false);
-        if (EditorGUI.EndChangeCheck())
+        var content = _assetTypeAttribute != null ? new GUIContent(label.text + $" ({_assetTypeAttribute.type.Name})") : label;
+        var type = _assetTypeAttribute != null ? _assetTypeAttribute.type : typeof(UnityEngine.Object);
+        var obj = EditorGUI.ObjectField(position, content, editorAsset.objectReferenceValue, type, true);
+        if (obj != editorAsset.objectReferenceValue)
         {
+            property.serializedObject.Update();
+            editorAsset.objectReferenceValue = obj;
             UpdateAssetPath();
             ValidateAssetPath(property);
+            property.serializedObject.ApplyModifiedProperties();
         }
-
-        property.serializedObject.ApplyModifiedProperties();
 
         GUI.color = color;
     }
@@ -119,39 +118,35 @@ public class AssetSelectorPropertyDrawer : PropertyDrawer
     }
     private void ValidateAssetPath(SerializedProperty property)
     {
-        assetTypeAttribute ??= TryGetAttribute(property);
-
-        var path = assetPath.stringValue;
-        if (!string.IsNullOrEmpty(path))
-        {
-            _valid = ValidateAddressable(path) && IsValid(property);
-        }
+        var validType = IsTypeValid(property);
+        var addressabled = ValidateAddressable(assetPath.stringValue);
+        _valid = addressabled && validType;
     }
     private bool ValidateAddressable(string path)
     {
         return !string.IsNullOrEmpty(path) && AddressablesManager.GetAddressableEntryForAddress(path) != null;
     }
 
-    private bool IsValid(SerializedProperty property)
+    private bool IsTypeValid(SerializedProperty property)
     {
-        if (assetTypeAttribute == null) return true;
+        _assetTypeAttribute ??= TryGetAttribute<AssetSelector.AssetTypeAttribute>(property);
+
+        if (_assetTypeAttribute == null) return true;
 
         var type = editorAsset.objectReferenceValue.GetType();
 
-        if (assetTypeAttribute.type.IsAssignableFrom(type))
+        if (_assetTypeAttribute.type.IsAssignableFrom(type))
         {
             return true;
         }
         return false;
     }
-    private AssetSelector.AssetTypeAttribute TryGetAttribute(SerializedProperty property)
+    private TAttribute TryGetAttribute<TAttribute>(SerializedProperty property) where TAttribute : Attribute
     {
-        var editorAsset = property.FindPropertyRelative("editorAsset");
-        if (editorAsset.objectReferenceValue == null) return null;
         var obj = SerializeUtility.GetObjectToWhichPropertyBelong(property);
         var member = obj.GetType().GetField(property.name, ReflectionUtility.FieldFlags);
-        var attr = member.GetCustomAttribute(typeof(AssetSelector.AssetTypeAttribute), false);
-        if (attr is AssetSelector.AssetTypeAttribute assetType)
+        var attr = member.GetCustomAttributes(typeof(AssetSelector.AssetTypeAttribute), false).FirstOrDefault();
+        if (attr is TAttribute assetType)
         {
             return assetType;
         }
