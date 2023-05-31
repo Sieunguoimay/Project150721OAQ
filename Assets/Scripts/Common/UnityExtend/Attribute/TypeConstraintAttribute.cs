@@ -78,22 +78,45 @@ namespace Common.UnityExtend.Attribute
             position.x += width + 2;
             position.width = 25;
             Menu(position, property,
-                go => typeConstraint.RequiredTypes
-                    .SelectMany(i => go.GetComponentsInChildren(i, true).Select(c => c as UnityEngine.Object))
-                    .Distinct()
-                    .ToArray(), true);
+                go =>
+                {
+                    if ((go is GameObject || go is Component) && !AssetDatabase.IsMainAsset(go))
+                    {
+                        if (go is GameObject g)
+                        {
+                            var assets = g.GetComponentsInChildren<Component>();
+                            return assets.Where(ass => typeConstraint.RequiredTypes.Any(rt => ass.GetType().IsAssignableFrom(rt))).ToArray();
+                        }
+                        else
+                        if (go is Component c)
+                        {
+                            var assets = c.gameObject.GetComponentsInChildren<Component>();
+                            return assets.Where(ass => typeConstraint.RequiredTypes.Any(rt => ass.GetType().IsAssignableFrom(rt))).ToArray();
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        var path = AssetDatabase.GetAssetPath(go);
+                        var assets = AssetDatabase.LoadAllAssetsAtPath(path);
+                        return assets.Where(ass => typeConstraint.RequiredTypes.Any(rt => ass.GetType().IsAssignableFrom(rt))).ToArray();
+                    }
+                }, true);
         }
 
-        public static void Menu(Rect rect, SerializedProperty property, Func<GameObject, UnityEngine.Object[]> filter,
+        public static void Menu(Rect rect, SerializedProperty property, Func<UnityEngine.Object, UnityEngine.Object[]> filter,
             bool showIndex)
         {
-            var value = property.objectReferenceValue
+            var unityObject = property.objectReferenceValue
                 ? property.objectReferenceValue
                 : property.serializedObject.targetObject;
 
-            var go = value as GameObject ?? (value as Component)?.gameObject;
+            //var go = value as GameObject ?? (value as Component)?.gameObject;
 
-            if (go != null)
+            if (unityObject != null)
             {
                 var prevGuiColor = GUI.color;
                 GUI.color = Color.cyan;
@@ -105,7 +128,7 @@ namespace Common.UnityExtend.Attribute
                     return;
                 }
 
-                var candidates = filter.Invoke(go);
+                var candidates = filter.Invoke(unityObject);
                 var menu = new GenericMenu();
                 for (var i = 0; i < candidates.Length; i++)
                 {
@@ -113,7 +136,7 @@ namespace Common.UnityExtend.Attribute
                     var text = showIndex
                         ? $"{c.GetType().Name} {(candidates.Length > 1 ? i + 1 : "")}"
                         : c.GetType().Name;
-                    menu.AddItem(new GUIContent(text), value == c, () =>
+                    menu.AddItem(new GUIContent(text), unityObject == c, () =>
                     {
                         property.objectReferenceValue = c;
                         property.serializedObject.ApplyModifiedProperties();

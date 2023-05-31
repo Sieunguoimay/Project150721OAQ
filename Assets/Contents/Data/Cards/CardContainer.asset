@@ -15,10 +15,10 @@ MonoBehaviour:
   CardType: 2
   cardName: Gone with The Wind
   iconSelector:
-    assetPath: 
-    directAsset: {fileID: 21300000, guid: a67b58d6cddcd4345b1e001340de5a76, type: 3}
-    addressabled: 0
-    editorAsset: {fileID: 21300000, guid: a67b58d6cddcd4345b1e001340de5a76, type: 3}
+    assetPath: Assets/Contents/Textures/Cards/ico_gone_with_the_wind.png[ico_gone_with_the_wind]
+    directAsset: {fileID: 0}
+    addressabled: 1
+    editorAsset: {fileID: 21300000, guid: c2fe4f8b038947049abbdbd7a6c0a900, type: 3}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69,7 +69,7 @@ MonoBehaviour:
   CardType: 3
   cardName: Future Foreseen
   iconSelector:
-    assetPath: Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png[ico_two_arrows_concurrent]
+    assetPath: Assets/Contents/Textures/Cards/ico_future_foreseen.png[ico_future_foreseen]
     directAsset: {fileID: 0}
     addressabled: 1
-    editorAsset: {fileID: 21300000, guid: 8e05dc181271e454eae783942c3993ee, type: 3}
+    editorAsset: {fileID: 21300000, guid: 2f6dd6e5040a81347beb72b437f651d8, type: 3}

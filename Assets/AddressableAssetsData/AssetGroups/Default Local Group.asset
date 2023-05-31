@@ -21,6 +21,14 @@ MonoBehaviour:
     m_Address: Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 2f6dd6e5040a81347beb72b437f651d8
+    m_Address: Assets/Contents/Textures/Cards/ico_future_foreseen.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c2fe4f8b038947049abbdbd7a6c0a900
+    m_Address: Assets/Contents/Textures/Cards/ico_gone_with_the_wind.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 5ea6f97c4abb073468493c65157826ac, type: 2}
   m_SchemaSet:

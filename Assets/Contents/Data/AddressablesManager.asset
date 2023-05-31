@@ -41,23 +41,6 @@ MonoBehaviour:
     - Shaders/TMP_Sprite
     - Sprite Assets/EmojiOne
     - Style Sheets/Default Style Sheet
-    - Cursors/cutCursor-add
-    - Cursors/cutCursor
-    - Materials/Collider
-    - Materials/EdgePicker
-    - Materials/EdgePickerHDRP
-    - Materials/FacePicker
-    - Materials/FacePickerHDRP
-    - Materials/InvisibleFace
-    - Materials/NoDraw
-    - Materials/ProBuilderDefault
-    - Materials/StandardVertexColorHDRP
-    - Materials/StandardVertexColorLWRP
-    - Materials/Trigger
-    - Materials/UnlitVertexColor
-    - Materials/VertexPicker
-    - Materials/VertexPickerHDRP
-    - Textures/GridBox_Default
     - EditorSceneList
     - Launcher
     - GameScene
@@ -65,21 +48,7 @@ MonoBehaviour:
     assetPaths:
     - Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png
     - Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png[ico_two_arrows_concurrent]
-    - Assets/Contents/Data/Cards/CardContainer.asset
-    - Assets/Contents/Data/Cards/CardContainer.asset[Card_Concurrent]
-    - Assets/Contents/Data/Cards/CardContainer.asset[Card_FutureForeseen]
-    - Assets/Contents/Data/Cards/CardContainer.asset[Card_GoneWithTheWind]
-    - Assets/Contents/Data/simulation
-    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset
-    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[CardSelection]
-    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[DirectionSelection]
-    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[TileSelection]
-    - Assets/Contents/Data/simulation/SimulationSelectionAdapter.asset
-    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset
-    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[CardSelection]
-    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[DirectionSelection]
-    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[TileSelection]
-    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[CardSelection]
-    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[DirectionSelection]
-    - Assets/Contents/Data/simulation/SimulationArgumentSelectionList.asset[TileSelection]
-    - Assets/Contents/Data/simulation/SimulationSelectionAdapter.asset
+    - Assets/Contents/Textures/Cards/ico_future_foreseen.png
+    - Assets/Contents/Textures/Cards/ico_future_foreseen.png[ico_future_foreseen]
+    - Assets/Contents/Textures/Cards/ico_gone_with_the_wind.png
+    - Assets/Contents/Textures/Cards/ico_gone_with_the_wind.png[ico_gone_with_the_wind]

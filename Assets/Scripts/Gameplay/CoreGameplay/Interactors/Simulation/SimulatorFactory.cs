@@ -36,7 +36,8 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
         public void CreateAllBoardSimulators()
         {
             var moveMakerFactory = new MoveMakerFactory(_boardEntityAccess);
-            _boardMoveSimulator = new BoardMoveSimulator(_simulationResultHandler, moveMakerFactory.CreateMoveMaker());
+            _boardMoveSimulator =
+                new BoardMoveSimulator(_simulationResultHandler, moveMakerFactory.CreateMoveMaker());
             _goneWithTheWindSimulator =
                 new BoardMoveSimulator(_simulationResultHandler, moveMakerFactory.CreateMoveMaker());
             _concurrentBoardMoveSimulator =

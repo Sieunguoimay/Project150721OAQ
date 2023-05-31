@@ -73,9 +73,11 @@ namespace Common.UnityExtend.Serialization
 
             static bool TraverseRootGameObject(GameObject go, Func<UnityEngine.Object, bool> onTraverse)
             {
+                if (go == null) return false;
                 var modified = false;
                 foreach (var mb in go.GetComponentsInChildren<MonoBehaviour>())
                 {
+                    if (mb == null) continue;
                     modified |= onTraverse?.Invoke(mb) ?? false;
                 }
                 return modified;
@@ -98,6 +100,7 @@ namespace Common.UnityExtend.Serialization
 
             static bool TraverseRootGameObject(GameObject go, Func<UnityEngine.Object, bool> onTraverse)
             {
+                if (go == null) return false;
                 var modified = false;
                 foreach (var tr in go.GetComponentsInChildren<Transform>())
                 {
@@ -166,6 +169,7 @@ namespace Common.UnityExtend.Serialization
                 {
                     PrefabUtility.SavePrefabAsset(prefab);
                 }
+
                 traversedPrefabs.Add(prefabPath);
             }
         }
