@@ -11,7 +11,7 @@ namespace Common.Animation
 {
     public class AnimatorEventFilter : MonoBehaviour
     {
-        [SerializeField] private AnimatorListener animatorListener;
+        [SerializeField] private AnimatorStateEventListener animatorListener;
 #if UNITY_EDITOR
         [StringSelector(nameof(StateNames))]
 #endif

@@ -26,7 +26,7 @@ namespace Common.UnityExtend.Reflection
         [SerializeField] private bool useSameTypeSourceObjects;
 
         [SerializeField, ComponentSelector] private Object[] sameTypeSourceObjects;
-        private IEnumerable<Object> SameTypeSourceObjects => useSameTypeSourceObjects ? sameTypeSourceObjects.Concat(new[] {sourceObject}) : new[] {sourceObject};
+        private IEnumerable<Object> SameTypeSourceObjects => useSameTypeSourceObjects ? sameTypeSourceObjects.Concat(new[] { sourceObject }) : new[] { sourceObject };
 
         private Type GetEventProviderType() => sourceObject == null
             ? null
@@ -48,7 +48,7 @@ namespace Common.UnityExtend.Reflection
 
             public void Subscribe(object obj)
             {
-                if (methodItems.Length == 0) return;
+                if (methodItems.Length == 0 || obj == null) return;
                 var evInfo = GetEventInfo(obj.GetType());
                 foreach (var item in methodItems)
                 {
@@ -61,7 +61,7 @@ namespace Common.UnityExtend.Reflection
 
             public void Unsubscribe(object obj)
             {
-                if (methodItems.Length == 0) return;
+                if (methodItems.Length == 0 || obj == null) return;
                 var evInfo = GetEventInfo(obj.GetType());
 
                 foreach (var d in _cachedRuntimeDelegates)
@@ -81,7 +81,7 @@ namespace Common.UnityExtend.Reflection
         private IEnumerable<EventInfo> GetExtraEvents()
         {
             var type = GetType();
-            return new[] {type.GetEvent(nameof(ThisEnabled)), type.GetEvent(nameof(ThisDisabled))};
+            return new[] { type.GetEvent(nameof(ThisEnabled)), type.GetEvent(nameof(ThisDisabled)) };
         }
 
         private static bool IsExtraEventItem(EventItem ei)
@@ -194,7 +194,7 @@ namespace Common.UnityExtend.Reflection
 
         private void OnEnable()
         {
-            _error = !((EventSubscription) target).ValidateEventHandlerItems();
+            _error = !((EventSubscription)target).ValidateEventHandlerItems();
 
             _sourceObject = serializedObject.FindProperty("sourceObject");
             _path = serializedObject.FindProperty("path");
@@ -208,7 +208,7 @@ namespace Common.UnityExtend.Reflection
         public override void OnInspectorGUI()
         {
             if (_sourceObject == null) return;
-            var es = (EventSubscription) target;
+            var es = (EventSubscription)target;
             GUI.enabled = false;
             EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour(es), typeof(EventSubscription), false);
             GUI.enabled = true;

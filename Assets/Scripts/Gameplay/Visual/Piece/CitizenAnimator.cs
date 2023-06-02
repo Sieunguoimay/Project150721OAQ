@@ -9,7 +9,7 @@ namespace Gameplay.Visual.Piece
 {
     public class CitizenAnimator : MonoBehaviour
     {
-        [SerializeField] private AnimatorListener animatorListener;
+        [SerializeField] private AnimatorStateEventListener animatorListener;
         [SerializeField] private PlayableDirector jumpTimeline;
 
         [SerializeField] private ActivityFlocking.ConfigData flockingConfigData = new()

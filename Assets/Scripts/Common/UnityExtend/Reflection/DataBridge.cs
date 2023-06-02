@@ -80,23 +80,25 @@ namespace Common.UnityExtend.Reflection
                 try
                 {
                     SetupReflection(sourceObject);
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     Debug.LogError($"{e.Message}. {sourceObject.GetType()}");
                 }
 
-                _targetMethodInfo.Invoke(targetObject.Executor.CachedRuntimeObject, _numMethodParameters == 1
-                    ? new[] {Format(_sourcePathExecutor.ExecutePath())}
+                _targetMethodInfo?.Invoke(targetObject.Executor.CachedRuntimeObject, _numMethodParameters == 1
+                    ? new[] { Format(_sourcePathExecutor.ExecutePath()) }
                     : Array.Empty<object>());
             }
 
             public void SetupReflection(object sourceObject)
             {
+                if (sourceObject == null) return;
                 if (_targetMethodInfo != null && _sourceMethodInfo != null) return;
                 targetObject.Setup(true);
 
                 _targetMethodInfo = ReflectionUtility.GetMethodInfo(targetObject.PathFinalType, targetMethodName, true);
-                _sourceMethodInfo = 
+                _sourceMethodInfo =
                     ReflectionUtility.GetTypeAtPath(sourceObject.GetType(), sourceObjectMethodName.Split('.'), true);
 
                 _sourcePathExecutor.Setup(sourceObjectMethodName, sourceObject, false);
@@ -131,7 +133,7 @@ namespace Common.UnityExtend.Reflection
                     FormatType.Int => input,
                     FormatType.Double => input,
                     FormatType.Bool => input,
-                    FormatType.NotBool => !(bool) input,
+                    FormatType.NotBool => !(bool)input,
                     FormatType.String => input.ToString(),
                     _ => throw new ArgumentOutOfRangeException()
                 };
@@ -201,6 +203,7 @@ namespace Common.UnityExtend.Reflection
                 var e = eventItemList.EventItems[i];
                 if (!e.use) continue;
                 var o = IsExtraEventItem(e) ? this : obj;
+                if (o == null) continue;
                 var evInfo = e.GetEventInfo(o.GetType());
 
                 var runtimeDelegate = EventHandlerItem.CreateDelegate(evInfo.EventHandlerType, MethodInfo, this);
@@ -255,7 +258,7 @@ namespace Common.UnityExtend.Reflection
         private IEnumerable<EventInfo> GetExtraEvents()
         {
             var type = GetType();
-            return new[] {type.GetEvent(nameof(ThisEnabled)), type.GetEvent(nameof(ThisDisabled))};
+            return new[] { type.GetEvent(nameof(ThisEnabled)), type.GetEvent(nameof(ThisDisabled)) };
         }
 
         private static bool IsExtraEventItem(EventItem ei)
