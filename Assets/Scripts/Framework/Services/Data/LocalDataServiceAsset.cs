@@ -12,7 +12,7 @@ namespace Framework.Services.Data
         {
             var found = Assets.FirstOrDefault(a => a.Id.Equals(id));
 
-            if (!found)
+            if (!found)  
             {
                 Debug.LogError($"Data not found {id}");
             }

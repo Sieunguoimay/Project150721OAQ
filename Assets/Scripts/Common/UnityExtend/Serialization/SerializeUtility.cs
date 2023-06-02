@@ -53,6 +53,28 @@ namespace Common.UnityExtend.Serialization
             }
 
             return obj;
+        }        
+        public static object GetPropertyValue(SerializedProperty prop)
+        {
+            var path = prop.propertyPath.Replace(".Array.data[", "[");
+            object obj = prop.serializedObject.targetObject;
+            var elements = path.Split('.');
+            foreach (var element in elements.Take(elements.Length))
+            {
+                if (element.Contains("["))
+                {
+                    var elementName = element[..element.IndexOf("[", StringComparison.Ordinal)];
+                    var index = Convert.ToInt32(element[element.IndexOf("[", StringComparison.Ordinal)..]
+                        .Replace("[", "").Replace("]", ""));
+                    obj = ReflectionUtility.GetValueOfElement(ReflectionUtility.GetDataFromMember(obj, elementName, false) as IEnumerable, index);
+                }
+                else
+                {
+                    obj = ReflectionUtility.GetDataFromMember(obj, element, false);
+                }
+            }
+
+            return obj;
         }
 
         public static void TraverseAllUnityScriptableAssets(Func<UnityEngine.Object, bool> onTraverse)
