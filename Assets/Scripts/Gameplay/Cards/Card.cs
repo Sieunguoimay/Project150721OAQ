@@ -7,7 +7,7 @@ namespace Gameplay.Cards
     {
         public CardType CardType;
         public string cardName;
-        [SerializeField, AssetSelector.AssetType(type = typeof(Sprite))]
+        [SerializeField, AssetSelector.AssetType(typeof(Sprite))]
         private AssetSelector iconSelector;
 
         [field: System.NonSerialized] public bool IsSelected { get; private set; }

@@ -12,7 +12,7 @@ namespace Common.UnityExtend.Animation
 {
     public class StringSelector : MonoBehaviour
     {
-        [SerializeField, TypeConstraint(typeof(IStringsContainerProvider))]
+        [SerializeField, TypeConstraint(false, typeof(IStringsContainerProvider))]
         private Object stringContainerProvider;
         [SerializeField, StringSelectorByLocalID(nameof(stringContainerProvider))] private int selectedLocalID;
 

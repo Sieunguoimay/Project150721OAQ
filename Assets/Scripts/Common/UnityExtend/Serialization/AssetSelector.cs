@@ -48,6 +48,10 @@ public class AssetSelector
     public class AssetTypeAttribute : PropertyAttribute
     {
         public Type type;
+        public AssetTypeAttribute(Type t)
+        {
+            type = t;
+        }
     }
 }
 

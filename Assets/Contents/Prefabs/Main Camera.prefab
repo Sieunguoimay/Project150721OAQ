@@ -93,6 +93,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  foldout: 0
 --- !u!1 &498957265630765109
 GameObject:
   m_ObjectHideFlags: 0
@@ -344,7 +345,6 @@ GameObject:
   - component: {fileID: 5625791648405982261}
   - component: {fileID: 5625791648405982266}
   - component: {fileID: 5625791648405982267}
-  - component: {fileID: 5625791648405982264}
   - component: {fileID: 5625791648405982265}
   - component: {fileID: 5625791648405982260}
   - component: {fileID: 1713003850764092556}
@@ -424,25 +424,6 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5625791648405982270}
   m_Enabled: 1
---- !u!114 &5625791648405982264
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5625791648405982270}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4120332e494d5435ab00ba24ae7b60a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cameraSettings:
-    copyColor: 1
-    copyDepth: 1
-    renderScaleMode: 0
-    renderScale: 1
-    allowFXAA: 0
-    keepAlpha: 0
 --- !u!114 &5625791648405982265
 MonoBehaviour:
   m_ObjectHideFlags: 0
