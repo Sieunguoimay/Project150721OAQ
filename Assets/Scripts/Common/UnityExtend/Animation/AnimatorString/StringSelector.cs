@@ -1,6 +1,5 @@
 using Common.UnityExtend.Attribute;
 using Common.UnityExtend.Serialization;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 #if UNITY_EDITOR
