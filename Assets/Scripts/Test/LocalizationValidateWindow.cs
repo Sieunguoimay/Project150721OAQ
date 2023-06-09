@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using Screw;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,29 +36,60 @@ public class SheetLocalizationViewerWindow : EditorWindow
     {
         GetWindow<SheetLocalizationViewerWindow>(false, "SheetLocalizationViewerWindow", true).Show();
     }
-    private readonly SheetLocalizationCSVViewer _localizeViewer = new();
+    [SerializeField] private SheetLocalizationCSVViewer _localizeViewer = new();
     private void OnGUI()
     {
         _localizeViewer.Draw();
     }
 }
+[Serializable]
 public class SheetLocalizationCSVViewer
 {
-    private string _filePath;
-    private CategoryDisplayText[] _categoryDisplayText;
+    [SerializeField] private string _filePath;
+    [SerializeField] private string[] _languages;
+    [SerializeField] private string _selectedLanguage;
+    [SerializeField] private LocaleData _localeData;
+
     private readonly LocaleTextViewer _viewer = new();
-    private string[] _languages;
-    private string _selectedLanguage;
+    private LocaleDisplayData[] _categoryDisplayText;
+
     public void Draw()
     {
         EditorGUILayout.BeginVertical();
         EditorGUILayout.BeginHorizontal();
         DrawLocalizeSheetImport();
         DrawLanguageSeletion();
+        DrawCommonMenuButton();
         EditorGUILayout.EndHorizontal();
         _viewer.DrawLocaleDisplayText(_categoryDisplayText);
         EditorGUILayout.EndVertical();
     }
+    private void DrawCommonMenuButton()
+    {
+        var moreButton = GUILayout.Button("...", GUILayout.Width(20));
+        if (moreButton)
+        {
+            var menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Open Script"), false, () =>
+            {
+                OpenScriptByType(typeof(SheetLocalizationViewerWindow));
+            });
+            menu.ShowAsContext();
+        }
+    }
+    private static void OpenScriptByType(Type type)
+    {
+        foreach (var script in AssetDatabase.FindAssets("t:Script").Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadAssetAtPath<MonoScript>))
+        {
+            if (script != null && script.GetClass() != null && script.GetClass() == type)
+            {
+                AssetDatabase.OpenAsset(script);
+                Debug.Log(script.GetClass().Name);
+                return;
+            }
+        }
+    }
+
     private void DrawLocalizeSheetImport()
     {
         if (GUILayout.Button(string.IsNullOrEmpty(_filePath) ? "Select CSV File" : _filePath))
@@ -120,18 +152,20 @@ public class SheetLocalizationCSVViewer
         if (!string.IsNullOrEmpty(language))
         {
             _selectedLanguage = language;
-            _categoryDisplayText = ParseDataToDisplayText(_filePath, language);
+            _localeData = ParseCSVToLocaleData(_filePath, language);
+            _categoryDisplayText = ParseLocaleDataToDisplayText(_localeData);
+            //_categoryDisplayText = ParseDataToDisplayText(_filePath, language);
         }
     }
 
-    private CategoryDisplayText[] ParseDataToDisplayText(string filePath, string language)
+    private LocaleDisplayData[] ParseDataToDisplayText(string filePath, string language)
     {
-        var output = new List<CategoryDisplayText>();
+        var output = new List<LocaleDisplayData>();
         if (!string.IsNullOrEmpty(filePath))
         {
             string[] lines = SplitLines(File.ReadAllText(filePath));
             var currentLanguageColumnIndex = Array.IndexOf(SplitCsvRow(lines[0]), language);
-            CategoryDisplayText category = null;
+            LocaleDisplayData category = null;
             for (var i = 1; i < lines.Length; i++)
             {
                 var line = lines[i];
@@ -144,7 +178,7 @@ public class SheetLocalizationCSVViewer
                         {
                             output.Add(category);
                         }
-                        category = new CategoryDisplayText(cells[0]);
+                        category = new LocaleDisplayData(cells[0]);
                     }
                     if (!string.IsNullOrEmpty(cells[0]) && !string.IsNullOrEmpty(cells[1]))
                     {
@@ -154,6 +188,59 @@ public class SheetLocalizationCSVViewer
             }
         }
         return output.OrderBy(c => c.title).ToArray();
+    }
+    private static LocaleDisplayData[] ParseLocaleDataToDisplayText(LocaleData localeData)
+    {
+        if (localeData == null) return null;
+        var output = new LocaleDisplayData[localeData.categories.Length];
+        for (int i = 0; i < localeData.categories.Length; i++)
+        {
+            LocaleData.Category category = localeData.categories[i];
+            var localeDisplayData = new LocaleDisplayData(category.name);
+            foreach (var tr in category.Translations)
+            {
+                localeDisplayData.AppendKeyValue(tr.key, tr.ValueText);
+            }
+            output[i] = localeDisplayData;
+        }
+        return output;
+    }
+    private LocaleData ParseCSVToLocaleData(string filePath, string language)
+    {
+        var output = new List<LocaleData.Category>();
+        if (!string.IsNullOrEmpty(filePath))
+        {
+            string[] lines = SplitLines(File.ReadAllText(filePath));
+            var currentLanguageColumnIndex = Array.IndexOf(SplitCsvRow(lines[0]), language);
+            LocaleData.Category category = null;
+            var translations = new List<LocaleData.Translation>();
+            for (var i = 1; i < lines.Length; i++)
+            {
+                var line = lines[i];
+                var cells = SplitCsvRow(line);
+                if (cells.Length >= _languages.Length + 1)
+                {
+                    if (!string.IsNullOrEmpty(cells[0]) && string.IsNullOrEmpty(cells[1]))
+                    {
+                        if (category != null)
+                        {
+                            category.Translations = translations.ToArray();
+                            output.Add(category);
+                        }
+                        category = new LocaleData.Category { name = cells[0] };
+                    }
+                    if (!string.IsNullOrEmpty(cells[0]) && !string.IsNullOrEmpty(cells[1]))
+                    {
+                        translations.Add(new LocaleData.Translation
+                        {
+                            key = Beautify(cells[0]),
+                            ValueText = Beautify(cells[currentLanguageColumnIndex])
+                        });
+                    }
+                }
+            }
+        }
+        return new LocaleData { categories = output.OrderBy(c => c.name).ToArray() };
     }
 
     static public string[] SplitLines(string str)
@@ -172,7 +259,7 @@ public class SheetLocalizationCSVViewer
         return regex.Replace(str, matched =>
         {
             return matched.Value[1..^1];
-        }).Replace("\"\"","\"");
+        }).Replace("\"\"", "\"");
     }
 }
 #endif
