@@ -18,14 +18,14 @@ public class AnimatorStringInvoker : MonoBehaviour
         return null;
     }
 
-    [ContextMenu(nameof(SetTrigger))]
-    public void SetTrigger()
+    [ContextMenu(nameof(SetTriggerByGivenName))]
+    public void SetTriggerByGivenName()
     {
         Animator.SetTrigger(GetValue());
     }
 
-    [ContextMenu(nameof(Play))]
-    public void Play()
+    [ContextMenu(nameof(PlayAnimationByGivenName))]
+    public void PlayAnimationByGivenName()
     {
         Animator.Play(GetValue());
     }

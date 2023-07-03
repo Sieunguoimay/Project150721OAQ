@@ -205,7 +205,6 @@ public class AnimatorStringsContainerEditor : Editor
         EditorGUILayout.PropertyField(stringContainer);
         if (EditorGUI.EndChangeCheck())
         {
-            Debug.Log("OK");
             ValidateOptions();
         }
         var position = EditorGUILayout.GetControlRect();
