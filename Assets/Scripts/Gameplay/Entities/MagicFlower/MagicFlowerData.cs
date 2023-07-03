@@ -48,8 +48,25 @@ namespace Gameplay.Entities.MagicFlower
         public string PayoutCurrencyId { get; private set; }
 
         [field: SerializeField, Min(0)] public int PayoutAmountPerFlower { get; private set; }
-    }
 
+        [DrawChildrenOnly] public Test test;
+        [DrawChildrenOnly] public Test test2;
+    }
+    [Serializable]
+    public class Test
+    {
+        public int a;
+        public float b;
+        public string c;
+        public TestB bb;
+    }
+    [Serializable]
+    public class TestB
+    {
+        public int a;
+        public float b;
+        public string c;
+    }
     [Serializable]
     public class MagicFlowerSavedData : BaseEntitySavedData<IMagicFlowerData>, IMagicFlowerSavedData
     {

@@ -76,6 +76,7 @@ namespace Gameplay.Visual.BambooStick
         {
             visualPen.Done -= OnSketchingDone;
             MoveSticksBackToTheForest();
+
         }
 
         public void MoveSticksBackToTheForest()
