@@ -4,14 +4,13 @@ using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
 
 namespace Gameplay.CoreGameplay.Interactors.Simulation
 {
-    public interface ISimulatorFactory
+    public interface ISimulatorManager
     {
         public void CreateAllBoardSimulators();
         public IBoardMoveSimulator GetSimulator(SimulationType actionType);
-        public void RunSimulation();
     }
     
-    public class SimulatorFactory : SelfBindingDependencyInversionUnit, ISimulatorFactory
+    public class SimulatorManager : ScriptableEntity, ISimulatorManager
     {
         private BoardMoveSimulator _boardMoveSimulator;
         private BoardMoveSimulator _goneWithTheWindSimulator;
@@ -22,7 +21,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
 
         protected override Type GetBindingType()
         {
-            return typeof(ISimulatorFactory);
+            return typeof(ISimulatorManager);
         }
 
         protected override void OnSetupDependencies()
@@ -53,11 +52,6 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
                 SimulationType.Concurrent => _concurrentBoardMoveSimulator,
                 _ => throw new ArgumentOutOfRangeException(nameof(simulationType), simulationType, null)
             };
-        }
-
-        public void RunSimulation()
-        {
-            throw new NotImplementedException();
         }
     }
 

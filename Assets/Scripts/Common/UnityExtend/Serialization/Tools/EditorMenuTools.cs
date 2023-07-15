@@ -14,7 +14,7 @@ public static class EditorMenuTools
             {
                 if (GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(t.gameObject) > 0)
                 {
-                    Debug.Log($"{prefab.name} {AssetDatabase.GetAssetPath(prefab)}");
+                    Debug.Log($"{prefab.name} {AssetDatabase.GetAssetPath(prefab)}", prefab);
                 }
             }
             return false;
@@ -28,10 +28,10 @@ public static class EditorMenuTools
         foreach(var rootGo in activeScene.GetRootGameObjects())
         {
             foreach (Transform t in rootGo.transform)
-            {
+            {  
                 if (GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(t.gameObject) > 0)
                 {
-                    Debug.Log($"{rootGo.name}");
+                    Debug.Log($"{rootGo.name}", rootGo);
                 }
             }
         }

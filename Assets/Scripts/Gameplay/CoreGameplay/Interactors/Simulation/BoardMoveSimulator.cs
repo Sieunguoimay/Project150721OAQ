@@ -1,11 +1,13 @@
-﻿namespace Gameplay.CoreGameplay.Interactors.Simulation
+﻿using UnityEngine;
+
+namespace Gameplay.CoreGameplay.Interactors.Simulation
 {
     public interface IBoardMoveSimulator
     {
         void RunSimulation(MoveSimulationInputData inputData);
     }
 
-    public class BoardMoveSimulator : IBoardMoveSimulator
+    public class BoardMoveSimulator :ScriptableObject, IBoardMoveSimulator
     {
         private readonly IBoardMoveSimulationResultHandler _simulationResultHandler;
         private readonly BoardStateMachine _boardStateMachine;

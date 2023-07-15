@@ -14,13 +14,13 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         private IDecisionMaker[] _defaultDecisionMakings;
         private IDecisionMaker[] _decisionMakings;
-        private ISimulatorFactory _simulatorFactory;
+        private ISimulatorManager _simulatorFactory;
         private ExtractedTurnData CurrentTurnData => _turnDataExtractor.ExtractedTurnData;
 
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
-            _simulatorFactory = Resolver.Resolve<ISimulatorFactory>();
+            _simulatorFactory = Resolver.Resolve<ISimulatorManager>();
             _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
             _factory = Resolver.Resolve<IDecisionMakingFactory>();
             _boardActionOptionSequenceFactory = Resolver.Resolve<OptionSequenceFactory>();

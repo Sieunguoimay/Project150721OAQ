@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Common.UnityExtend.Serialization.Tools
+namespace Sieunguoimay.Serialization.Tools
 {
 #if UNITY_EDITOR
     public class AssetRenameWindow : EditorWindow
@@ -56,7 +56,7 @@ namespace Common.UnityExtend.Serialization.Tools
 
         private int _tab = 0;
 
-        [MenuItem("Tools/Rename Assets")]
+        [MenuItem("Tools/Snm/Rename Assets")]
         public static void Open()
         {
             var window = GetWindow<AssetRenameWindow>(false, "Rename Assets", true);
@@ -148,7 +148,7 @@ namespace Common.UnityExtend.Serialization.Tools
             }
 
             GUI.color = _tab == 3 ? Color.cyan : Color.white;
-            if (GUILayout.Button("Replace References"))
+            if (GUILayout.Button("Regex"))
             {
                 _tab = 3;
             }
@@ -157,32 +157,16 @@ namespace Common.UnityExtend.Serialization.Tools
             EditorGUILayout.EndHorizontal();
         }
 
-        private string _regexPattern;
-        private string _newString;
-        private void DrawRegexRename()
+        private Dictionary<string, string[]> GetMap()
         {
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Regex", GUILayout.Width(50));
-            _regexPattern = EditorGUILayout.TextField(_regexPattern);
-            EditorGUILayout.LabelField("->", GUILayout.Width(20));
-            _newString = EditorGUILayout.TextField(_newString);
-            EditorGUILayout.EndHorizontal();
-            if (GUILayout.Button("Rename"))
+            var map = new Dictionary<string, string[]>();
+
+            for (var i = 0; i < _referencePrefixes.Length; i++)
             {
-                foreach (var item in Selection.objects)
-                {
-                    if (MatchPattern(item.name))
-                    {
-                        AssetDatabase.RenameAsset(AssetDatabase.GetAssetPath(item), _newString);
-                        Debug.Log("match " + item.name);
-                    }
-                }
-                AssetDatabase.SaveAssets();
+                map.Add(_referencePrefixes[i], _assetPrefixes[i].Split(';'));
             }
-        }
-        private bool MatchPattern(string name)
-        {
-            return Regex.IsMatch(name, _regexPattern, RegexOptions.IgnoreCase);
+
+            return map;
         }
 
         private class NoParamsModification
@@ -219,6 +203,48 @@ namespace Common.UnityExtend.Serialization.Tools
                 Label = l;
                 Modify = m;
             }
+        }
+
+        private string _regexPattern;
+        private string _newString;
+        private void DrawRegexRename()
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Regex", GUILayout.Width(50));
+            _regexPattern = EditorGUILayout.TextField(_regexPattern);
+            EditorGUILayout.LabelField("->", GUILayout.Width(20));
+            _newString = EditorGUILayout.TextField(_newString);
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button(new GUIContent("Replace entire name", "Rename matched assets with the sane given string")))
+            {
+                foreach (var item in Selection.objects)
+                {
+                    if (MatchPattern(item.name))
+                    {
+                        AssetDatabase.RenameAsset(AssetDatabase.GetAssetPath(item), _newString);
+                        Debug.Log("match " + item.name);
+                    }
+                }
+                AssetDatabase.SaveAssets();
+            }
+            if (GUILayout.Button(new GUIContent("Replace matches", "Replace matches by the given string")))
+            {
+                foreach (var item in Selection.objects)
+                {
+                    var newName = Regex.Replace(item.name, _regexPattern, _newString);
+                    if (!item.name.Equals(newName))
+                    {
+                        AssetDatabase.RenameAsset(AssetDatabase.GetAssetPath(item), newName);
+                        Debug.Log($"Replace {item.name}->{newName}");
+                    }
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+        private bool MatchPattern(string name)
+        {
+            return Regex.IsMatch(name, _regexPattern, RegexOptions.IgnoreCase);
         }
 
         private void Draw2ParamsModifier(Action<Func<string, string>> modifier, TwoParamsModification modification,

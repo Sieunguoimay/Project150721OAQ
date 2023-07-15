@@ -21,13 +21,12 @@ namespace Gameplay.CoreGameplay.Controllers
         SelfBindingGenericDependencyInversionUnit<ICoreGameplayController>, 
         ICoreGameplayController
     {
-        //private DecisionMakingController _decisionMakingDriver;
         private IRefreshRequester _refreshRequester;
         private CoreGameplayBranchingDriver _branchingDriver;
         private ICoreGameplayDataAccess _dataAccess;
         private BoardEntityAccess _boardEntityAccess;
         private TurnDataExtractor _turnDataExtractor;
-        private ISimulatorFactory _simulatorFactory;
+        private ISimulatorManager _simulatorFactory;
         private SimulationArgumentSelectionList _simulationArgumentSelectionController;
 
         protected override void OnSetupDependencies()
@@ -36,8 +35,7 @@ namespace Gameplay.CoreGameplay.Controllers
             
             _refreshRequester = Resolver.Resolve<IRefreshRequester>();
             _dataAccess = Resolver.Resolve<ICoreGameplayDataAccess>();
-            _simulatorFactory = Resolver.Resolve<ISimulatorFactory>();
-            //_decisionMakingDriver = Resolver.Resolve<DecisionMakingController>();
+            _simulatorFactory = Resolver.Resolve<ISimulatorManager>();
             _branchingDriver = Resolver.Resolve<CoreGameplayBranchingDriver>();
             _boardEntityAccess = Resolver.Resolve<BoardEntityAccess>();
             _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
@@ -47,14 +45,12 @@ namespace Gameplay.CoreGameplay.Controllers
         public void SetupNewGame()
         {
             SetupEntities();
-            SetupSimulatorFactory();
+            _simulatorFactory.CreateAllBoardSimulators();
             SetupTurnDataExtractor();
-            //SetupDecisionMakingDriver();
         }
 
         public void TearDownGame()
         {
-            //_decisionMakingDriver.UninstallDecisionMakings();
         }
 
         private void SetupEntities()
@@ -73,15 +69,6 @@ namespace Gameplay.CoreGameplay.Controllers
             _turnDataExtractor.SetTurnEntity(turnEntity);
         }
 
-        private void SetupSimulatorFactory()
-        {
-            _simulatorFactory.CreateAllBoardSimulators();
-        }
-
-        //private void SetupDecisionMakingDriver()
-        //{
-            //_decisionMakingDriver.InstallDecisionMakings();
-        //}
         
         public void RunGameplay()
         {

@@ -10,13 +10,13 @@ public class SimulationSelectionAdapter : ScriptableEntity
 {
     [SerializeField] private SimulationArgumentSelectionList selectionController;
 
-    private ISimulatorFactory _simulatorFactory;
+    private ISimulatorManager _simulatorFactory;
     private TurnDataExtractor _turnDataExtractor;
 
     protected override void OnSetupDependencies()
     {
         base.OnSetupDependencies();
-        _simulatorFactory = Resolver.Resolve<ISimulatorFactory>();
+        _simulatorFactory = Resolver.Resolve<ISimulatorManager>();
         _turnDataExtractor = Resolver.Resolve<TurnDataExtractor>();
         selectionController.OnArgumentsSelectionResult -= OnSelectionResult;
         selectionController.OnArgumentsSelectionResult += OnSelectionResult;
