@@ -5,15 +5,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Build.Layout;
 using UnityEditor.AddressableAssets.Settings;
 #endif
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceLocations;
+using static UnityEditor.FilePathAttribute;
 
 public class AddressablesManager : ScriptableObject
 {
@@ -23,10 +26,18 @@ public class AddressablesManager : ScriptableObject
     public class PathGroup
     {
         public string name;
-        public string[] assetPaths;
+        public CachedAddress[] assetPaths;
+    }
+    [Serializable]
+    public class CachedAddress
+    {
+        public string address;
+        public string type;
     }
 
-    public Dictionary<string, AsyncOperationHandle<UnityEngine.Object>> _operationDictionary;
+    public Dictionary<string, UnityEngine.Object> _dictionary;
+    public List<AsyncOperationHandle> _operations;
+
     private AsyncOperationHandle<IList<UnityEngine.Object>> _handler;
     private PathGroup _currentPathGroup;
     private Action _onDone;
@@ -39,11 +50,11 @@ public class AddressablesManager : ScriptableObject
     {
         Instance = this;
     }
-    public UnityEngine.Object GetRuntimeAssetByAddress(string path)
+    public UnityEngine.Object GetRuntimeAssetByAddress(string path, Type type)
     {
-        if (_operationDictionary.TryGetValue(path, out var obj))
+        if (_dictionary?.TryGetValue(path + $"|{type.AssemblyQualifiedName}", out var obj) ?? false)
         {
-            return obj.Result;
+            return obj;
         }
         Debug.LogError($"Cannot found {path}. Current group is {_currentPathGroup.name}");
         return null;
@@ -58,41 +69,87 @@ public class AddressablesManager : ScriptableObject
         var assetPaths = group.assetPaths;
         _onDone = onDone;
         _currentPathGroup = group;
-        PublicExecutor.Instance.StartCoroutine(LoadAndAssociateResultWithKey(assetPaths, () =>
-        {
-            onDone?.Invoke();
-        }));
+
+        _operations ??= new List<AsyncOperationHandle>();
+        _dictionary ??= new Dictionary<string, UnityEngine.Object>();
+
+        PublicExecutor.Instance.StartCoroutine(LoadAndAssociateResultWithKey(assetPaths, onDone));
     }
 
     public void ReleaseCurrentGroup()
     {
-        foreach (var item in _operationDictionary)
+        foreach (var item in _operations)
         {
-            Addressables.Release(item.Value);
+            Addressables.Release(item);
         }
+        _operations = null;
+        _dictionary = null;
     }
 
-    IEnumerator LoadAndAssociateResultWithKey(IList<string> keys, Action onDone)
+    IEnumerator LoadAndAssociateResultWithKey(IList<CachedAddress> keys, Action onDone)
     {
-        _operationDictionary ??= new Dictionary<string, AsyncOperationHandle<UnityEngine.Object>>();
 
-        var locations = Addressables.LoadResourceLocationsAsync(keys,
-                Addressables.MergeMode.Union, typeof(UnityEngine.Object));
+        //var loadLocationsHandles = Addressables.LoadResourceLocationsAsync(keys.Select(k => k.address),
+        //        Addressables.MergeMode.Union);
+        //yield return loadLocationsHandles;
 
-        yield return locations;
+        //var loadAssetHandles = new List<AsyncOperationHandle>(loadLocationsHandles.Result.Count);
 
-        var loadOps = new List<AsyncOperationHandle>(locations.Result.Count);
-
-        foreach (IResourceLocation location in locations.Result)
+        //for (int i = 0; i < loadLocationsHandles.Result.Count; i++)
+        //{
+        //    var location = loadLocationsHandles.Result[i];
+        //    var handle = Addressables.LoadAssetAsync<UnityEngine.Object>("");
+        //    handle.Completed += obj => _operationDictionary.Add(location.PrimaryKey, obj);
+        //    loadAssetHandles.Add(handle);
+        //}
+        var loadAssetHandles = new List<AsyncOperationHandle>();
+        foreach (var k in keys)
         {
-            var handle = Addressables.LoadAssetAsync<UnityEngine.Object>(location);
-            handle.Completed += obj => _operationDictionary.Add(location.PrimaryKey, obj);
-            loadOps.Add(handle);
+            var address = k.address;
+            //if (Type.GetType(k.type) == typeof(Sprite))
+            //{
+            //    var handle = Addressables.LoadAssetsAsyn<UnityEngine.Object>(address, null);
+            //    handle.Completed += obj => OnSpriteAssetLoaded(address, obj);// _operationDictionary.Add(location.PrimaryKey, obj);
+            //    loadAssetHandles.Add(handle);
+            //}
+            //else
+            //{
+            //var loadAssetAsync = typeof(Addressables).GetMethod("LoadAssetAsync", new[] { typeof(string) }).MakeGenericMethod(Type.GetType(k.type));
+            //var handle = loadAssetAsync.Invoke(null, new object[] { address });// Addressables.LoadAssetAsync<UnityEngine.Object>(address);
+
+            //Type genericAsyncOpHandleType = typeof(AsyncOperationHandle<>).MakeGenericType(Type.GetType(k.type));
+
+            //try
+            //{
+            //    var _handled = (AsyncOperationHandle<UnityEngine.Object>)handle;
+            //}catch(Exception e)
+            //{
+            //    Debug.Log(e.Message);
+
+            //}
+
+            var handle = Addressables.LoadAssetAsync<UnityEngine.Object>(address);
+
+            handle.Completed += obj => OnAssetLoaded(address, obj);// _operationDictionary.Add(location.PrimaryKey, obj);
+            loadAssetHandles.Add(handle);
+            //}
         }
 
-        yield return Addressables.ResourceManager.CreateGenericGroupOperation(loadOps, true);
+        yield return Addressables.ResourceManager.CreateGenericGroupOperation(loadAssetHandles, true);
 
         onDone?.Invoke();
+    }
+    private void OnAssetLoaded(string address, AsyncOperationHandle handle)
+    {
+        _operations.Add(handle);
+        var asset = handle.Result as UnityEngine.Object;
+        _dictionary.Add(address + $"|{asset.GetType().AssemblyQualifiedName}", asset);
+    }
+    private void OnSpriteAssetLoaded(string address, AsyncOperationHandle<IList<UnityEngine.Object>> handle)
+    {
+        _operations.Add(handle);
+        var asset = handle.Result;
+        //_dictionary.Add(address + $"|{asset.GetType().AssemblyQualifiedName}", asset);
     }
 
 #if UNITY_EDITOR
@@ -142,10 +199,39 @@ public class AddressablesManager : ScriptableObject
             groups[i] = new PathGroup
             {
                 name = addressableGroups[i].name,
-                assetPaths = TraverseAddressableEntries(addressableGroups[i]).Select(e => e.address).ToArray()
+                assetPaths = TraverseAddressableEntries(addressableGroups[i])
+                .Where(e => !e.IsFolder)
+                .Select(CreateAddress).ToArray()
             };
         }
     }
+    private bool IsMainAsset(AddressableAssetEntry e)
+    {
+        return !string.IsNullOrEmpty(e.guid);
+    }
+    private CachedAddress CreateAddress(AddressableAssetEntry e)
+    {
+        return new CachedAddress
+        {
+            address = GetSubAssetName(e),
+            type = e.MainAssetType.AssemblyQualifiedName
+        };
+    }
+    private string GetSubAssetName(AddressableAssetEntry e)
+    {
+        if (IsMainAsset(e)) return e.guid;
+        var str = e.address;
+
+        string pattern = @"\[([^\]]*)\]$";
+        Match match = Regex.Match(str, pattern);
+        if (match.Success)
+        {
+            string substringInsideBrackets = match.Groups[1].Value;
+            return $"{e.AssetPath}[{substringInsideBrackets}]";
+        }
+        return "";
+    }
+
 
     public static AddressableAssetEntry GetAddressableEntryForAsset(UnityEngine.Object asset)
     {

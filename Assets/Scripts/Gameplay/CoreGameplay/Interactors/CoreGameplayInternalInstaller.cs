@@ -34,7 +34,7 @@ namespace Gameplay.CoreGameplay.Interactors
             AddChildDependencyInversionUnit(new OptionSequenceFactory());
             AddChildDependencyInversionUnit(new RefreshRequester());
             AddChildDependencyInversionUnit(new CoreGameplayBranchingDriver());
-            AddChildDependencyInversionUnit(simulatorManager);
+            //AddChildDependencyInversionUnit(simulatorManager);
             _turnDataExtractor = new TurnDataExtractor();
             _coreGameplayController = new CoreGameplayController();
             

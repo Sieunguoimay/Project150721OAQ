@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace Gameplay.Cards
 {
@@ -9,6 +10,8 @@ namespace Gameplay.Cards
         public string cardName;
         [SerializeField, AssetSelector.AssetType(typeof(Sprite))]
         private AssetSelector iconSelector;
+        [SerializeField] private AssetReferenceSprite sprite;
+        [SerializeField] private AssetReference anything;
 
         [field: System.NonSerialized] public bool IsSelected { get; private set; }
         public event Action<Card> OnSelectedChanged;

@@ -38,7 +38,7 @@ public class AssetSelector
     {
         if (!Application.isPlaying) return editorAsset as TObject;
 
-        var runtimeAsset = addressabled ? AddressablesManager.Instance.GetRuntimeAssetByAddress(assetPath) : directAsset;
+        var runtimeAsset = addressabled ? AddressablesManager.Instance.GetRuntimeAssetByAddress(assetPath, typeof(TObject)) : directAsset;
         if (runtimeAsset is TObject a)
             return a;
         Debug.LogError($"Cannot cast asset to {typeof(TObject)}");

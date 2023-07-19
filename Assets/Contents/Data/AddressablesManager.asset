@@ -15,40 +15,285 @@ MonoBehaviour:
   groups:
   - name: Built In Data
     assetPaths:
-    - Resources
-    - DOTweenSettings
-    - LineBreaking Following Characters
-    - LineBreaking Leading Characters
-    - TMP Settings
-    - Fonts & Materials/LiberationSans SDF - Drop Shadow
-    - Fonts & Materials/LiberationSans SDF - Fallback
-    - Fonts & Materials/LiberationSans SDF - Outline
-    - Fonts & Materials/LiberationSans SDF
-    - Fonts & Materials/LiberationSans SDF
-    - Shaders/TMPro
-    - Shaders/TMPro_Properties
-    - Shaders/TMPro_Surface
-    - Shaders/TMP_Bitmap-Custom-Atlas
-    - Shaders/TMP_Bitmap-Mobile
-    - Shaders/TMP_Bitmap
-    - Shaders/TMP_SDF Overlay
-    - Shaders/TMP_SDF-Mobile Masking
-    - Shaders/TMP_SDF-Mobile Overlay
-    - Shaders/TMP_SDF-Mobile
-    - Shaders/TMP_SDF-Surface-Mobile
-    - Shaders/TMP_SDF-Surface
-    - Shaders/TMP_SDF
-    - Shaders/TMP_Sprite
-    - Sprite Assets/EmojiOne
-    - Style Sheets/Default Style Sheet
-    - EditorSceneList
-    - Launcher
-    - GameScene
+    - address: Resources
+      type: System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+    - address: 8aef2a66ec7736e4797f62b462b7ac34
+      type: DG.Tweening.Core.DOTweenSettings, DOTween, Version=1.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: fade42e8bc714b018fac513c043d323b
+      type: UnityEngine.TextAsset, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: d82c1b31c7e74239bff1220585707d2b
+      type: UnityEngine.TextAsset, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 3f5b5dff67a942289a9defa416b206f3
+      type: TMPro.TMP_Settings, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: e73a58f6e2794ae7b1b7e50b7fb811b0
+      type: UnityEngine.Material, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 2e498d1c8094910479dc3e1b768306a4
+      type: TMPro.TMP_FontAsset, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 79459efec17a4d00a321bdcc27bbc385
+      type: UnityEngine.Material, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 8f586378b4e144a9851e7b34d9b748ee
+      type: TMPro.TMP_FontAsset, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 0284e6a6e35470b438bbc6a0e6f99818
+      type: UnityEngine.Material, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 407bc68d299748449bbf7f48ee690f8d
+      type: UnityEditor.ShaderInclude, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 3997e2241185407d80309a82f9148466
+      type: UnityEditor.ShaderInclude, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: d930090c0cd643c7b55f19a38538c162
+      type: UnityEditor.ShaderInclude, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 48bb5f55d8670e349b6e614913f9d910
+      type: UnityEngine.Shader, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 1e3b057af24249748ff873be7fafee47
+      type: UnityEngine.Shader, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 128e987d567d4e2c824d754223b3f3b0
+      type: UnityEngine.Shader, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: dd89cf5b9246416f84610a006f916af7
+      type: UnityEngine.Shader, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: bc1ede39bf3643ee8e493720e4259791
+      type: UnityEngine.Shader, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: a02a7d8c237544f1962732b55a9aebf1
+      type: UnityEngine.Shader, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: fe393ace9b354375a9cb14cdbbc28be4
+      type: UnityEngine.Shader, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 85187c2149c549c5b33f0cdb02836b17
+      type: UnityEngine.Shader, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: f7ada0af4f174f0694ca6a487b8f543d
+      type: UnityEngine.Shader, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 68e6db2ebdc24f95958faec2be5558d6
+      type: UnityEngine.Shader, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: cf81c85f95fe47e1a27f6ae460cf182c
+      type: UnityEngine.Shader, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: c41005c129ba4d66911b75229fd70b45
+      type: TMPro.TMP_SpriteAsset, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: f952c082cb03451daed3ee968ac6c63e
+      type: TMPro.TMP_StyleSheet, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: EditorSceneList
+      type: System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+    - address: 2375bf72dad0d124b9c0f4a213845ebb
+      type: UnityEditor.SceneAsset, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 326a435c1e3ba07498f9339040de1c7d
+      type: UnityEditor.SceneAsset, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
   - name: Default Local Group
     assetPaths:
-    - Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png
-    - Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png[ico_two_arrows_concurrent]
-    - Assets/Contents/Textures/Cards/ico_future_foreseen.png
-    - Assets/Contents/Textures/Cards/ico_future_foreseen.png[ico_future_foreseen]
-    - Assets/Contents/Textures/Cards/ico_gone_with_the_wind.png
-    - Assets/Contents/Textures/Cards/ico_gone_with_the_wind.png[ico_gone_with_the_wind]
+    - address: 8e05dc181271e454eae783942c3993ee
+      type: UnityEngine.Texture2D, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: '[ico_two_arrows_concurrent]'
+      type: UnityEngine.Sprite, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 2f6dd6e5040a81347beb72b437f651d8
+      type: UnityEngine.Texture2D, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: '[ico_future_foreseen]'
+      type: UnityEngine.Sprite, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: c2fe4f8b038947049abbdbd7a6c0a900
+      type: UnityEngine.Texture2D, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: '[ico_gone_with_the_wind]'
+      type: UnityEngine.Sprite, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: a964e52d764667b4b93718bf3d9a14b6
+      type: UnityEngine.Timeline.TimelineAsset, Unity.Timeline, Version=1.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[Clip Parameters]'
+      type: UnityEngine.AnimationClip, UnityEngine.AnimationModule, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: 786a2eb8df5c16344b04ef267be97ed6
+      type: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: '[Mushroom_Small]'
+      type: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: '[Mushroom_Small.001]'
+      type: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: '[Mushroom_Small]'
+      type: UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: e58bc8fb15e5e1a4cbbec8cbd3553ca3
+      type: Gameplay.CoreGameplay.CoreGameplayExternalInstaller, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - address: 26321c6c367e9e4418047ce4c4c9a718
+      type: Gameplay.CoreGameplay.Interactors.CoreGameplayInternalInstaller, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - address: b764cc0ffbf97d049a19884abe62284f
+      type: Framework.DependencyInversion.DependencyInversionController, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - address: 6b927e127a77d1c40aaad702d410946e
+      type: Gameplay.GameState.GameStateController, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: 621497ea03691ea469324f0583b1507f
+      type: System.GameplayLauncher, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 362f9f1d8ef54b947a09d9e6506e9f90
+      type: Gameplay.CoreGameplay.Interactors.Simulation.SimulatorManager, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - address: fe9c63907001f57498703a3a57c5014c
+      type: Gameplay.Helpers.GridLocator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: e58bc8fb15e5e1a4cbbec8cbd3553ca3
+      type: Gameplay.CoreGameplay.CoreGameplayExternalInstaller, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - address: 26321c6c367e9e4418047ce4c4c9a718
+      type: Gameplay.CoreGameplay.Interactors.CoreGameplayInternalInstaller, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - address: b764cc0ffbf97d049a19884abe62284f
+      type: Framework.DependencyInversion.DependencyInversionController, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - address: 6b927e127a77d1c40aaad702d410946e
+      type: Gameplay.GameState.GameStateController, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: 621497ea03691ea469324f0583b1507f
+      type: System.GameplayLauncher, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 362f9f1d8ef54b947a09d9e6506e9f90
+      type: Gameplay.CoreGameplay.Interactors.Simulation.SimulatorManager, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - address: fe9c63907001f57498703a3a57c5014c
+      type: Gameplay.Helpers.GridLocator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+    - address: 907fe8446bcd0674dbd2d332cc5da443
+      type: Gameplay.Entities.Stage.StageData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[available]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[is_unlocked]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: d7cecb12333e1ea49be6ceba8c81680a
+      type: Gameplay.Entities.Stage.StageData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[available]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[is_unlocked]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: cd9c088967193174998311c0a9053fab
+      type: Gameplay.Entities.Stage.StageData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[available]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[is_unlocked]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: 274356590eda73e4ab95bc953c507379
+      type: Gameplay.Entities.Stage.StageData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[available]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[is_unlocked]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: 81883ea953d1a6d45ab0e87bdf581538
+      type: Gameplay.Entities.Stage.StageData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[available]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[is_unlocked]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: dba40c16659ebcd4987c5ba3c6c13d36
+      type: Gameplay.Entities.Stage.StageContainer.StageContainerData, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - address: a153fccb76f8bbb49a16bcb27306a74a
+      type: Gameplay.Entities.Stage.StageSelector.StageSelectorData, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - address: d7cecb12333e1ea49be6ceba8c81680a
+      type: Gameplay.Entities.Stage.StageData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[available]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[is_unlocked]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[available]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[is_unlocked]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: cd9c088967193174998311c0a9053fab
+      type: Gameplay.Entities.Stage.StageData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[available]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[is_unlocked]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[available]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[is_unlocked]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: 274356590eda73e4ab95bc953c507379
+      type: Gameplay.Entities.Stage.StageData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[available]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[is_unlocked]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[available]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[is_unlocked]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: 81883ea953d1a6d45ab0e87bdf581538
+      type: Gameplay.Entities.Stage.StageData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[available]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[is_unlocked]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[available]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: '[is_unlocked]'
+      type: Framework.Entities.Variable.Boolean.BooleanData, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+    - address: dba40c16659ebcd4987c5ba3c6c13d36
+      type: Gameplay.Entities.Stage.StageContainer.StageContainerData, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - address: a153fccb76f8bbb49a16bcb27306a74a
+      type: Gameplay.Entities.Stage.StageSelector.StageSelectorData, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

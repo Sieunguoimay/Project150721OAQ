@@ -19,6 +19,16 @@ MonoBehaviour:
     directAsset: {fileID: 0}
     addressabled: 1
     editorAsset: {fileID: 21300000, guid: c2fe4f8b038947049abbdbd7a6c0a900, type: 3}
+  sprite:
+    m_AssetGUID: 
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  anything:
+    m_AssetGUID: 
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -54,6 +64,16 @@ MonoBehaviour:
     directAsset: {fileID: 0}
     addressabled: 1
     editorAsset: {fileID: 21300000, guid: 8e05dc181271e454eae783942c3993ee, type: 3}
+  sprite:
+    m_AssetGUID: 
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  anything:
+    m_AssetGUID: 
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
 --- !u!114 &3176090362060156598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,3 +93,15 @@ MonoBehaviour:
     directAsset: {fileID: 0}
     addressabled: 1
     editorAsset: {fileID: 21300000, guid: 2f6dd6e5040a81347beb72b437f651d8, type: 3}
+  sprite:
+    m_AssetGUID: 2f6dd6e5040a81347beb72b437f651d8
+    m_SubObjectName: ico_future_foreseen
+    m_SubObjectType: UnityEngine.Sprite, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+    m_EditorAssetChanged: 0
+  anything:
+    m_AssetGUID: 89922d5c8962a6444a5db0318772f00a
+    m_SubObjectName: 
+    m_SubObjectType: UnityEngine.Sprite, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+    m_EditorAssetChanged: 0

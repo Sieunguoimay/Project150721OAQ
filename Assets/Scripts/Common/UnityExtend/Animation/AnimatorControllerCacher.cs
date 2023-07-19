@@ -16,13 +16,13 @@ public class AnimatorControllerCacher : MonoBehaviour, IAnimationStateEventHandl
     public void OnStateEnter(AnimatorStateInfo stateInfo, int layerIndex)
     {
         GetState(stateInfo, layerIndex)?.InvokeOnStateEnter();
-        Debug.Log("OnStateEnter");
+        //Debug.Log("OnStateEnter");
     }
 
     public void OnStateExit(AnimatorStateInfo stateInfo, int layerIndex)
     {
         GetState(stateInfo, layerIndex)?.InvokeOnStateExit();
-        Debug.Log("OnStateExit");
+        //Debug.Log("OnStateExit");
     }
 
     private AnimatorControllerCacheData.State GetState(AnimatorStateInfo stateInfo, int layerIndex)
@@ -143,13 +143,13 @@ public class AnimatorControllerCacheData
         {
             onStateEnter?.Invoke();
             isCurrent = true;
-            Debug.Log("InvokeOnStateEnter");
+            //Debug.Log("InvokeOnStateEnter");
         }
         public void InvokeOnStateExit()
         {
             onStateExit?.Invoke();
             isCurrent = false;
-            Debug.Log("InvokeOnStateExit");
+            //Debug.Log("InvokeOnStateExit");
         }
     }
 
