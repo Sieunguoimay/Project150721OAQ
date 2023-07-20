@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 551b972fd2444393a02546bd97d74379, type: 3}
-  m_Name: dependency_inversion_controller
+  m_Name: GameSpawner
   m_EditorClassIdentifier: 
   children:
   - {fileID: 11400000, guid: 621497ea03691ea469324f0583b1507f, type: 2}

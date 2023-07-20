@@ -8,10 +8,7 @@ namespace Gameplay.Cards
     {
         public CardType CardType;
         public string cardName;
-        [SerializeField, AssetSelector.AssetType(typeof(Sprite))]
-        private AssetSelector iconSelector;
-        [SerializeField] private AssetReferenceSprite sprite;
-        [SerializeField] private AssetReference anything;
+        public Sprite icon;
 
         [field: System.NonSerialized] public bool IsSelected { get; private set; }
         public event Action<Card> OnSelectedChanged;
@@ -21,7 +18,7 @@ namespace Gameplay.Cards
             IsSelected = selected;
             OnSelectedChanged?.Invoke(this);
         }
-        public Sprite Icon => iconSelector.GetAsset<Sprite>();
+        public Sprite Icon => icon;
     }
 
     public enum CardType

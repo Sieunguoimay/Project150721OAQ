@@ -3,26 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.UnityExtend.Attribute;
 using Framework;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
-using UnityEngine.AddressableAssets;
+//using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 
 namespace System
 {
-    public class GameEngine : MonoBehaviour
+    public class GameSceneLoader : MonoBehaviour
     {
 #if UNITY_EDITOR
         [StringSelector(nameof(FindScenes))]
 #endif
         [SerializeField] private string sceneName;
         [SerializeField] private EntityController entityController;
-        [SerializeField] private AddressablesManager addressablesManager;
-        [SerializeField, StringSelector(nameof(GetAllAssetGroups))] private string assetGroupName;
+        //[SerializeField] private AddressablesManager addressablesManager;
+        //[SerializeField, StringSelector(nameof(GetAllAssetGroups))]
+        //private string assetGroupName;
 
 #if UNITY_EDITOR
         public IEnumerable<string> FindScenes() => AssetDatabase.FindAssets("t:Scene").Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadAssetAtPath<SceneAsset>).Select(s => s.name);
-        public IEnumerable<string> GetAllAssetGroups() => addressablesManager?.Groups.Select(g => g.name);
+        //public IEnumerable<string> GetAllAssetGroups() => addressablesManager?.Groups.Select(g => g.name);
 #endif
         private void Awake()
         {
@@ -33,16 +36,16 @@ namespace System
         {
             entityController.Load();
 
-            LoadAddressables(() =>
-            {
+            //LoadAddressables(() =>
+            //{
                 LoadGameScene();
-            });
+            //});
         }
 
         private void OnDestroy()
         {
             // UnloadGameScene();
-            UnloadAddressables();
+            //UnloadAddressables();
             entityController.Unload();
         }
 
@@ -97,15 +100,15 @@ namespace System
 
             onDone?.Invoke();
         }
-        private void LoadAddressables(Action onDone)
-        {
-            addressablesManager.CreateInstance();
-            if (string.IsNullOrEmpty(assetGroupName)) return;
-            addressablesManager.LoadGroup(assetGroupName, onDone);
-        }
-        private void UnloadAddressables()
-        {
-            addressablesManager.ReleaseCurrentGroup();
-        }
+        //private void LoadAddressables(Action onDone)
+        //{
+            //addressablesManager.CreateInstance();
+            //if (string.IsNullOrEmpty(assetGroupName)) return;
+            //addressablesManager.LoadGroup(assetGroupName, onDone);
+        //}
+        //private void UnloadAddressables()
+        //{
+            //addressablesManager.ReleaseCurrentGroup();
+        //}
     }
 }

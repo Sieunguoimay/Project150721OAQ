@@ -1,12 +1,9 @@
 ﻿using Framework.DependencyInversion;
 using Framework.Resolver;
-using Gameplay.CoreGameplay.Controllers;
 using Gameplay.CoreGameplay.Gateway;
-using Gameplay.CoreGameplay.Interactors;
 using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
 using Gameplay.Visual;
 using Gameplay.Visual.Presenters;
-using Gameplay.Visual.Views;
 
 namespace Gameplay.CoreGameplay
 {
@@ -28,9 +25,6 @@ namespace Gameplay.CoreGameplay
             AddChildDependencyInversionUnit(new CoreGameplayDataAccess());
 
             //Provide external components for external components
-            AddChildDependencyInversionUnit(new SingleThreadPiecesMovingRunner());
-            AddChildDependencyInversionUnit(new MultiThreadPiecesMovingRunner());
-            AddChildDependencyInversionUnit(new BoardVisualPresenter());
             AddChildDependencyInversionUnit(new BoardStatePresenter());
         }
     }

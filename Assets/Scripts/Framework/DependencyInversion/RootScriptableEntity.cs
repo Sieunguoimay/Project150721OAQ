@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Framework.DependencyInversion
 {
-    public class DependencyInversionController : ScriptableEntity
+    public class RootScriptableEntity : ScriptableEntity
     {
         [SerializeField] private GameObject[] prefabs;
 
@@ -41,12 +41,12 @@ namespace Framework.DependencyInversion
             DestroyGameObjects();
         }
 
-        private void SpawnGameObjects()
+        public void SpawnGameObjects()
         {
             _spawnedGameObjects = new GameObject[prefabs.Length];
             for (var i = 0; i < prefabs.Length; i++)
             {
-                prefabs[i].gameObject.SetActive(false);
+                prefabs[i].SetActive(false);
                 _spawnedGameObjects[i] = Instantiate(prefabs[i]);
             }
         }
@@ -55,7 +55,14 @@ namespace Framework.DependencyInversion
         {
             foreach (var s in _spawnedGameObjects)
             {
-                s.gameObject.SetActive(true);
+                s.SetActive(true);
+            }
+        }
+        public void DestroyGameObjects()
+        {
+            foreach (var spawned in _spawnedGameObjects)
+            {
+                Destroy(spawned);
             }
         }
 
@@ -66,14 +73,7 @@ namespace Framework.DependencyInversion
                 injectable.Inject(resolver);
             }
         }
-
-        private void DestroyGameObjects()
-        {
-            foreach (var spawned in _spawnedGameObjects)
-            {
-                Destroy(spawned);
-            }
-        }
+ 
         private void AddFoundDependencyInversionUnitsToChildren()
         {
             foreach (var b in _dependencyInversionUnits)

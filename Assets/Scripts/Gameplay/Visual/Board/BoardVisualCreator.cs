@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 
 namespace Gameplay.Visual.Board
 {
-    public class BoardVisualCreator : SelfBindingDependencyInversionMonoBehaviour
+    public class BoardVisualCreator : MonoBehaviour
     {
         [FormerlySerializedAs("mandarinTilePrefab")] [SerializeField]
         private MandarinTileVisual mandarinTileVisualPrefab;

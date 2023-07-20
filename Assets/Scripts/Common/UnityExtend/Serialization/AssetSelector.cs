@@ -8,6 +8,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 
+[Obsolete]
 [Serializable]
 public class AssetSelector
 {

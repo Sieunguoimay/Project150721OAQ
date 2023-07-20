@@ -5,14 +5,16 @@ using Gameplay.CoreGameplay.Interactors;
 using Gameplay.Visual.Presenters;
 using Gameplay.Visual.Views;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace System
 {
     public class GameplayLauncher : ScriptableEntity, IRefreshResultHandler
     {
-        private GameplayEventsHandler _gameplayEventsHandler;
+        [SerializeField] private BoardVisualGeneratorRepresenter boardVisualView;
+        [SerializeField] private GameplayEventsHandler gameplayEventsHandler;
+        
         private ICoreGameplayController _coreGameplayController;
-        private BoardVisualGenerator _boardVisualView;
         private PiecesMovingRunner _movingRunner;
         private PiecesMovingRunner _movingRunner2;
 
@@ -28,8 +30,7 @@ namespace System
         }
         protected override void OnBind(IBinder binder)
         {
-            _gameplayEventsHandler = new GameplayEventsHandler();
-            AddChildDependencyInversionUnit(_gameplayEventsHandler);
+            AddChildDependencyInversionUnit(gameplayEventsHandler);
             AddChildDependencyInversionUnit(new GameStateEventsHandler());
             base.OnBind(binder);
         }
@@ -43,7 +44,7 @@ namespace System
             _boardStatePresenter = Resolver.Resolve<BoardStatePresenter>();
             _boardVisualPresenter = Resolver.Resolve<BoardVisualPresenter>();
 
-            _boardVisualView = Resolver.Resolve<BoardVisualGenerator>();
+            //_boardVisualView = Resolver.Resolve<BoardVisualGenerator>();
             _movingRunner = Resolver.Resolve<MultiThreadPiecesMovingRunner>();
             _movingRunner2 = Resolver.Resolve<SingleThreadPiecesMovingRunner>();
         }
@@ -52,13 +53,13 @@ namespace System
         {
             _coreGameplayController.SetupNewGame();
             _coreGameplayController.RequestRefresh(this);
-            _gameplayEventsHandler.SetupForNewGame();
+            gameplayEventsHandler.SetupForNewGame();
         }
 
         public void ClearGame()
         {
-            _boardVisualView.Cleanup();
-            _gameplayEventsHandler.Cleanup();
+            boardVisualView.Author.Cleanup();
+            gameplayEventsHandler.Cleanup();
             _coreGameplayController.TearDownGame();
             _movingRunner.ResetMovingSteps();
             _movingRunner2.ResetMovingSteps();

@@ -18,6 +18,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceLocations;
 using static UnityEditor.FilePathAttribute;
 
+[Obsolete]
 public class AddressablesManager : ScriptableObject
 {
     [SerializeField] private PathGroup[] groups;
@@ -33,6 +34,7 @@ public class AddressablesManager : ScriptableObject
     {
         public string address;
         public string type;
+        public AssetReference reference;
     }
 
     public Dictionary<string, UnityEngine.Object> _dictionary;
@@ -52,7 +54,8 @@ public class AddressablesManager : ScriptableObject
     }
     public UnityEngine.Object GetRuntimeAssetByAddress(string path, Type type)
     {
-        if (_dictionary?.TryGetValue(path + $"|{type.AssemblyQualifiedName}", out var obj) ?? false)
+        if (_dictionary == null) return null;
+        if (_dictionary.TryGetValue(path + $"|{type.AssemblyQualifiedName}", out var obj))
         {
             return obj;
         }
@@ -88,24 +91,58 @@ public class AddressablesManager : ScriptableObject
 
     IEnumerator LoadAndAssociateResultWithKey(IList<CachedAddress> keys, Action onDone)
     {
+        var reference = keys.FirstOrDefault().reference;
+        var addr = keys.FirstOrDefault().address;
+        var t = typeof(Sprite);// Type.GetType(keys.FirstOrDefault().type);
+
+        //var handle1 = reference.LoadAssetAsync<UnityEngine.Sprite>();
+        //yield return handle1;
+
+        var loadAssetAsyncMeth = typeof(AssetReference).GetMethod("LoadAssetAsync").MakeGenericMethod(t);
+        var handle1 = loadAssetAsyncMeth.Invoke(reference, null);
+
+        //Type genericAsyncOpHandleType = typeof(AsyncOperationHandle<>).MakeGenericType(t);
+        //var convertMeth = genericAsyncOpHandleType.GetMethod("Convert").MakeGenericMethod(typeof(UnityEngine.Object));
+
+        //var handle2 = convertMeth.Invoke(handle1, null);
+        //AsyncOperationHandle ok = (AsyncOperationHandle)(IEnumerator)handle1;
+
+        //if (handle1.GetType().IsInstanceOfType(typeof(AsyncOperationHandle)))
+        //{
+        yield return (IEnumerator)handle1;
+        Type genericAsyncOpHandleType = typeof(AsyncOperationHandle<>).MakeGenericType(t);
+
+        var resultProp = genericAsyncOpHandleType.GetProperty("Result");
+
+        var sprite = resultProp.GetValue(handle1) as UnityEngine.Object;
+
+        Debug.Log("OK");
+        //}
+
+        yield break;
+
         var locationsHandle = Addressables.LoadResourceLocationsAsync(keys.FirstOrDefault().address);
         yield return locationsHandle;
-        
+
         Debug.Log(string.Join(",", locationsHandle.Result.Select(l => l.PrimaryKey + " " + l.ResourceType))); ;
 
-        foreach(var l in locationsHandle.Result)
+        //foreach(var l in locationsHandle.Result)
+        //{
+        //var handle = Addressables.LoadAssetAsync<UnityEngine.Object>(l);
+        var handle = Addressables.LoadAssetsAsync<UnityEngine.Object>(locationsHandle.Result, obj =>
         {
-            var handle = Addressables.LoadAssetAsync<UnityEngine.Object>(l);
-            yield return handle;
-            Debug.Log($"Loaded {handle.Result.name} {handle.Result.GetType().Name}");
-        }
+            Debug.Log($"Loaded {obj.name} {obj.GetType().Name}");
+        });
+        yield return handle;
+        Debug.Log(string.Join(",", handle.Result.Select(l => l.name + " " + l.GetType().Name))); ;
+        //}
 
         //var loadLocationsHandles = Addressables.LoadResourceLocationsAsync(keys.Select(k => k.address),
         //        Addressables.MergeMode.Union);
         //yield return loadLocationsHandles;
 
         //var loadAssetHandles = new List<AsyncOperationHandle>(loadLocationsHandles.Result.Count);
- 
+
         //for (int i = 0; i < loadLocationsHandles.Result.Count; i++)
         //{
         //    var location = loadLocationsHandles.Result[i];
@@ -139,10 +176,10 @@ public class AddressablesManager : ScriptableObject
 
             //}
 
-            var handle = Addressables.LoadAssetAsync<UnityEngine.Object>(address);
+            //var handle = Addressables.LoadAssetAsync<UnityEngine.Object>(address);
 
-            handle.Completed += obj => OnAssetLoaded(address, obj);// _operationDictionary.Add(location.PrimaryKey, obj);
-            loadAssetHandles.Add(handle);
+            //handle.Completed += obj => OnAssetLoaded(address, obj);// _operationDictionary.Add(location.PrimaryKey, obj);
+            //loadAssetHandles.Add(handle);
             //}
         }
 

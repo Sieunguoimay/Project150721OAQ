@@ -14,21 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CardType: 2
   cardName: Gone with The Wind
-  iconSelector:
-    assetPath: Assets/Contents/Textures/Cards/ico_gone_with_the_wind.png[ico_gone_with_the_wind]
-    directAsset: {fileID: 0}
-    addressabled: 1
-    editorAsset: {fileID: 21300000, guid: c2fe4f8b038947049abbdbd7a6c0a900, type: 3}
-  sprite:
-    m_AssetGUID: 
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_EditorAssetChanged: 0
-  anything:
-    m_AssetGUID: 
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_EditorAssetChanged: 0
+  icon: {fileID: 21300000, guid: c2fe4f8b038947049abbdbd7a6c0a900, type: 3}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59,22 +45,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CardType: 1
   cardName: Concurrent
-  iconSelector:
-    assetPath: Assets/Contents/Textures/Cards/ico_two_arrows_concurrent.png[ico_two_arrows_concurrent]
-    directAsset: {fileID: 0}
-    addressabled: 1
-    editorAsset: {fileID: 21300000, guid: 8e05dc181271e454eae783942c3993ee, type: 3}
-  sprite:
-    m_AssetGUID: 8e05dc181271e454eae783942c3993ee
-    m_SubObjectName: ico_two_arrows_concurrent
-    m_SubObjectType: UnityEngine.Sprite, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-    m_EditorAssetChanged: 0
-  anything:
-    m_AssetGUID: 
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_EditorAssetChanged: 0
+  icon: {fileID: 21300000, guid: 8e05dc181271e454eae783942c3993ee, type: 3}
 --- !u!114 &3176090362060156598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89,20 +60,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CardType: 3
   cardName: Future Foreseen
-  iconSelector:
-    assetPath: Assets/Contents/Textures/Cards/ico_future_foreseen.png[ico_future_foreseen]
-    directAsset: {fileID: 0}
-    addressabled: 1
-    editorAsset: {fileID: 21300000, guid: 2f6dd6e5040a81347beb72b437f651d8, type: 3}
-  sprite:
-    m_AssetGUID: 2f6dd6e5040a81347beb72b437f651d8
-    m_SubObjectName: ico_future_foreseen
-    m_SubObjectType: UnityEngine.Sprite, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-    m_EditorAssetChanged: 0
-  anything:
-    m_AssetGUID: 89922d5c8962a6444a5db0318772f00a
-    m_SubObjectName: 
-    m_SubObjectType: UnityEngine.Sprite, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-    m_EditorAssetChanged: 0
+  icon: {fileID: 21300000, guid: 2f6dd6e5040a81347beb72b437f651d8, type: 3}

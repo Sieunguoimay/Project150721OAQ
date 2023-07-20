@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Common;
 using Framework.DependencyInversion;
-using Gameplay.CoreGameplay.Interactors.MoveDecisionMaking;
-using Gameplay.CoreGameplay.Interactors.OptionSystem;
 using Gameplay.Visual.Board;
 using Gameplay.Visual.GameInteract;
 using SNM;
@@ -16,17 +14,11 @@ namespace Gameplay.Visual.Views
     {
         [SerializeField] private TileSelector tileSelector;
         [SerializeField] private ActionChooser actionChooser;
-        
-        private BoardVisualGenerator _boardVisualGenerator;
+        [SerializeField] private BoardVisualGenerator boardVisualGenerator;
+
         private TileVisual _selectedTileVisual;
         private Action<bool> _directionSelectedHandler;
         private Action<int> _tileSelectedHandler;
-
-        protected override void OnSetupDependencies()
-        {
-            base.OnSetupDependencies();
-            _boardVisualGenerator = Resolver.Resolve<BoardVisualGenerator>();
-        }
 
         public void ShowActionChooser(Action<bool> directionSelectedHandler)
         {
@@ -38,7 +30,7 @@ namespace Gameplay.Visual.Views
         public void ShowTileSelector(IEnumerable<int> tileIndices, Action<int>tileSelectedHandler)
         {
             _tileSelectedHandler = tileSelectedHandler;
-            var tileVisuals = tileIndices.Select(v => _boardVisualGenerator.BoardVisual.TileVisuals[v]).ToArray();
+            var tileVisuals = tileIndices.Select(v => boardVisualGenerator.BoardVisual.TileVisuals[v]).ToArray();
             tileSelector.Show(tileVisuals, OnTileSelected);
         }
 

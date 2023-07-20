@@ -7,22 +7,22 @@ using UnityEngine;
 
 namespace Gameplay.Visual.BambooStick
 {
-    public class BambooFamilyManager : SelfBindingDependencyInversionMonoBehaviour
+    public class BambooFamilyManager : MonoBehaviour
     {
         [SerializeField] private BambooStickSpace[] bambooSticks;
         [SerializeField] private Transform[] bambooStickVisualTransforms;
+        [SerializeField] private BoardSketcher boardSketcher;
 
-        private BoardSketcher _boardSketcher;
         private int _timelineCount;
 
-        protected override void OnInject(IResolver resolver)
-        {
-            _boardSketcher = resolver.Resolve<BoardSketcher>();
-        }
-        protected override void OnSetupDependencies()
-        {
-            base.OnSetupDependencies();
-        }
+        //protected override void OnInject(IResolver resolver)
+        //{
+            //_boardSketcher = resolver.Resolve<BoardSketcher>();
+        //}
+        //protected override void OnSetupDependencies()
+        //{
+        //    base.OnSetupDependencies();
+        //}
 
         public void ResetAll()
         {
@@ -30,24 +30,24 @@ namespace Gameplay.Visual.BambooStick
             {
                 stick.ResetState();
             }
-            _boardSketcher.DeleteDrawing();
+            boardSketcher.DeleteDrawing();
             _timelineCount = 0;
         }
 
         public void BeginAnimSequence(BoardVisual boardVisual)
         {
-            _boardSketcher.Sketch(boardVisual);
-            var points = _boardSketcher.Points;
-            var numActivePens = _boardSketcher.PenUsageNum;
+            boardSketcher.Sketch(boardVisual);
+            var points = boardSketcher.Points;
+            var numActivePens = boardSketcher.PenUsageNum;
             for (var i = 0; i < numActivePens; i++)
             {
                 var stick = bambooSticks[i];
                 var startDrawingIndex = i * (points.Count / numActivePens);
                 stick.StartTimelineMoving(TimelineStopped);
 
-                var startDrawingPos = _boardSketcher.Surfaces[i].Get3DPoint(points[startDrawingIndex]);
+                var startDrawingPos = boardSketcher.Surfaces[i].Get3DPoint(points[startDrawingIndex]);
                 var forward = (points[startDrawingIndex] - points[startDrawingIndex + 1]).normalized;
-                var endForward = _boardSketcher.Surfaces[i].transform.TransformDirection(new Vector3(forward.x, 0, forward.y));
+                var endForward = boardSketcher.Surfaces[i].transform.TransformDirection(new Vector3(forward.x, 0, forward.y));
                 stick.pathPlan.PlanPath(stick.start.position, stick.start.forward, startDrawingPos, endForward);
             }
         }
@@ -55,7 +55,7 @@ namespace Gameplay.Visual.BambooStick
         private void TimelineStopped()
         {
             _timelineCount++;
-            if (_timelineCount == _boardSketcher.PenUsageNum)
+            if (_timelineCount == boardSketcher.PenUsageNum)
             {
                 BeginDrawing();
                 _timelineCount = 0;
@@ -64,11 +64,11 @@ namespace Gameplay.Visual.BambooStick
 
         public void BeginDrawing()
         {
-            for (var i = 0; i < _boardSketcher.PenUsageNum; i++)
+            for (var i = 0; i < boardSketcher.PenUsageNum; i++)
             {
-                _boardSketcher.Pens[i].SetPenBall(bambooStickVisualTransforms[i]);
-                _boardSketcher.Pens[i].Done += OnSketchingDone;
-                _boardSketcher.StartPenDrawing(i, bambooSticks[i].GetMoverSpeed());
+                boardSketcher.Pens[i].SetPenBall(bambooStickVisualTransforms[i]);
+                boardSketcher.Pens[i].Done += OnSketchingDone;
+                boardSketcher.StartPenDrawing(i, bambooSticks[i].GetMoverSpeed());
             }
         }
 
@@ -82,9 +82,9 @@ namespace Gameplay.Visual.BambooStick
         public void MoveSticksBackToTheForest()
         {
             _timelineCount++;
-            if (_timelineCount == _boardSketcher.PenUsageNum)
+            if (_timelineCount == boardSketcher.PenUsageNum)
             {
-                for (var i = 0; i < _boardSketcher.PenUsageNum; i++)
+                for (var i = 0; i < boardSketcher.PenUsageNum; i++)
                 {
                     var stick = bambooSticks[i];
                     var endPosition = stick.start.position;

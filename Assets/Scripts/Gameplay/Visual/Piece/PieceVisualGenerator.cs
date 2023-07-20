@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Gameplay.Visual.Piece
 {
-    public class PieceVisualGenerator : SelfBindingDependencyInversionMonoBehaviour
+    public class PieceVisualGenerator : MonoBehaviour
     {
         [SerializeField] private Mandarin mandarinPrefab;
         [SerializeField] private Citizen citizenPrefab;

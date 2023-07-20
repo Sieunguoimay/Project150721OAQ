@@ -69,28 +69,36 @@ namespace Framework.Resolver
             }
         }
 
-        public TType Resolve<TType>()
+        public object Resolve(Type type)
         {
-            var type = typeof(TType);
             if (_boundObjects.TryGetValue(type, out var obj))
             {
-                return (TType) obj;
+                return obj;
             }
 
             Debug.LogError($"Type {type.FullName} is not bound to any object");
             return default;
         }
 
-        public TType Resolve<TType>(string id)
+        public object Resolve(Type type, string id)
         {
-            var type = typeof(TType);
             if (_boundObjectsWithId.TryGetValue(new KeyWithId(type, id), out var obj))
             {
-                return (TType) obj;
+                return obj;
             }
 
             Debug.LogError($"Key {type.FullName} - {id} is not bound to any object");
             return default;
+        }
+
+        public TType Resolve<TType>()
+        {
+            return (TType)Resolve(typeof(TType));
+        }
+
+        public TType Resolve<TType>(string id)
+        {
+            return (TType)Resolve(typeof(TType), id);
         }
 
         public void Bind(Type type, object target)
@@ -108,5 +116,6 @@ namespace Framework.Resolver
                 Debug.LogError($"Key {type.FullName} - {id} has already been bound to {_boundObjects[type]}");
             }
         }
+
     }
 }

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Gameplay.Visual.Board.BoardDrawing
 {
-    public class BoardSketcher : SelfBindingDependencyInversionMonoBehaviour
+    public class BoardSketcher : MonoBehaviour
     {
         [SerializeField] private VisualPen[] pens;
         [SerializeField] private DrawingSurface[] surfaces;

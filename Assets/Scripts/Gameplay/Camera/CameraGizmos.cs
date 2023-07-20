@@ -1,10 +1,8 @@
-﻿using System;
-using Framework.DependencyInversion;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Gameplay.Camera
 {
-    public class CameraManager : SelfBindingDependencyInversionMonoBehaviour
+    public class CameraGizmos : MonoBehaviour
     {
         private UnityEngine.Camera _camera = null;
         public UnityEngine.Camera Camera => _camera ? _camera : _camera = GetComponent<UnityEngine.Camera>();

@@ -6,7 +6,6 @@ using Gameplay.CoreGameplay.Interactors;
 using Gameplay.Helpers;
 using Gameplay.Visual.Views;
 using SNM;
-using UnityEngine;
 
 namespace Gameplay.Visual.Piece
 {

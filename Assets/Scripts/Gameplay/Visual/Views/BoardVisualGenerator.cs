@@ -1,57 +1,49 @@
 ﻿using System;
-using Framework.DependencyInversion;
-using Gameplay.CoreGameplay.Gateway;
 using Gameplay.CoreGameplay.Interactors;
 using Gameplay.Helpers;
 using Gameplay.Visual.BambooStick;
 using Gameplay.Visual.Board;
 using Gameplay.Visual.Piece;
+using UnityEngine;
 
 namespace Gameplay.Visual.Views
 {
-    public class BoardVisualGenerator : SelfBindingDependencyInversionMonoBehaviour
+    public class BoardVisualGenerator : MonoBehaviour
     {
-        private BambooFamilyManager _bambooFamily;
-        private BoardVisualCreator _boardVisualCreator;
-        private PieceVisualGenerator _pieceVisualGenerator;
-        private GridLocator _gridLocator;
+        [SerializeField] private BoardVisualGeneratorRepresenter representer;
+        [SerializeField] private BambooFamilyManager bambooFamily;
+        [SerializeField] private BoardVisualCreator boardVisualCreator;
+        [SerializeField] private PieceVisualGenerator pieceVisualGenerator;
+        [SerializeField] private GridLocator gridLocator;
+
         public BoardVisual BoardVisual { get; private set; }
         public event Action<BoardVisualGenerator> VisualReadyEvent;
 
-        protected override void OnSetupDependencies()
+        private void Awake()
         {
-            base.OnSetupDependencies();
-            _bambooFamily = Resolver.Resolve<BambooFamilyManager>();
-            _boardVisualCreator = Resolver.Resolve<BoardVisualCreator>();
-            _pieceVisualGenerator = Resolver.Resolve<PieceVisualGenerator>();
-            _gridLocator = Resolver.Resolve<GridLocator>();
+            representer.SetAuthor(this);
         }
 
-        public void RefreshVisual(RefreshData refreshData)
-        {
-            GenerateBoardVisual(refreshData);
-        }
-
-        private void GenerateBoardVisual(RefreshData refreshData)
+        public void GenerateBoardVisual(RefreshData refreshData)
         {
             var numSides = refreshData.BoardData.NumSides;
             var tilesPerSide = refreshData.BoardData.TilesPerSide;
             var piecesPerTile = refreshData.BoardData.PiecesPerTile;
 
-            BoardVisual = _boardVisualCreator.CreateBoard(numSides, tilesPerSide);
+            BoardVisual = boardVisualCreator.CreateBoard(numSides, tilesPerSide);
 
             // _pieceGenerator.SpawnPieces(numSides, tilesPerSide, piecesPerTile);
 
-            new PieceRelease(_pieceVisualGenerator, BoardVisual, _gridLocator, OnAllPiecesInPlace)
+            new PieceRelease(pieceVisualGenerator, BoardVisual, gridLocator, OnAllPiecesInPlace)
                 .ReleasePieces(refreshData);
 
-            _bambooFamily.BeginAnimSequence(BoardVisual);
+            bambooFamily.BeginAnimSequence(BoardVisual);
         }
 
         public void Cleanup()
         {
-            _bambooFamily.ResetAll();
-            _pieceVisualGenerator.DeletePieces();
+            bambooFamily.ResetAll();
+            pieceVisualGenerator.DeletePieces();
             BoardVisualCreator.DeleteBoard(BoardVisual);
         }
 

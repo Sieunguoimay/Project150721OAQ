@@ -4,15 +4,17 @@ using Gameplay.CoreGameplay.Controllers;
 using Gameplay.Visual;
 using Gameplay.Visual.Presenters;
 using Gameplay.Visual.Views;
+using UnityEngine;
 
 namespace System
 {
-    public class GameplayEventsHandler : DependencyInversionUnit
+    public class GameplayEventsHandler : ScriptableEntity
     {
+        [SerializeField] private BoardVisualGeneratorRepresenter boardVisualView;
+
         private BoardStatePresenter _boardStatePresenter;
         private BoardStateView _boardStateView;
         private ICoreGameplayController _controller;
-        private BoardVisualGenerator _boardVisualView;
         private BoardStateMatchVisualVerify _verify;
         private IMessageService _messageService;
 
@@ -23,12 +25,11 @@ namespace System
             _boardStatePresenter = Resolver.Resolve<BoardStatePresenter>();
             _boardStateView = Resolver.Resolve<BoardStateView>();
             _controller = Resolver.Resolve<ICoreGameplayController>();
-            _boardVisualView = Resolver.Resolve<BoardVisualGenerator>();
         }
 
         public void SetupForNewGame()
         {
-            _verify = new BoardStateMatchVisualVerify(_boardStateView, _boardVisualView.BoardVisual);
+            _verify = new BoardStateMatchVisualVerify(_boardStateView, boardVisualView.Author.BoardVisual);
             ConnectEvents();
         }
 
@@ -40,13 +41,13 @@ namespace System
         private void ConnectEvents()
         {
             _messageService.Register("AllMovingStepsExecutedEvent", OnAllMovingStepsDone);
-            _boardVisualView.VisualReadyEvent -= OnBoardVisualReady;
-            _boardVisualView.VisualReadyEvent += OnBoardVisualReady;
+            boardVisualView.Author.VisualReadyEvent -= OnBoardVisualReady;
+            boardVisualView.Author.VisualReadyEvent += OnBoardVisualReady;
         }
 
         private void DisconnectEvents()
         {
-            _boardVisualView.VisualReadyEvent -= OnBoardVisualReady;
+            boardVisualView.Author.VisualReadyEvent -= OnBoardVisualReady;
             _messageService.Unregister("AllMovingStepsExecutedEvent", OnAllMovingStepsDone);
         }
 

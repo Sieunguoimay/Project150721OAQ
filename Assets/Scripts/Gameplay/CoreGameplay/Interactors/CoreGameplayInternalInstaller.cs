@@ -9,7 +9,7 @@ namespace Gameplay.CoreGameplay.Interactors
 {
     public class CoreGameplayInternalInstaller : ScriptableEntity
     {
-        [SerializeField] private SimulatorManager simulatorManager;
+        [SerializeField] private BoardMoveSimulatorManager simulatorManager;
         private TurnDataExtractor _turnDataExtractor;
         private CoreGameplayController _coreGameplayController;
 

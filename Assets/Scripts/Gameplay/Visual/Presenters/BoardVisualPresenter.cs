@@ -1,32 +1,19 @@
 ﻿using System;
 using Framework.DependencyInversion;
 using Gameplay.CoreGameplay.Interactors;
-using Gameplay.Visual.Views;
+using UnityEngine;
 
 namespace Gameplay.Visual.Presenters
 {
-    public class BoardVisualPresenter : 
-        SelfBindingDependencyInversionUnit, 
-        IRefreshResultHandler
+    public class BoardVisualPresenter : ScriptableEntity, IRefreshResultHandler
     {
-        private BoardVisualGenerator _boardVisualView;
-
-        public event Action<IRefreshResultHandler> BoardStateChangedEvent;
-        protected override void OnSetupDependencies()
-        {
-            base.OnSetupDependencies();
-            _boardVisualView = Resolver.Resolve<BoardVisualGenerator>();
-        }
+        [SerializeField] private BoardVisualGeneratorRepresenter boardVisualGeneratorRepresenter;
+        public event Action<RefreshData> BoardStateChangedEvent;
 
         public void HandleRefreshData(RefreshData refreshData)
         {
-            ExtractBoardState(refreshData);
-            BoardStateChangedEvent?.Invoke(this);
-        }
-
-        private void ExtractBoardState(RefreshData refreshData)
-        {
-            _boardVisualView.RefreshVisual(refreshData);
+            BoardStateChangedEvent?.Invoke(refreshData);
+            boardVisualGeneratorRepresenter.Author.GenerateBoardVisual(refreshData);
         }
     }
 }

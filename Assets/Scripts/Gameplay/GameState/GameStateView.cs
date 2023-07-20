@@ -1,18 +1,11 @@
-﻿using System;
-using Framework.DependencyInversion;
-using Framework.Resolver;
+﻿using UnityEngine;
 
 namespace Gameplay.GameState
 {
-    public class GameStateView : InjectableMonoBehaviour
+    public class GameStateView : MonoBehaviour
     {
-        [field: System.NonSerialized] public IGameState GameState { get; private set; }
-        
-        public bool IsInMenu => GameState.CurrentState == Gameplay.GameState.GameState.State.InMenu;
-        protected override void OnInject(IResolver resolver)
-        {
-            base.OnInject(resolver);
-            GameState = resolver.Resolve<IGameState>();
-        }
+        [SerializeField] private GameStateController gameStateController;
+        public IGameState GameState => gameStateController.GameState;
+        public bool IsInMenu => GameState != null && GameState.CurrentState == Gameplay.GameState.GameState.State.InMenu;
     }
 }

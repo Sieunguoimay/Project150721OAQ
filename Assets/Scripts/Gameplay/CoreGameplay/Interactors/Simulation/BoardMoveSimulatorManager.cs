@@ -10,7 +10,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
         public IBoardMoveSimulator GetSimulator(SimulationType actionType);
     }
     
-    public class SimulatorManager : ScriptableEntity, ISimulatorManager
+    public class BoardMoveSimulatorManager : ScriptableEntity, ISimulatorManager
     {
         private BoardMoveSimulator _boardMoveSimulator;
         private BoardMoveSimulator _goneWithTheWindSimulator;

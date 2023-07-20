@@ -7,7 +7,7 @@ namespace Gameplay.CoreGameplay.Interactors.Simulation
         void RunSimulation(MoveSimulationInputData inputData);
     }
 
-    public class BoardMoveSimulator :ScriptableObject, IBoardMoveSimulator
+    public class BoardMoveSimulator : IBoardMoveSimulator
     {
         private readonly IBoardMoveSimulationResultHandler _simulationResultHandler;
         private readonly BoardStateMachine _boardStateMachine;
