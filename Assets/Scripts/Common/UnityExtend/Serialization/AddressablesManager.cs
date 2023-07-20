@@ -88,13 +88,24 @@ public class AddressablesManager : ScriptableObject
 
     IEnumerator LoadAndAssociateResultWithKey(IList<CachedAddress> keys, Action onDone)
     {
+        var locationsHandle = Addressables.LoadResourceLocationsAsync(keys.FirstOrDefault().address);
+        yield return locationsHandle;
+        
+        Debug.Log(string.Join(",", locationsHandle.Result.Select(l => l.PrimaryKey + " " + l.ResourceType))); ;
+
+        foreach(var l in locationsHandle.Result)
+        {
+            var handle = Addressables.LoadAssetAsync<UnityEngine.Object>(l);
+            yield return handle;
+            Debug.Log($"Loaded {handle.Result.name} {handle.Result.GetType().Name}");
+        }
 
         //var loadLocationsHandles = Addressables.LoadResourceLocationsAsync(keys.Select(k => k.address),
         //        Addressables.MergeMode.Union);
         //yield return loadLocationsHandles;
 
         //var loadAssetHandles = new List<AsyncOperationHandle>(loadLocationsHandles.Result.Count);
-
+ 
         //for (int i = 0; i < loadLocationsHandles.Result.Count; i++)
         //{
         //    var location = loadLocationsHandles.Result[i];

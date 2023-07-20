@@ -65,9 +65,10 @@ MonoBehaviour:
     addressabled: 1
     editorAsset: {fileID: 21300000, guid: 8e05dc181271e454eae783942c3993ee, type: 3}
   sprite:
-    m_AssetGUID: 
-    m_SubObjectName: 
-    m_SubObjectType: 
+    m_AssetGUID: 8e05dc181271e454eae783942c3993ee
+    m_SubObjectName: ico_two_arrows_concurrent
+    m_SubObjectType: UnityEngine.Sprite, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
     m_EditorAssetChanged: 0
   anything:
     m_AssetGUID: 
