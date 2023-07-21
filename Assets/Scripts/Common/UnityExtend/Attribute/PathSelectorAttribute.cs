@@ -14,8 +14,8 @@ namespace Common.UnityExtend.Attribute
         public bool IsTypeProvided { get; }
 
         public PathSelectorAttribute(string objectPropertyName, bool isGetPath = true,
-            bool isProviderPropertyInBase = false, bool typeProvided = false)
-            : base(objectPropertyName, isProviderPropertyInBase, "")
+            bool typeProvided = false)
+            : base(objectPropertyName, "")
         {
             IsGetPath = isGetPath;
             IsTypeProvided = typeProvided;

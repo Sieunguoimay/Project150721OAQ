@@ -72,7 +72,7 @@ namespace Common.UnityExtend.Rendering
         [Serializable]
         private class Item
         {
-            [field: SerializeField, StringSelector(nameof(PropertyNames), true)]
+            [field: SerializeField, StringSelector(nameof(PropertyNames))]
             public string PropName { get; private set; }
 
             [field: SerializeField] public float Value { get; private set; }

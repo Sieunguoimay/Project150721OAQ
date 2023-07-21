@@ -45,7 +45,7 @@ namespace Common.UnityExtend.Reflection
         {
 #if UNITY_EDITOR
 
-            [PathSelector(nameof(SourceObjectType), true, true, true)]
+            [PathSelector(nameof(SourceObjectType), true, true)]
 #endif
             [SerializeField]
             private string sourceObjectMethodName;

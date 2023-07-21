@@ -63,7 +63,7 @@ namespace Framework.Entities.ContainerEntity
             [TypeConstraint(false, typeof(IManualView))]
             public Object view;
 #if UNITY_EDITOR
-            [StringSelector(nameof(GetComponentOptions), true)]
+            [StringSelector(nameof(GetComponentOptions))]
 #endif
             public string subId;
         }

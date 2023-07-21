@@ -84,7 +84,7 @@ namespace Common.UnityExtend.Reflection
         private UnityObjectPathSelector targetObjectPath;
 
 #if UNITY_EDITOR
-        [StringSelector(nameof(GetMethodNames), false, nameof(StringSelectorCallback))]
+        [StringSelector(nameof(GetMethodNames), nameof(StringSelectorCallback))]
 #endif
         [SerializeField]
         public string methodName;

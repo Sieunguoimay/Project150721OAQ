@@ -7,7 +7,7 @@ namespace Common.UnityExtend.Attribute
 {
     public class ComponentSelectorAttribute : ObjectSelectorAttribute
     {
-        public ComponentSelectorAttribute() : base("", false)
+        public ComponentSelectorAttribute() : base("")
         {
         }
     }

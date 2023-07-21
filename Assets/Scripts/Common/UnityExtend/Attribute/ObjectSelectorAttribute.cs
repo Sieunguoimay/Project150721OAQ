@@ -9,7 +9,7 @@ namespace Common.UnityExtend.Attribute
 {
     public class ObjectSelectorAttribute : StringSelectorAttribute
     {
-        public ObjectSelectorAttribute(string name, bool isProviderPropertyInBase) : base(name, isProviderPropertyInBase)
+        public ObjectSelectorAttribute(string name) : base(name)
         {
         }
     }
@@ -41,14 +41,9 @@ namespace Common.UnityExtend.Attribute
             return GetName(property.objectReferenceValue)?.Equals(item) ?? false;
         }
 
-        protected override void OnSelected(SerializedProperty property, StringSelectorAttribute att, string item)
+        protected override void ModifyProperty(SerializedProperty property, StringSelectorAttribute att, string item)
         {
             property.objectReferenceValue = _items.FirstOrDefault(i => GetName(i).Equals(item));
-        }
-
-        protected override string GetDisplay(SerializedProperty property)
-        {
-            return GetName(property.objectReferenceValue) ?? "";
         }
 
         protected override bool DrawDropdownButton(Rect position, SerializedProperty property)

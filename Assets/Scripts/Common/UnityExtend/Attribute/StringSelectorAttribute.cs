@@ -8,30 +8,43 @@ namespace Common.UnityExtend.Attribute
 {
     public class BaseSelectorAttribute : PropertyAttribute
     {
-        private readonly string _providerVariableName;
-        private readonly bool _isProviderPropertyInBase;
-        private readonly string _callbackToModifySelectedValue;
+        private readonly string _optionProvide;
+        private readonly string _displayToSerialized;
+        private readonly string _serializedToDisplay;
 
-        protected BaseSelectorAttribute(string name, bool isProviderPropertyInBase, string callbackToModifySelectedValue)
+        protected BaseSelectorAttribute(string name, string callbackToModifySelectedValue, string callbackToModifyDisplayValue = "")
         {
-            _providerVariableName = name;
-            _isProviderPropertyInBase = isProviderPropertyInBase;
-            _callbackToModifySelectedValue = callbackToModifySelectedValue;
+            _optionProvide = name;
+            _displayToSerialized = callbackToModifySelectedValue;
+            _serializedToDisplay = callbackToModifyDisplayValue;
         }
 
         public object GetData(SerializedProperty property)
         {
-            var providerObject = _isProviderPropertyInBase
-                ? property.serializedObject.targetObject
-                : SerializeUtility.GetObjectToWhichPropertyBelong(property);
-            return ReflectionUtility.GetDataFromMember(providerObject, _providerVariableName, false);
+            var providerObject = SerializeUtility.GetObjectToWhichPropertyBelong(property);
+            var result = ReflectionUtility.GetDataFromMember(providerObject, _optionProvide, false);
+            if (result == null)
+            {
+                providerObject = property.serializedObject.targetObject;
+                result = ReflectionUtility.GetDataFromMember(providerObject, _optionProvide, false);
+            }
+            return result;
         }
 
-        public object InvokeCallback(SerializedProperty property, object value)
+        public object GetSerializedValue(SerializedProperty property, object displayValue)
         {
-            if (string.IsNullOrEmpty(_callbackToModifySelectedValue)) return value;
+            if (string.IsNullOrEmpty(_displayToSerialized)) return displayValue;
             var providerObject = SerializeUtility.GetObjectToWhichPropertyBelong(property);
-            return providerObject.GetType().GetMethod(_callbackToModifySelectedValue)?.Invoke(providerObject, new[] {value});
+            return providerObject.GetType().GetMethod(_displayToSerialized, ReflectionUtility.MethodFlags)
+                ?.Invoke(providerObject, new[] { displayValue });
+        }
+
+        public object GetDisplayValue(SerializedProperty property, object serializedValue)
+        {
+            if (string.IsNullOrEmpty(_serializedToDisplay)) return null;
+            var providerObject = SerializeUtility.GetObjectToWhichPropertyBelong(property);
+            return providerObject.GetType().GetMethod(_serializedToDisplay, ReflectionUtility.MethodFlags)
+                ?.Invoke(providerObject, new[] { serializedValue });
         }
         // public void InvokeCallback(SerializedProperty property)
         // {
@@ -45,9 +58,11 @@ namespace Common.UnityExtend.Attribute
 
     public class StringSelectorAttribute : BaseSelectorAttribute
     {
-        public StringSelectorAttribute(string name, bool isProviderPropertyInBase = false, string callbackToModifySelectedValue = "")
-            : base(name, isProviderPropertyInBase, callbackToModifySelectedValue)
+        public bool UseSearchMenu { get; private set; } = false;
+        public StringSelectorAttribute(string name, string callbackToModifySelectedValue = "", string callbackToModifyDisplayValue = "", bool useSearchMenu = false)
+            : base(name, callbackToModifySelectedValue, callbackToModifyDisplayValue)
         {
+            UseSearchMenu = useSearchMenu;
         }
     }
 
@@ -57,7 +72,11 @@ namespace Common.UnityExtend.Attribute
     public class StringSelectorDrawer : PropertyDrawer
     {
         private GenericMenu _menu;
-
+        private SearchMenuWindow _searchMenu;
+        private StringSelectorAttribute _objectSelector;
+        private string _cachedString;
+        private string _displayString;
+        private SerializedProperty _property;
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             Draw(position, property, label, EditorStyles.label);
@@ -65,50 +84,81 @@ namespace Common.UnityExtend.Attribute
 
         protected void Draw(Rect position, SerializedProperty property, GUIContent label, GUIStyle style)
         {
-            if (attribute is not StringSelectorAttribute objectSelector) return;
+            _property ??= property;
+            _objectSelector ??= attribute as StringSelectorAttribute;
+            if (string.IsNullOrEmpty(_cachedString) && !string.IsNullOrEmpty(property.stringValue))
+            {
+                UpdateString(property);
+            }
+
             position = EditorGUI.PrefixLabel(position, label, style);
-            if (!CreateMenuWithStringProperty(position, property, objectSelector)) return;
-            _menu?.ShowAsContext();
+            var openMenu = DrawDropdownButton(position, property);
+
+            if (openMenu)
+            {
+                ShowMenu();
+            }
+        }
+        private void ShowMenu()
+        {
+            var ids = GetIds(_property, _objectSelector);
+            if (ids == null) return;
+
+            if (_objectSelector.UseSearchMenu)
+            {
+                ShowSearchMenuWithStringProperty(ids);
+            }
+            else
+            {
+                ShowMenuWithStringProperty(ids);
+            }
         }
 
-        private bool CreateMenuWithStringProperty(Rect position, SerializedProperty property,
-            StringSelectorAttribute objectSelector)
+        private void ShowSearchMenuWithStringProperty(IEnumerable<string> ids)
         {
-            var openWindow = DrawDropdownButton(position, property);
-            if (!openWindow)
-            {
-                _menu = null;
-                return false;
-            }
-
-            if (_menu != null) return true;
-            _menu = new GenericMenu();
-
-            var ids = GetIds(property, objectSelector);
-
-            if (ids == null) return false;
-
+            _searchMenu = SearchMenuWindow.Create(_property.serializedObject.targetObject.name, true);
             foreach (var id in ids)
             {
-                _menu.AddItem(new GUIContent(id), IsActive(property, id), data =>
+                _searchMenu.AddItem(id, data =>
                 {
-                    property.serializedObject.Update();
-                    OnSelected(property, objectSelector, (string) data);
-                    property.serializedObject.ApplyModifiedProperties();
+                    OnMenuItemSelected((string)data);
                 }, id);
             }
+            _searchMenu.ShowMenu();
+        }
+        private void ShowMenuWithStringProperty(IEnumerable<string> ids)
+        {
+            _menu = new GenericMenu();
+            foreach (var id in ids)
+            {
+                _menu.AddItem(new GUIContent(id), IsActive(_property, id), data =>
+                {
+                    OnMenuItemSelected((string)data);
+                }, id);
+            }
+            _menu.ShowAsContext();
+        }
 
-            return true;
+        private void OnMenuItemSelected(string str)
+        {
+            _property.serializedObject.Update();
+            ModifyProperty(_property, _objectSelector, str);
+            _property.serializedObject.ApplyModifiedProperties();
+            UpdateString(_property);
         }
 
         protected virtual bool DrawDropdownButton(Rect position, SerializedProperty property)
         {
-            return EditorGUI.DropdownButton(position, new GUIContent(GetDisplay(property)), FocusType.Keyboard);
+            return EditorGUI.DropdownButton(position, new GUIContent(_displayString), FocusType.Keyboard);
         }
 
-        protected virtual string GetDisplay(SerializedProperty property)
+        private void UpdateString(SerializedProperty property)
         {
-            return property.stringValue;
+            if (_cachedString != property.stringValue)
+            {
+                _cachedString = property.stringValue;
+                _displayString = (string)_objectSelector.GetDisplayValue(property, property.stringValue);
+            }
         }
 
         protected virtual bool IsActive(SerializedProperty property, string item)
@@ -116,9 +166,9 @@ namespace Common.UnityExtend.Attribute
             return property.stringValue == item;
         }
 
-        protected virtual void OnSelected(SerializedProperty property, StringSelectorAttribute att, string item)
+        protected virtual void ModifyProperty(SerializedProperty property, StringSelectorAttribute att, string item)
         {
-            property.stringValue = (string) att.InvokeCallback(property, item);
+            property.stringValue = (string)att.GetSerializedValue(property, item);
         }
 
         protected virtual IEnumerable<string> GetIds(SerializedProperty property,
