@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Gameplay.Helpers
 {
-    public class GridLocator : ScriptableEntity
+    public class GridLocator : ScriptableObject
     {
         [SerializeField] private float cellSize;
 

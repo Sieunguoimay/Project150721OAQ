@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e267000b9ee94d1cb5ba5bddb4772a45, type: 3}
   m_Name: game_state_controller
   m_EditorClassIdentifier: 
+  children: []
   stageSelectorId: stage_selector

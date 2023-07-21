@@ -1,18 +1,16 @@
 ﻿using Framework.DependencyInversion;
 using Gameplay.Visual.Views;
+using System;
+using UnityEngine;
 
 namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
-    public class DecisionMakingFactory :
-        SelfBindingGenericDependencyInversionUnit<IDecisionMakingFactory>,
-        IDecisionMakingFactory
+    public class DecisionMakingFactory : ScriptableEntity, IDecisionMakingFactory
     {
-        private InteractSystem _interactSystem;
-
-        protected override void OnSetupDependencies()
+        [SerializeField] private InteractSystemRepresenter interactSystem;
+        protected override Type GetBindingType()
         {
-            base.OnSetupDependencies();
-            _interactSystem = Resolver.Resolve<InteractSystem>();
+            return typeof(IDecisionMakingFactory);
         }
 
         public IDecisionMaker CreateDefaultDecisionMaking()
@@ -22,7 +20,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         public IDecisionMaker CreatePlayerDecisionMaking()
         {
-            return new PlayerDecisionMaker(_interactSystem);
+            return new PlayerDecisionMaker(interactSystem.Author);
         }
 
         public IDecisionMaker CreateComputerDecisionMaking()

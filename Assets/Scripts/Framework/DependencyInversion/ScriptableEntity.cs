@@ -25,9 +25,9 @@ namespace Framework.DependencyInversion
                 _container.DependencyInversionUnitChildren.AddRange(SerializedChildren.Select(sc => sc as IDependencyInversion));
                 _container.OnBind(binder);
                 Children = _container.DependencyInversionUnitChildren.OfType<IHierarchyNode>().ToArray();
-            }catch (Exception)
+            }catch (Exception e)
             {
-                Debug.Log("Err");
+                Debug.Log($"Err ({name}): {e.Message}");
             }
         }
 

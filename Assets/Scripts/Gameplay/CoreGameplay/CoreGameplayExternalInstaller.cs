@@ -21,7 +21,6 @@ namespace Gameplay.CoreGameplay
             //Provide external components for internal components
             AddChildDependencyInversionUnit(new SimulationResultPresenter());
             AddChildDependencyInversionUnit(new ConcurrentSimulationResultPresenter());
-            AddChildDependencyInversionUnit(new DecisionMakingFactory());
             AddChildDependencyInversionUnit(new CoreGameplayDataAccess());
 
             //Provide external components for external components

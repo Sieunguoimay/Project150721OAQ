@@ -10,8 +10,9 @@ using UnityEngine;
 
 namespace Gameplay.Visual.Views
 {
-    public class InteractSystem : SelfBindingDependencyInversionMonoBehaviour
+    public class InteractSystem : MonoBehaviour
     {
+        [SerializeField] private InteractSystemRepresenter representer;
         [SerializeField] private TileSelector tileSelector;
         [SerializeField] private ActionChooser actionChooser;
         [SerializeField] private BoardVisualGenerator boardVisualGenerator;
@@ -19,6 +20,10 @@ namespace Gameplay.Visual.Views
         private TileVisual _selectedTileVisual;
         private Action<bool> _directionSelectedHandler;
         private Action<int> _tileSelectedHandler;
+        private void Awake()
+        {
+            representer.SetAuthor(this);
+        }
 
         public void ShowActionChooser(Action<bool> directionSelectedHandler)
         {

@@ -42,20 +42,20 @@ namespace Framework.DependencyInversion
         }
     }
     
-    public abstract class SelfBindingDependencyInversionMonoBehaviour : DependencyInversionMonoBehaviour
-    {
-        protected override void OnBind(IBinder binder)
-        {
-            binder.Bind(GetBindingType(), this);
-            base.OnBind(binder);
-        }
+    //public abstract class SelfBindingDependencyInversionMonoBehaviour : DependencyInversionMonoBehaviour
+    //{
+    //    protected override void OnBind(IBinder binder)
+    //    {
+    //        binder.Bind(GetBindingType(), this);
+    //        base.OnBind(binder);
+    //    }
 
-        protected override void OnUnbind(IBinder binder)
-        {
-            base.OnUnbind(binder);
-            binder.Unbind(GetBindingType());
-        }
+    //    protected override void OnUnbind(IBinder binder)
+    //    {
+    //        base.OnUnbind(binder);
+    //        binder.Unbind(GetBindingType());
+    //    }
 
-        protected virtual Type GetBindingType() => GetType();
-    }
+    //    protected virtual Type GetBindingType() => GetType();
+    //}
 }
