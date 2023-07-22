@@ -9,8 +9,9 @@ using UnityEngine;
 public partial class SearchMenuWindow : EditorWindow
 {
     private List<MenuItem> _menuItems = null;
-    private Paging<MenuItem> _pages = null;
+    private Paging<MenuItem> _paging = null;
     private Vector2 _scrollPosition;
+    private Vector2 _previousWindowSize;
     private bool _closeOnSelect;
     private string _searchText;
 
@@ -43,18 +44,26 @@ public partial class SearchMenuWindow : EditorWindow
         UpdatePages();
         ShowAuxWindow();
     }
+    private void OnEnable()
+    {
+        _previousWindowSize = this.position.size;
+    }
 
     private void OnGUI()
     {
-        if (_pages == null) return;
+        if (_paging == null) return;
+
+        WindowSizeChangeDetect();
+        
         var searchText = GUILayout.TextField(_searchText);
-        if(searchText != _searchText) {
+        if (searchText != _searchText)
+        {
             _searchText = searchText;
             UpdatePages();
         }
         _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
         EditorGUILayout.BeginVertical();
-        foreach (var item in _pages.GetPageItems())
+        foreach (var item in _paging.GetPageItems())
         {
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button(new GUIContent(item.title)))
@@ -65,8 +74,39 @@ public partial class SearchMenuWindow : EditorWindow
         }
         EditorGUILayout.EndVertical();
         EditorGUILayout.EndScrollView();
-    }
 
+        GUILayout.FlexibleSpace();
+        
+        DrawPagingNavigation();
+    }
+    private void WindowSizeChangeDetect()
+    {
+        if (_previousWindowSize != this.position.size)
+        {
+            _previousWindowSize = this.position.size;
+            Debug.Log("Window resized! New size: " + _previousWindowSize);
+        }
+    }
+    private void DrawPagingNavigation()
+    {
+        var buttonWidth = GUILayout.Width(20);
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
+        var leftClicked = GUILayout.Button("<", buttonWidth);
+        GUILayout.Label(new GUIContent($"{_paging.PageIndex + 1}/{_paging.PageNum}"));
+        var rightClicked = GUILayout.Button(">", buttonWidth);
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
+
+        if (leftClicked)
+        {
+            _paging.PrevPage();
+        }
+        if (rightClicked)
+        {
+            _paging.NextPage();
+        }
+    }
     private void ApplySelectedItem(MenuItem item)
     {
         item.onSelected?.Invoke(item.data);
@@ -79,12 +119,12 @@ public partial class SearchMenuWindow : EditorWindow
     {
         if (string.IsNullOrEmpty(_searchText))
         {
-            _pages = new Paging<MenuItem>(_menuItems, 10);
+            _paging = new Paging<MenuItem>(_menuItems, 20);
         }
         else
         {
             var regex = CreateSearchRegex(_searchText);
-            _pages = new Paging<MenuItem>(_menuItems.Where(i => regex.IsMatch(i.title)).ToList(), 10);
+            _paging = new Paging<MenuItem>(_menuItems.Where(i => regex.IsMatch(i.title)).ToList(), 20);
         }
     }
     private static Regex CreateSearchRegex(string str)

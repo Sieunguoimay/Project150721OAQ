@@ -38,7 +38,7 @@ namespace Common.Algorithm
         {
             var from = _pageIndex * _pageSize;
             var n = GetCurrentPageSize();
-            for (var i = from; i < n; i++)
+            for (var i = from; i < from + n; i++)
             {
                 yield return _items[i];
             }
