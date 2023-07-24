@@ -7,7 +7,8 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 {
     public class DecisionMakingFactory : ScriptableEntity, IDecisionMakingFactory
     {
-        [SerializeField] private InteractSystemRepresenter interactSystem;
+        [SerializeField, ObjectBinderSO.Selector(typeof(InteractSystem))] 
+        private ObjectBinderSO interactSystem;
         protected override Type GetBindingType()
         {
             return typeof(IDecisionMakingFactory);
@@ -20,7 +21,7 @@ namespace Gameplay.CoreGameplay.Interactors.MoveDecisionMaking
 
         public IDecisionMaker CreatePlayerDecisionMaking()
         {
-            return new PlayerDecisionMaker(interactSystem.Author);
+            return new PlayerDecisionMaker(interactSystem.GetRuntimeObject<InteractSystem>());
         }
 
         public IDecisionMaker CreateComputerDecisionMaking()

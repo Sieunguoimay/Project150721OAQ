@@ -10,7 +10,8 @@ namespace Gameplay.Visual.Views
 {
     public class BoardVisualGenerator : MonoBehaviour
     {
-        [SerializeField] private BoardVisualGeneratorRepresenter representer;
+        [SerializeField, ObjectBinderSO.Selector(typeof(BoardVisualGenerator))] 
+        private ObjectBinderSO binder;
         [SerializeField] private BambooFamilyManager bambooFamily;
         [SerializeField] private BoardVisualCreator boardVisualCreator;
         [SerializeField] private PieceVisualGenerator pieceVisualGenerator;
@@ -21,7 +22,7 @@ namespace Gameplay.Visual.Views
 
         private void Awake()
         {
-            representer.SetAuthor(this);
+            binder.Bind(this);
         }
 
         public void GenerateBoardVisual(RefreshData refreshData)

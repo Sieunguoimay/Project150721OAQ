@@ -1,19 +1,21 @@
 ﻿using System;
 using Framework.DependencyInversion;
 using Gameplay.CoreGameplay.Interactors;
+using Gameplay.Visual.Views;
 using UnityEngine;
 
 namespace Gameplay.Visual.Presenters
 {
     public class BoardVisualPresenter : ScriptableEntity, IRefreshResultHandler
     {
-        [SerializeField] private BoardVisualGeneratorRepresenter boardVisualGeneratorRepresenter;
+        [SerializeField, ObjectBinderSO.Selector(typeof(BoardVisualGenerator))]
+        private ObjectBinderSO boardVisualView;
         public event Action<RefreshData> BoardStateChangedEvent;
 
         public void HandleRefreshData(RefreshData refreshData)
         {
             BoardStateChangedEvent?.Invoke(refreshData);
-            boardVisualGeneratorRepresenter.Author.GenerateBoardVisual(refreshData);
+            boardVisualView.GetRuntimeObject<BoardVisualGenerator>().GenerateBoardVisual(refreshData);
         }
     }
 }

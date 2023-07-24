@@ -11,9 +11,10 @@ namespace System
 {
     public class GameplayLauncher : ScriptableEntity, IRefreshResultHandler
     {
-        [SerializeField] private BoardVisualGeneratorRepresenter boardVisualView;
+        [SerializeField, ObjectBinderSO.Selector(typeof(BoardVisualGenerator))]
+        private ObjectBinderSO boardVisualGeneratorBinder;
         [SerializeField] private GameplayEventsHandler gameplayEventsHandler;
-        
+
         private ICoreGameplayController _coreGameplayController;
         private PiecesMovingRunner _movingRunner;
         private PiecesMovingRunner _movingRunner2;
@@ -28,6 +29,8 @@ namespace System
                 yield return _boardVisualPresenter;
             }
         }
+        private BoardVisualGenerator BoardVisualView => boardVisualGeneratorBinder.GetRuntimeObject<BoardVisualGenerator>();
+
         protected override void OnBind(IBinder binder)
         {
             AddChildDependencyInversionUnit(gameplayEventsHandler);
@@ -58,7 +61,7 @@ namespace System
 
         public void ClearGame()
         {
-            boardVisualView.Author.Cleanup();
+            BoardVisualView.Cleanup();
             gameplayEventsHandler.Cleanup();
             _coreGameplayController.TearDownGame();
             _movingRunner.ResetMovingSteps();

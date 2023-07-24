@@ -12,7 +12,7 @@ namespace Gameplay.Visual.Views
 {
     public class InteractSystem : MonoBehaviour
     {
-        [SerializeField] private InteractSystemRepresenter representer;
+        [SerializeField, ObjectBinderSO.Selector(typeof(InteractSystem))] private ObjectBinderSO binder;
         [SerializeField] private TileSelector tileSelector;
         [SerializeField] private ActionChooser actionChooser;
         [SerializeField] private BoardVisualGenerator boardVisualGenerator;
@@ -22,7 +22,7 @@ namespace Gameplay.Visual.Views
         private Action<int> _tileSelectedHandler;
         private void Awake()
         {
-            representer.SetAuthor(this);
+            binder.Bind(this);
         }
 
         public void ShowActionChooser(Action<bool> directionSelectedHandler)

@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbf4ddc123a44f85b84d71e0676a6df5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  representer: {fileID: 11400000, guid: bd6edc84feee2444ba2303750423ae85, type: 2}
+  binder: {fileID: 11400000, guid: 8b57e4185a182104aa1950cc1b948ed8, type: 2}
   tileSelector: {fileID: 149459395763345875}
   actionChooser: {fileID: 4020295867634483582}
   boardVisualGenerator: {fileID: 7823803650772182105}
@@ -218,7 +218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba1f5f944cba489e87f2781236e7ed7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  representer: {fileID: 11400000, guid: 509e823b9e286b74d92ac4d3de828059, type: 2}
+  binder: {fileID: 11400000, guid: 9fbbf3bc2d9c1144da826fee88f61b1e, type: 2}
   bambooFamily: {fileID: 1352990688815056423}
   boardVisualCreator: {fileID: 6766520109190610884}
   pieceVisualGenerator: {fileID: 8936260033893630409}

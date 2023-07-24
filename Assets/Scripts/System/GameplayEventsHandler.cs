@@ -10,7 +10,8 @@ namespace System
 {
     public class GameplayEventsHandler : ScriptableEntity
     {
-        [SerializeField] private BoardVisualGeneratorRepresenter boardVisualView;
+        [SerializeField, ObjectBinderSO.Selector(typeof(BoardVisualGenerator))]
+        private ObjectBinderSO boardVisualView;
 
         private BoardStatePresenter _boardStatePresenter;
         private BoardStateView _boardStateView;
@@ -18,6 +19,7 @@ namespace System
         private BoardStateMatchVisualVerify _verify;
         private IMessageService _messageService;
 
+        private BoardVisualGenerator BoardVisualGenerator => boardVisualView.GetRuntimeObject<BoardVisualGenerator>();
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();
@@ -29,7 +31,7 @@ namespace System
 
         public void SetupForNewGame()
         {
-            _verify = new BoardStateMatchVisualVerify(_boardStateView, boardVisualView.Author.BoardVisual);
+            _verify = new BoardStateMatchVisualVerify(_boardStateView, BoardVisualGenerator.BoardVisual);
             ConnectEvents();
         }
 
@@ -41,13 +43,13 @@ namespace System
         private void ConnectEvents()
         {
             _messageService.Register("AllMovingStepsExecutedEvent", OnAllMovingStepsDone);
-            boardVisualView.Author.VisualReadyEvent -= OnBoardVisualReady;
-            boardVisualView.Author.VisualReadyEvent += OnBoardVisualReady;
+            BoardVisualGenerator.VisualReadyEvent -= OnBoardVisualReady;
+            BoardVisualGenerator.VisualReadyEvent += OnBoardVisualReady;
         }
 
         private void DisconnectEvents()
         {
-            boardVisualView.Author.VisualReadyEvent -= OnBoardVisualReady;
+            BoardVisualGenerator.VisualReadyEvent -= OnBoardVisualReady;
             _messageService.Unregister("AllMovingStepsExecutedEvent", OnAllMovingStepsDone);
         }
 

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: gameplay_lancher
   m_EditorClassIdentifier: 
   children: []
-  boardVisualView: {fileID: 11400000, guid: 509e823b9e286b74d92ac4d3de828059, type: 2}
+  boardVisualGeneratorBinder: {fileID: 11400000, guid: 9fbbf3bc2d9c1144da826fee88f61b1e, type: 2}
   gameplayEventsHandler: {fileID: 11400000, guid: 423e3f9b1feae4e4d875dfa781cb56dd, type: 2}

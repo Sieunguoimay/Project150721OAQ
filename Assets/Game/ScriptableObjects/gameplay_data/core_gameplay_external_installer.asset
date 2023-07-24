@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SingleThreadPiecesMovingRunner
   m_EditorClassIdentifier: 
   children: []
-  boardVisualView: {fileID: 11400000, guid: 509e823b9e286b74d92ac4d3de828059, type: 2}
+  boardVisualView: {fileID: 11400000, guid: 9fbbf3bc2d9c1144da826fee88f61b1e, type: 2}
   gridLocator: {fileID: 11400000, guid: fe9c63907001f57498703a3a57c5014c, type: 2}
 --- !u!114 &-5992587477925967981
 MonoBehaviour:
@@ -28,7 +28,7 @@ MonoBehaviour:
   m_Name: BoardVisualPresenter
   m_EditorClassIdentifier: 
   children: []
-  boardVisualGeneratorRepresenter: {fileID: 11400000, guid: 509e823b9e286b74d92ac4d3de828059, type: 2}
+  boardVisualView: {fileID: 11400000, guid: 9fbbf3bc2d9c1144da826fee88f61b1e, type: 2}
 --- !u!114 &-4549678399627414192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42,7 +42,7 @@ MonoBehaviour:
   m_Name: MultiThreadPiecesMovingRunner
   m_EditorClassIdentifier: 
   children: []
-  boardVisualView: {fileID: 11400000, guid: 509e823b9e286b74d92ac4d3de828059, type: 2}
+  boardVisualView: {fileID: 11400000, guid: 9fbbf3bc2d9c1144da826fee88f61b1e, type: 2}
   gridLocator: {fileID: 11400000, guid: fe9c63907001f57498703a3a57c5014c, type: 2}
 --- !u!114 &-2504964134023749956
 MonoBehaviour:
@@ -57,7 +57,7 @@ MonoBehaviour:
   m_Name: DecisionMakingFactory
   m_EditorClassIdentifier: 
   children: []
-  interactSystem: {fileID: 11400000, guid: bd6edc84feee2444ba2303750423ae85, type: 2}
+  interactSystem: {fileID: 11400000, guid: 8b57e4185a182104aa1950cc1b948ed8, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

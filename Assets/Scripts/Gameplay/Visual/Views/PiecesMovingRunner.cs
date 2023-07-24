@@ -15,11 +15,12 @@ namespace Gameplay.Visual.Views
 {
     public abstract class PiecesMovingRunner : ScriptableEntity
     {
-        [SerializeField] private BoardVisualGeneratorRepresenter boardVisualView;
+        [SerializeField, ObjectBinderSO.Selector(typeof(BoardVisualGenerator))]
+        private ObjectBinderSO boardVisualView;
         [SerializeField] private GridLocator gridLocator;
         protected int StepIterator;
         private IMessageService _messageService;
-        private BoardVisual BoardVisual => boardVisualView.Author.BoardVisual;
+        private BoardVisual BoardVisual => boardVisualView.GetRuntimeObject<BoardVisualGenerator>().BoardVisual;
         protected override void OnSetupDependencies()
         {
             base.OnSetupDependencies();

@@ -7,7 +7,7 @@ using UnityEngine.AddressableAssets;
 
 namespace System
 {
-    public class DependencyInversionEngine : MonoBehaviour
+    public class GameLoader : MonoBehaviour
     {
         //[SerializeField] private ScriptableEntity controller;
         [SerializeField] private AssetReference controllerReference;

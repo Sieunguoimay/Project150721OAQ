@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: GameplayEventsHandler
   m_EditorClassIdentifier: 
   children: []
-  boardVisualView: {fileID: 11400000, guid: 509e823b9e286b74d92ac4d3de828059, type: 2}
+  boardVisualView: {fileID: 11400000, guid: 9fbbf3bc2d9c1144da826fee88f61b1e, type: 2}
