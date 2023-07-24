@@ -41,7 +41,7 @@ namespace Common.UnityExtend.Attribute
 
         public object GetDisplayValue(SerializedProperty property, object serializedValue)
         {
-            if (string.IsNullOrEmpty(_serializedToDisplay)) return null;
+            if (string.IsNullOrEmpty(_serializedToDisplay)) return serializedValue;
             var providerObject = SerializeUtility.GetObjectToWhichPropertyBelong(property);
             return providerObject.GetType().GetMethod(_serializedToDisplay, ReflectionUtility.MethodFlags)
                 ?.Invoke(providerObject, new[] { serializedValue });

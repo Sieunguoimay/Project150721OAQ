@@ -66,25 +66,31 @@ public partial class SearchMenuWindow : EditorWindow
         foreach (var item in _paging.GetPageItems())
         {
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button(new GUIContent(item.title)))
-            {
-                ApplySelectedItem(item);
-            }
+            DrawMenuItem(item);
             EditorGUILayout.EndHorizontal();
         }
         EditorGUILayout.EndVertical();
         EditorGUILayout.EndScrollView();
 
-        GUILayout.FlexibleSpace();
         
         DrawPagingNavigation();
+        GUILayout.FlexibleSpace();
     }
     private void WindowSizeChangeDetect()
     {
         if (_previousWindowSize != this.position.size)
         {
             _previousWindowSize = this.position.size;
-            Debug.Log("Window resized! New size: " + _previousWindowSize);
+            //Debug.Log("Window resized! New size: " + _previousWindowSize);
+        }
+    }
+    private void DrawMenuItem(MenuItem item)
+    {
+        GUIStyle buttonStyle = GUI.skin.button;
+        buttonStyle.alignment = TextAnchor.MiddleLeft;
+        if (GUILayout.Button(new GUIContent(item.title), buttonStyle))
+        {
+            ApplySelectedItem(item);
         }
     }
     private void DrawPagingNavigation()
