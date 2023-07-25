@@ -226,7 +226,7 @@ GameObject:
   - component: {fileID: 858286693}
   - component: {fileID: 858286692}
   m_Layer: 0
-  m_Name: GameStartup
+  m_Name: GameSceneLoader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -246,6 +246,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneName: GameScene
   entityController: {fileID: 11400000, guid: fc0366b81c3c14f478c3b9c5c65195ff, type: 2}
+  saveDataManager: {fileID: 11400000, guid: 78ce5d0f52d24074291598df51d2c0c9, type: 2}
 --- !u!4 &858286693
 Transform:
   m_ObjectHideFlags: 0

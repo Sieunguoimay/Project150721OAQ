@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.UnityExtend.Attribute;
 using Framework;
+using SaveData;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -19,6 +20,7 @@ namespace System
 #endif
         [SerializeField] private string sceneName;
         [SerializeField] private EntityController entityController;
+        [SerializeField] private SaveDataManager saveDataManager;
         //[SerializeField] private AddressablesManager addressablesManager;
         //[SerializeField, StringSelector(nameof(GetAllAssetGroups))]
         //private string assetGroupName;
@@ -35,7 +37,7 @@ namespace System
         private void Start()
         {
             entityController.Load();
-
+            saveDataManager.Load();
             //LoadAddressables(() =>
             //{
                 LoadGameScene();
@@ -47,6 +49,7 @@ namespace System
             // UnloadGameScene();
             //UnloadAddressables();
             entityController.Unload();
+            saveDataManager.Save();
         }
 
         private void OnApplicationQuit()

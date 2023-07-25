@@ -1,5 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-3869611768884402262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 478697a4b0a78394f84018a7cf3c6404, type: 3}
+  m_Name: SaveDataSO
+  m_EditorClassIdentifier: 
+  id: 907fe8446bcd0674dbd2d332cc5da443
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
