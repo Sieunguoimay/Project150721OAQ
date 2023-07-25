@@ -1,5 +1,10 @@
+using Framework;
 using System;
 using System.IO;
+using System.Linq;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace SaveData
@@ -7,6 +12,9 @@ namespace SaveData
     public class SaveDataManager : ScriptableObject
     {
         [SerializeField] private string saveFolder = "SavedData";
+#if UNITY_EDITOR
+        [ContextMenuItem("Load Assets", nameof(LoadAssetsOfTypeSaveDataSO))]
+#endif
         [SerializeField] private SaveDataSO[] saveDataItems;
 
 #if UNITY_EDITOR
@@ -71,5 +79,31 @@ namespace SaveData
         {
             return Path.Combine(SavedDataPath, $"{savedId}.json");
         }
+#if UNITY_EDITOR
+        [ContextMenu("Load Assets")]
+        private void LoadAssetsOfTypeSaveDataSO()
+        {
+            saveDataItems = AssetDatabase.FindAssets($"t: {nameof(SaveDataSO)}", null)
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .SelectMany(AssetDatabase.LoadAllAssetsAtPath)
+                .OfType<SaveDataSO>().ToArray();
+        }
+
+        [ContextMenu("Clear All")]
+        public void ClearSavedData()
+        {
+            var files = Directory.GetFiles(Path.Combine(EntityController.ProjectPath, SavedDataPath));
+            foreach (var file in files)
+            {
+                File.Delete(file);
+                Debug.Log($"{file} is deleted.");
+            }
+            foreach (var item in saveDataItems)
+            {
+                item.ResetAll();
+            }
+        }
+
+#endif
     }
 }

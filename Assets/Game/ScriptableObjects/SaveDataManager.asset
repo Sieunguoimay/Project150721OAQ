@@ -13,5 +13,4 @@ MonoBehaviour:
   m_Name: SaveDataManager
   m_EditorClassIdentifier: 
   saveFolder: SavedData
-  saveDataItems:
-  - {fileID: -3869611768884402262, guid: 907fe8446bcd0674dbd2d332cc5da443, type: 2}
+  saveDataItems: []

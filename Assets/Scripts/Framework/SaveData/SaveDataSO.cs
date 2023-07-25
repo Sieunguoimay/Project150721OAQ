@@ -1,3 +1,5 @@
+using Sieunguoimay.Attribute;
+using System;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -7,45 +9,53 @@ namespace SaveData
 {
     public class SaveDataSO : ScriptableObject
     {
-        [SerializeField, UseGUID]
+#if UNITY_EDITOR
+        [ContextMenuItem("Reset ID", nameof(GenerateID))]
+#endif
+        [SerializeField]
         private string id;
 
         public string GetSaveFileName() { return $"{name}-{id}"; }
 
-        public class UseGUIDAttribute : PropertyAttribute
-        {
 #if UNITY_EDITOR
-            public void GenerateID(SerializedProperty property)
-            {
-                property.stringValue = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(property.serializedObject.targetObject));
-            }
+        [ContextMenu("Reset ID")]
 #endif
+        public void GenerateID()
+        {
+            var currentTimeStamp = DateTime.Now;
+            var timeStampString = currentTimeStamp.ToString("yyyyMMddHHmmss");
+            id = timeStampString;
         }
+
+#if UNITY_EDITOR
+        public void ResetAll()
+        {
+            var newInstance = ScriptableObject.CreateInstance(GetType()) as SaveDataSO;
+            newInstance.name = name;
+            newInstance.id = id;
+            EditorUtility.CopySerialized(newInstance, this);
+            UnityEngine.Object.DestroyImmediate(newInstance);
+        }
+#endif
     }
 
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(SaveDataSO.UseGUIDAttribute))]
-    public class UseGUIDAttributeDrawer : PropertyDrawer
+    [CustomEditor(typeof(SaveDataSO),true)]
+    public class UseGUIDAttributeDrawer : Editor
     {
-        private SerializedProperty _property;
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        private SerializedProperty property;
+        public override void OnInspectorGUI()
         {
-            _property = property;
-
-            if (string.IsNullOrEmpty(_property.stringValue))
-            {
-                GenerateID();
-            }
             var enabled = GUI.enabled;
             GUI.enabled = false;
-            EditorGUI.PropertyField(position, property, label);
+            DrawDefaultInspector();
             GUI.enabled = enabled;
-        }
 
-        [ContextMenu("Reset ID")]
-        private void GenerateID()
-        {
-            (attribute as SaveDataSO.UseGUIDAttribute).GenerateID(_property);
+            property ??= serializedObject.FindProperty("id");
+            if (string.IsNullOrEmpty(property.stringValue))
+            {
+                (target as SaveDataSO)?.GenerateID();
+            }
         }
     }
 #endif
