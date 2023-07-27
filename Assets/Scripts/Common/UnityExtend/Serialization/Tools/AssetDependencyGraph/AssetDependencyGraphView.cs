@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Text3D.Scripts;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
@@ -15,6 +16,7 @@ public class AssetDependencyGraphView : GraphView
         this.AddManipulator(new RectangleSelector());
         this.AddManipulator(new ContentZoomer());
 
+        AddElement(CreateNode());
         AddElement(CreateNode());
         AddElement(CreateNode());
     }
@@ -49,68 +51,82 @@ public class AssetDependencyGraphView : GraphView
         var output = node.Q<VisualElement>("output");
         var title = node.Q<VisualElement>("title");
         var top = node.Q<VisualElement>("top");
+        var nodeBorder = node.Q<VisualElement>("node-border");
         var contents = node.Q<VisualElement>("contents");
 
-        title.parent.hierarchy.Remove(title);
-        top.hierarchy.Add(title);
-        title.PlaceBehind(output);
-        top.style.flexDirection = FlexDirection.Column;
+        var label = new TextElement() { text = "Hello unity UIElements", name = "zo" };
+        label.style.marginLeft = 5;
+        label.style.marginRight = 5;
+        label.style.alignContent = Align.Center;
 
-        CustomizeInputPort(input);
-        CustomizeOuputPort(output);
+        title.parent.Remove(title);
+        input.parent.Remove(input);
+        output.parent.Remove(output);
+        top.parent.Remove(top);
+        contents.parent.Remove(contents);
 
-        input.parent.hierarchy.Remove(input);
-        contents.hierarchy.Add(input);
-        input.PlaceBehind(top);
+        nodeBorder.Add(input);
+        nodeBorder.Add(label);
+        nodeBorder.Add(output);
+
+
+        //CustomizeInputPort(input);
+        //CustomizeOuputPort(output);
+
+        //input.parent.hierarchy.Remove(input);
+        //contents.hierarchy.Add(input);
+        //input.PlaceBehind(top);
     }
     private static void CustomizeInputPort(VisualElement port)
     {
 
-        port.style.alignItems = Align.Center;
+        //port.style.alignItems = Align.Center;
         //port.style.paddingTop = 0;
         //port.style.paddingBottom = 0;
 
         var p = port.Q<Port>();
-        p.style.paddingLeft = 0;
-        p.style.paddingRight = 0;
-        //p.style.flexDirection = FlexDirection.Column;
-        p.style.alignSelf = Align.Center;
+        //p.style.paddingLeft = 0;
+        //p.style.paddingRight = 0;
+        ////p.style.flexDirection = FlexDirection.Column;
+        //p.style.alignSelf = Align.Center;
 
-        //p.style.alignItems = Align.FlexStart;
-        var connector = port.Q<VisualElement>("connector");
-        connector.style.alignSelf = Align.FlexStart;
-        //connector.style.position = Position.Absolute;
-        //connector.style.top = 0;
-        //connector.style.left = 0;
-        connector.style.marginLeft = 0;
-        connector.style.marginRight = 0;
+        ////p.style.alignItems = Align.FlexStart;
+        //var connector = port.Q<VisualElement>("connector");
+        //connector.parent.Remove(connector);
+        //connector.style.alignSelf = Align.FlexStart;
+        ////connector.style.position = Position.Absolute;
+        ////connector.style.top = 0;
+        ////connector.style.left = 0;
+        //connector.style.marginLeft = 0;
+        //connector.style.marginRight = 0;
 
-        p.style.width = connector.style.width;
-        p.style.height = connector.style.height;
+        //p.style.width = connector.style.width;
+        //p.style.height = connector.style.height;
 
-        var type = port.Q<VisualElement>("type");
-        type.style.position = Position.Absolute;
+        //var type = port.Q<VisualElement>("type");
+        //type.style.position = Position.Absolute;
 
         //type.style.alignSelf = Align.FlexEnd;
         //type.style.display = DisplayStyle.None;
     }
     private static void CustomizeOuputPort(VisualElement port)
     {
-        port.style.alignItems = Align.Center;
-        port.style.paddingTop = 0;
-        port.style.paddingBottom = 0;
+        //port.style.alignItems = Align.Center;
+        //port.style.paddingTop = 0;
+        //port.style.paddingBottom = 0;
 
         var p = port.Q<Port>();
-        p.style.paddingLeft = 0;
-        p.style.paddingRight = 0;
-        p.style.alignItems = Align.FlexEnd;
+        p.style.flexDirection = FlexDirection.Row;
+        //p.style.paddingLeft = 0;
+        //p.style.paddingRight = 0;
+        //p.style.alignItems = Align.FlexEnd;
         //p.style.flexDirection = reverse ? FlexDirection.ColumnReverse : FlexDirection.Column;
 
         //var connector = port.Q<VisualElement>("connector");
         //connector.style.alignSelf = Align.FlexEnd;
 
-        var type = port.Q<VisualElement>("type");
-        type.style.display = DisplayStyle.None;
+        //var type = port.Q<VisualElement>("type");
+        //type.style.display = DisplayStyle.None;
     }
 
     private Port CreateOutputPort(Node node)
@@ -132,7 +148,11 @@ public class AssetDependencyGraphView : GraphView
         var compatiblePorts = new List<Port>();
         ports.ForEach(port =>
         {
-            if (startPort != port && startPort.node != port.node && startPort.direction != port.direction)
+            if (startPort != port
+            && startPort.node != port.node
+            && startPort.direction != port.direction
+            && !port.connections.Any(e=>e.input == startPort||e.output ==startPort)
+            )
             {
                 compatiblePorts.Add(port);
             }
