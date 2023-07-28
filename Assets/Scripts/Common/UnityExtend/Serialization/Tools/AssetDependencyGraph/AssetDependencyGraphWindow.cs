@@ -21,16 +21,45 @@ public class AssetDependencyGraphWindow : EditorWindow
         //_graphView = new AssetDependencyGraphView();
         //_graphView.StretchToParentSize();
         //rootVisualElement.Add(_graphView);
+        var eventCanavs = new EventCanvas();
         var pieChart = new PieChart();
-        //pieChart.style.left = 50;
-        //pieChart.style.width = 150;
-        //pieChart.style.height = 150;
+        eventCanavs.Container.Add(pieChart);
         pieChart.StretchToParentSize();
-        rootVisualElement.Add(pieChart);
+        eventCanavs.StretchToParentSize();
+        rootVisualElement.Add(eventCanavs);
     }
 
     private void OnGUI()
     {
+    }
+
+    public class EventCanvas : VisualElement
+    {
+        private VisualElement _container;
+        public VisualElement Container=>_container;
+        public EventCanvas() {
+            RegisterCallback<WheelEvent>(OnWheel);
+            _container = new VisualElement();
+            _container.StretchToParentSize();
+            Add(_container);
+        }
+
+        public void OnWheel(WheelEvent evt)
+        {
+            var position = _container.transform.position;
+            var scale = _container.transform.scale;
+            var vector2 = this.ChangeCoordinatesTo(this, evt.localMousePosition);
+            var x = vector2.x + _container.layout.x;
+            var y = vector2.y + _container.layout.y;
+            var vector3 = position + Vector3.Scale(new Vector3(x, y, 0), scale);
+
+            var newZoom = scale.y - evt.delta.y * .01f;
+            var newScale = Vector3.one * newZoom;
+
+            var newPosition = vector3 - Vector3.Scale(new Vector3(x, y, 0), newScale);
+            _container.transform.position = newPosition;
+            _container.transform.scale = newScale;
+        }
     }
 }
 public class PieChart : VisualElement
@@ -38,23 +67,6 @@ public class PieChart : VisualElement
     public PieChart()
     {
         generateVisualContent += DrawCanvas;
-        RegisterCallback<WheelEvent>(OnWheel);
-    }
-    private void OnWheel(WheelEvent evt)
-    {
-        var position = parent.transform.position;
-        var scale = parent.transform.scale;
-        var vector2 = this.ChangeCoordinatesTo(parent, evt.localMousePosition);
-        var x = vector2.x + parent.layout.x;
-        var y = vector2.y + parent.layout.y;
-        var vector3 = position + Vector3.Scale(new Vector3(x, y, 0), scale);
-
-        var newZoom = scale.y - evt.delta.y * .1f;
-        var newScale = Vector3.one * newZoom;
-
-        var newPosition = vector3 - Vector3.Scale(new Vector3(x, y, 0), newScale);
-        parent.transform.position = newPosition;
-        parent.transform.scale = newScale;
     }
     private void DrawCanvas(MeshGenerationContext context)
     {
@@ -66,13 +78,17 @@ public class PieChart : VisualElement
         painter.lineCap = LineCap.Butt;
         painter.lineWidth = 2;
 
-        var p1 = new Vector2(painter.lineWidth / 2f, 0);
-        var p2 = new Vector2(painter.lineWidth / 2f, height - painter.lineWidth / 2f);
-        var p3 = new Vector2(width, height - painter.lineWidth / 2f);
+        var p1 = new Vector2(0, 0);
+        var p2 = new Vector2(0, height);
+        var p3 = new Vector2(width, height);
+        var p4 = new Vector2(width, 0);
         painter.BeginPath();
         painter.MoveTo(p1);
         painter.ArcTo(p2, p3, 20f);
-        painter.LineTo(p3);
+        painter.MoveTo(p3);
+        painter.ArcTo(p3, p4, 20f);
+        painter.MoveTo(p4);
+        painter.ArcTo(p4, p1, 20f);
         painter.Stroke();
     }
 }
