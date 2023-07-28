@@ -1,6 +1,10 @@
 #if UNITY_EDITOR
+using Common.UnityExtend.UIElements;
 using Sieunguoimay.Serialization.Tools;
 using System;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -18,15 +22,34 @@ public class AssetDependencyGraphWindow : EditorWindow
     }
     private void CreateGUI()
     {
-        //_graphView = new AssetDependencyGraphView();
-        //_graphView.StretchToParentSize();
-        //rootVisualElement.Add(_graphView);
-        var eventCanavs = new EventCanvas();
         var pieChart = new PieChart();
-        eventCanavs.Container.Add(pieChart);
-        pieChart.StretchToParentSize();
-        eventCanavs.StretchToParentSize();
-        rootVisualElement.Add(eventCanavs);
+        var pieChart2 = new PieChart();
+        var pieChart3 = new PieChart();
+
+        var zoomView = new ZoomAndDragView();
+        zoomView.StretchToParentSize();
+        rootVisualElement.Add(zoomView);
+
+        zoomView.ContentContainer.Add(pieChart);
+        zoomView.ContentContainer.Add(pieChart2);
+        zoomView.ContentContainer.Add(pieChart3);
+
+        pieChart.style.position = Position.Absolute;
+        pieChart2.style.position = Position.Absolute;
+        pieChart3.style.position = Position.Absolute;
+
+        pieChart.style.left = 20;
+        pieChart.style.top = 50;
+        pieChart2.style.left = -40;
+        pieChart2.style.top = 40;
+    }
+
+    public static StyleCursor CreateCursor(MouseCursor cursor)
+    {
+        var objCursor = new UnityEngine.UIElements.Cursor();
+        PropertyInfo fields = typeof(UnityEngine.UIElements.Cursor).GetProperty("defaultCursorId", BindingFlags.NonPublic | BindingFlags.Instance);
+        fields.SetValue(objCursor, (int)cursor);
+        return new StyleCursor(objCursor);
     }
 
     private void OnGUI()
@@ -36,8 +59,9 @@ public class AssetDependencyGraphWindow : EditorWindow
     public class EventCanvas : VisualElement
     {
         private VisualElement _container;
-        public VisualElement Container=>_container;
-        public EventCanvas() {
+        public VisualElement Container => _container;
+        public EventCanvas()
+        {
             RegisterCallback<WheelEvent>(OnWheel);
             _container = new VisualElement();
             _container.StretchToParentSize();
@@ -67,6 +91,8 @@ public class PieChart : VisualElement
     public PieChart()
     {
         generateVisualContent += DrawCanvas;
+        style.width = 100;
+        style.height = 100;
     }
     private void DrawCanvas(MeshGenerationContext context)
     {
