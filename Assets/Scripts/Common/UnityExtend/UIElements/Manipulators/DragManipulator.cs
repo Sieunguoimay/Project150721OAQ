@@ -4,6 +4,50 @@ using UnityEngine.UIElements;
 
 namespace Common.UnityExtend.UIElements
 {
+    public class Dragger
+    {
+        private readonly VisualElement _dragContent;
+        private readonly Action _dragAction;
+
+        private bool _isDragging;
+        private Vector2 _dragBeginContainerPos;
+        private Vector2 _dragBeginMousePos;
+        public Dragger(VisualElement dragContent, Action dragAction = null)
+        {
+            _dragContent = dragContent;
+            _dragAction = dragAction;
+        }
+
+        public void BeginDrag(Vector2 mousePosition)
+        {
+            _isDragging = true;
+            _dragBeginContainerPos = new Vector2(_dragContent.style.left.value.value, _dragContent.style.top.value.value);
+            _dragBeginMousePos = _dragContent.parent.WorldToLocal(mousePosition);
+        }
+        public void UpdateDragIfActive(Vector2 mousePosition)
+        {
+            if (_isDragging)
+            {
+                UpdateDrag(_dragContent.parent.WorldToLocal(mousePosition));
+            }
+        }
+        public void EndDrag()
+        {
+            _isDragging = false;
+        }
+
+        private void UpdateDrag(Vector2 targetPosition)
+        {
+            var delta = targetPosition - _dragBeginMousePos;
+            var newContainerPos = _dragBeginContainerPos + delta;
+
+            _dragContent.style.left = newContainerPos.x;
+            _dragContent.style.top = newContainerPos.y;
+
+            _dragAction?.Invoke();
+        }
+    }
+
     public class DragManipulator : IManipulator
     {
         private VisualElement _target;
@@ -16,17 +60,11 @@ namespace Common.UnityExtend.UIElements
                 SetupEvents();
             }
         }
-        private readonly VisualElement _dragContent;
-        private readonly Action _dragAction;
-
-        private bool _isDragging;
-        private Vector2 _dragBeginContainerPos;
-        private Vector2 _dragBeginMousePos;
+        public  Dragger Dragger { get; private set; }
 
         public DragManipulator(VisualElement dragContent, Action dragAction = null)
         {
-            _dragContent = dragContent;
-            _dragAction = dragAction;
+            Dragger = new Dragger(dragContent, dragAction);
         }
         private void SetupEvents()
         {
@@ -38,37 +76,22 @@ namespace Common.UnityExtend.UIElements
 
         private void OnMouseDown(MouseDownEvent ev)
         {
-            _isDragging = true;
-            _dragBeginContainerPos = new Vector2(_dragContent.style.left.value.value, _dragContent.style.top.value.value);
-            _dragBeginMousePos = _dragContent.parent.WorldToLocal(ev.mousePosition);
+            Dragger.BeginDrag(ev.mousePosition);
             ev.StopPropagation();
         }
         private void OnMouseMove(MouseMoveEvent evt)
         {
-            if (_isDragging)
-            {
-                Drag(_dragContent.parent.WorldToLocal(evt.mousePosition));
-            }
+            Dragger.UpdateDragIfActive(evt.mousePosition);
         }
 
         private void OnMouseUp(MouseUpEvent evt)
         {
-            _isDragging = false;
+            Dragger.EndDrag();
         }
 
         private void OnMouseLeave(MouseLeaveEvent evt)
         {
-            _isDragging = false;
-        }
-        private void Drag(Vector2 targetPosition)
-        {
-            var delta = targetPosition - _dragBeginMousePos;
-            var newContainerPos = _dragBeginContainerPos + delta;
-
-            _dragContent.style.left = newContainerPos.x;
-            _dragContent.style.top = newContainerPos.y;
-
-            _dragAction?.Invoke();
+            //Dragger.EndDrag();
         }
     }
 }

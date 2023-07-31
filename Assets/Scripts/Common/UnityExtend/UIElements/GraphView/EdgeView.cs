@@ -2,6 +2,7 @@ using Common.UnityExtend.UIElements.Utilities;
 using System;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEditor.Timeline.TimelinePlaybackControls;
 
 namespace Common.UnityExtend.UIElements.GraphView
 {
@@ -17,19 +18,33 @@ namespace Common.UnityExtend.UIElements.GraphView
 
         public NodeView From => _from;
         public NodeView To => _to;
+        private readonly Color _color;
         public EdgeView()
         {
             style.position = Position.Absolute;
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
             generateVisualContent += OnRepaint;
+            _color = Color.gray;
         }
 
         private void OnRepaint(MeshGenerationContext context)
         {
-            UpdateEdge();
-            Painter2DUtility.DrawPath(context.painter2D, new[] { _p1, _p2, _p3, _p4 }, Color.cyan, 20f);
+            UpdateDrawPoints();
+            Painter2DUtility.DrawPath(context.painter2D, new[] { _p1, _p2, _p3, _p4 }, _color, 10f, 1f);
+            DrawCap(context);
         }
-
+        private void DrawCap(MeshGenerationContext context)
+        {
+            var capMesh = context.Allocate(3, 3);
+            var capDir = (_p4 - _p3).normalized;
+            var capNor = Vector2.Perpendicular(capDir);
+            capMesh.SetAllVertices(new[] {
+                new Vertex() { position = _p4 ,tint = _color },
+                new Vertex() { position = _p4 - capDir * 3f + capNor * 2f ,tint = _color },
+                new Vertex() { position = _p4 - capDir * 3f - capNor * 2f ,tint = _color },
+            });
+            capMesh.SetAllIndices(new ushort[] { 0, 1, 2 });
+        }
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
             this.MarkDirtyRepaint();
@@ -51,9 +66,22 @@ namespace Common.UnityExtend.UIElements.GraphView
             _from.OnMove += OnNodeMove;
             _to.OnMove += OnNodeMove;
         }
-
-
-        private void UpdateEdge()
+        public void Disconnect()
+        {
+            if (_from != null)
+            {
+                _from.OnMove -= OnNodeMove;
+                _from.RemoveEdge(this);
+                _from = null;
+            }
+            if (_to != null)
+            {
+                _to.OnMove -= OnNodeMove;
+                _to.RemoveEdge(this);
+                _to = null;
+            }
+        }
+        private void UpdateDrawPoints()
         {
             var connector1 = _from.GetEdgeConnector(this);
             var connector2 = _to.GetEdgeConnector(this);
@@ -71,26 +99,25 @@ namespace Common.UnityExtend.UIElements.GraphView
             style.width = xMax - xMin;
             style.height = yMax - yMin;
 
+            var localNormal1 = worldTransform.inverse.rotation * connector1.normal;
+            var localNormal2 = worldTransform.inverse.rotation * connector2.normal;
+
+
             _p1 = this.WorldToLocal(connector1.position);
-            _p2 = this.WorldToLocal(connector1.position + connector1.normal * .2f);
-            _p3 = this.WorldToLocal(connector2.position + connector2.normal * .2f);
             _p4 = this.WorldToLocal(connector2.position);
+
+            var distance = (_p1 - _p4).magnitude;
+            if(distance > 30f)
+            {
+                var d = 10f;
+                _p2 = _p1 + new Vector2(localNormal1.x, localNormal1.y).normalized * d;
+                _p3 = _p4 + new Vector2(localNormal2.x, localNormal2.y).normalized * d;
+            }
+            else
+            {
+                _p2 = _p3 = (_p1 + _p4) / 2f;
+            }
         }
 
-        public void Disconnect()
-        {
-            if (_from != null)
-            {
-                _from.OnMove -= OnNodeMove;
-                _from.RemoveEdge(this);
-                _from = null;
-            }
-            if (_to != null)
-            {
-                _to.OnMove -= OnNodeMove;
-                _to.RemoveEdge(this);
-                _to = null;
-            }
-        }
     }
 }

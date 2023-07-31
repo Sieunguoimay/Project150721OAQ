@@ -1,7 +1,5 @@
 using Common.UnityExtend.UIElements.Utilities;
 using System;
-using System.Linq;
-using System.Xml.Serialization;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -21,6 +19,17 @@ namespace Common.UnityExtend.UIElements.GraphView
             ContentContainer.Add(_nodeLayer);
 
             CreateGraph();
+            generateVisualContent += OnRepaint;
+        }
+
+        private void OnRepaint(MeshGenerationContext obj)
+        {
+            var _contentRect = CalculateContentRect();
+            _contentRect.x -= 20;
+            _contentRect.y -= 20;
+            _contentRect.width += 40;
+            _contentRect.height += 40;
+            Painter2DUtility.FillRect(obj.painter2D, _contentRect, Color.black);
         }
 
         protected override Rect CalculateContentRect()
@@ -33,26 +42,27 @@ namespace Common.UnityExtend.UIElements.GraphView
 
         private void CreateGraph()
         {
+            var node = CreateNode();
+            var node1 = CreateNode();
+            var node3 = CreateNode();
+
+            CreateEdge().Connect(node, node1);
+            CreateEdge().Connect(node, node3);
+            CreateEdge().Connect(node1, node);
+        }
+
+        public NodeView CreateNode()
+        {
             var node = new NodeView();
-            var node1 = new NodeView();
-            var node3 = new NodeView();
-
             node.OnMove += OnNodeMove;
-            node1.OnMove += OnNodeMove;
-            node3.OnMove += OnNodeMove;
-
-            var edge = new EdgeView();
-            edge.Connect(node, node1);
-            
-            var edge2 = new EdgeView();
-            edge2.Connect(node, node3);
-
             _nodeLayer.Add(node);
-            _nodeLayer.Add(node1);
-            _nodeLayer.Add(node3);
-
+            return node;
+        }
+        public EdgeView CreateEdge()
+        {
+            var edge = new EdgeView();
             _edgeLayer.Add(edge);
-            _edgeLayer.Add(edge2);
+            return edge;
         }
 
         private void OnNodeMove(NodeView view)

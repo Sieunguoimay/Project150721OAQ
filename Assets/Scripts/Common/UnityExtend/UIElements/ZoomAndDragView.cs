@@ -25,7 +25,7 @@ namespace Common.UnityExtend.UIElements
             RegisterCallback<MouseUpEvent>(OnMouseUp);
 
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
-            generateVisualContent += OnCanvasRepaint;
+            //generateVisualContent += OnCanvasRepaint;
         }
 
         private void OnGeometryChanged(GeometryChangedEvent evt)

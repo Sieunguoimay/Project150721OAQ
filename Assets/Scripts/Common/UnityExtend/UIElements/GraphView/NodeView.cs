@@ -1,6 +1,7 @@
 using Common.UnityExtend.UIElements.Utilities;
 using System;
 using System.Collections.Generic;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -10,21 +11,52 @@ namespace Common.UnityExtend.UIElements.GraphView
     {
         private readonly List<EdgeView> _connectedEdges = new();
         public event Action<NodeView> OnMove;
+        private bool _hover;
         public NodeView()
         {
             generateVisualContent += OnRepaint;
-            style.width = 50;
-            style.height = 50;
+            style.minWidth = 25;
+            style.minHeight = 25;
             style.position = Position.Absolute;
             this.AddManipulator(new DragManipulator(this, OnDrag));
+            RegisterCallback<MouseEnterEvent>(OnMouseEnter);
+            RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
+
+            style.flexDirection = FlexDirection.Column;
+
+            var colorField = new ObjectField();
+            colorField.style.width = 70;
+            colorField.SetEnabled(false);
+            Add(colorField);
         }
+        private void OnMouseLeave(MouseLeaveEvent evt)
+        {
+            _hover = false;
+            this.MarkDirtyRepaint();
+        }
+
+        private void OnMouseEnter(MouseEnterEvent evt)
+        {
+            _hover = true;
+            this.MarkDirtyRepaint();
+        }
+
         private void OnDrag()
         {
             OnMove?.Invoke(this);
         }
         private void OnRepaint(MeshGenerationContext context)
         {
-            Painter2DUtility.DrawRect(context.painter2D, contentRect, Color.blue);
+            var painter = context.painter2D;
+
+            if (_hover)
+            {
+                Painter2DUtility.FillAndStrokeRoundedCornerRect(painter, contentRect, new Color(0.2313726f, 0.2313726f, 0.2313726f, 1f), new Color(0.2666667f, 0.7529f, 1f, 1f), 1f);
+            }
+            else
+            {
+                Painter2DUtility.FillAndStrokeRoundedCornerRect(painter, contentRect, new Color(0.2313726f, 0.2313726f, 0.2313726f, 1f), new Color(0.09803922f, 0.09803922f, 0.09803922f), .5f);
+            }
         }
 
         public void AddEdge(EdgeView edge)
@@ -39,10 +71,11 @@ namespace Common.UnityExtend.UIElements.GraphView
         public EdgeConnector GetEdgeConnector(EdgeView edge)
         {
             var other = edge.From == this ? edge.To : edge.From;
-            var otherCenterPoint = this.WorldToLocal(other.LocalToWorld(new Vector2(other.contentRect.x + other.contentRect.width / 2, other.contentRect.y + other.contentRect.height / 2)));
+            var cp = new Vector2(other.contentRect.x + other.contentRect.width / 2, other.contentRect.y + other.contentRect.height / 2);
+            var otherCenterPoint = this.WorldToLocal(other.LocalToWorld(cp));
             var connectPoint = this.LocalToWorld(GetIntersectPointFromInsideRect(otherCenterPoint, contentRect, out var normal));
-
-            return new EdgeConnector { normal = normal, position = connectPoint };
+            var worldNormal = this.worldTransform.rotation * normal;
+            return new EdgeConnector { normal = worldNormal, position = connectPoint };
         }
         private Vector2 GetIntersectPointFromInsideRect(Vector2 outsidePoint, Rect rect, out Vector2 normal)
         {

@@ -91,5 +91,81 @@ namespace Common.UnityExtend.UIElements.Utilities
             painter.strokeColor = prevColor;
             painter.lineWidth = prevLineWidth;
         }
+        public static void FillRect(Painter2D painter, Rect rect, Color color)
+        {
+            var topLeft = new Vector2(rect.xMin, rect.yMin);
+            var bottomLeft = new Vector2(rect.xMin, rect.yMax);
+            var bottomRight = new Vector2(rect.xMax, rect.yMax);
+            var topRight = new Vector2(rect.xMax, rect.yMin);
+
+            var prevColor = painter.fillColor;
+            painter.fillColor = color;
+
+            painter.BeginPath();
+            painter.MoveTo(topLeft);
+            painter.LineTo(bottomLeft);
+            painter.LineTo(bottomRight);
+            painter.LineTo(topRight);
+            painter.LineTo(topLeft);
+            painter.Fill();
+
+            painter.fillColor = prevColor;
+        }
+
+        public static void DrawRoundedCornerRect(Painter2D painter, Rect rect, Color strokeColor, float strokeSize = 2f, float cornerRadius = 2.5f)
+        {
+            var middleLeft = new Vector2(rect.xMin, rect.yMin + rect.height / 2f);
+            var topLeft = new Vector2(rect.xMin, rect.yMin);
+            var bottomLeft = new Vector2(rect.xMin, rect.yMax);
+            var bottomRight = new Vector2(rect.xMax, rect.yMax);
+            var topRight = new Vector2(rect.xMax, rect.yMin);
+
+            var prevColor = painter.strokeColor;
+            var prevLineWidth = painter.lineWidth;
+            painter.strokeColor = strokeColor;
+            painter.lineWidth = strokeSize;
+
+            painter.BeginPath();
+            painter.MoveTo(middleLeft);
+            painter.ArcTo(bottomLeft, bottomRight, cornerRadius);
+            painter.ArcTo(bottomRight, topRight, cornerRadius);
+            painter.ArcTo(topRight, topLeft, cornerRadius);
+            painter.ArcTo(topLeft, middleLeft, cornerRadius);
+            painter.LineTo(middleLeft);
+            painter.Stroke();
+
+            painter.strokeColor = prevColor;
+            painter.lineWidth = prevLineWidth;
+        }
+
+        public static void FillAndStrokeRoundedCornerRect(Painter2D painter, Rect rect, Color fillColor, Color strokeColor, float strokeSize = 2f, float cornerRadius = 2.5f)
+        {
+            var middleLeft = new Vector2(rect.xMin, rect.yMin + rect.height / 2f);
+            var topLeft = new Vector2(rect.xMin, rect.yMin);
+            var bottomLeft = new Vector2(rect.xMin, rect.yMax);
+            var bottomRight = new Vector2(rect.xMax, rect.yMax);
+            var topRight = new Vector2(rect.xMax, rect.yMin);
+
+            painter.BeginPath();
+            painter.MoveTo(middleLeft);
+            painter.ArcTo(bottomLeft, bottomRight, cornerRadius);
+            painter.ArcTo(bottomRight, topRight, cornerRadius);
+            painter.ArcTo(topRight, topLeft, cornerRadius);
+            painter.ArcTo(topLeft, middleLeft, cornerRadius);
+            painter.LineTo(middleLeft);
+
+            var prevFillColor = painter.strokeColor;
+            painter.fillColor = fillColor;
+            painter.Fill();
+            painter.fillColor = prevFillColor;
+
+            var prevColor = painter.strokeColor;
+            var prevLineWidth = painter.lineWidth;
+            painter.strokeColor = strokeColor;
+            painter.lineWidth = strokeSize;
+            painter.Stroke();
+            painter.strokeColor = prevColor;
+            painter.lineWidth = prevLineWidth;
+        }
     }
 }
