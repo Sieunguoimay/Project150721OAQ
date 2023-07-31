@@ -1,4 +1,4 @@
-using System;
+using Common.UnityExtend.UIElements.Utilities;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -6,33 +6,26 @@ using UnityEngine.UIElements;
 
 namespace Common.UnityExtend.UIElements
 {
+
     public class ZoomAndDragView : VisualElement
     {
-        private readonly ZoomAndDragContainer _contentContainer = new() { name = "contents" };
-        private float _scale = 1f;
-        private readonly float _scaleMin;
-        private readonly float _scaleMax;
-        private bool _isDragging;
-        private Vector2 _dragBeginContainerPos;
-        private Vector2 _dragBeginMousePos;
+        private readonly VisualElement _contentContainer = new() { name = "contents" };
         public VisualElement ContentContainer => _contentContainer;
-
+        private readonly ZoomManipulator _zoomManipulator;
         public ZoomAndDragView(float zoomMin = .25f, float zoomMax = 4f)
         {
-            _scaleMin = zoomMin;
-            _scaleMax = zoomMax;
+            _zoomManipulator = new ZoomManipulator(_contentContainer, zoomMin, zoomMax);
+            var drag = new DragManipulator(_contentContainer, MarkDirtyRepaint);
+            this.AddManipulator(drag);
+            this.AddManipulator(_zoomManipulator);
 
             _contentContainer.style.position = Position.Absolute;
             Add(_contentContainer);
 
-            RegisterCallback<WheelEvent>(OnWheelEvent);
-            RegisterCallback<MouseDownEvent>(OnMouseDown);
             RegisterCallback<MouseUpEvent>(OnMouseUp);
-            RegisterCallback<MouseMoveEvent>(OnMouseMove);
-            RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
-            RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
-            generateVisualContent += DrawCanvas;
 
+            RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+            generateVisualContent += OnCanvasRepaint;
         }
 
         private void OnGeometryChanged(GeometryChangedEvent evt)
@@ -40,10 +33,9 @@ namespace Common.UnityExtend.UIElements
             FocusCenter();
         }
 
-        private void DrawCanvas(MeshGenerationContext obj)
+        private void OnCanvasRepaint(MeshGenerationContext obj)
         {
-            var pos =
-                new Vector2(_contentContainer.style.left.value.value, _contentContainer.style.top.value.value);
+            var pos = new Vector2(_contentContainer.style.left.value.value, _contentContainer.style.top.value.value);
             Painter2DUtility.DrawCrossSign(obj.painter2D, pos, 10, Color.green);
 
             var _contentRect = CalculateContentRect();
@@ -51,30 +43,18 @@ namespace Common.UnityExtend.UIElements
 
             var focusContentRect = CalculateFocusContentRect(_contentRect);
             Painter2DUtility.DrawRect(obj.painter2D, focusContentRect, Color.blue);
-            Debug.Log(focusContentRect);
-        }
-
-        private void OnMouseDown(MouseDownEvent ev)
-        {
-            _isDragging = true;
-            _dragBeginContainerPos = new Vector2(_contentContainer.style.left.value.value, _contentContainer.style.top.value.value);
-            _dragBeginMousePos = ev.mousePosition;
-        }
-        private void OnMouseMove(MouseMoveEvent evt)
-        {
-            if (_isDragging)
-            {
-                Drag(evt.mousePosition);
-            }
         }
 
         private void OnMouseUp(MouseUpEvent evt)
         {
-            _isDragging = false;
             if (evt.button == 1)
             {
                 ShowContextMenu();
             }
+        }
+        protected virtual Rect CalculateContentRect()
+        {
+            return this.WorldToLocal(VisualElementTransformUtility.CalculateWorldBoundOfChildren(_contentContainer));
         }
         private void ShowContextMenu()
         {
@@ -86,43 +66,24 @@ namespace Common.UnityExtend.UIElements
             menu.ShowAsContext();
         }
 
-        private void OnMouseLeave(MouseLeaveEvent evt)
-        {
-            _isDragging = false;
-        }
         public void FocusCenter()
         {
-            var currentContentRect = CalculateContentRect();
-            var focusContentRect = CalculateFocusContentRect(currentContentRect);
-            var scale = focusContentRect.width / currentContentRect.width;
+            var virtualContentRect = CalculateContentRect();
+            var focusContentRect = CalculateFocusContentRect(virtualContentRect);
+            var scale = focusContentRect.width / virtualContentRect.width;
 
             var originOffset = new Vector2(
-                _contentContainer.style.left.value.value - currentContentRect.x,
-                _contentContainer.style.top.value.value - currentContentRect.y);
+                _contentContainer.style.left.value.value - virtualContentRect.x,
+                _contentContainer.style.top.value.value - virtualContentRect.y);
+
             var newOrigin = new Vector2(
                 focusContentRect.x + originOffset.x * scale,
                 focusContentRect.y + originOffset.y * scale);
+
             _contentContainer.style.left = newOrigin.x;
             _contentContainer.style.top = newOrigin.y;
 
-            _scale = Mathf.Clamp(_scale * scale, _scaleMin, _scaleMax);
-            _contentContainer.transform.scale = Vector2.one * _scale;
-
-            MarkDirtyRepaint();
-        }
-        private Rect CalculateContentRect()
-        {
-            var children = _contentContainer.Children();
-
-            var xMin = children.Min(c => c.style.left.value.value);
-            var yMin = children.Min(c => c.style.top.value.value);
-            var xMax = children.Max(c => c.style.left.value.value + c.style.width.value.value);
-            var yMax = children.Max(c => c.style.top.value.value + c.style.height.value.value);
-
-            return new Rect(_contentContainer.style.left.value.value + xMin * _contentContainer.transform.scale.x,
-                _contentContainer.style.top.value.value + yMin * _contentContainer.transform.scale.y,
-                _contentContainer.transform.scale.x * Mathf.Max(0, xMax - xMin),
-                _contentContainer.transform.scale.y * Mathf.Max(0, yMax - yMin));
+            _zoomManipulator.ForceZoom(scale);
         }
 
         private Rect CalculateFocusContentRect(Rect currentContentRect)
@@ -148,74 +109,6 @@ namespace Common.UnityExtend.UIElements
             }
             return desireContentRect;
         }
-        private void Drag(Vector2 targetPosition)
-        {
-            var delta = targetPosition - _dragBeginMousePos;
-            var newContainerPos = _dragBeginContainerPos + delta;
 
-            _contentContainer.style.left = newContainerPos.x;
-            _contentContainer.style.top = newContainerPos.y;
-            MarkDirtyRepaint();
-        }
-
-        private void OnWheelEvent(WheelEvent wheelEvent)
-        {
-            var localMousePos = wheelEvent.localMousePosition;
-
-            var delta = wheelEvent.delta.y * .1f;
-
-            Zoom(localMousePos, -delta);
-
-        }
-        private bool IsZoomValueValid()
-        {
-            if (_scale >= _scaleMax)
-            {
-                _scale = _scaleMax;
-                return false;
-            }
-            if (_scale <= _scaleMin)
-            {
-                _scale = _scaleMin;
-                return false;
-            }
-            return true;
-        }
-        private void Zoom(Vector2 localPivot, float delta)
-        {
-            delta *= _scale;
-
-            var changingFactor = delta / _scale;
-
-            _scale += delta;
-
-            if (!IsZoomValueValid())
-            {
-                return;
-            }
-            _contentContainer.transform.scale = Vector2.one * _scale;
-
-            var localOrigin = new Vector2(_contentContainer.style.left.value.value, _contentContainer.style.top.value.value);
-            var offset = localPivot - localOrigin;
-            var move = -offset * changingFactor;
-            var newOrigin = localOrigin + move;
-
-            _contentContainer.style.left = newOrigin.x;
-            _contentContainer.style.top = newOrigin.y;
-
-            MarkDirtyRepaint();
-        }
-    }
-    public class ZoomAndDragContainer : VisualElement
-    {
-        public ZoomAndDragContainer()
-        {
-            generateVisualContent += DrawCanvas;
-        }
-
-        private void DrawCanvas(MeshGenerationContext obj)
-        {
-            Painter2DUtility.DrawCrossSign(obj.painter2D, transform.position, 10, Color.white);
-        }
     }
 }

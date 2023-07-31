@@ -1,10 +1,50 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Common.UnityExtend.UIElements
+namespace Common.UnityExtend.UIElements.Utilities
 {
     public static class Painter2DUtility
     {
+        public static void DrawLine(Painter2D painter, Vector2 p1, Vector2 p2, Color strokeColor, float strokeSize = 2f)
+        {
+            var prevColor = painter.strokeColor;
+            var prevLineWidth = painter.lineWidth;
+            painter.strokeColor = strokeColor;
+            painter.lineWidth = strokeSize;
+
+            painter.BeginPath();
+            painter.MoveTo(p1);
+            painter.LineTo(p2);
+            painter.Stroke();
+
+            painter.strokeColor = prevColor;
+            painter.lineWidth = prevLineWidth;
+        }
+        public static void DrawPath(Painter2D painter, Vector2[] path, Color strokeColor, float cornerRadius, float strokeSize = 2f)
+        {
+            if (path.Length < 2) return;
+            if (path.Length == 2)
+            {
+                DrawLine(painter, path[0], path[1], strokeColor, strokeSize);
+                return;
+            }
+            var prevColor = painter.strokeColor;
+            var prevLineWidth = painter.lineWidth;
+            painter.strokeColor = strokeColor;
+            painter.lineWidth = strokeSize;
+
+            painter.BeginPath();
+            painter.MoveTo(path[0]);
+            for (var i = 0; i < path.Length - 2; i++)
+            {
+                painter.ArcTo(path[i + 1], path[i + 2], cornerRadius);
+            }
+            painter.LineTo(path[^1]);
+            painter.Stroke();
+
+            painter.strokeColor = prevColor;
+            painter.lineWidth = prevLineWidth;
+        }
         public static void DrawCrossSign(Painter2D painter, Vector2 pos, float size, Color strokeColor, float strokeSize = 2f)
         {
             var topLeft = pos + Vector2.up * size + Vector2.left * size;
