@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UIElements;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 namespace Common.UnityExtend.UIElements
 {
@@ -27,12 +28,26 @@ namespace Common.UnityExtend.UIElements
             _scaleMin = zoomMin;
             _zoomContent = zoomContent;
         }
-        public void ForceZoom(float scale)
+
+        public void ForceZoom(Vector2 contentCenter, float scale)
         {
-            _scale = Mathf.Clamp(_scale * scale, _scaleMin, _scaleMax);
+            var parentCenter = new Vector2(target.contentRect.width / 2, target.contentRect.height / 2);
+
+            var newScale = Mathf.Clamp(_scale * scale, _scaleMin, _scaleMax);
+
+            var contentOrigin = new Vector2(_zoomContent.style.left.value.value, _zoomContent.style.top.value.value);
+            var contentOriginOffset = contentOrigin - contentCenter;
+            var scaledOriginOffset = contentOriginOffset * (newScale / _scale);
+            var newOrigin = parentCenter + scaledOriginOffset;
+
+            _zoomContent.style.left = newOrigin.x;
+            _zoomContent.style.top = newOrigin.y;
+
+            _scale = newScale;
             _zoomContent.transform.scale = Vector2.one * _scale;
             target.MarkDirtyRepaint();
         }
+
         private void SetupEvents()
         {
             target.RegisterCallback<WheelEvent>(OnWheelEvent);
@@ -43,21 +58,20 @@ namespace Common.UnityExtend.UIElements
             var localMousePos = wheelEvent.localMousePosition;
 
             var delta = wheelEvent.delta.y * .1f;
-
-            Zoom(localMousePos, -delta);
+            Zoom(localMousePos, -delta * _scale);
 
         }
 
         private void Zoom(Vector2 localPivot, float delta)
         {
-            delta *= _scale;
-
             var changingFactor = delta / _scale;
 
             _scale += delta;
 
             if (!IsZoomValueValid())
             {
+                _zoomContent.transform.scale = Vector2.one * _scale;
+                target.MarkDirtyRepaint();
                 return;
             }
             _zoomContent.transform.scale = Vector2.one * _scale;

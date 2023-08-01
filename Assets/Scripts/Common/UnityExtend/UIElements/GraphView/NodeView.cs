@@ -10,32 +10,41 @@ namespace Common.UnityExtend.UIElements.GraphView
     public class NodeView : VisualElement, SelectManipulator.ISelectElement
     {
         private readonly List<EdgeView> _connectedEdges = new();
+        private readonly Dragger _dragger ;
         public event Action<NodeView> OnMove;
+        public event Action<NodeView> OnClick;
+
         private bool _hover;
-        private bool _selected;
-        public Dragger Dragger { get; private set; }
+        public bool IsSelected { get; private set; }
         public NodeView()
         {
             generateVisualContent += OnRepaint;
             style.minWidth = 25;
             style.minHeight = 25;
             style.position = Position.Absolute;
-            Dragger = new Dragger(this,OnDrag);
+            _dragger = new Dragger(this, OnDrag);
             RegisterCallback<MouseDownEvent>(OnMouseDown);
             RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
 
             style.flexDirection = FlexDirection.Column;
 
-            var colorField = new ColorField();
-            colorField.style.width = 70;
-            //colorField.SetEnabled(false);
-            Add(colorField);
+        }
+
+
+        public void ProcessMouseMove(MouseMoveEvent evt)
+        {
+
+            _dragger.ProcessDrag(evt.pressedButtons == 1, evt.mousePosition);
         }
 
         private void OnMouseDown(MouseDownEvent evt)
         {
-            Dragger.BeginDrag(evt.mousePosition);
+            if (evt.button == 0)
+            {
+                OnClick?.Invoke(this);
+            }
+
             evt.StopPropagation();
         }
 
@@ -59,14 +68,20 @@ namespace Common.UnityExtend.UIElements.GraphView
         {
             var painter = context.painter2D;
 
-            if (_selected)
+            var outlineColor = new Color(0.09803922f, 0.09803922f, 0.09803922f);
+            var strokeWidth = .5f;
+
+            if (IsSelected)
             {
-                Painter2DUtility.FillAndStrokeRoundedCornerRect(painter, contentRect, new Color(0.2313726f, 0.2313726f, 0.2313726f, 1f), new Color(0.2666667f, 0.7529f, 1f, 1f), 1f);
+                outlineColor = new Color(0.2666667f, 0.7529f, 1f, 1f);
+                strokeWidth = 1f;
             }
-            else
+            else if (_hover)
             {
-                Painter2DUtility.FillAndStrokeRoundedCornerRect(painter, contentRect, new Color(0.2313726f, 0.2313726f, 0.2313726f, 1f), new Color(0.09803922f, 0.09803922f, 0.09803922f), .5f);
+                outlineColor = Color.gray;
             }
+
+            Painter2DUtility.FillAndStrokeRoundedCornerRect(painter, contentRect, new Color(0.2313726f, 0.2313726f, 0.2313726f, 1f), outlineColor, strokeWidth); ;
         }
 
         public void AddEdge(EdgeView edge)
@@ -112,13 +127,13 @@ namespace Common.UnityExtend.UIElements.GraphView
 
         public void Select(VisualElement selector)
         {
-            _selected = true;
+            IsSelected = true;
             this.MarkDirtyRepaint();
         }
 
         public void Unselect(VisualElement selector)
         {
-            _selected = false;
+            IsSelected = false;
             this.MarkDirtyRepaint();
         }
 

@@ -19,7 +19,9 @@ namespace Common.UnityExtend.UIElements
             }
         }
 
+        private bool _mouseDown;
         private bool _dragging;
+        private bool _firstFrameDragging;
         private Vector2 _firstMousePosition;
         private VisualElement[] _selectedElements;
         private readonly SelectionBoxDrawer _boxDrawer;
@@ -39,39 +41,38 @@ namespace Common.UnityExtend.UIElements
         private void InitEvents()
         {
             target.RegisterCallback<MouseDownEvent>(OnMouseDown);
-            target.RegisterCallback<MouseUpEvent>(OnMouseUp);
             target.RegisterCallback<MouseMoveEvent>(OnMouseMove);
         }
 
         private void OnMouseDown(MouseDownEvent evt)
         {
-            if (evt.pressedButtons == 1)
-            {
-                BeginDragging();
-                _firstMousePosition = target.WorldToLocal(evt.mousePosition);
-            }
+            _mouseDown = evt.pressedButtons == 1;
         }
         private void OnMouseMove(MouseMoveEvent evt)
         {
-            if (evt.pressedButtons == 0)
+            if (!_mouseDown) return;
+            if (evt.pressedButtons == 1)
             {
-                EndDragging();
+                if (!_firstFrameDragging)
+                {
+                    _firstFrameDragging = true;
+                    BeginDragging();
+                    _firstMousePosition = target.WorldToLocal(evt.mousePosition);
+                }
+                if (_dragging)
+                {
+                    var currentMousePos = target.WorldToLocal(evt.mousePosition);
+                    UpdateSelectionBox(currentMousePos);
+                }
             }
-            if (_dragging)
+            else
             {
-                var currentMousePos = target.WorldToLocal(evt.mousePosition);
-                UpdateSelectionBox(currentMousePos);
+                _mouseDown = false;
+                _firstFrameDragging = false;
+                EndDragging();
             }
         }
 
-        private void OnMouseUp(MouseUpEvent evt)
-        {
-            if (evt.button == 0 && _dragging)
-            {
-                EndDragging();
-                //evt.StopPropagation();
-            }
-        }
         private void BeginDragging()
         {
             _dragging = true;

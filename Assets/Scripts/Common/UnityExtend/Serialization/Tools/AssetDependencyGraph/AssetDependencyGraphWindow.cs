@@ -1,6 +1,8 @@
 #if UNITY_EDITOR
+using Common.UnityExtend.UIElements.GraphView;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 public class AssetDependencyGraphWindow : EditorWindow
@@ -15,7 +17,14 @@ public class AssetDependencyGraphWindow : EditorWindow
 
     private void CreateGUI()
     {
-        var zoomView = new Common.UnityExtend.UIElements.GraphView.GraphView();
+        var zoomView = new GraphView();
+        var node = new NodeView();
+        zoomView.AddNode(node);
+
+        var colorField = new ColorField();
+        colorField.style.width = 70;
+        node.Add(colorField);
+
         zoomView.StretchToParentSize();
         rootVisualElement.Add(zoomView);
     }

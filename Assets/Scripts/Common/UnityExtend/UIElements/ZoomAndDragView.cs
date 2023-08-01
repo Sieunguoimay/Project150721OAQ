@@ -13,23 +13,28 @@ namespace Common.UnityExtend.UIElements
         private readonly ZoomManipulator _zoomManipulator;
         private readonly VisualElement _contentContainer = new() { name = "contents" };
         public VisualElement ContentContainer => _contentContainer;
-
+        protected Dragger _dragger;
         public ZoomAndDragView(float zoomMin = .25f, float zoomMax = 4f)
         {
             _zoomManipulator = new ZoomManipulator(_contentContainer, zoomMin, zoomMax);
-            var drag = new DragManipulator(_contentContainer, MarkDirtyRepaint);
-            this.AddManipulator(drag);
+            _dragger = new Dragger(_contentContainer, MarkDirtyRepaint);
+
             this.AddManipulator(_zoomManipulator);
 
             _contentContainer.style.position = Position.Absolute;
             Add(_contentContainer);
 
             RegisterCallback<MouseUpEvent>(OnMouseUp);
+            RegisterCallback<MouseMoveEvent>(OnMouseMove);
 
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
             //generateVisualContent += OnCanvasRepaint;
         }
 
+        protected virtual void OnMouseMove(MouseMoveEvent evt)
+        {
+            _dragger.ProcessDrag(evt.pressedButtons == 4, evt.mousePosition);
+        }
 
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
@@ -59,7 +64,7 @@ namespace Common.UnityExtend.UIElements
                 ShowContextMenu();
             }
         }
-        protected virtual Rect CalculateContentRect()
+        protected virtual Rect CalculateFocusBound()
         {
             return this.WorldToLocal(VisualElementTransformUtility.CalculateWorldBoundOfChildren(_contentContainer));
         }
@@ -75,25 +80,14 @@ namespace Common.UnityExtend.UIElements
 
         public void FocusCenter()
         {
-            var virtualContentRect = CalculateContentRect();
-            var focusContentRect = CalculateFocusContentRect(virtualContentRect);
+            var virtualContentRect = CalculateFocusBound();
+            var focusContentRect = CalculateTargetFocusBound(virtualContentRect);
             var scale = focusContentRect.width / virtualContentRect.width;
-
-            var originOffset = new Vector2(
-                _contentContainer.style.left.value.value - virtualContentRect.x,
-                _contentContainer.style.top.value.value - virtualContentRect.y);
-
-            var newOrigin = new Vector2(
-                focusContentRect.x + originOffset.x * scale,
-                focusContentRect.y + originOffset.y * scale);
-
-            _contentContainer.style.left = newOrigin.x;
-            _contentContainer.style.top = newOrigin.y;
-
-            _zoomManipulator.ForceZoom(scale);
+            var contentCenter = new Vector2(virtualContentRect.x + virtualContentRect.width / 2, virtualContentRect.y + virtualContentRect.height / 2);
+            _zoomManipulator.ForceZoom(contentCenter, scale);
         }
 
-        private Rect CalculateFocusContentRect(Rect currentContentRect)
+        private Rect CalculateTargetFocusBound(Rect currentContentRect)
         {
             var parentRect = new Rect(0, 0, contentRect.width, contentRect.height);
 
