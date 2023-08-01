@@ -7,28 +7,38 @@ using UnityEngine.UIElements;
 
 namespace Common.UnityExtend.UIElements.GraphView
 {
-    public class NodeView : VisualElement
+    public class NodeView : VisualElement, SelectManipulator.ISelectElement
     {
         private readonly List<EdgeView> _connectedEdges = new();
         public event Action<NodeView> OnMove;
         private bool _hover;
+        private bool _selected;
+        public Dragger Dragger { get; private set; }
         public NodeView()
         {
             generateVisualContent += OnRepaint;
             style.minWidth = 25;
             style.minHeight = 25;
             style.position = Position.Absolute;
-            this.AddManipulator(new DragManipulator(this, OnDrag));
+            Dragger = new Dragger(this,OnDrag);
+            RegisterCallback<MouseDownEvent>(OnMouseDown);
             RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
 
             style.flexDirection = FlexDirection.Column;
 
-            var colorField = new ObjectField();
+            var colorField = new ColorField();
             colorField.style.width = 70;
-            colorField.SetEnabled(false);
+            //colorField.SetEnabled(false);
             Add(colorField);
         }
+
+        private void OnMouseDown(MouseDownEvent evt)
+        {
+            Dragger.BeginDrag(evt.mousePosition);
+            evt.StopPropagation();
+        }
+
         private void OnMouseLeave(MouseLeaveEvent evt)
         {
             _hover = false;
@@ -49,7 +59,7 @@ namespace Common.UnityExtend.UIElements.GraphView
         {
             var painter = context.painter2D;
 
-            if (_hover)
+            if (_selected)
             {
                 Painter2DUtility.FillAndStrokeRoundedCornerRect(painter, contentRect, new Color(0.2313726f, 0.2313726f, 0.2313726f, 1f), new Color(0.2666667f, 0.7529f, 1f, 1f), 1f);
             }
@@ -97,6 +107,19 @@ namespace Common.UnityExtend.UIElements.GraphView
             }
             normal = Vector2.up;
             return centerPoint;
+        }
+
+
+        public void Select(VisualElement selector)
+        {
+            _selected = true;
+            this.MarkDirtyRepaint();
+        }
+
+        public void Unselect(VisualElement selector)
+        {
+            _selected = false;
+            this.MarkDirtyRepaint();
         }
 
         public class EdgeConnector

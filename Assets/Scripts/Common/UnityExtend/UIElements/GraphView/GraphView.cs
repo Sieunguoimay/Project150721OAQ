@@ -1,5 +1,7 @@
 using Common.UnityExtend.UIElements.Utilities;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,17 +11,75 @@ namespace Common.UnityExtend.UIElements.GraphView
     {
         private readonly VisualElement _nodeLayer = new() { name = "node-layer" };
         private readonly VisualElement _edgeLayer = new() { name = "edge-layer" };
+        private readonly List<NodeView> _nodes = new();
+        private readonly SelectManipulator _selectManipulator;
+        private NodeView[] _selectedNodes;
+        private bool _selectedSomething;
 
         public GraphView()
         {
+            _selectManipulator = new SelectManipulator();
+
             _nodeLayer.style.position = Position.Absolute;
             _edgeLayer.style.position = Position.Absolute;
 
             ContentContainer.Add(_edgeLayer);
             ContentContainer.Add(_nodeLayer);
+            this.AddManipulator(_selectManipulator);
 
             CreateGraph();
             generateVisualContent += OnRepaint;
+            this.RegisterCallback<MouseMoveEvent>(OnMouseMove);
+            this.RegisterCallback<MouseUpEvent>(OnMouseUp);
+
+            _selectManipulator.OnSelectionResult += OnSelectionResult;
+        }
+        private void OnSelectionResult(SelectManipulator obj)
+        {
+            this.MarkDirtyRepaint();
+
+            _selectedNodes = _selectManipulator.SelectedElements.OfType<NodeView>().ToArray();
+
+            foreach (var node in _selectedNodes)
+            {
+                node.Select(this);
+            }
+
+            _selectedSomething = _selectedNodes.Length > 0;
+        }
+
+
+        private void OnMouseUp(MouseUpEvent evt)
+        {
+            foreach (var n in _nodes)
+            {
+                n.Dragger.EndDrag();
+            }
+
+            if(_selectedSomething)
+            if (evt.button == 0 && _selectedNodes != null)
+            {
+                foreach (var node in _selectedNodes)
+                {
+                    node.Unselect(this);
+                }
+            }
+        }
+
+        private void OnMouseMove(MouseMoveEvent evt)
+        {
+            if (evt.pressedButtons == 0)
+            {
+                foreach (var n in _nodes)
+                {
+                    n.Dragger.EndDrag();
+                }
+                return;
+            }
+            foreach (var n in _nodes)
+            {
+                n.Dragger.Drag(evt.mousePosition);
+            }
         }
 
         private void OnRepaint(MeshGenerationContext obj)
@@ -29,7 +89,7 @@ namespace Common.UnityExtend.UIElements.GraphView
             _contentRect.y -= 20;
             _contentRect.width += 40;
             _contentRect.height += 40;
-            Painter2DUtility.FillRect(obj.painter2D, _contentRect, Color.black);
+            Painter2DUtility.FillRect(obj.painter2D, _contentRect, new Color(0.1568628f, 0.1568628f, 0.1568628f, 1f));
         }
 
         protected override Rect CalculateContentRect()
@@ -56,6 +116,7 @@ namespace Common.UnityExtend.UIElements.GraphView
             var node = new NodeView();
             node.OnMove += OnNodeMove;
             _nodeLayer.Add(node);
+            _nodes.Add(node);
             return node;
         }
         public EdgeView CreateEdge()

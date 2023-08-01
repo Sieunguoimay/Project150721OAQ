@@ -1,4 +1,5 @@
 using Common.UnityExtend.UIElements.Utilities;
+using System;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -9,9 +10,10 @@ namespace Common.UnityExtend.UIElements
 
     public class ZoomAndDragView : VisualElement
     {
+        private readonly ZoomManipulator _zoomManipulator;
         private readonly VisualElement _contentContainer = new() { name = "contents" };
         public VisualElement ContentContainer => _contentContainer;
-        private readonly ZoomManipulator _zoomManipulator;
+
         public ZoomAndDragView(float zoomMin = .25f, float zoomMax = 4f)
         {
             _zoomManipulator = new ZoomManipulator(_contentContainer, zoomMin, zoomMax);
@@ -28,6 +30,7 @@ namespace Common.UnityExtend.UIElements
             //generateVisualContent += OnCanvasRepaint;
         }
 
+
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
             FocusCenter();
@@ -35,14 +38,18 @@ namespace Common.UnityExtend.UIElements
 
         private void OnCanvasRepaint(MeshGenerationContext obj)
         {
-            var pos = new Vector2(_contentContainer.style.left.value.value, _contentContainer.style.top.value.value);
-            Painter2DUtility.DrawCrossSign(obj.painter2D, pos, 10, Color.green);
+            //var pos = new Vector2(_contentContainer.style.left.value.value, _contentContainer.style.top.value.value);
+            //Painter2DUtility.DrawCrossSign(obj.painter2D, pos, 10, Color.green);
 
-            var _contentRect = CalculateContentRect();
-            Painter2DUtility.DrawRect(obj.painter2D, _contentRect, Color.gray);
+            //var _contentRect = CalculateContentRect();
+            //Painter2DUtility.DrawRect(obj.painter2D, _contentRect, Color.gray);
 
-            var focusContentRect = CalculateFocusContentRect(_contentRect);
-            Painter2DUtility.DrawRect(obj.painter2D, focusContentRect, Color.blue);
+            //var focusContentRect = CalculateFocusContentRect(_contentRect);
+            //Painter2DUtility.DrawRect(obj.painter2D, focusContentRect, Color.blue);
+            //if (_selectManipulator.Dragging)
+            //{
+            //    Painter2DUtility.DrawRect(obj.painter2D, _selectManipulator.SelectionBox, Color.red, 1);
+            //}
         }
 
         private void OnMouseUp(MouseUpEvent evt)
