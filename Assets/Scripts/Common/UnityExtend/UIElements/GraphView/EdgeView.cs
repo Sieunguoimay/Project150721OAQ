@@ -19,8 +19,12 @@ namespace Common.UnityExtend.UIElements.GraphView
         public NodeView From => _from;
         public NodeView To => _to;
         private readonly Color _color;
+        public event Action<NodeView> OnGeometryReady;
+        public bool GeometryReady { get; private set; }
+
         public EdgeView()
         {
+            GeometryReady = false;
             style.position = Position.Absolute;
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
             generateVisualContent += OnRepaint;
@@ -30,9 +34,11 @@ namespace Common.UnityExtend.UIElements.GraphView
         private void OnRepaint(MeshGenerationContext context)
         {
             if (_from == null || _to == null) return;
+
             UpdateDrawPoints();
             Painter2DUtility.DrawPath(context.painter2D, new[] { _p1, _p2, _p3, _p4 }, _color, 10f, 1f);
             DrawCap(context);
+
         }
         private void DrawCap(MeshGenerationContext context)
         {
@@ -48,6 +54,7 @@ namespace Common.UnityExtend.UIElements.GraphView
         }
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
+            GeometryReady = true;
             this.MarkDirtyRepaint();
         }
 
@@ -84,7 +91,6 @@ namespace Common.UnityExtend.UIElements.GraphView
         }
         private void UpdateDrawPoints()
         {
-
             var connector1 = _from.GetEdgeConnector(this);
             var connector2 = _to.GetEdgeConnector(this);
 

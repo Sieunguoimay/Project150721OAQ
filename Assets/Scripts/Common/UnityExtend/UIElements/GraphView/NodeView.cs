@@ -1,6 +1,7 @@
 using Common.UnityExtend.UIElements.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,12 +11,14 @@ namespace Common.UnityExtend.UIElements.GraphView
     public class NodeView : VisualElement, SelectManipulator.ISelectElement
     {
         private readonly List<EdgeView> _connectedEdges = new();
-        private readonly Dragger _dragger ;
+        private readonly Dragger _dragger;
         public event Action<NodeView> OnMove;
-        public event Action<NodeView> OnClick;
+        public event Action<NodeView, MouseDownEvent> OnClick;
+        public event Action<NodeView> OnGeometryReady;
 
         private bool _hover;
         public bool IsSelected { get; private set; }
+        public bool GeometryReady { get; private set; }
         public NodeView()
         {
             generateVisualContent += OnRepaint;
@@ -23,17 +26,33 @@ namespace Common.UnityExtend.UIElements.GraphView
             style.minHeight = 25;
             style.position = Position.Absolute;
             _dragger = new Dragger(this, OnDrag);
+            GeometryReady = false;
             RegisterCallback<MouseDownEvent>(OnMouseDown);
             RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
-
-
+            RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
 
+        public IEnumerable<NodeView> QueryConnectedNodes(bool fromOrToThis)
+        {
+            var fromThis = fromOrToThis;
+            if (fromOrToThis)
+            {
+                return _connectedEdges.Where(e => e.From == this).Select(e => e.To);
+            }
+            else
+            {
+                return _connectedEdges.Where(e => e.To == this).Select(e => e.From);
+            }
+        }
+
+        private void OnGeometryChanged(GeometryChangedEvent evt)
+        {
+            GeometryReady = true;
+        }
 
         public void ProcessMouseMove(MouseMoveEvent evt)
         {
-
             _dragger.ProcessDrag(evt.pressedButtons == 1, evt.mousePosition);
         }
 
@@ -41,7 +60,7 @@ namespace Common.UnityExtend.UIElements.GraphView
         {
             if (evt.button == 0)
             {
-                OnClick?.Invoke(this);
+                OnClick?.Invoke(this, evt);
             }
 
             evt.StopPropagation();

@@ -26,7 +26,6 @@ namespace Common.UnityExtend.UIElements
 
             RegisterCallback<MouseUpEvent>(OnMouseUp);
             RegisterCallback<MouseMoveEvent>(OnMouseMove);
-
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
             //generateVisualContent += OnCanvasRepaint;
         }
@@ -38,7 +37,7 @@ namespace Common.UnityExtend.UIElements
 
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
-            FocusCenter();
+            //FocusCenter();
         }
 
         private void OnCanvasRepaint(MeshGenerationContext obj)

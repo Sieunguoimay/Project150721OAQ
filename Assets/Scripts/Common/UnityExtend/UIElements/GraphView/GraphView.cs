@@ -1,9 +1,12 @@
 using Common.UnityExtend.UIElements.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.RectTransform;
 
 namespace Common.UnityExtend.UIElements.GraphView
 {
@@ -11,9 +14,13 @@ namespace Common.UnityExtend.UIElements.GraphView
     {
         private readonly VisualElement _nodeLayer = new() { name = "node-layer" };
         private readonly VisualElement _edgeLayer = new() { name = "edge-layer" };
+        private readonly List<EdgeView> _edges = new();
         private readonly List<NodeView> _nodes = new();
         private readonly SelectManipulator _selectManipulator;
+        public IReadOnlyList<NodeView> Nodes => _nodes;
+        public IReadOnlyList<EdgeView> Edges => _edges;
 
+        private bool _isHoldingCtrKey;
         public GraphView()
         {
             _selectManipulator = new SelectManipulator();
@@ -31,10 +38,14 @@ namespace Common.UnityExtend.UIElements.GraphView
 
             _selectManipulator.OnSelectionResult += OnSelectionResult;
         }
+
         private void OnSelectionResult(SelectManipulator obj)
         {
             this.MarkDirtyRepaint();
-            UnselectAllNodes();
+            if (!_isHoldingCtrKey)
+            {
+                UnselectAllNodes();
+            }
 
             var selectedNodes = _selectManipulator.SelectedElements.OfType<NodeView>().ToArray();
 
@@ -46,7 +57,8 @@ namespace Common.UnityExtend.UIElements.GraphView
 
         private void OnMouseDown(MouseDownEvent evt)
         {
-            if (evt.pressedButtons == 1)
+            _isHoldingCtrKey = evt.ctrlKey;
+            if (evt.pressedButtons == 1 && !evt.ctrlKey)
             {
                 UnselectAllNodes();
             }
@@ -55,6 +67,8 @@ namespace Common.UnityExtend.UIElements.GraphView
         protected override void OnMouseMove(MouseMoveEvent evt)
         {
             base.OnMouseMove(evt);
+            if (evt.ctrlKey) return;
+
             foreach (var n in _nodes)
             {
                 if (n.IsSelected)
@@ -94,7 +108,10 @@ namespace Common.UnityExtend.UIElements.GraphView
         }
         private Rect CalculateContentBound()
         {
-            return this.WorldToLocal(VisualElementTransformUtility.CalculateWorldBoundOfChildren(_nodeLayer.Children().Concat(_edgeLayer.Children())));
+            var children = _nodeLayer.Children().Concat(_edgeLayer.Children()).ToArray();
+            //var defaultFocusRect = new Rect(0, 0, 100, 100);
+            //return defaultFocusRect;
+            return this.WorldToLocal(VisualElementTransformUtility.CalculateWorldBoundOfChildren(children));
         }
 
         public void AddNode(NodeView node)
@@ -103,6 +120,7 @@ namespace Common.UnityExtend.UIElements.GraphView
             node.OnClick += OnNodeClick;
             _nodeLayer.Add(node);
             _nodes.Add(node);
+            _nodeLayer.MarkDirtyRepaint();
         }
 
         public void RemoveNode(NodeView node)
@@ -111,26 +129,34 @@ namespace Common.UnityExtend.UIElements.GraphView
             node.OnClick -= OnNodeClick;
             _nodeLayer.Remove(node);
             _nodes.Remove(node);
+            _nodeLayer.MarkDirtyRepaint();
         }
 
         public void AddEdge(EdgeView edge)
         {
+            _edges.Add(edge);
             _edgeLayer.Add(edge);
+            _edgeLayer.MarkDirtyRepaint();
         }
         public void RemoveEdge(EdgeView edge)
         {
+            _edges.Remove(edge);
             _edgeLayer.Remove(edge);
+            _edgeLayer.MarkDirtyRepaint();
         }
         public void ClearAll()
         {
-            foreach(var node in _nodes)
+            foreach (var node in _nodes)
             {
                 node.OnMove -= OnNodeMove;
                 node.OnClick -= OnNodeClick;
             }
             _nodes.Clear();
+            _edges.Clear();
             _nodeLayer.Clear();
             _edgeLayer.Clear();
+            _nodeLayer.MarkDirtyRepaint();
+            _edgeLayer.MarkDirtyRepaint();
         }
 
 
@@ -138,15 +164,18 @@ namespace Common.UnityExtend.UIElements.GraphView
         {
             this.MarkDirtyRepaint();
         }
-        private void OnNodeClick(NodeView obj)
+        private void OnNodeClick(NodeView obj, MouseDownEvent evt)
         {
             if (!obj.IsSelected)
             {
-                UnselectAllNodes();
+                if (!evt.ctrlKey)
+                {
+                    UnselectAllNodes();
+                }
                 obj.Select(this);
             }
         }
-        private void UnselectAllNodes()
+        public void UnselectAllNodes()
         {
             foreach (var n in _nodes)
             {
