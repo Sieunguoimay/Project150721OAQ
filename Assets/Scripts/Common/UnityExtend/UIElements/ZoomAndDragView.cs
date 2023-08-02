@@ -66,7 +66,7 @@ namespace Common.UnityExtend.UIElements
         }
         protected virtual Rect CalculateFocusBound()
         {
-            return this.WorldToLocal(VisualElementTransformUtility.CalculateWorldBoundOfChildren(_contentContainer));
+            return this.WorldToLocal(VisualElementTransformUtility.CalculateWorldBoundOfChildren(_contentContainer.Children()));
         }
         private void ShowContextMenu()
         {

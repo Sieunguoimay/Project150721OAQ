@@ -29,6 +29,7 @@ namespace Common.UnityExtend.UIElements.GraphView
 
         private void OnRepaint(MeshGenerationContext context)
         {
+            if (_from == null || _to == null) return;
             UpdateDrawPoints();
             Painter2DUtility.DrawPath(context.painter2D, new[] { _p1, _p2, _p3, _p4 }, _color, 10f, 1f);
             DrawCap(context);
@@ -83,6 +84,7 @@ namespace Common.UnityExtend.UIElements.GraphView
         }
         private void UpdateDrawPoints()
         {
+
             var connector1 = _from.GetEdgeConnector(this);
             var connector2 = _to.GetEdgeConnector(this);
 
@@ -107,7 +109,7 @@ namespace Common.UnityExtend.UIElements.GraphView
             _p4 = this.WorldToLocal(connector2.position);
 
             var distance = (_p1 - _p4).magnitude;
-            if(distance > 30f)
+            if (distance > 30f)
             {
                 var d = 10f;
                 _p2 = _p1 + new Vector2(localNormal1.x, localNormal1.y).normalized * d;

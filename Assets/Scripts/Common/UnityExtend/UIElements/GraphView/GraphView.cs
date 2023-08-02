@@ -1,6 +1,7 @@
 using Common.UnityExtend.UIElements.Utilities;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -93,10 +94,7 @@ namespace Common.UnityExtend.UIElements.GraphView
         }
         private Rect CalculateContentBound()
         {
-            var nodeLayerWorldBould = VisualElementTransformUtility.CalculateWorldBoundOfChildren(_nodeLayer);
-            var edgeLayerWorldBould = VisualElementTransformUtility.CalculateWorldBoundOfChildren(_edgeLayer);
-
-            return this.WorldToLocal(VisualElementTransformUtility.CombineBound(nodeLayerWorldBould, edgeLayerWorldBould));
+            return this.WorldToLocal(VisualElementTransformUtility.CalculateWorldBoundOfChildren(_nodeLayer.Children().Concat(_edgeLayer.Children())));
         }
 
         public void AddNode(NodeView node)
@@ -123,6 +121,17 @@ namespace Common.UnityExtend.UIElements.GraphView
         {
             _edgeLayer.Remove(edge);
         }
+        public void ClearAll()
+        {
+            foreach(var node in _nodes)
+            {
+                node.OnMove -= OnNodeMove;
+                node.OnClick -= OnNodeClick;
+            }
+            _nodes.Clear();
+            _nodeLayer.Clear();
+            _edgeLayer.Clear();
+        }
 
 
         private void OnNodeMove(NodeView view)
@@ -144,6 +153,5 @@ namespace Common.UnityExtend.UIElements.GraphView
                 n.Unselect(this);
             }
         }
-
     }
 }

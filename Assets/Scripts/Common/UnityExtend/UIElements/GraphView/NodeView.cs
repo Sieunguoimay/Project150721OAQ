@@ -27,7 +27,6 @@ namespace Common.UnityExtend.UIElements.GraphView
             RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
 
-            style.flexDirection = FlexDirection.Column;
 
         }
 

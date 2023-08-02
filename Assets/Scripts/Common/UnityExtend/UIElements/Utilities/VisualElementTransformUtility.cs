@@ -8,11 +8,9 @@ namespace Common.UnityExtend.UIElements.Utilities
     public static class VisualElementTransformUtility
     {
 
-        public static Rect CalculateWorldBoundOfChildren(VisualElement element)
+        public static Rect CalculateWorldBoundOfChildren(IEnumerable<VisualElement> children)
         {
-            if (element.childCount == 0) return element.contentRect;
-
-            var children = element.Children();
+            if(!children.Any()) { return new Rect(); }
 
             var xMin = children.Min(c => c.worldBound.x);
             var xMax = children.Max(c => c.worldBound.x + c.worldBound.width);
