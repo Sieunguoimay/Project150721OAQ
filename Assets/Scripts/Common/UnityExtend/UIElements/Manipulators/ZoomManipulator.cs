@@ -45,7 +45,7 @@ namespace Common.UnityExtend.UIElements
 
             _scale = newScale;
             _zoomContent.transform.scale = Vector2.one * _scale;
-            target.MarkDirtyRepaint();
+            _zoomContent.MarkDirtyRepaint();
         }
 
         private void SetupEvents()

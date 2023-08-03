@@ -70,14 +70,16 @@ namespace Common.UnityExtend.UIElements
         private void ShowContextMenu()
         {
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Focus"), false, () =>
-            {
-                FocusCenter();
-            });
+            menu.AddItem(new GUIContent("Focus"), false, () => FocusContent());
+            menu.AddItem(new GUIContent("Refresh"), false, () => Refresh());
             menu.ShowAsContext();
         }
 
-        public void FocusCenter()
+        protected virtual void Refresh()
+        {
+        }
+
+        public void FocusContent()
         {
             var virtualContentRect = CalculateFocusBound();
             var focusContentRect = CalculateTargetFocusBound(virtualContentRect);
@@ -109,6 +111,5 @@ namespace Common.UnityExtend.UIElements
             }
             return desireContentRect;
         }
-
     }
 }

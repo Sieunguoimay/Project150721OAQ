@@ -20,7 +20,7 @@ namespace Common.UnityExtend.UIElements.GraphView
         public NodeView To => _to;
         private readonly Color _color;
         public event Action<NodeView> OnGeometryReady;
-        public bool GeometryReady { get; private set; }
+        public bool GeometryReady { get; set; }
 
         public EdgeView()
         {

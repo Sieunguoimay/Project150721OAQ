@@ -1,12 +1,8 @@
 using Common.UnityExtend.UIElements.Utilities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static UnityEngine.RectTransform;
 
 namespace Common.UnityExtend.UIElements.GraphView
 {
@@ -32,16 +28,37 @@ namespace Common.UnityExtend.UIElements.GraphView
             ContentContainer.Add(_nodeLayer);
             this.AddManipulator(_selectManipulator);
 
-            generateVisualContent += OnRepaint;
             RegisterCallback<MouseMoveEvent>(OnMouseMove);
             RegisterCallback<MouseDownEvent>(OnMouseDown);
 
             _selectManipulator.OnSelectionResult += OnSelectionResult;
+            ContentContainer.generateVisualContent += OnBackgroundRepaint;
         }
 
+        private void OnBackgroundRepaint(MeshGenerationContext obj)
+        {
+            var children = TraverseChildrenRecurr(_nodeLayer).Concat(TraverseChildrenRecurr(_edgeLayer)).ToArray();
+            var rect = ContentContainer.WorldToLocal(VisualElementTransformUtility.CalculateWorldBoundOfChildren(children));
+            rect.x -= 20;
+            rect.y -= 20;
+            rect.width += 40;
+            rect.height += 40;
+            Painter2DUtility.FillRect(obj.painter2D, rect, new Color(0.1568628f, 0.1568628f, 0.1568628f, 1f));
+        }
+
+        protected override void Refresh()
+        {
+            base.Refresh();
+            foreach (var node in Nodes)
+            {
+                node.style.left = node.DefaultPosition.x;
+                node.style.top = node.DefaultPosition.y;
+                node.InvokeMoveEvent();
+            }
+            ContentContainer.MarkDirtyRepaint();
+        }
         private void OnSelectionResult(SelectManipulator obj)
         {
-            this.MarkDirtyRepaint();
             if (!_isHoldingCtrKey)
             {
                 UnselectAllNodes();
@@ -76,16 +93,6 @@ namespace Common.UnityExtend.UIElements.GraphView
                     n.ProcessMouseMove(evt);
                 }
             }
-        }
-
-        private void OnRepaint(MeshGenerationContext obj)
-        {
-            var _contentRect = CalculateContentBound();
-            _contentRect.x -= 20;
-            _contentRect.y -= 20;
-            _contentRect.width += 40;
-            _contentRect.height += 40;
-            Painter2DUtility.FillRect(obj.painter2D, _contentRect, new Color(0.1568628f, 0.1568628f, 0.1568628f, 1f));
         }
 
         protected override Rect CalculateFocusBound()
@@ -169,11 +176,12 @@ namespace Common.UnityExtend.UIElements.GraphView
             _edgeLayer.MarkDirtyRepaint();
         }
 
-
         private void OnNodeMove(NodeView view)
         {
-            this.MarkDirtyRepaint();
+            ContentContainer.MarkDirtyRepaint();
         }
+
+
         private void OnNodeClick(NodeView obj, MouseDownEvent evt)
         {
             if (!obj.IsSelected)

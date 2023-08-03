@@ -18,14 +18,17 @@ namespace Common.UnityExtend.UIElements.GraphView
 
         private bool _hover;
         public bool IsSelected { get; private set; }
-        public bool GeometryReady { get; private set; }
+        public bool GeometryReady { get;  set; }
+
+        public Vector2 DefaultPosition;
+        
         public NodeView()
         {
             generateVisualContent += OnRepaint;
             style.minWidth = 25;
             style.minHeight = 25;
             style.position = Position.Absolute;
-            _dragger = new Dragger(this, OnDrag);
+            _dragger = new Dragger(this, InvokeMoveEvent);
             GeometryReady = false;
             RegisterCallback<MouseDownEvent>(OnMouseDown);
             RegisterCallback<MouseEnterEvent>(OnMouseEnter);
@@ -78,7 +81,7 @@ namespace Common.UnityExtend.UIElements.GraphView
             this.MarkDirtyRepaint();
         }
 
-        private void OnDrag()
+        public void InvokeMoveEvent()
         {
             OnMove?.Invoke(this);
         }
