@@ -108,10 +108,20 @@ namespace Common.UnityExtend.UIElements.GraphView
         }
         private Rect CalculateContentBound()
         {
-            var children = _nodeLayer.Children().Concat(_edgeLayer.Children()).ToArray();
-            //var defaultFocusRect = new Rect(0, 0, 100, 100);
-            //return defaultFocusRect;
+            var children = TraverseChildrenRecurr(_nodeLayer).Concat(TraverseChildrenRecurr(_edgeLayer)).ToArray();
+            //Debug.Log($"CalculateContentBound {children.Length}");
             return this.WorldToLocal(VisualElementTransformUtility.CalculateWorldBoundOfChildren(children));
+        }
+        private IEnumerable<VisualElement> TraverseChildrenRecurr(VisualElement root)
+        {
+            foreach (var c in root.Children())
+            {
+                yield return c;
+                foreach (var cc in TraverseChildrenRecurr(c))
+                {
+                    yield return cc;
+                }
+            }
         }
 
         public void AddNode(NodeView node)
