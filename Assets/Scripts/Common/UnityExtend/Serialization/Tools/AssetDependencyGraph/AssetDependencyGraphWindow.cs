@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using UnityEditor;
 using UnityEngine.UIElements;
 
 public class AssetDependencyGraphWindow : EditorWindow
@@ -19,3 +20,4 @@ public class AssetDependencyGraphWindow : EditorWindow
     }
 
 }
+#endif

@@ -9,14 +9,11 @@ using System.Text.RegularExpressions;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.AddressableAssets;
-using UnityEditor.AddressableAssets.Build.Layout;
 using UnityEditor.AddressableAssets.Settings;
 #endif
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.ResourceManagement.ResourceLocations;
-using static UnityEditor.FilePathAttribute;
 
 [Obsolete]
 public class AddressablesManager : ScriptableObject

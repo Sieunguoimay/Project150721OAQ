@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Common.UnityExtend.Reflection;
+﻿using System.Collections.Generic;
 using Common.UnityExtend.Serialization;
+#if UNITY_EDITOR
 using Common.UnityExtend.Serialization.Tools;
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Common.UnityExtend.Attribute

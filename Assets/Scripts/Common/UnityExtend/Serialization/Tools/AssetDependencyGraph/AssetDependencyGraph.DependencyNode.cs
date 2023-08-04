@@ -1,19 +1,39 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using Common.UnityExtend.UIElements.GraphView;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public partial class AssetDependencyGraph
 {
-    private class DependencyNodeVisual : VisualElement
+    private class DependencyNode : NodeView
     {
         private readonly Object _target;
         private readonly Texture _icon;
         private Label _label;
         public Object Target => _target;
-        public DependencyNodeVisual(string path)
+        public string Path { get; private set; }
+
+        public Vector2 defaultPosition;
+
+        public DependencyNode(string path)
         {
+            Path = path;
             _target = AssetDatabase.LoadAssetAtPath<Object>(path);
             _icon = AssetDatabase.GetCachedIcon(path);
+
+            Setup();
+
+            _label.RegisterCallback<MouseDownEvent>(OnMouseDown);
+            _label.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
+            _label.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
+        }
+        public DependencyNode(Object target)
+        {
+            Path = AssetDatabase.GetAssetPath(target);
+            _target = target;
+            _icon = EditorGUIUtility.ObjectContent(target, null).image;
+
             Setup();
 
             _label.RegisterCallback<MouseDownEvent>(OnMouseDown);
@@ -42,7 +62,6 @@ public partial class AssetDependencyGraph
 
         private void Setup()
         {
-            this.StretchToParentSize();
             style.alignItems = Align.Center;
             style.justifyContent = Justify.Center;
 
@@ -51,11 +70,12 @@ public partial class AssetDependencyGraph
                 image = _icon
             };
             image.style.width = 16;
+            image.style.height = 16;
             Add(image);
 
             var label = new Label
             {
-                text = _target?.name
+                text = _target != null ? _target.name : Path
             };
             label.style.position = Position.Absolute;
             label.style.unityTextAlign = TextAnchor.MiddleLeft;
@@ -64,6 +84,6 @@ public partial class AssetDependencyGraph
             Add(label);
             _label = label;
         }
-
     }
 }
+#endif

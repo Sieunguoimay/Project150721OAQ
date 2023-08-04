@@ -2,7 +2,6 @@ using Common.UnityExtend.UIElements.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -18,10 +17,11 @@ namespace Common.UnityExtend.UIElements.GraphView
 
         private bool _hover;
         public bool IsSelected { get; private set; }
-        public bool GeometryReady { get;  set; }
+        public bool GeometryReady { get; set; }
+        public IReadOnlyList<EdgeView> ConnectedEdges => _connectedEdges;
 
         public Vector2 DefaultPosition;
-        
+
         public NodeView()
         {
             generateVisualContent += OnRepaint;
@@ -150,12 +150,20 @@ namespace Common.UnityExtend.UIElements.GraphView
         {
             IsSelected = true;
             this.MarkDirtyRepaint();
+            foreach (var e in _connectedEdges)
+            {
+                e.RefreshSelection();
+            }
         }
 
         public void Unselect(VisualElement selector)
         {
             IsSelected = false;
             this.MarkDirtyRepaint();
+            foreach (var e in _connectedEdges)
+            {
+                e.RefreshSelection();
+            }
         }
 
         public class EdgeConnector

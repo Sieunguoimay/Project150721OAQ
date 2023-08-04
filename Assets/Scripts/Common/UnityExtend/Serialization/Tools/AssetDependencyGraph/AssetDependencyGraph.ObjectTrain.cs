@@ -15,11 +15,22 @@ public partial class AssetDependencyGraph
         public ObjectVisitingPath()
         {
             style.flexDirection = FlexDirection.Row;
+            OnCurrentChanged += HandleCurrentSegmentChanged;
         }
-        public void Update()
-        {
 
+        private void HandleCurrentSegmentChanged(ObjectVisitingPath obj)
+        {
+            foreach (var s in _segments)
+            {
+                s.SetEnabled(true);
+            }
+
+            if (_segments.Count > 0)
+            {
+                _segments[^1].SetEnabled(false);
+            }
         }
+
         private Segment CreateSegment(Object target)
         {
             var segment = new Segment
@@ -29,10 +40,10 @@ public partial class AssetDependencyGraph
                 focusable = false
             };
 
-            if(_segments.Count == 0)
-            {
-                segment.style.backgroundColor = new Color(0.2313726f, 0.2313726f, 0.2313726f, 1f);
-            }
+            //if (_defaultBgColor == null)
+            //{
+            //    _defaultBgColor = segment.style.backgroundColor;
+            //}
 
             segment.style.marginLeft = 0;
             segment.style.marginRight = 0;

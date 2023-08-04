@@ -18,6 +18,7 @@ namespace Common.UnityExtend.Attribute
             _displayToSerialized = callbackToModifySelectedValue;
             _serializedToDisplay = callbackToModifyDisplayValue;
         }
+#if UNITY_EDITOR
 
         public object GetData(SerializedProperty property)
         {
@@ -54,6 +55,7 @@ namespace Common.UnityExtend.Attribute
         //         : ReflectionUtility.GetObjectToWhichPropertyBelong(property);
         //     ReflectionUtility.GetMethodInfo(providerObject.GetType(), _callbackMethod, false).Invoke(providerObject, null);
         // }
+#endif
     }
 
     public class StringSelectorAttribute : BaseSelectorAttribute

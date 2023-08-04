@@ -46,10 +46,12 @@ namespace Common.UnityExtend.UIElements
         }
         private void ShowContextMenu()
         {
+#if UNITY_EDITOR
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("Focus"), false, () => FocusContent());
             menu.AddItem(new GUIContent("Refresh"), false, () => Refresh());
             menu.ShowAsContext();
+#endif
         }
 
         protected virtual void Refresh()

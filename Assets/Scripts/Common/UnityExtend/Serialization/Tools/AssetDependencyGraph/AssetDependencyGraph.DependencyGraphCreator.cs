@@ -1,11 +1,11 @@
-﻿using Common.UnityExtend.UIElements.GraphView;
+﻿#if UNITY_EDITOR
+using Common.UnityExtend.UIElements.GraphView;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public partial class AssetDependencyGraph
 {
@@ -16,25 +16,22 @@ public partial class AssetDependencyGraph
         public List<NodeArangementItem> children;
         public int depth;
     }
-    private class DependencyNode : NodeView
-    {
-        public Vector2 defaultPosition;
-    }
     private class DependencyEdge : EdgeView
     {
         public bool IsAddressableReference;
+        protected override Color Color => IsAddressableReference && !IsSelected ? Color.red : base.Color;
     }
 
     private static class DependencyGraphCreator
     {
-        public static NodeView CreateGraph(Object rootObject, out List<DependencyNode> nodes, out List<DependencyEdge> edges)
+        public static DependencyNode CreateGraph(Object rootObject, bool ignoreScript, out List<DependencyNode> nodes, out List<DependencyEdge> edges)
         {
             var rootPath = AssetDatabase.GetAssetPath(rootObject);
 
             edges = new List<DependencyEdge>();
 
             var nodeDict = new Dictionary<string, NodeArangementItem>();
-            var rootNode = TraverseToCreateGraph(nodeDict, edges, rootPath, new Vector2(0, 0), 0);
+            var rootNode = TraverseToCreateGraph(nodeDict, edges, rootPath, 0, ignoreScript);
             rootNode.depth = 0;
             rootNode.node.style.left = 0;
             rootNode.node.style.top = 0;
@@ -71,18 +68,21 @@ public partial class AssetDependencyGraph
             }
         }
 
-        private static NodeArangementItem TraverseToCreateGraph(Dictionary<string, NodeArangementItem> nodeDict, List<DependencyEdge> edgeList, string path, Vector2 pos, int depth)
+        private static NodeArangementItem TraverseToCreateGraph(
+            Dictionary<string, NodeArangementItem> nodeDict,
+            List<DependencyEdge> edgeList, string path, int depth, bool ignoreScript)
         {
             var parentNode = new NodeArangementItem { node = CreateNode(path), depth = int.MaxValue, children = new() };
             nodeDict.Add(path, parentNode);
-            var paths = GetReferences(path);
-            foreach (var p in paths)
+            var paths = GetReferences(path, ignoreScript, out var addressableStartIndex);
+            for (int i = 0; i < paths.Length; i++)
             {
+                string p = paths[i];
                 if (p.Equals(path)) continue;
                 var foundInDict = nodeDict.TryGetValue(p, out var dNode);
                 if (!foundInDict)
                 {
-                    dNode = TraverseToCreateGraph(nodeDict, edgeList, p, new Vector2(pos.x + 200f, pos.y), depth + 1);
+                    dNode = TraverseToCreateGraph(nodeDict, edgeList, p, depth + 1, ignoreScript);
                 }
                 if (dNode.depth > depth + 1)
                 {
@@ -97,7 +97,10 @@ public partial class AssetDependencyGraph
                 }
                 if (dNode != parentNode)
                 {
-                    var edge = new DependencyEdge();
+                    var edge = new DependencyEdge
+                    {
+                        IsAddressableReference = i >= addressableStartIndex
+                    };
                     edge.Connect(parentNode.node, dNode.node);
                     edgeList.Add(edge);
                 }
@@ -113,18 +116,39 @@ public partial class AssetDependencyGraph
                 UpdateNodeDepthRecurr(c);
             }
         }
-        private static string[] GetReferences(string path)
+        private static string[] GetReferences(string path, bool ignoreScript, out int addressableStartIndex)
         {
             string fullPath = Path.Combine(Application.dataPath, path["Assets/".Length..]);
 
             if (File.Exists(fullPath))
             {
                 string assetText = File.ReadAllText(fullPath);
-                return ParseReferences(assetText).Distinct()
-                    .Select(AssetDatabase.GUIDToAssetPath)
-                    .Where(p => !string.IsNullOrEmpty(p) && !AssetDatabase.IsValidFolder(p) && p.Contains('.') && !p.EndsWith(".cs")).ToArray();
+                var a = GUIDToPath(ParseReferences(assetText)).ToArray();
+                var b = GUIDToPath(ParseAddressableReference(assetText));
+                addressableStartIndex = a.Length;
+                return a.Concat(b).ToArray();
             }
+            addressableStartIndex = -1;
             return new string[0];
+
+            IEnumerable<string> GUIDToPath(IEnumerable<string> guids)
+            {
+                return guids.Distinct()
+                    .Select(AssetDatabase.GUIDToAssetPath)
+                    .Where(p => WhereCondition(p, ignoreScript));
+            }
+
+            static bool WhereCondition(string p, bool ignoreSript)
+            {
+                if (ignoreSript)
+                {
+                    return !string.IsNullOrEmpty(p) && !AssetDatabase.IsValidFolder(p) && !p.EndsWith(".cs");
+                }
+                else
+                {
+                    return !string.IsNullOrEmpty(p) && !AssetDatabase.IsValidFolder(p);// && p.Contains('.');
+                }
+            }
         }
         private static IEnumerable<string> ParseReferences(string text)
         {
@@ -144,8 +168,11 @@ public partial class AssetDependencyGraph
                 }
             }
 
+        }
+        private static IEnumerable<string> ParseAddressableReference(string text)
+        {
             var pattern = @"m_AssetGUID:\s*([a-fA-F0-9]{32})";
-            matches = Regex.Matches(text, pattern);
+            var matches = Regex.Matches(text, pattern);
 
             foreach (Match m in matches.Cast<Match>())
             {
@@ -158,10 +185,9 @@ public partial class AssetDependencyGraph
         }
         private static DependencyNode CreateNode(string path)
         {
-            var node = new DependencyNode();
-            node.style.flexDirection = FlexDirection.Column;
-            node.Add(new DependencyNodeVisual(path));
+            var node = new DependencyNode(path);
             return node;
         }
     }
 }
+#endif

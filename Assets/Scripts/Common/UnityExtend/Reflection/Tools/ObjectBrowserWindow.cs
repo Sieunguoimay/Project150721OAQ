@@ -1,7 +1,7 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Common.UnityExtend.Attribute;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -215,3 +215,4 @@ namespace Common.UnityExtend.Reflection.Tools
         }
     }
 }
+#endif

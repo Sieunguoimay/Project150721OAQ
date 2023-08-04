@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿#if UNITY_EDITOR
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,12 +9,12 @@ public partial class AssetDependencyGraph
     private class HeaderBar : VisualElement
     {
         private readonly ObjectVisitingPath _visitingPath;
-        private readonly AssetDependencyGraph _window;
+        private readonly AssetDependencyGraph _graph;
         private Button _goBackButton;
         public ObjectVisitingPath ObjectTrain => _visitingPath;
-        public HeaderBar(AssetDependencyGraph window)
+        public HeaderBar(AssetDependencyGraph graph)
         {
-            _window = window;
+            _graph = graph;
             _visitingPath = new();
             style.flexDirection = FlexDirection.Row;
             style.justifyContent = Justify.SpaceBetween;
@@ -28,7 +29,6 @@ public partial class AssetDependencyGraph
                 text = "...",
                 focusable = false
             };
-            //moreButton.style.width = 18;
             moreButton.clicked += OnMoreButtonClicked;
             return moreButton;
         }
@@ -36,15 +36,23 @@ public partial class AssetDependencyGraph
         private void OnMoreButtonClicked()
         {
             var menu = new GenericMenu();
-            menu.AddItem(new UnityEngine.GUIContent("Ping Script"), false, () =>
-            {
-                var scriptObject = AssetDatabase.LoadAssetAtPath<Object>(
-                    AssetDatabase.FindAssets($"t: Script {nameof(AssetDependencyGraph)}")
-                        .Select(AssetDatabase.GUIDToAssetPath)
-                        .FirstOrDefault(p => p.EndsWith($"{nameof(AssetDependencyGraph)}.cs"))); ; ;
-                EditorGUIUtility.PingObject(scriptObject);
-            });
+            menu.AddItem(new UnityEngine.GUIContent("Ping Script"), false, () => PingThisScript());
+            menu.AddItem(new UnityEngine.GUIContent("Show Dependent Scripts"), _graph.LoadScriptDependency, () => ToggleScriptDependency());
             menu.ShowAsContext();
+        }
+        private void ToggleScriptDependency()
+        {
+            _graph.LoadScriptDependency = !_graph.LoadScriptDependency;
+            ReimportGraph();
+        }
+        private static void PingThisScript()
+        {
+            var scriptObject = AssetDatabase.LoadAssetAtPath<Object>(
+                AssetDatabase.FindAssets($"t: Script {nameof(AssetDependencyGraph)}")
+                    .Select(AssetDatabase.GUIDToAssetPath)
+                    .FirstOrDefault(p => p.EndsWith($"{nameof(AssetDependencyGraph)}.cs")));
+            EditorGUIUtility.PingObject(scriptObject);
+
         }
 
         private VisualElement CreateLeft()
@@ -94,7 +102,9 @@ public partial class AssetDependencyGraph
         private void OnDropDownuttonClicked()
         {
             var menu = new GenericMenu();
-            var sceneAssets = AssetDatabase.FindAssets($"t: Scene").Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadAssetAtPath<Object>);
+            var sceneAssets = AssetDatabase.FindAssets($"t: Scene")
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<Object>);
 
             foreach (var asset in sceneAssets)
             {
@@ -114,8 +124,15 @@ public partial class AssetDependencyGraph
 
         private void OnObjectTrainChanged(ObjectVisitingPath obj)
         {
-            _window.Import(_visitingPath.Current);
-            _goBackButton.SetEnabled(_visitingPath.Navigatable);
+            ReimportGraph();
+        }
+        private void ReimportGraph()
+        {
+            if (_visitingPath.Current != null)
+            {
+                _graph.Import(_visitingPath.Current);
+                _goBackButton.SetEnabled(_visitingPath.Navigatable);
+            }
         }
         private void OnImportButtonClicked()
         {
@@ -131,3 +148,4 @@ public partial class AssetDependencyGraph
         }
     }
 }
+#endif

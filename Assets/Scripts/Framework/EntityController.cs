@@ -27,6 +27,8 @@ namespace Framework
         public string SavedDataPath => Path.Combine(ProjectPath, saveFolder);
 #else
         //Todo:..
+        public static string ProjectPath => "";
+        public string SavedDataPath => "";
 #endif
 
         public static IInstaller Instance { get; private set; }

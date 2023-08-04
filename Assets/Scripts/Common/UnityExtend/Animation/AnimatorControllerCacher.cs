@@ -56,7 +56,9 @@ public class AnimatorControllerCacher : MonoBehaviour, IAnimationStateEventHandl
 [Serializable]
 public class AnimatorControllerCacheData
 {
+#if UNITY_EDITOR
     [SerializeField] private AnimatorController controllerAsset;
+#endif
     [SerializeField] private Layer[] layers;
     [SerializeField] private AnimatorControllerParameter[] parameters;
 
@@ -73,8 +75,9 @@ public class AnimatorControllerCacheData
         parameters = controller.parameters;
         controllerAsset = controller;
     }
-#endif
     public AnimatorController ControllerAsset => controllerAsset;
+#endif
+
     public Layer[] Layers => layers;
     public AnimatorControllerParameter[] Parameters => parameters;
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -109,3 +110,4 @@ namespace Common.Noise
         }
     }
 }
+#endif

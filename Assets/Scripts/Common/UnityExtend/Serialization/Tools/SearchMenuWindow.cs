@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using Common.Algorithm;
 using System;
 using System.Collections.Generic;
@@ -138,3 +139,4 @@ public partial class SearchMenuWindow : EditorWindow
         return new(string.Join(".*", str.Split(" ")), RegexOptions.IgnoreCase);
     }
 }
+#endif
