@@ -55,7 +55,7 @@ public partial class AssetDependencyGraph
 
             var label = new Label
             {
-                text = _target.name
+                text = _target?.name
             };
             label.style.position = Position.Absolute;
             label.style.unityTextAlign = TextAnchor.MiddleLeft;

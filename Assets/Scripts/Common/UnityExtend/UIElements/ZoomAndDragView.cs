@@ -26,34 +26,11 @@ namespace Common.UnityExtend.UIElements
 
             RegisterCallback<MouseUpEvent>(OnMouseUp);
             RegisterCallback<MouseMoveEvent>(OnMouseMove);
-            RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
-            //generateVisualContent += OnCanvasRepaint;
         }
 
         protected virtual void OnMouseMove(MouseMoveEvent evt)
         {
             _dragger.ProcessDrag(evt.pressedButtons == 4, evt.mousePosition);
-        }
-
-        private void OnGeometryChanged(GeometryChangedEvent evt)
-        {
-            //FocusCenter();
-        }
-
-        private void OnCanvasRepaint(MeshGenerationContext obj)
-        {
-            //var pos = new Vector2(_contentContainer.style.left.value.value, _contentContainer.style.top.value.value);
-            //Painter2DUtility.DrawCrossSign(obj.painter2D, pos, 10, Color.green);
-
-            //var _contentRect = CalculateContentRect();
-            //Painter2DUtility.DrawRect(obj.painter2D, _contentRect, Color.gray);
-
-            //var focusContentRect = CalculateFocusContentRect(_contentRect);
-            //Painter2DUtility.DrawRect(obj.painter2D, focusContentRect, Color.blue);
-            //if (_selectManipulator.Dragging)
-            //{
-            //    Painter2DUtility.DrawRect(obj.painter2D, _selectManipulator.SelectionBox, Color.red, 1);
-            //}
         }
 
         private void OnMouseUp(MouseUpEvent evt)

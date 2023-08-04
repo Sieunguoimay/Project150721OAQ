@@ -9,13 +9,29 @@ using UnityEngine.UIElements;
 
 public partial class AssetDependencyGraph
 {
+    private class NodeArangementItem
+    {
+        public DependencyNode node;
+        public NodeArangementItem parent;
+        public List<NodeArangementItem> children;
+        public int depth;
+    }
+    private class DependencyNode : NodeView
+    {
+        public Vector2 defaultPosition;
+    }
+    private class DependencyEdge : EdgeView
+    {
+        public bool IsAddressableReference;
+    }
+
     private static class DependencyGraphCreator
     {
-        public static NodeView CreateGraph(Object rootObject, out List<NodeView> nodes, out List<EdgeView> edges)
+        public static NodeView CreateGraph(Object rootObject, out List<DependencyNode> nodes, out List<DependencyEdge> edges)
         {
             var rootPath = AssetDatabase.GetAssetPath(rootObject);
 
-            edges = new List<EdgeView>();
+            edges = new List<DependencyEdge>();
 
             var nodeDict = new Dictionary<string, NodeArangementItem>();
             var rootNode = TraverseToCreateGraph(nodeDict, edges, rootPath, new Vector2(0, 0), 0);
@@ -36,7 +52,7 @@ public partial class AssetDependencyGraph
             foreach (var column in columns)
             {
                 var columnItems = column.ToArray();
-                var height = (columnItems.Length - 1) * 60f;
+                var height = (columnItems.Length - 1) * 40f;
                 var parents = columnItems.Where(i => i.parent != null).Select(i => i.parent).Distinct().ToArray();
                 var parent = parents.FirstOrDefault();
                 var sameParent = parents.Count() <= 1;
@@ -47,21 +63,15 @@ public partial class AssetDependencyGraph
                     g.node.style.left = x;
                     g.node.style.top = y;
                     g.node.DefaultPosition = new Vector2(x, y);
-                    y += 60f;
+                    g.node.defaultPosition = new Vector2(x, y);
+                    y += 40f;
                 }
 
                 x += 200f;
             }
         }
-        private class NodeArangementItem
-        {
-            public NodeView node;
-            public NodeArangementItem parent;
-            public List<NodeArangementItem> children;
-            public int depth;
-        }
 
-        private static NodeArangementItem TraverseToCreateGraph(Dictionary<string, NodeArangementItem> nodeDict, List<EdgeView> edgeList, string path, Vector2 pos, int depth)
+        private static NodeArangementItem TraverseToCreateGraph(Dictionary<string, NodeArangementItem> nodeDict, List<DependencyEdge> edgeList, string path, Vector2 pos, int depth)
         {
             var parentNode = new NodeArangementItem { node = CreateNode(path), depth = int.MaxValue, children = new() };
             nodeDict.Add(path, parentNode);
@@ -87,7 +97,7 @@ public partial class AssetDependencyGraph
                 }
                 if (dNode != parentNode)
                 {
-                    var edge = new EdgeView();
+                    var edge = new DependencyEdge();
                     edge.Connect(parentNode.node, dNode.node);
                     edgeList.Add(edge);
                 }
@@ -105,14 +115,14 @@ public partial class AssetDependencyGraph
         }
         private static string[] GetReferences(string path)
         {
-            string fullPath = Path.Combine(Application.dataPath, path.Substring("Assets/".Length));
+            string fullPath = Path.Combine(Application.dataPath, path["Assets/".Length..]);
 
             if (File.Exists(fullPath))
             {
                 string assetText = File.ReadAllText(fullPath);
                 return ParseReferences(assetText).Distinct()
                     .Select(AssetDatabase.GUIDToAssetPath)
-                    .Where(p => !string.IsNullOrEmpty(p) && !AssetDatabase.IsValidFolder(p) && p.Contains('.')).ToArray();
+                    .Where(p => !string.IsNullOrEmpty(p) && !AssetDatabase.IsValidFolder(p) && p.Contains('.') && !p.EndsWith(".cs")).ToArray();
             }
             return new string[0];
         }
@@ -123,7 +133,7 @@ public partial class AssetDependencyGraph
 
             var matches = Regex.Matches(text, referencePattern);
 
-            foreach (Match match in matches)
+            foreach (Match match in matches.Cast<Match>())
             {
                 var m = Regex.Match(match.Value, guidPattern);
 
@@ -133,10 +143,22 @@ public partial class AssetDependencyGraph
                     yield return guidGroup.Value;
                 }
             }
+
+            var pattern = @"m_AssetGUID:\s*([a-fA-F0-9]{32})";
+            matches = Regex.Matches(text, pattern);
+
+            foreach (Match m in matches.Cast<Match>())
+            {
+
+                if (m.Success && m.Groups.Count >= 2)
+                {
+                    yield return m.Groups[1].Value;
+                }
+            }
         }
-        private static NodeView CreateNode(string path)
+        private static DependencyNode CreateNode(string path)
         {
-            var node = new NodeView();
+            var node = new DependencyNode();
             node.style.flexDirection = FlexDirection.Column;
             node.Add(new DependencyNodeVisual(path));
             return node;
