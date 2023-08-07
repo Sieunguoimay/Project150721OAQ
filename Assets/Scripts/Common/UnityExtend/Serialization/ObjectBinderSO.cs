@@ -62,6 +62,7 @@ public class ObjectBinderSO : ScriptableObject
         {
             _constraintType = constraintType;
         }
+#if UNITY_EDITOR
 
         public bool IsMatched(SerializedProperty property)
         {
@@ -84,6 +85,7 @@ public class ObjectBinderSO : ScriptableObject
             }
             return "";
         }
+#endif
     }
 }
 #if UNITY_EDITOR

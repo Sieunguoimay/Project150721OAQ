@@ -92,7 +92,7 @@ namespace Common.UnityExtend.Reflection
 #if UNITY_EDITOR
         public object StringSelectorCallback(object value)
         {
-            return ((string) value).Split('/').LastOrDefault();
+            return ((string)value).Split('/').LastOrDefault();
         }
 
         public IEnumerable<string> GetMethodNames()
@@ -107,11 +107,11 @@ namespace Common.UnityExtend.Reflection
                     .Select(ReflectionUtility.FormatName.FormatMethodName);
         }
 
+
+#endif
         public MethodInfo MethodInfo => targetObjectPath.PathFinalType != null
             ? ReflectionUtility.GetMethodInfo(targetObjectPath.PathFinalType, methodName, true)
             : null;
-#endif
-
         public Delegate RuntimeHandler { get; private set; }
 
         public Delegate CreateDelegate(Type handlerType)

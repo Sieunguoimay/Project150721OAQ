@@ -18,6 +18,7 @@ namespace Common.Tools.MeshSaver
         [SerializeField] private string meshName = "Untitled";
         private IMeshProvider MeshProvider => meshProvider ? (IMeshProvider) meshProvider : this;
 
+#if UNITY_EDITOR
         [ContextMenu("Save")]
         public void Save()
         {
@@ -34,7 +35,7 @@ namespace Common.Tools.MeshSaver
             AssetDatabase.SaveAssets();
             Debug.Log($"Saved mesh to {path}", AssetDatabase.LoadAssetAtPath<Object>(path));
         }
-
+#endif
         public UnityEngine.Mesh GetMesh()
         {
             var m = GetMeshFromRenderer(GetComponent<Renderer>());

@@ -84,6 +84,6 @@ namespace Common.UnityExtend.Attribute
             var value = SerializeUtility.GetSiblingProperty(property, att.ProviderPropertyName);
             _toggled = Equals(value, att);// value.Equals(att.Value);
         }
-#endif
     }
+#endif
 }

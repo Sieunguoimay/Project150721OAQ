@@ -45,7 +45,7 @@ namespace Common.UnityExtend.UIElements
 
             _scale = newScale;
             _zoomContent.transform.scale = Vector2.one * _scale;
-            target.MarkDirtyRepaint();
+            _zoomContent.MarkDirtyRepaint();
         }
 
         private void SetupEvents()
@@ -64,16 +64,11 @@ namespace Common.UnityExtend.UIElements
 
         private void Zoom(Vector2 localPivot, float delta)
         {
-            var changingFactor = delta / _scale;
+            var valid = IsZoomValueValid(_scale + delta);
+            var newDelta = valid - _scale;
+            var changingFactor = newDelta / _scale;
 
-            _scale += delta;
-
-            if (!IsZoomValueValid())
-            {
-                _zoomContent.transform.scale = Vector2.one * _scale;
-                target.MarkDirtyRepaint();
-                return;
-            }
+            _scale = valid;
             _zoomContent.transform.scale = Vector2.one * _scale;
 
             var localOrigin = new Vector2(_zoomContent.style.left.value.value, _zoomContent.style.top.value.value);
@@ -86,19 +81,17 @@ namespace Common.UnityExtend.UIElements
 
             target.MarkDirtyRepaint();
         }
-        private bool IsZoomValueValid()
+        private float IsZoomValueValid(float newValue)
         {
-            if (_scale >= _scaleMax)
+            if (newValue >= _scaleMax)
             {
-                _scale = _scaleMax;
-                return false;
+                return _scaleMax;
             }
-            if (_scale <= _scaleMin)
+            if (newValue <= _scaleMin)
             {
-                _scale = _scaleMin;
-                return false;
+                return _scaleMin;
             }
-            return true;
+            return newValue;
         }
     }
 

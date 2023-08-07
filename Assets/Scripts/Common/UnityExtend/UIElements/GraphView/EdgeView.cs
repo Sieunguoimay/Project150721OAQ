@@ -2,7 +2,6 @@ using Common.UnityExtend.UIElements.Utilities;
 using System;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static UnityEditor.Timeline.TimelinePlaybackControls;
 
 namespace Common.UnityExtend.UIElements.GraphView
 {
@@ -18,36 +17,60 @@ namespace Common.UnityExtend.UIElements.GraphView
 
         public NodeView From => _from;
         public NodeView To => _to;
-        private readonly Color _color;
+        protected virtual Color Color => IsSelected ? new Color(0.2666667f, 0.7529f, 1f, 1f) : Color.gray;
+        public event Action<NodeView> OnGeometryReady;
+        public bool GeometryReady { get; set; }
+        public bool IsSelected { get; private set; }
+
         public EdgeView()
         {
+            GeometryReady = false;
             style.position = Position.Absolute;
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
             generateVisualContent += OnRepaint;
-            _color = Color.gray;
+        }
+        public void RefreshSelection()
+        {
+            IsSelected = (_from.IsSelected && _to.IsSelected);
+            this.MarkDirtyRepaint();
+        }
+        public void Select(VisualElement selector)
+        {
+            IsSelected = true;
+            this.MarkDirtyRepaint();
+        }
+
+        public void Unselect(VisualElement selector)
+        {
+            IsSelected = false;
+            this.MarkDirtyRepaint();
         }
 
         private void OnRepaint(MeshGenerationContext context)
         {
             if (_from == null || _to == null) return;
+
             UpdateDrawPoints();
-            Painter2DUtility.DrawPath(context.painter2D, new[] { _p1, _p2, _p3, _p4 }, _color, 10f, 1f);
+            Painter2DUtility.DrawPath(context.painter2D, new[] { _p1, _p2, _p3, _p4 }, Color, 10f, 1f);
             DrawCap(context);
+
         }
         private void DrawCap(MeshGenerationContext context)
         {
-            var capMesh = context.Allocate(3, 3);
+            //var capMesh = context.Allocate(3, 3);
             var capDir = (_p4 - _p3).normalized;
             var capNor = Vector2.Perpendicular(capDir);
-            capMesh.SetAllVertices(new[] {
-                new Vertex() { position = _p4 ,tint = _color },
-                new Vertex() { position = _p4 - capDir * 3f + capNor * 2f ,tint = _color },
-                new Vertex() { position = _p4 - capDir * 3f - capNor * 2f ,tint = _color },
-            });
-            capMesh.SetAllIndices(new ushort[] { 0, 1, 2 });
+            //capMesh.SetAllVertices(new[] {
+            //    new Vertex() { position = _p4 ,tint = Color },
+            //    new Vertex() { position = _p4 - capDir * 3f + capNor * 2f ,tint = Color },
+            //    new Vertex() { position = _p4 - capDir * 3f - capNor * 2f ,tint = Color },
+            //});
+            //capMesh.SetAllIndices(new ushort[] { 0, 1, 2 });
+            Painter2DUtility.FillTriangle(context, _p4, _p4 - capDir * 3f + capNor * 2f, _p4 - capDir * 3f - capNor * 2f, Color);
         }
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
+            GeometryReady = true;
             this.MarkDirtyRepaint();
         }
 
@@ -84,7 +107,6 @@ namespace Common.UnityExtend.UIElements.GraphView
         }
         private void UpdateDrawPoints()
         {
-
             var connector1 = _from.GetEdgeConnector(this);
             var connector2 = _to.GetEdgeConnector(this);
 

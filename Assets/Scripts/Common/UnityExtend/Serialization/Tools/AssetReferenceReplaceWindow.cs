@@ -1,21 +1,15 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-#if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.AddressableAssets.GUI;
-using UnityEditor.VersionControl;
-#endif
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using static UnityEditor.MaterialProperty;
 using Object = UnityEngine.Object;
 
 namespace Sieunguoimay.Serialization.Tools
 {
-#if UNITY_EDITOR
     [EditorWindowTitle(title = "AssetReferenceReplaceWindow")]
     public class AssetReferenceReplaceWindow : EditorWindow
     {
@@ -402,5 +396,5 @@ namespace Sieunguoimay.Serialization.Tools
             public bool ShouldReplace => isAValidReplace && !ignore;
         }
     }
-#endif
 }
+#endif

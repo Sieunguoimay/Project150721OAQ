@@ -27,7 +27,7 @@ namespace Framework.Services.Data
         {
             _typeConstraintProvider = typeConstraintProvider;
         }
-
+#if UNITY_EDITOR
         private Type GetTypeConstraint(SerializedProperty property)
         {
             if (_typeConstraint != null) return _typeConstraint;
@@ -38,7 +38,6 @@ namespace Framework.Services.Data
 
             return null;
         }
-#if UNITY_EDITOR
 
         [CustomPropertyDrawer(typeof(DataAssetIdSelectorAttribute))]
         private class IdSelectorDrawer : StringSelectorDrawer

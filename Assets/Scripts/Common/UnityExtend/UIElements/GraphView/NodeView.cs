@@ -1,7 +1,7 @@
 using Common.UnityExtend.UIElements.Utilities;
 using System;
 using System.Collections.Generic;
-using UnityEditor.UIElements;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -10,30 +10,64 @@ namespace Common.UnityExtend.UIElements.GraphView
     public class NodeView : VisualElement, SelectManipulator.ISelectElement
     {
         private readonly List<EdgeView> _connectedEdges = new();
-        private readonly Dragger _dragger ;
+        private readonly Dragger _dragger;
         public event Action<NodeView> OnMove;
-        public event Action<NodeView> OnClick;
+        public event Action<NodeView, MouseDownEvent> OnClick;
+        public event Action<NodeView> OnGeometryReady;
 
         private bool _hover;
         public bool IsSelected { get; private set; }
+        public bool GeometryReady { get; set; }
+        public IReadOnlyList<EdgeView> ConnectedEdges => _connectedEdges;
+
+        public Vector2 DefaultPosition;
+
         public NodeView()
         {
             generateVisualContent += OnRepaint;
             style.minWidth = 25;
             style.minHeight = 25;
             style.position = Position.Absolute;
-            _dragger = new Dragger(this, OnDrag);
+            _dragger = new Dragger(this, InvokeMoveEvent);
+            GeometryReady = false;
             RegisterCallback<MouseDownEvent>(OnMouseDown);
             RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
-
-
+            RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
 
+        public IEnumerable<NodeView> QueryConnectedNodes(bool fromOrToThis)
+        {
+            var fromThis = fromOrToThis;
+            if (fromOrToThis)
+            {
+                return _connectedEdges.Where(e => e.From == this).Select(e => e.To);
+            }
+            else
+            {
+                return _connectedEdges.Where(e => e.To == this).Select(e => e.From);
+            }
+        }
+        public IEnumerable<EdgeView> QueryConnectedEdges(bool fromOrToThis)
+        {
+            var fromThis = fromOrToThis;
+            if (fromOrToThis)
+            {
+                return _connectedEdges.Where(e => e.From == this);
+            }
+            else
+            {
+                return _connectedEdges.Where(e => e.To == this);
+            }
+        }
+
+        private void OnGeometryChanged(GeometryChangedEvent evt)
+        {
+            GeometryReady = true;
+        }
 
         public void ProcessMouseMove(MouseMoveEvent evt)
         {
-
             _dragger.ProcessDrag(evt.pressedButtons == 1, evt.mousePosition);
         }
 
@@ -41,10 +75,14 @@ namespace Common.UnityExtend.UIElements.GraphView
         {
             if (evt.button == 0)
             {
-                OnClick?.Invoke(this);
+                InvokeClickEvent(evt);
             }
 
             evt.StopPropagation();
+        }
+        protected void InvokeClickEvent(MouseDownEvent evt)
+        {
+            OnClick?.Invoke(this, evt);
         }
 
         private void OnMouseLeave(MouseLeaveEvent evt)
@@ -59,7 +97,7 @@ namespace Common.UnityExtend.UIElements.GraphView
             this.MarkDirtyRepaint();
         }
 
-        private void OnDrag()
+        public void InvokeMoveEvent()
         {
             OnMove?.Invoke(this);
         }
@@ -128,12 +166,20 @@ namespace Common.UnityExtend.UIElements.GraphView
         {
             IsSelected = true;
             this.MarkDirtyRepaint();
+            foreach (var e in _connectedEdges)
+            {
+                e.RefreshSelection();
+            }
         }
 
         public void Unselect(VisualElement selector)
         {
             IsSelected = false;
             this.MarkDirtyRepaint();
+            foreach (var e in _connectedEdges)
+            {
+                e.RefreshSelection();
+            }
         }
 
         public class EdgeConnector

@@ -37,8 +37,9 @@ public class AssetSelector
 #endif
     public TObject GetAsset<TObject>() where TObject : UnityEngine.Object
     {
+#if UNITY_EDITOR
         if (!Application.isPlaying) return editorAsset as TObject;
-
+#endif
         var runtimeAsset = addressabled ? AddressablesManager.Instance.GetRuntimeAssetByAddress(assetPath, typeof(TObject)) : directAsset;
         if (runtimeAsset is TObject a)
             return a;

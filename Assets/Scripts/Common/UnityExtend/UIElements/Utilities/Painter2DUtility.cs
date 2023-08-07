@@ -167,5 +167,15 @@ namespace Common.UnityExtend.UIElements.Utilities
             painter.strokeColor = prevColor;
             painter.lineWidth = prevLineWidth;
         }
+        public static void FillTriangle(MeshGenerationContext context, Vector2 p1, Vector2 p2, Vector2 p3, Color color)
+        {
+            var capMesh = context.Allocate(3, 3);
+            capMesh.SetAllVertices(new[] {
+                new Vertex() { position = p1 ,tint = color },
+                new Vertex() { position = p2,tint = color },
+                new Vertex() { position =p3,tint = color },
+            });
+            capMesh.SetAllIndices(new ushort[] { 0, 1, 2 });
+        }
     }
 }

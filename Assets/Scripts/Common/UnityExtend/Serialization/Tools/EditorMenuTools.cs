@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using Common.UnityExtend.Serialization;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -37,3 +38,4 @@ public static class EditorMenuTools
         }
     }
 }
+#endif

@@ -17,7 +17,9 @@ public class AnimatorControllerCachedAsset : ScriptableObject
     [SerializeField, Disable] private Layer[] layers;
     [SerializeField, Disable] private Parameter[] parameters;
 
+#if UNITY_EDITOR
     public AnimatorController ControllerAsset => controllerAsset;
+#endif
     public Layer[] Layers => layers;
     public Parameter[] Parameters => parameters;
 

@@ -11,8 +11,8 @@ namespace Common.DecisionMaking.Actions
     {
         [SerializeField] private bool stateConstraint;
 
-        [field: ShowIf(nameof(stateConstraint), true, nameof(OnCurrentStateShowIfChanged))]
 #if UNITY_EDITOR
+        [field: ShowIf(nameof(stateConstraint), true, nameof(OnCurrentStateShowIfChanged))]
         [field: StringSelector(nameof(StateNames))]
 #endif
         [field: SerializeField]
