@@ -191,7 +191,7 @@ public partial class AssetDependencyGraph
                 }
             }
         }
-        public static IEnumerable<(string, string)> ParseReferences3(string text)
+        public static IEnumerable<(string, string)> ParseReferencesAlongWithFieldName(string text)
         {
             var referencePattern = @"(\w+):\s*\{fileID:\s(-?\d+),\s+guid:\s+([\w\d]+)(?:,\s+type:\s+(\d+))?\}";
             string guidPattern = @"guid:\s+([\w\d]+)";

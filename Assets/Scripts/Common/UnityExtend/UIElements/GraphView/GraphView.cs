@@ -43,7 +43,7 @@ namespace Common.UnityExtend.UIElements.GraphView
             rect.y -= 20;
             rect.width += 40;
             rect.height += 40;
-            Painter2DUtility.FillRect(obj.painter2D, rect, new Color(0.1568628f, 0.1568628f, 0.1568628f, 1f));
+            Painter2DUtility.FillRect(obj, rect, new Color(0.1568628f, 0.1568628f, 0.1568628f, 1f));
         }
 
         protected override void Refresh()

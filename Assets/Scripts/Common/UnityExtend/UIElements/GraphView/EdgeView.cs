@@ -51,7 +51,7 @@ namespace Common.UnityExtend.UIElements.GraphView
             if (_from == null || _to == null) return;
 
             UpdateDrawPoints();
-            Painter2DUtility.DrawPath(context.painter2D, new[] { _p1, _p2, _p3, _p4 }, Color, 10f, 1f);
+            Painter2DUtility.DrawPath(context, new[] { _p1, _p2, _p3, _p4 }, Color, 10f, 1f);
             DrawCap(context);
 
         }

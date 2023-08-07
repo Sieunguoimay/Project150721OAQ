@@ -103,8 +103,6 @@ namespace Common.UnityExtend.UIElements.GraphView
         }
         private void OnRepaint(MeshGenerationContext context)
         {
-            var painter = context.painter2D;
-
             var outlineColor = new Color(0.09803922f, 0.09803922f, 0.09803922f);
             var strokeWidth = .5f;
 
@@ -118,7 +116,7 @@ namespace Common.UnityExtend.UIElements.GraphView
                 outlineColor = Color.gray;
             }
 
-            Painter2DUtility.FillAndStrokeRoundedCornerRect(painter, contentRect, new Color(0.2313726f, 0.2313726f, 0.2313726f, 1f), outlineColor, strokeWidth); ;
+            Painter2DUtility.FillAndStrokeRoundedCornerRect(context, contentRect, new Color(0.2313726f, 0.2313726f, 0.2313726f, 1f), outlineColor, strokeWidth); ;
         }
 
         public void AddEdge(EdgeView edge)

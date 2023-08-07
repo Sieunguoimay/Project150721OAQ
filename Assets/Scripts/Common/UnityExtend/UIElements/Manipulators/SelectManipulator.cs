@@ -176,7 +176,7 @@ namespace Common.UnityExtend.UIElements
 
             private void OnRepaint(MeshGenerationContext obj)
             {
-                Painter2DUtility.DrawRect(obj.painter2D, _selectManipulator.SelectionBox, Color.red, 1);
+                Painter2DUtility.DrawRect(obj, _selectManipulator.SelectionBox, Color.red, 1);
             }
         }
         public interface ISelectElement

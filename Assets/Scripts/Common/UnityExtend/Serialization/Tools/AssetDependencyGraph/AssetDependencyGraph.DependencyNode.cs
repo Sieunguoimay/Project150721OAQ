@@ -27,6 +27,7 @@ public partial class AssetDependencyGraph
             _label.RegisterCallback<MouseDownEvent>(OnMouseDown);
             _label.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             _label.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
+            _label.tooltip = Path;
             OnClick += OnClicked;
         }
 

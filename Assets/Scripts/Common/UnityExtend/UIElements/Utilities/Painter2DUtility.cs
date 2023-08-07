@@ -5,8 +5,10 @@ namespace Common.UnityExtend.UIElements.Utilities
 {
     public static class Painter2DUtility
     {
-        public static void DrawLine(Painter2D painter, Vector2 p1, Vector2 p2, Color strokeColor, float strokeSize = 2f)
+        public static void DrawLine(MeshGenerationContext context, Vector2 p1, Vector2 p2, Color strokeColor, float strokeSize = 2f)
         {
+            var painter = context.painter2D;
+
             var prevColor = painter.strokeColor;
             var prevLineWidth = painter.lineWidth;
             painter.strokeColor = strokeColor;
@@ -20,12 +22,14 @@ namespace Common.UnityExtend.UIElements.Utilities
             painter.strokeColor = prevColor;
             painter.lineWidth = prevLineWidth;
         }
-        public static void DrawPath(Painter2D painter, Vector2[] path, Color strokeColor, float cornerRadius, float strokeSize = 2f)
+        public static void DrawPath(MeshGenerationContext context, Vector2[] path, Color strokeColor, float cornerRadius, float strokeSize = 2f)
         {
+            var painter = context.painter2D;
+
             if (path.Length < 2) return;
             if (path.Length == 2)
             {
-                DrawLine(painter, path[0], path[1], strokeColor, strokeSize);
+                DrawLine(context, path[0], path[1], strokeColor, strokeSize);
                 return;
             }
             var prevColor = painter.strokeColor;
@@ -45,8 +49,10 @@ namespace Common.UnityExtend.UIElements.Utilities
             painter.strokeColor = prevColor;
             painter.lineWidth = prevLineWidth;
         }
-        public static void DrawCrossSign(Painter2D painter, Vector2 pos, float size, Color strokeColor, float strokeSize = 2f)
+        public static void DrawCrossSign(MeshGenerationContext context, Vector2 pos, float size, Color strokeColor, float strokeSize = 2f)
         {
+            var painter = context.painter2D;
+
             var topLeft = pos + Vector2.up * size + Vector2.left * size;
             var bottomRight = pos + Vector2.down * size + Vector2.right * size;
             var topRight = pos + Vector2.up * size + Vector2.right * size;
@@ -68,8 +74,10 @@ namespace Common.UnityExtend.UIElements.Utilities
             painter.lineWidth = prevLineWidth;
 
         }
-        public static void DrawRect(Painter2D painter, Rect rect, Color strokeColor, float strokeSize = 2f)
+        public static void DrawRect(MeshGenerationContext context, Rect rect, Color strokeColor, float strokeSize = 2f)
         {
+            var painter = context.painter2D;
+
             var topLeft = new Vector2(rect.xMin, rect.yMin);
             var bottomLeft = new Vector2(rect.xMin, rect.yMax);
             var bottomRight = new Vector2(rect.xMax, rect.yMax);
@@ -91,8 +99,10 @@ namespace Common.UnityExtend.UIElements.Utilities
             painter.strokeColor = prevColor;
             painter.lineWidth = prevLineWidth;
         }
-        public static void FillRect(Painter2D painter, Rect rect, Color color)
+        public static void FillRect(MeshGenerationContext context, Rect rect, Color color)
         {
+            var painter = context.painter2D;
+
             var topLeft = new Vector2(rect.xMin, rect.yMin);
             var bottomLeft = new Vector2(rect.xMin, rect.yMax);
             var bottomRight = new Vector2(rect.xMax, rect.yMax);
@@ -112,8 +122,10 @@ namespace Common.UnityExtend.UIElements.Utilities
             painter.fillColor = prevColor;
         }
 
-        public static void DrawRoundedCornerRect(Painter2D painter, Rect rect, Color strokeColor, float strokeSize = 2f, float cornerRadius = 2.5f)
+        public static void DrawRoundedCornerRect(MeshGenerationContext context, Rect rect, Color strokeColor, float strokeSize = 2f, float cornerRadius = 2.5f)
         {
+            var painter = context.painter2D;
+
             var middleLeft = new Vector2(rect.xMin, rect.yMin + rect.height / 2f);
             var topLeft = new Vector2(rect.xMin, rect.yMin);
             var bottomLeft = new Vector2(rect.xMin, rect.yMax);
@@ -138,8 +150,9 @@ namespace Common.UnityExtend.UIElements.Utilities
             painter.lineWidth = prevLineWidth;
         }
 
-        public static void FillAndStrokeRoundedCornerRect(Painter2D painter, Rect rect, Color fillColor, Color strokeColor, float strokeSize = 2f, float cornerRadius = 2.5f)
+        public static void FillAndStrokeRoundedCornerRect(MeshGenerationContext context, Rect rect, Color fillColor, Color strokeColor, float strokeSize = 2f, float cornerRadius = 2.5f)
         {
+            var painter = context.painter2D;
             var middleLeft = new Vector2(rect.xMin, rect.yMin + rect.height / 2f);
             var topLeft = new Vector2(rect.xMin, rect.yMin);
             var bottomLeft = new Vector2(rect.xMin, rect.yMax);

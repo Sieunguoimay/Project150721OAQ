@@ -1,13 +1,10 @@
 #if UNITY_EDITOR
 using Common.UnityExtend.UIElements.GraphView;
-using Gameplay.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using YamlDotNet.RepresentationModel;
-using YamlDotNet.Serialization;
 
 public partial class AssetDependencyGraph : VisualElement
 {
