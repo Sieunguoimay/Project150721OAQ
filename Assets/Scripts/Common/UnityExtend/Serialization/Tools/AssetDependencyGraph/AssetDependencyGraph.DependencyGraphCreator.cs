@@ -150,7 +150,7 @@ public partial class AssetDependencyGraph
                 }
             }
         }
-        private static IEnumerable<string> ParseReferences(string text)
+        public static IEnumerable<string> ParseReferences(string text)
         {
             var referencePattern = @"\{fileID:\s(-?\d+),\s+guid:\s+([\w\d]+)(?:,\s+type:\s+(\d+))?\}";
             string guidPattern = @"guid:\s+([\w\d]+)";
@@ -167,7 +167,49 @@ public partial class AssetDependencyGraph
                     yield return guidGroup.Value;
                 }
             }
+        }
+        public static IEnumerable<string> ParseReferences2(string text)
+        {
+            //var referencePattern = @"\{fileID:\s(-?\d+),\s+guid:\s+([\w\d]+)(?:,\s+type:\s+(\d+))?\}";
+            var referencePattern = @"(\w+):\s*\{fileID:\s(-?\d+),\s+guid:\s+([\w\d]+)(?:,\s+type:\s+(\d+))?\}";
+            string guidPattern = @"guid:\s+([\w\d]+)";
+            string fieldNamePattern = @"^([^:]+):";
 
+            var matches = Regex.Matches(text, referencePattern);
+
+            foreach (Match match in matches.Cast<Match>())
+            {
+                var fieldName = Regex.Match(match.Value, fieldNamePattern);
+                if (fieldName.Success && fieldName.Groups[1].Value.Equals("m_CorrespondingSourceObject")) continue;
+
+                var guid = Regex.Match(match.Value, guidPattern);
+
+                if (guid.Success && guid.Groups.Count >= 2)
+                {
+                    var guidGroup = guid.Groups[1];
+                    yield return guidGroup.Value;
+                }
+            }
+        }
+        public static IEnumerable<(string, string)> ParseReferences3(string text)
+        {
+            var referencePattern = @"(\w+):\s*\{fileID:\s(-?\d+),\s+guid:\s+([\w\d]+)(?:,\s+type:\s+(\d+))?\}";
+            string guidPattern = @"guid:\s+([\w\d]+)";
+            string fieldNamePattern = @"^([^:]+):";
+
+            var matches = Regex.Matches(text, referencePattern);
+
+            foreach (Match match in matches.Cast<Match>())
+            {
+                var guid = Regex.Match(match.Value, guidPattern);
+                var fieldName = Regex.Match(match.Value, fieldNamePattern);
+
+                if (guid.Success && guid.Groups.Count >= 2)
+                {
+                    var guidGroup = guid.Groups[1];
+                    yield return (fieldName.Success ? fieldName.Groups[1].Value : "", guidGroup.Value);
+                }
+            }
         }
         private static IEnumerable<string> ParseAddressableReference(string text)
         {
