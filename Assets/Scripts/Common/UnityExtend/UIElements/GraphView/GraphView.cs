@@ -117,7 +117,12 @@ namespace Common.UnityExtend.UIElements.GraphView
         {
             var children = TraverseChildrenRecurr(_nodeLayer).Concat(TraverseChildrenRecurr(_edgeLayer)).ToArray();
             //Debug.Log($"CalculateContentBound {children.Length}");
-            return this.WorldToLocal(VisualElementTransformUtility.CalculateWorldBoundOfChildren(children));
+            var rect=  this.WorldToLocal(VisualElementTransformUtility.CalculateWorldBoundOfChildren(children));
+            rect.x -= 10;
+            rect.y -= 10;
+            rect.width += 20;
+            rect.height += 20;
+            return rect;
         }
         private IEnumerable<VisualElement> TraverseChildrenRecurr(VisualElement root)
         {

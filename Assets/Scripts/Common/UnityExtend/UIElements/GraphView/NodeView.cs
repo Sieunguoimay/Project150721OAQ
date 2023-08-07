@@ -48,6 +48,18 @@ namespace Common.UnityExtend.UIElements.GraphView
                 return _connectedEdges.Where(e => e.To == this).Select(e => e.From);
             }
         }
+        public IEnumerable<EdgeView> QueryConnectedEdges(bool fromOrToThis)
+        {
+            var fromThis = fromOrToThis;
+            if (fromOrToThis)
+            {
+                return _connectedEdges.Where(e => e.From == this);
+            }
+            else
+            {
+                return _connectedEdges.Where(e => e.To == this);
+            }
+        }
 
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
@@ -63,10 +75,14 @@ namespace Common.UnityExtend.UIElements.GraphView
         {
             if (evt.button == 0)
             {
-                OnClick?.Invoke(this, evt);
+                InvokeClickEvent(evt);
             }
 
             evt.StopPropagation();
+        }
+        protected void InvokeClickEvent(MouseDownEvent evt)
+        {
+            OnClick?.Invoke(this, evt);
         }
 
         private void OnMouseLeave(MouseLeaveEvent evt)

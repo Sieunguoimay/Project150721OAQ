@@ -13,7 +13,7 @@ public partial class AssetDependencyGraph
         private Label _label;
         public Object Target => _target;
         public string Path { get; private set; }
-
+        private readonly string _displayName;
         public Vector2 defaultPosition;
 
         public DependencyNode(string path)
@@ -21,17 +21,20 @@ public partial class AssetDependencyGraph
             Path = path;
             _target = AssetDatabase.LoadAssetAtPath<Object>(path);
             _icon = AssetDatabase.GetCachedIcon(path);
-
+            _displayName = _target != null ? _target.name : Path;
             Setup();
 
             _label.RegisterCallback<MouseDownEvent>(OnMouseDown);
             _label.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             _label.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
+            OnClick += OnClicked;
         }
-        public DependencyNode(Object target)
+
+        public DependencyNode(Object target, string displayName)
         {
             Path = AssetDatabase.GetAssetPath(target);
             _target = target;
+            _displayName = displayName;
             _icon = EditorGUIUtility.ObjectContent(target, null).image;
 
             Setup();
@@ -39,6 +42,11 @@ public partial class AssetDependencyGraph
             _label.RegisterCallback<MouseDownEvent>(OnMouseDown);
             _label.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             _label.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
+            OnClick += OnClicked;
+        }
+
+        private void OnClicked(NodeView view, MouseDownEvent @event)
+        {
         }
 
         private void OnMouseLeave(MouseLeaveEvent evt)
@@ -55,9 +63,10 @@ public partial class AssetDependencyGraph
         {
             if (evt.pressedButtons == 1)
             {
-                EditorGUIUtility.PingObject(_target);
-                evt.StopPropagation();
+                EditorGUIUtility.PingObject(Target);
+                InvokeClickEvent(evt);
             }
+            evt.StopPropagation();
         }
 
         private void Setup()
@@ -75,13 +84,14 @@ public partial class AssetDependencyGraph
 
             var label = new Label
             {
-                text = _target != null ? _target.name : Path
+                text = _displayName
             };
             label.style.position = Position.Absolute;
             label.style.unityTextAlign = TextAnchor.MiddleLeft;
             label.style.left = 25;
             label.style.backgroundColor = new Color(.1f, .1f, .1f, .5f);
             Add(label);
+         
             _label = label;
         }
     }
