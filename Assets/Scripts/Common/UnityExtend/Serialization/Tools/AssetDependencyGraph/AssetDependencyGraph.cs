@@ -13,6 +13,8 @@ public partial class AssetDependencyGraph : VisualElement
     private FoldableDependencyNode _rootNode;
 
     public bool LoadScriptDependency { get; private set; }
+    private NodeView[] _nodeViews;
+    private EdgeView[] _edgeViews;
 
     public AssetDependencyGraph()
     {
@@ -21,7 +23,10 @@ public partial class AssetDependencyGraph : VisualElement
         _graphView.StretchToParentSize();
         Add(_graphView);
         Add(_headerBar);
+        _graphView.CreateMenuEvent += OnCreateMenu;
     }
+
+
     private void Import(Object target)
     {
         var rootNode = DependencyGraphCreator.CreateGraph(target, !LoadScriptDependency, out var nodes, out var edges);
@@ -36,9 +41,34 @@ public partial class AssetDependencyGraph : VisualElement
 
         _graphView.ClearAll();
 
+        _nodeViews = nodes.ToArray();
+        _edgeViews = edges.ToArray();
+
         AddNodesAndEdgesToGraphView(nodes, edges);
+
         RegisterMouseUpOnNodes(nodes);
         RegisterMouseUpOnNodes(_rootNode.SubNodes);
+    }
+
+
+    private void ShowHidenNodes()
+    {
+        foreach (var node in _nodeViews)
+        {
+            if (_graphView.Nodes.Contains(node)) continue;
+            _graphView.AddNode(node);
+        }
+
+        foreach (var edge in _edgeViews)
+        {
+            if (_graphView.Edges.Contains(edge)) continue;
+            _graphView.AddEdge(edge);
+        }
+    }
+
+    private void OnCreateMenu(GenericMenu menu)
+    {
+        menu.AddItem(new GUIContent("Show Hiden Nodes"), false, () => ShowHidenNodes());
     }
     private static void RedirectConnections(DependencyNode node, FoldableDependencyNode newNode)
     {
@@ -131,7 +161,24 @@ public partial class AssetDependencyGraph : VisualElement
         {
             menu.AddItem(new GUIContent("Select Dependents"), false, () => SelectDirectConnections(nv, false, true));
         }
+        menu.AddItem(new GUIContent("Hide"), false, () => DeleteNode());
         menu.ShowAsContext();
+    }
+
+    private void DeleteNode()
+    {
+        var nodesToHide = _graphView.Nodes.Where(n => n.IsSelected).ToArray();
+        foreach(var node in nodesToHide)
+        {
+            _graphView.RemoveNode(node);
+            foreach(var edge in node.ConnectedEdges)
+            {
+                if (_graphView.Edges.Contains(edge))
+                {
+                    _graphView.RemoveEdge(edge);
+                }
+            }
+        }
     }
 
     private void FocusSingleNode(NodeView nv)

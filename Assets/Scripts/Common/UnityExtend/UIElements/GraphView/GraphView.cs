@@ -1,6 +1,8 @@
 using Common.UnityExtend.UIElements.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -33,6 +35,12 @@ namespace Common.UnityExtend.UIElements.GraphView
 
             _selectManipulator.OnSelectionResult += OnSelectionResult;
             ContentContainer.generateVisualContent += OnBackgroundRepaint;
+            CreateMenuEvent += OnCreateMenu;
+        }
+
+        private void OnCreateMenu(GenericMenu menu)
+        {
+            menu.AddItem(new GUIContent("Refresh"), false, () => Refresh());
         }
 
         private void OnBackgroundRepaint(MeshGenerationContext obj)
@@ -46,9 +54,8 @@ namespace Common.UnityExtend.UIElements.GraphView
             Painter2DUtility.FillRect(obj, rect, new Color(0.1568628f, 0.1568628f, 0.1568628f, 1f));
         }
 
-        protected override void Refresh()
+        private void Refresh()
         {
-            base.Refresh();
             foreach (var node in Nodes)
             {
                 node.style.left = node.DefaultPosition.x;
@@ -186,7 +193,6 @@ namespace Common.UnityExtend.UIElements.GraphView
             ContentContainer.MarkDirtyRepaint();
         }
 
-
         private void OnNodeClick(NodeView obj, MouseDownEvent evt)
         {
             if (!obj.IsSelected)
@@ -198,6 +204,7 @@ namespace Common.UnityExtend.UIElements.GraphView
                 obj.Select(this);
             }
         }
+
         public void UnselectAllNodes()
         {
             foreach (var n in _nodes)

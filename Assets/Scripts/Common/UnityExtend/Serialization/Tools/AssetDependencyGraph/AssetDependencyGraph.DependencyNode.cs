@@ -28,7 +28,6 @@ public partial class AssetDependencyGraph
             _label.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             _label.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
             _label.tooltip = Path;
-            OnClick += OnClicked;
         }
 
         public DependencyNode(Object target, string displayName)
@@ -43,11 +42,6 @@ public partial class AssetDependencyGraph
             _label.RegisterCallback<MouseDownEvent>(OnMouseDown);
             _label.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             _label.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
-            OnClick += OnClicked;
-        }
-
-        private void OnClicked(NodeView view, MouseDownEvent @event)
-        {
         }
 
         private void OnMouseLeave(MouseLeaveEvent evt)

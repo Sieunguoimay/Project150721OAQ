@@ -14,6 +14,10 @@ namespace Common.UnityExtend.UIElements
         private readonly VisualElement _contentContainer = new() { name = "contents" };
         public VisualElement ContentContainer => _contentContainer;
         protected Dragger _dragger;
+#if UNITY_EDITOR
+        public event Action<GenericMenu> CreateMenuEvent;
+#endif
+
         public ZoomAndDragView(float zoomMin = .25f, float zoomMax = 4f)
         {
             _zoomManipulator = new ZoomManipulator(_contentContainer, zoomMin, zoomMax);
@@ -49,14 +53,15 @@ namespace Common.UnityExtend.UIElements
 #if UNITY_EDITOR
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("Focus"), false, () => FocusContent());
-            menu.AddItem(new GUIContent("Refresh"), false, () => Refresh());
+            //menu.AddItem(new GUIContent("Refresh"), false, () => Refresh());
+            CreateMenuEvent?.Invoke(menu);
             menu.ShowAsContext();
 #endif
         }
 
-        protected virtual void Refresh()
-        {
-        }
+        //protected virtual void Refresh()
+        //{
+        //}
 
         public void FocusContent()
         {

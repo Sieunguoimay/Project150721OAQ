@@ -24,6 +24,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6548680099063403112}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.079328984, z: -0, w: 0.9968485}
   m_LocalPosition: {x: 0.028, y: 1.593, z: 0.279}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -32,11 +33,10 @@ Transform:
   - {fileID: 5841215398675353307}
   - {fileID: 4414994829018564383}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &8154640611958031107
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -53,12 +53,14 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &4237763119338479860
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 2191946698518814152}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 4b8aed8869fc8314881f4a17e10cc8a2, type: 3}
@@ -114,6 +116,9 @@ PrefabInstance:
       value: rope_head_2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b8aed8869fc8314881f4a17e10cc8a2, type: 3}
 --- !u!4 &4414994829018564383 stripped
 Transform:
@@ -125,6 +130,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 2191946698518814152}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 18e89d59a172a5a42986482daba678db, type: 3}
@@ -192,6 +198,12 @@ PrefabInstance:
       value: rope_lp
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 18e89d59a172a5a42986482daba678db, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5887352791438929593}
   m_SourcePrefab: {fileID: 100100000, guid: 18e89d59a172a5a42986482daba678db, type: 3}
 --- !u!4 &5841215398675353307 stripped
 Transform:
